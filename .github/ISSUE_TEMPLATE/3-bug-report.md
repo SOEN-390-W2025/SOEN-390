@@ -27,14 +27,20 @@ assignees: ""
 2.
 3.
 
+### 🔗 Related Links
+
+**Fix Commit:** 
+
+- [Other Commits/Tests]
+
 ### 💡 Possible Solutions
 
 [Describe possible solutions. Delete section if empty]
 
 ### Additional Information:
 
-**📷 Screenshots / Code Snippets**
+**📷 Screenshots / Code Snippets / Stack Traces**
 
 **🖥 Environment**
 
-**📝 Additional context** [Add any other context about the problem here.]
+**📝 Additional context**
