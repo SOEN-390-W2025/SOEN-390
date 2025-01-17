@@ -1,8 +1,6 @@
 # SOEN 390
 
-
 # About
-
 
 ## Team Members
 
@@ -10,5 +8,12 @@
 | -------------- | ---------- | ------------------------- |
 | Nathan Grenier | 40250986   | nathangrenier01@gmail.com |
 
-
 # Getting Started
+
+
+## Useful Flutter Commands
+
+| Command           | Description               |
+| ----------------- | ------------------------- |
+| `flutter analyze` | Run Flutter's Linter      |
+| `flutter run`     | Start the Dev Environment |
