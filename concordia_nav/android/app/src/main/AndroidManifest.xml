@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="concordia_nav"
-        android:name="${applicationName}"
+        android:label="${CONNAV_APP_NAME}"
+        android:name="${CONNAV_APP_NAME}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
