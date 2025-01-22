@@ -1,13 +1,3 @@
-def envVars = []
-if (project.hasProperty('dart-defines')) {
-    envVars = project.property('dart-defines')
-        .split(',')
-        .collectEntries { entry ->
-            def pair = new String(entry.decodeBase64(), 'UTF-8').split('=')
-            [(pair.first()): pair.last()]
-        }
-}
-
 allprojects {
     repositories {
         google()
