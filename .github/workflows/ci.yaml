@@ -39,6 +39,19 @@ jobs:
     
     - name: Run unit tests
       run: rps test unit
+
+    - name: Generate Code Coverage Report
+      run: rps coverage
+
+    - name: Upload Coverage Report to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        directory: ./coverage
+        fail_ci_if_error: false
+        files: ./lcov.info,
+        verbose: true
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: NathanGrenier/SOEN-390
     
     # - name: Enable KVM group perms
     #   if: ${{ runner.os == 'Linux' }}

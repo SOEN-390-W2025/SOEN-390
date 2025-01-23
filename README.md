@@ -1,5 +1,7 @@
 # SOEN 390
 
+[![codecov](https://codecov.io/github/NathanGrenier/SOEN-390/graph/badge.svg?token=QWLVNVQUYB)](https://codecov.io/github/NathanGrenier/SOEN-390)
+
 # About
 
 ## Team Members
