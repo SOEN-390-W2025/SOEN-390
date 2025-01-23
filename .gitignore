@@ -1,4 +1,8 @@
+# Build Environment Variables
 concordia_nav/ios/Flutter/Environment.xcconfig
+
+# .vscode
+.vscode/
 
 # Created by https://www.toptal.com/developers/gitignore/api/flutter,xcode,android,macos,windows,vscode
 # Edit at https://www.toptal.com/developers/gitignore?templates=flutter,xcode,android,macos,windows,vscode
