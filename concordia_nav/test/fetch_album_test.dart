@@ -8,7 +8,7 @@ import 'fetch_album_test.mocks.dart';
 
 @GenerateMocks([http.Client])
 void main() {
-  group('fetchAlbum', () {
+  group('fetchAlbum:', () {
     test('returns an Album if the http call completes successfully', () async {
       final client = MockClient();
 
