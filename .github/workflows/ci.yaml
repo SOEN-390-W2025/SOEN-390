@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      id: flutter-action
+      with:
+        channel: stable
+        cache: true
+    - run: flutter --version
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Install rps package globally
+      run: dart pub global activate rps
+
+    - name: Run linter
+      run: rps lint
+    
+    - name: Run unit tests
+      run: rps test unit
+    
+    # - name: Enable KVM group perms
+    #   if: ${{ runner.os == 'Linux' }}
+    #   run: |
+    #     if [ -e /dev/kvm ]; then
+    #       sudo sh -c 'echo "KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0666\", OPTIONS+=\"static_node=kvm\"" > /etc/udev/rules.d/99-kvm4all.rules'
+    #       sudo udevadm control --reload-rules
+    #       sudo udevadm trigger --name-match=kvm
+    #     else
+    #       echo "Skipping KVM setup as /dev/kvm is not available."
+    #     fi
+
+    # - name: Run Integration Tests
+    #   uses: reactivecircus/android-emulator-runner@v2
+    #   with:
+    #     api-level: 35
+    #     script: rps test integration
+  
+  # build:
+  #   runs-on: ubuntu-latest
+  #   needs: 
+  #     - test
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v2
