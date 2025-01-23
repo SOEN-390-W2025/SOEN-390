@@ -19,6 +19,16 @@ version: 1.0.0+1
 environment:
   sdk: ^3.6.1
 
+scripts:
+  gen: flutter pub run build_runner build --delete-conflicting-outputs  # Generates the scripts
+  format: 
+    fix: dart format .
+    check: dart format --output=none --set-exit-if-changed .
+  coverage: flutter test --coverage --branch-coverage
+  test: flutter test -r expanded
+  analyze: flutter analyze
+  build: flutter build apk --release
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
