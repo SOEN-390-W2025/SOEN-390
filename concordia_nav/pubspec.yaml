@@ -1,0 +1,88 @@
+name: concordia_nav
+description: "Mobile application for Concordia University students to navigate around campus."
+publish_to: 'none' 
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+
+scripts:
+  gen: flutter pub run build_runner build --delete-conflicting-outputs  # Generates the scripts
+  get: flutter pub get
+  format: 
+    fix: dart format .
+    check: dart format --output=none --set-exit-if-changed .
+  coverage: flutter test --coverage --branch-coverage
+  test: 
+    unit: flutter test -r expanded
+    integration: flutter test integration_test
+  lint: flutter analyze
+  build: flutter build apk --release
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+  english_words: ^4.0.0
+  provider: ^6.1.2
+  cupertino_icons: ^1.0.8
+  http: ^1.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0 # Lint rules are found in `analysis_options.yaml`
+  test: ^1.25.8
+  mockito: ^5.4.5
+  build_runner: ^2.4.14
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+  assets:
+    - assets/images/
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
