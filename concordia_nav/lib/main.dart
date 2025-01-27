@@ -13,6 +13,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Color.fromRGBO(146, 35, 56, 1),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: Color.fromRGBO(233, 211, 215, 1), // Use secondary instead of accentColor
+        ),
+        iconTheme: IconThemeData(
+          color: Color.fromRGBO(146, 35, 56, 1),
+        )
       ),
       home: HomePage(),
     );
