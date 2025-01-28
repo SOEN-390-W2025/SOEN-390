@@ -2,9 +2,9 @@ import 'dart:collection';
 
 import 'package:device_calendar/device_calendar.dart';
 
-/// This class represents calendars that are available. The UI should present a checkbox
-/// list that allows certain calendars to be selected by the user, and pass these
-/// choices back when requesting events.
+/// This class represents calendars that are available. The UI should present a
+/// checkbox list that allows certain calendars to be selected by the user, and
+/// pass these choices back when requesting events.
 class UserCalendar {
   String calendarId;
   String? displayName;
@@ -20,8 +20,8 @@ class UserCalendar {
   int get hashCode => calendarId.hashCode;
 }
 
-/// This class provides a simplified representation of calendar events. All-day events
-/// are excluded.
+/// This class provides a simplified representation of calendar events. All-day
+/// events are excluded.
 class UserCalendarEvent {
   UserCalendar userCalendar;
   String eventId;
@@ -38,8 +38,8 @@ class UserCalendarEvent {
 class CalendarRepository {
   var plugin = DeviceCalendarPlugin();
 
-  /// Attempts to obtain calendar permissions on the device, and returns whether or not
-  /// they are available.
+  /// Attempts to obtain calendar permissions on the device, and returns whether
+  /// or not they are available.
   Future<bool> checkPermissions() async {
     var hasPermissions = await plugin.hasPermissions();
     if (hasPermissions.isSuccess && hasPermissions.data!) return true;
@@ -70,7 +70,8 @@ class CalendarRepository {
     return returnData;
   }
 
-  /// Retrieves events from the list of selected calendars for the given duration.
+  /// Retrieves events from the list of selected calendars for the given
+  /// duration.
   Future<List<UserCalendarEvent>> getEvents(
       List<UserCalendar> selectedCalendars,
       Duration timeSpan,
@@ -107,8 +108,8 @@ class CalendarRepository {
     return returnData;
   }
 
-  /// Helper method to get events on a given local date from today. Pass 0 to get
-  /// today's events.
+  /// Helper method to get events on a given local date from today. Pass 0 to
+  /// get today's events.
   Future<List<UserCalendarEvent>> getEventsOnLocalDate(
       List<UserCalendar> selectedCalendars, int offset) async {
     var startDate = DateTime.now().add(Duration(days: offset));
