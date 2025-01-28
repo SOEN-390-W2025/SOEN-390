@@ -40,4 +40,5 @@ Apple Developer team:
 ```
 CONNAV_IOS_BUNDLE_ID=Concordia Nav
 CONNAV_APP_NAME=com.YOURDOMAIN.concordia_nav
+PRODUCT_BUNDLE_IDENTIFIER=com.YOURDOMAIN.concordia_nav
 ```
