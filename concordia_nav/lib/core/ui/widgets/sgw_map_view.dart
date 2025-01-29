@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
-import 'package:concordia_nav/core/ui/widgets/feature_card.dart';
 
 class SGW_MAP_Page extends StatefulWidget {
   const SGW_MAP_Page({super.key});

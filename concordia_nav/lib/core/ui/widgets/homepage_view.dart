@@ -4,7 +4,6 @@ import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
 import 'package:concordia_nav/core/ui/widgets/feature_card.dart';
 
 class HomePage extends StatelessWidget {
-  @override
 
   /// The home page of the app, which displays a list of features
   @override
