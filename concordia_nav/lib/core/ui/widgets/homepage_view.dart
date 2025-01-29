@@ -1,3 +1,4 @@
+import 'package:concordia_nav/core/ui/widgets/sgw_map_view.dart';
 import 'package:flutter/material.dart';
 import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
 import 'package:concordia_nav/core/ui/widgets/feature_card.dart';
@@ -41,9 +42,10 @@ class HomePage extends StatelessWidget {
                 FeatureCard(
                   title: 'SGW map',
                   icon: Icon(Icons.map),
-                  onPress: () {
-                    // TODO: Implement navigation to SGW map
-                  },
+                  onPress: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SGW_MAP_Page())
+                  ),
                 ),
                 const SizedBox(width: 20),
                 FeatureCard(
