@@ -2,6 +2,8 @@
 
 [![codecov](https://codecov.io/github/NathanGrenier/SOEN-390/graph/badge.svg?token=QWLVNVQUYB)](https://codecov.io/github/NathanGrenier/SOEN-390)
 
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=SOEN-390-W2025_SOEN-390)](https://sonarcloud.io/summary/new_code?id=SOEN-390-W2025_SOEN-390)
+
 # About
 
 ## Team Members
