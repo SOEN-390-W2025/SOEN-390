@@ -19,6 +19,19 @@ version: 1.0.0+1
 environment:
   sdk: ^3.6.1
 
+scripts:
+  gen: flutter pub run build_runner build --delete-conflicting-outputs  # Generates the scripts
+  get: flutter pub get
+  format: 
+    fix: dart format .
+    check: dart format --output=none --set-exit-if-changed .
+  coverage: flutter test --coverage --branch-coverage
+  test: 
+    unit: flutter test -r expanded
+    integration: flutter test integration_test
+  lint: flutter analyze
+  build: flutter build apk --release
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -31,26 +44,36 @@ dependencies:
   english_words: ^4.0.0
   provider: ^6.1.2
   cupertino_icons: ^1.0.8
+  http: ^1.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   flutter_lints: ^5.0.0 # Lint rules are found in `analysis_options.yaml`
+  test: ^1.25.8
+  mockito: ^5.4.5
+  build_runner: ^2.4.14
 
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  plugin: 
+    platforms:
+      android: 
+        package: com.example.concordia_nav
+        pluginClass: ConcordiaNavPlugin
+      ios:
+        pluginClass: ConcordiaNavPlugin
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
+  assets:
+    - assets/images/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

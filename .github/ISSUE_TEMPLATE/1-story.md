@@ -11,6 +11,4 @@ As [a user persona], I want [to perform this action] so that [I can accomplish t
 
 ### ✅ Acceptance Criteria
 
-- Given [how things begin]
-- When [action taken]
-- Then [outcome of taking action]
+- {Link to Issue}

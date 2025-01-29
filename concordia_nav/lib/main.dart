@@ -1,3 +1,4 @@
+import 'package:concordia_nav/counter_page.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,6 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
       case 1:
         page = FavoritesPage();
+      case 2:
+        page = CounterPage(title: "Counter");
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -80,6 +83,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.add),
+                    label: Text('Counter'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
