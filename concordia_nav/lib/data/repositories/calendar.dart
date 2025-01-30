@@ -41,19 +41,19 @@ class CalendarRepository {
   /// Attempts to obtain calendar permissions on the device, and returns whether
   /// or not they are available.
   Future<bool> checkPermissions() async {
-    var hasPermissions = await plugin.hasPermissions();
+    final hasPermissions = await plugin.hasPermissions();
     if (hasPermissions.isSuccess && hasPermissions.data!) return true;
 
-    var requestResult = await plugin.requestPermissions();
+    final requestResult = await plugin.requestPermissions();
     return (requestResult.isSuccess && requestResult.data!);
   }
 
   /// Returns a list of User Calendars so that events can be retrieved.
   Future<List<UserCalendar>> getUserCalendars() async {
-    List<UserCalendar> returnData = [];
+    final List<UserCalendar> returnData = [];
     if (!(await checkPermissions())) return returnData;
 
-    var systemUserCalendars = await plugin.retrieveCalendars();
+    final systemUserCalendars = await plugin.retrieveCalendars();
     if (!systemUserCalendars.isSuccess) {
       throw Exception("Unable to retrieve system user calendars.");
     }
@@ -76,12 +76,12 @@ class CalendarRepository {
       List<UserCalendar> selectedCalendars,
       Duration timeSpan,
       DateTime? utcStart) async {
-    List<UserCalendarEvent> returnData = [];
-    var startDate = (utcStart ?? DateTime.now().toUtc());
-    var endDate = startDate.add(timeSpan);
+    final List<UserCalendarEvent> returnData = [];
+    final startDate = (utcStart ?? DateTime.now().toUtc());
+    final endDate = startDate.add(timeSpan);
 
     for (var userCalendar in selectedCalendars) {
-      var systemCalendarEvents = await plugin.retrieveEvents(
+      final systemCalendarEvents = await plugin.retrieveEvents(
           userCalendar.calendarId,
           RetrieveEventsParams(startDate: startDate, endDate: endDate));
       if (!systemCalendarEvents.isSuccess) continue;
@@ -116,6 +116,7 @@ class CalendarRepository {
     startDate =
         DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0, 0, 0);
     startDate = startDate.toUtc();
-    return await getEvents(selectedCalendars, Duration(days: 1), startDate);
+    return await getEvents(
+        selectedCalendars, const Duration(days: 1), startDate);
   }
 }
