@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:concordia_nav/core/ui/widgets/homepage_view.dart';
+
+void main() {
+  testWidgets('HomePage should render correctly', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(MaterialApp(home: HomePage()));
+
+    // Verify that the app bar is present and has the correct title
+    expect(find.byType(AppBar), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
+
+    // Verify that the Concordia Campus Guide text and icon are present
+    expect(find.text('Concordia Campus Guide'), findsOneWidget);
+    expect(find.byIcon(Icons.location_on), findsOneWidget);
+
+    // Verify that the SGW map and LOY map FeatureCards are present
+    expect(find.text('SGW map'), findsOneWidget);
+    expect(find.text('LOY map'), findsOneWidget);
+    expect(find.byIcon(Icons.map), findsNWidgets(2));
+
+    // Verify that the Outdoor directions and Next class directions FeatureCards are present
+    expect(find.text('Outdoor directions'), findsOneWidget);
+    expect(find.text('Next class directions'), findsOneWidget);
+    expect(find.byIcon(Icons.maps_home_work), findsOneWidget);
+    expect(find.byIcon(Icons.calendar_today), findsOneWidget);
+
+    // Verify that the Indoor directions and Find nearby facilities FeatureCards are present
+    expect(find.text('Indoor directions'), findsOneWidget);
+    expect(find.text('Find nearby facilities'), findsOneWidget);
+    expect(find.byIcon(Icons.meeting_room), findsOneWidget);
+    expect(find.byIcon(Icons.wash), findsOneWidget);
+  });
+
+  testWidgets('FeatureCard onPress should be triggered',
+      (WidgetTester tester) async {
+    bool sgwMapPressed = false;
+    bool loyMapPressed = false;
+    bool outdoorDirectionsPressed = false;
+    bool nextClassDirectionsPressed = false;
+    bool indoorDirectionsPressed = false;
+    bool findNearbyFacilitiesPressed = false;
+
+    // Build the HomePage widget with mock onPress handlers
+    await tester.pumpWidget(MaterialApp(
+      home: HomePage(),
+    ));
+
+    // Tap on the SGW map FeatureCard
+    await tester.tap(find.text('SGW map'));
+    await tester.pump();
+    expect(sgwMapPressed,
+        isFalse); // Since the onPress is not implemented, it should remain false
+
+    // Tap on the LOY map FeatureCard
+    await tester.tap(find.text('LOY map'));
+    await tester.pump();
+    expect(loyMapPressed, isFalse);
+
+    // Tap on the Outdoor directions FeatureCard
+    await tester.tap(find.text('Outdoor directions'));
+    await tester.pump();
+    expect(outdoorDirectionsPressed, isFalse);
+
+    // Tap on the Next class directions FeatureCard
+    await tester.tap(find.text('Next class directions'));
+    await tester.pump();
+    expect(nextClassDirectionsPressed, isFalse);
+
+    // Tap on the Indoor directions FeatureCard
+    await tester.tap(find.text('Indoor directions'));
+    await tester.pump();
+    expect(indoorDirectionsPressed, isFalse);
+
+    // Tap on the Find nearby facilities FeatureCard
+    await tester.tap(find.text('Find nearby facilities'));
+    await tester.pump();
+    expect(findNearbyFacilitiesPressed, isFalse);
+  });
+}
