@@ -43,7 +43,7 @@ class HomePage extends StatelessWidget {
                   icon: Icon(Icons.map),
                   onPress: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SGW_MAP_Page())
+                    MaterialPageRoute(builder: (context) => SgwMapPage())
                   ),
                 ),
                 const SizedBox(width: 20),

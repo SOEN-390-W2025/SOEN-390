@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
 
-class SGW_MAP_Page extends StatefulWidget {
-  const SGW_MAP_Page({super.key});
+class SgwMapPage extends StatefulWidget {
+  const SgwMapPage({super.key});
 
   @override
-  State<SGW_MAP_Page> createState() => _SGW_MAP_PageState();
+  State<SgwMapPage> createState() => SgwMapPageState();
 }
 
-class _SGW_MAP_PageState extends State<SGW_MAP_Page> {
+class SgwMapPageState extends State<SgwMapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
