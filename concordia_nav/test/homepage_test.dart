@@ -5,7 +5,7 @@ import 'package:concordia_nav/core/ui/widgets/homepage_view.dart';
 void main() {
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
     // Build the HomePage widget
-    await tester.pumpWidget(MaterialApp(home: HomePage()));
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
 
     // Verify that the app bar is present and has the correct title
     expect(find.byType(AppBar), findsOneWidget);
@@ -35,16 +35,16 @@ void main() {
 
   testWidgets('FeatureCard onPress should be triggered',
       (WidgetTester tester) async {
-    bool sgwMapPressed = false;
-    bool loyMapPressed = false;
-    bool outdoorDirectionsPressed = false;
-    bool nextClassDirectionsPressed = false;
-    bool indoorDirectionsPressed = false;
-    bool findNearbyFacilitiesPressed = false;
+    const bool sgwMapPressed = false;
+    const bool loyMapPressed = false;
+    const bool outdoorDirectionsPressed = false;
+    const bool nextClassDirectionsPressed = false;
+    const bool indoorDirectionsPressed = false;
+    const bool findNearbyFacilitiesPressed = false;
 
     // Build the HomePage widget with mock onPress handlers
-    await tester.pumpWidget(MaterialApp(
-      home: HomePage(),
+    await tester.pumpWidget(const MaterialApp(
+      home: const HomePage(),
     ));
 
     // Tap on the SGW map FeatureCard

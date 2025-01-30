@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
-import 'package:concordia_nav/core/ui/widgets/feature_card.dart';
+import 'custom_appbar.dart';
+import 'feature_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

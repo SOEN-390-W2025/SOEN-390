@@ -7,7 +7,7 @@ class AppTheme {
       colorScheme: ColorScheme.fromSwatch().copyWith(
         secondary: const Color.fromRGBO(233, 211, 215, 1),
       ),
-      iconTheme: IconThemeData(
+      iconTheme: const IconThemeData(
         color: const Color.fromRGBO(146, 35, 56, 1),
       ),
     );

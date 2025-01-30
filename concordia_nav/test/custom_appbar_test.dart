@@ -7,7 +7,7 @@ void main() {
     // Test that the customAppBar returns an AppBar widget
     testWidgets('should return an AppBar widget', (WidgetTester tester) async {
       // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(MaterialApp(home: HomePage()));
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
 
       // Ensure the widget tree is rendered
       await tester.pump();
@@ -19,7 +19,7 @@ void main() {
     // Test that the AppBar has the correct title
     testWidgets('should have the correct title', (WidgetTester tester) async {
       // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(MaterialApp(home: HomePage()));
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
 
       // Ensure the widget tree is rendered
       await tester.pump();
@@ -32,7 +32,7 @@ void main() {
     testWidgets('should have the correct background color',
         (WidgetTester tester) async {
       // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(MaterialApp(home: HomePage()));
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
 
       // Ensure the widget tree is rendered
       await tester.pump();
@@ -47,7 +47,7 @@ void main() {
     testWidgets('should have a leading IconButton with the correct icon',
         (WidgetTester tester) async {
       // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(MaterialApp(home: HomePage()));
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
 
       // Ensure the widget tree is rendered
       await tester.pump();
@@ -60,7 +60,7 @@ void main() {
         ),
       );
 
-      final expectedIcon = const Icon(Icons.settings, color: Colors.white);
+      const expectedIcon = const Icon(Icons.settings, color: Colors.white);
       final actualIcon = leadingIconButton.icon as Icon;
 
       expect(actualIcon.icon, expectedIcon.icon); // Compare IconData
@@ -71,7 +71,7 @@ void main() {
     testWidgets('should have an actions list with the correct icon',
         (WidgetTester tester) async {
       // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(MaterialApp(home: HomePage()));
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
 
       // Ensure the widget tree is rendered
       await tester.pump();
@@ -84,7 +84,7 @@ void main() {
         ),
       );
 
-      final expectedIcon = const Icon(Icons.menu, color: Colors.white);
+      const expectedIcon = const Icon(Icons.menu, color: Colors.white);
       final actualIcon = leadingIconButton.icon as Icon;
 
       expect(actualIcon.icon, expectedIcon.icon); // Compare IconData
