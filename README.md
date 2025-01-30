@@ -3,6 +3,7 @@
 [![codecov](https://codecov.io/github/NathanGrenier/SOEN-390/graph/badge.svg?token=QWLVNVQUYB)](https://codecov.io/github/NathanGrenier/SOEN-390)
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=SOEN-390-W2025_SOEN-390)](https://sonarcloud.io/summary/new_code?id=SOEN-390-W2025_SOEN-390)
+
 # About
 
 ## Team Members
@@ -12,7 +13,6 @@
 | Nathan Grenier | 40250986   | nathangrenier01@gmail.com |
 
 # Getting Started
-
 
 ## Useful Flutter Commands
 
@@ -30,6 +30,12 @@
     > On Windows, if you get an error along the lines of 'command not found', you might need to run `rps.bat` instead of just rps. (You can alias `rps.bat` to `rps` in your shell profile)
 
 [Link to rps repo](https://pub.dev/packages/rps).
+
+## Enabling Pre-Commit Hooks
+
+To enable the project's pre-commit hooks, run the following command: `git config core.hooksPath .githooks`
+
+> If the script isn't executable, make it so on your respective operating system. Example: `chmod +x .githooks/pre-commit`
 
 ## iOS Builds
 

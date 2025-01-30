@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - develop
+  workflow_dispatch:
 
 jobs:
   test:
@@ -37,7 +38,7 @@ jobs:
       run: dart pub global activate rps
 
     - name: Run linter
-      run: rps lint
+      run: rps lint check
     
     - name: Run unit tests
       run: rps test unit
