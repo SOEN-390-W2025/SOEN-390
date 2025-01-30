@@ -3,7 +3,7 @@ import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
 import 'package:concordia_nav/core/ui/widgets/feature_card.dart';
 
 class HomePage extends StatelessWidget {
-  @override
+  const HomePage({super.key});
 
   /// The home page of the app, which displays a list of features
   @override
@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.location_on,
                   size: 40.0,
                 ),
@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
                 children: [
                   FeatureCard(
                     title: 'SGW map',
-                    icon: Icon(Icons.map),
+                    icon: const Icon(Icons.map),
                     onPress: () {
                       // TODO: Implement navigation to SGW map
                     },
