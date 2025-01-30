@@ -1,4 +1,3 @@
-import 'counter_page.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -64,8 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
         page = const GeneratorPage();
       case 1:
         page = const FavoritesPage();
-      case 2:
-        page = const CounterPage(title: "Counter");
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
