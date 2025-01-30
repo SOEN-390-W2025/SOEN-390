@@ -8,7 +8,7 @@ class AppTheme {
         secondary: const Color.fromRGBO(233, 211, 215, 1),
       ),
       iconTheme: const IconThemeData(
-        color: const Color.fromRGBO(146, 35, 56, 1),
+        color: Color.fromRGBO(146, 35, 56, 1),
       ),
     );
   }
