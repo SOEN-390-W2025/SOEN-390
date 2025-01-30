@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:concordia_nav/widgets/custom_appbar.dart';
-import 'package:concordia_nav/widgets/feature_card.dart';
+import '../widgets/custom_appbar.dart';
+import '../widgets/feature_card.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
 
   /// The home page of the app, which displays a list of features
@@ -18,7 +20,7 @@ class HomePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.location_on,
                   size: 40.0,
                 ),
@@ -40,7 +42,7 @@ class HomePage extends StatelessWidget {
               children: [
                 FeatureCard(
                   title: 'SGW map',
-                  icon: Icon(Icons.map),
+                  icon: const Icon(Icons.map),
                   onPress: () {
                     // TODO: Implement navigation to SGW map
                   },
@@ -55,7 +57,7 @@ class HomePage extends StatelessWidget {
                 ),
               ]
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // Outdoor directions and Next class directions
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +79,7 @@ class HomePage extends StatelessWidget {
                 ),
               ]
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // Indoor directions and Find nearby facilities
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
