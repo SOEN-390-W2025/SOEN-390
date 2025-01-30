@@ -16,6 +16,7 @@ linter:
     avoid_unnecessary_containers: true  # Remove unnecessary containers
     sized_box_for_whitespace: true  # Use SizedBox for whitespace
     prefer_const_constructors_in_immutables: true  # Const constructors in immutable classes
+    prefer_const_constructors: true
     
     # Intentionality
     hash_and_equals: true  # "==" and hashCode() should be overridden in pairs
