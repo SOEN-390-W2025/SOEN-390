@@ -1,10 +1,10 @@
-import 'package:concordia_nav/counter_page.dart';
+import 'counter_page.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: const MyHomePage(),
       ),
     );
   }
@@ -47,6 +47,8 @@ class MyAppState extends ChangeNotifier {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -59,11 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = const GeneratorPage();
       case 1:
-        page = FavoritesPage();
+        page = const FavoritesPage();
       case 2:
-        page = CounterPage(title: "Counter");
+        page = const CounterPage(title: "Counter");
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -76,15 +78,15 @@ class _MyHomePageState extends State<MyHomePage> {
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
                 destinations: [
-                  NavigationRailDestination(
+                  const NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
                   ),
-                  NavigationRailDestination(
+                  const NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
                   ),
-                  NavigationRailDestination(
+                  const NavigationRailDestination(
                     icon: Icon(Icons.add),
                     label: Text('Counter'),
                   ),
@@ -111,10 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class GeneratorPage extends StatelessWidget {
+  const GeneratorPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
+    final appState = context.watch<MyAppState>();
+    final pair = appState.current;
 
     IconData icon;
     if (appState.favorites.contains(pair)) {
@@ -128,7 +132,7 @@ class GeneratorPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           BigCard(pair: pair),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -137,14 +141,14 @@ class GeneratorPage extends StatelessWidget {
                   appState.toggleFavorite();
                 },
                 icon: Icon(icon),
-                label: Text('Like'),
+                label: const Text('Like'),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
                   appState.getNext();
                 },
-                child: Text('Next'),
+                child: const Text('Next'),
               ),
             ],
           ),
@@ -181,12 +185,14 @@ class BigCard extends StatelessWidget {
 }
 
 class FavoritesPage extends StatelessWidget {
+  const FavoritesPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    final appState = context.watch<MyAppState>();
 
     if (appState.favorites.isEmpty) {
-      return Center(
+      return const Center(
         child: Text('No favorites yet.'),
       );
     }
@@ -199,7 +205,7 @@ class FavoritesPage extends StatelessWidget {
         ),
         for (var pair in appState.favorites)
           ListTile(
-            leading: Icon(Icons.favorite),
+            leading: const Icon(Icons.favorite),
             title: Text(pair.asLowerCase),
           ),
       ],

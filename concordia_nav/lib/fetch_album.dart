@@ -27,9 +27,9 @@ class Album {
   factory Album.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'userId': int userId,
-        'id': int id,
-        'title': String title,
+        'userId': final int userId,
+        'id': final int id,
+        'title': final String title,
       } =>
         Album(
           userId: userId,

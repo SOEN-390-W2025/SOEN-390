@@ -14,7 +14,6 @@
 
 # Getting Started
 
-
 ## Useful Flutter Commands
 
 | Command           | Description               |
@@ -31,6 +30,12 @@
     > On Windows, if you get an error along the lines of 'command not found', you might need to run `rps.bat` instead of just rps. (You can alias `rps.bat` to `rps` in your shell profile)
 
 [Link to rps repo](https://pub.dev/packages/rps).
+
+## Enabling Pre-Commit Hooks
+
+To enable the project's pre-commit hooks, run the following command: `git config core.hooksPath .githooks`
+
+> If the script isn't executable, make it so on your respective operating system. Example: `chmod +x .githooks/pre-commit`
 
 ## iOS Builds
 

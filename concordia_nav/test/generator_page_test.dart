@@ -12,7 +12,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<MyAppState>.value(
           value: appState,
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: GeneratorPage(),
             ),
