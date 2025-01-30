@@ -29,7 +29,10 @@ scripts:
   test: 
     unit: flutter test -r expanded
     integration: flutter test integration_test
-  lint: flutter analyze
+  lint: 
+    check: flutter analyze
+    fix: dart fix --apply
+  dart-lint: dart fix --dry-run
   build: flutter build apk --release
 
 # Dependencies specify other packages that your package needs in order to work.

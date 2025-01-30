@@ -11,9 +11,17 @@
 | Name           | Student ID | Email                     |
 | -------------- | ---------- | ------------------------- |
 | Nathan Grenier | 40250986   | nathangrenier01@gmail.com |
+| Sumer Abd Alla | 40247712   | sendingtosumer@gmail.com  |
+| David Carciente | 40247907  | davidcarciente@outlook.com|
+| Giuliano Verdone | 40252190 | giulianoverdone@gmail.com |
+| Nirav Patel | 40248940   | niravp0703@gmail.com |
+| Nathanial Hwong | 40243583   | nathanial.hwong8@gmail.com|
+| Brian Tkatch | 40191139   | brian@briantkatch.com  |
+| Jutipong Puntuleng | 40080233   | p.jutipong13@gmail.com|
+| Rym Bensalem | 40237684  | rymbensalem816@gmail.com |
+
 
 # Getting Started
-
 
 ## Useful Flutter Commands
 
@@ -31,6 +39,12 @@
     > On Windows, if you get an error along the lines of 'command not found', you might need to run `rps.bat` instead of just rps. (You can alias `rps.bat` to `rps` in your shell profile)
 
 [Link to rps repo](https://pub.dev/packages/rps).
+
+## Enabling Pre-Commit Hooks
+
+To enable the project's pre-commit hooks, run the following command: `git config core.hooksPath .githooks`
+
+> If the script isn't executable, make it so on your respective operating system. Example: `chmod +x .githooks/pre-commit`
 
 ## iOS Builds
 

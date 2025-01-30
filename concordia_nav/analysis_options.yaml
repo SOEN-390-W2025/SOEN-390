@@ -10,14 +10,75 @@ linter:
   # or a specific dart file by using the `// ignore: name_of_lint` and
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
-  rules:
-    avoid_print: false
-    prefer_const_constructors_in_immutables: false
-    prefer_const_constructors: false
-    prefer_const_literals_to_create_immutables: false
-    prefer_final_fields: false
-    unnecessary_breaks: true
-    use_key_in_widget_constructors: false
+  rules:    
+    # Flutter specific
+    use_key_in_widget_constructors: true  # Widgets should have key parameter
+    avoid_unnecessary_containers: true  # Remove unnecessary containers
+    sized_box_for_whitespace: true  # Use SizedBox for whitespace
+    prefer_const_constructors_in_immutables: true  # Const constructors in immutable classes
+    prefer_const_constructors: true
+    
+    # Intentionality
+    hash_and_equals: true  # "==" and hashCode() should be overridden in pairs
+    annotate_overrides: true  # @override should be used on overriding members
+    await_only_futures: true  # await should only be used with futures
+    unnecessary_const: false  # const modifier should not be redundant
+    prefer_is_not_operator: true  # is! should be used instead of !(. is .)
+    prefer_is_empty: true  # isEmpty or isNotEmpty should be used
+    unnecessary_late: true  # late modifier should be necessary
+    use_build_context_synchronously: true  # check mounted before using BuildContext after async
+    unnecessary_new: true  # new keyword shouldn't be used
+    prefer_relative_imports: true  # part of directives with strings
+    prefer_const_declarations: true  # static final should be const
+    exhaustive_cases: true  # switch statements should cover all cases
+
+    # Reliability
+    avoid_void_async: true  # void variables should not be assigned
+    valid_regexps: true  # Regular expressions should be valid
+    throw_in_finally: false  # Jump statements in finally blocks
+    avoid_returning_null_for_void: true  # Void functions should not return null
+
+    # Maintainability
+    prefer_adjacent_string_concatenation: true  # Adjacent string concatenation
+    camel_case_types: true  # Class names convention
+    avoid_empty_else: true  # Empty statements
+    avoid_catches_without_on_clauses: true  # Specific exception catching
+    avoid_field_initializers_in_const_classes: true  # Fields in const classes
+    constant_identifier_names: true  # Constant naming convention
+    file_names: true  # File naming convention
+    avoid_function_literals_in_foreach_calls: true  # No function literals in foreach
+    parameter_assignments: true  # No parameter reassignment
+    prefer_initializing_formals: true  # Use initializing formals
+    prefer_interpolation_to_compose_strings: true  # String interpolation over concatenation
+    prefer_generic_function_type_aliases: true  # Generic function type aliases
+    recursive_getters: false  # No recursive getters
+    prefer_if_null_operators: true  # If-null operator preference
+    implementation_imports: false  # No implementation imports
+    prefer_spread_collections: true  # Spread collections over insertions
+    unnecessary_brace_in_string_interps: true  # Remove unnecessary string interpolation braces
+    unnecessary_getters_setters: true  # Remove unnecessary getters/setters
+    unnecessary_string_interpolations: true  # Remove unnecessary string interpolations
+    unnecessary_this: true  # this only when required
+
+    # Code style and documentation
+    prefer_single_quotes: false
+    sort_child_properties_last: true
+    slash_for_doc_comments: true
+    package_api_docs: true
+    comment_references: true
+
+    # Performance
+    prefer_final_locals: true
+    prefer_final_fields: true
+    avoid_slow_async_io: true
+
+    # Error prevention
+    always_declare_return_types: true
+    avoid_types_as_parameter_names: true
+    empty_constructor_bodies: true
+    null_check_on_nullable_type_parameter: true
+    prefer_null_aware_operators: true
+    unawaited_futures: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+
+echo "🔍 Running pre-commit hook..."
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi
+
+# If you want to allow non-ASCII filenames set this variable to true.
+allownonascii=$(git config --type=bool hooks.allownonascii)
+
+# Redirect output to stderr.
+exec 1>&2
+
+# Get the list of staged files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+dart_files=$(echo "$staged_files" | grep '\.dart$')
+
+if [ -z "$dart_files" ]; then
+    echo "✅ No Dart files staged for commit. Pre-commit hook passed successfully."
+    exit 0
+fi
+
+if ! output=$(flutter analyze $dart_files); then
+    echo "❌ COMMIT REJECTED: Flutter analyze found the following errors:"
+    echo "$output"
+    echo -e "\nPlease fix the errors before committing. You can use 'rps lint fix' to automatically fix some of the issues."
+    exit 1
+fi
+
+echo "✅ Pre-commit hook passed successfully."
+exit 0

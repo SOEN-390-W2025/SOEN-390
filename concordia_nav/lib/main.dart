@@ -3,7 +3,7 @@ import 'package:concordia_nav/core/ui/themes/app_theme.dart';
 import 'package:concordia_nav/core/ui/widgets/homepage_view.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
