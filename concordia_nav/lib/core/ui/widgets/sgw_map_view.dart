@@ -1,7 +1,7 @@
-import 'package:concordia_nav/core/ui/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:concordia_nav/core/ui/widgets/custom_appbar.dart';
-import 'package:concordia_nav/core/ui/widgets/map_layout.dart';
+import 'search_bar.dart';
+import 'custom_appbar.dart';
+import 'map_layout.dart';
 
 class SgwMapPage extends StatefulWidget {
   const SgwMapPage({super.key});

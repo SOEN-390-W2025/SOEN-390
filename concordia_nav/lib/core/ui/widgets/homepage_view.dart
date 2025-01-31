@@ -1,13 +1,10 @@
-import 'package:concordia_nav/core/ui/widgets/sgw_map_view.dart';
 import 'package:flutter/material.dart';
+import 'sgw_map_view.dart';
 import 'custom_appbar.dart';
 import 'feature_card.dart';
 
 class HomePage extends StatelessWidget {
-<<<<<<< HEAD
-=======
   const HomePage({super.key});
->>>>>>> origin/develop
 
   /// The home page of the app, which displays a list of features
   @override
@@ -37,28 +34,6 @@ class HomePage extends StatelessWidget {
               ],
             ),
             // SGW and LOY maps
-<<<<<<< HEAD
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FeatureCard(
-                  title: 'SGW map',
-                  icon: Icon(Icons.map),
-                  onPress: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SgwMapPage())
-                  ),
-                ),
-                const SizedBox(width: 20),
-                FeatureCard(
-                  title: 'LOY map',
-                  icon: const Icon(Icons.map),
-                  onPress: () {
-                    // TODO: Implement navigation to LOY map
-                  },
-                ),
-              ]
-=======
             const SizedBox(height: 40),
             Flexible(
               child: Row(
@@ -67,9 +42,10 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'SGW map',
                     icon: const Icon(Icons.map),
-                    onPress: () {
-                      // TODO: Implement navigation to SGW map
-                    },
+                    onPress: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SgwMapPage())
+                    ),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
@@ -81,7 +57,6 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
->>>>>>> origin/develop
             ),
             const SizedBox(height: 20),
             // Outdoor directions and Next class directions
