@@ -1,4 +1,5 @@
 PODS:
+  - concordia_nav (1.0.0)
   - device_calendar (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -6,11 +7,14 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - concordia_nav (from `.symlinks/plugins/concordia_nav/ios`)
   - device_calendar (from `.symlinks/plugins/device_calendar/ios`)
   - Flutter (from `Flutter`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
 EXTERNAL SOURCES:
+  concordia_nav:
+    :path: ".symlinks/plugins/concordia_nav/ios"
   device_calendar:
     :path: ".symlinks/plugins/device_calendar/ios"
   Flutter:
@@ -19,6 +23,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
+  concordia_nav: 583ca86f1da8480e679743af34fd99714acf8907
   device_calendar: b55b2c5406cfba45c95a59f9059156daee1f74ed
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
