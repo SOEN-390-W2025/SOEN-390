@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 // Custom AppBar widget that accepts a title
-PreferredSizeWidget customAppBar(BuildContext context, String title) {
+PreferredSizeWidget customAppBar(
+  BuildContext context,
+  String title, {
+  Icon? actionIcon,
+  Function? onActionPressed
+  }) {
   bool isHomePage = ModalRoute.of(context)?.settings.name == '/';
 
   return AppBar(
@@ -36,9 +41,10 @@ PreferredSizeWidget customAppBar(BuildContext context, String title) {
     actions: [
       IconButton(
         onPressed: () {
-          // TODO: Implement the menu page.
+          // If a custom function is provided, use it; otherwise, use the default function
+          (onActionPressed ?? () {});
         },
-        icon: const Icon(
+        icon: actionIcon ?? const Icon(
           Icons.menu,
           color: Colors.white,
         ),

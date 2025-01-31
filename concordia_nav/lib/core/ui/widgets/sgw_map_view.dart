@@ -11,10 +11,15 @@ class SgwMapPage extends StatefulWidget {
 }
 
 class SgwMapPageState extends State<SgwMapPage> {
+  bool isSGW = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'SGW Map'),
+      appBar: isSGW
+        ? customAppBar(context, 'SGW Map', actionIcon: const Icon(Icons.swap_horiz, color: Colors.white) ,
+  onActionPressed: () => setState(() => isSGW = !isSGW),)
+        : customAppBar(context, 'LOY Map', actionIcon: const Icon(Icons.swap_horiz, color: Colors.white)),
       body: MapLayout(
         searchController: TextEditingController(),
         onMyLocation: () {},
