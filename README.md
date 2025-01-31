@@ -24,10 +24,10 @@
 ## Generating RPS Scripts
 
 1. First, install the `rps` package globally using: `dart pub global activate rps`
-    > Make sure to add the `bin/` folder to your path in order to use `rps` from the command line.
+   > Make sure to add the `bin/` folder to your path in order to use `rps` from the command line.
 2. Then, use the `rps gen` command to generate the scripts.
 3. You can now use any of the scripts defined in the `pubspec.yaml` file. Example: `rps test` will run the `rps test -r expanded`
-    > On Windows, if you get an error along the lines of 'command not found', you might need to run `rps.bat` instead of just rps. (You can alias `rps.bat` to `rps` in your shell profile)
+   > On Windows, if you get an error along the lines of 'command not found', you might need to run `rps.bat` instead of just rps. (You can alias `rps.bat` to `rps` in your shell profile)
 
 [Link to rps repo](https://pub.dev/packages/rps).
 
@@ -44,7 +44,7 @@ To build the iOS app, you need to create a file
 Apple Developer team:
 
 ```
-CONNAV_IOS_BUNDLE_ID=Concordia Nav
-CONNAV_APP_NAME=com.YOURDOMAIN.concordia_nav
-PRODUCT_BUNDLE_IDENTIFIER=com.YOURDOMAIN.concordia_nav
+PRODUCT_BUNDLE_IDENTIFIER=com.YOURDOMAIN.concordia-nav
+APPLE_TEAM_ID=A1B2C3D4E5
+CONNAV_APP_NAME=Concordia Nav
 ```
