@@ -1,94 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:concordia_nav/core/ui/widgets/search_bar.dart';
+import './search_bar.dart';
 
 class MapLayout extends StatelessWidget {
   final TextEditingController searchController;
-  final VoidCallback onMyLocation;
-  final VoidCallback onZoomIn;
-  final VoidCallback onZoomOut;
+  final Widget mapWidget;
 
   const MapLayout({
     super.key,
     required this.searchController,
-    required this.onMyLocation,
-    required this.onZoomIn,
-    required this.onZoomOut,
+    required this.mapWidget,
   });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-          Placeholder(),
-          Positioned(
-            top: 10,
-            left: 15,
-            right: 15,
-            child: SearchBarWidget(controller: TextEditingController(),) ,
-          ),
-          Positioned(
-            top: 100,
-            right: 15,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // My Location Button (Separate Box)
-                Container(
-                  margin: EdgeInsets.only(bottom: 10), // Space between boxes
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: _mapButton(Icons.my_location, onMyLocation),
-                ),
-
-                // Zoom Controls (Separate Box)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _mapButton(Icons.add, onZoomIn, isTop: true),
-                      Divider(height: 1, color: Colors.grey),
-                      _mapButton(Icons.remove, onZoomOut, isTop: false),
-                    ],
-                ),
-              ),
-            ],
-          ),
+        mapWidget,
+        Positioned(
+          top: 10,
+          left: 15,
+          right: 15,
+          /*  
+              Note that the placeholder searchbar is tentative and
+              may be replaced with a Google Maps control
+           */
+          child: SearchBarWidget(controller: searchController),
         ),
       ],
-    );
-  }
-
-  Widget _mapButton(IconData icon, VoidCallback onPressed, {bool isTop = false}) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: isTop ?
-          BorderRadius.vertical(top: Radius.circular(10)) :
-          BorderRadius.vertical(bottom: Radius.circular(10)),
-        child: Container(
-          padding: EdgeInsets.all(10),
-          width: 40,
-          child: Icon(icon, size: 20),
-        ),
-      ),
     );
   }
 }
