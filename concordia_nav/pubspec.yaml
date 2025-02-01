@@ -1,6 +1,6 @@
 name: concordia_nav
 description: "Mobile application for Concordia University students to navigate around campus."
-publish_to: 'none' 
+publish_to: "none"
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -20,16 +20,16 @@ environment:
   sdk: ^3.6.1
 
 scripts:
-  gen: flutter pub run build_runner build --delete-conflicting-outputs  # Generates the scripts
+  gen: flutter pub run build_runner build --delete-conflicting-outputs # Generates the scripts
   get: flutter pub get
-  format: 
+  format:
     fix: dart format .
     check: dart format --output=none --set-exit-if-changed .
   coverage: flutter test --coverage --branch-coverage
-  test: 
+  test:
     unit: flutter test -r expanded
     integration: flutter test integration_test
-  lint: 
+  lint:
     check: flutter analyze
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
@@ -48,6 +48,8 @@ dependencies:
   provider: ^6.1.2
   cupertino_icons: ^1.0.8
   http: ^1.3.0
+  google_maps_flutter: ^2.10.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -63,9 +65,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  plugin: 
+  plugin:
     platforms:
-      android: 
+      android:
         package: com.example.concordia_nav
         pluginClass: ConcordiaNavPlugin
       ios:
@@ -75,8 +77,11 @@ flutter:
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
+  # Note: any other .env files, ex. a file named .env.prod, should be declared
+  # under assets as well.
   assets:
     - assets/images/
+    - .env
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
