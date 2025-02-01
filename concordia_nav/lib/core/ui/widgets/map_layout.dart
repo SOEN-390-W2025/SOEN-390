@@ -19,7 +19,7 @@ class MapLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-          Placeholder(),
+          const Placeholder(),
           Positioned(
             top: 10,
             left: 15,
@@ -34,12 +34,12 @@ class MapLayout extends StatelessWidget {
               children: [
                 // My Location Button (Separate Box)
                 Container(
-                  margin: EdgeInsets.only(bottom: 10), // Space between boxes
+                  margin: const EdgeInsets.only(bottom: 10), // Space between boxes
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
-                      BoxShadow(
+                      const BoxShadow(
                         color: Colors.black26,
                         blurRadius: 5,
                       ),
@@ -54,7 +54,7 @@ class MapLayout extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
-                      BoxShadow(
+                      const BoxShadow(
                         color: Colors.black26,
                         blurRadius: 5,
                       ),
@@ -63,7 +63,7 @@ class MapLayout extends StatelessWidget {
                   child: Column(
                     children: [
                       _mapButton(Icons.add, onZoomIn, isTop: true),
-                      Divider(height: 1, color: Colors.grey),
+                      const Divider(height: 1, color: Colors.grey),
                       _mapButton(Icons.remove, onZoomOut, isTop: false),
                     ],
                 ),
@@ -81,10 +81,10 @@ class MapLayout extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         borderRadius: isTop ?
-          BorderRadius.vertical(top: Radius.circular(10)) :
-          BorderRadius.vertical(bottom: Radius.circular(10)),
+          const BorderRadius.vertical(top: Radius.circular(10)) :
+          const BorderRadius.vertical(bottom: Radius.circular(10)),
         child: Container(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           width: 40,
           child: Icon(icon, size: 20),
         ),
