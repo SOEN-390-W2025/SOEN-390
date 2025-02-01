@@ -13,8 +13,8 @@ class SearchBarWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          const BoxShadow(
+        boxShadow: const [
+          BoxShadow(
             color: Colors.black26,
             blurRadius: 5,
           ),
@@ -22,7 +22,8 @@ class SearchBarWidget extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        textAlignVertical: TextAlignVertical.center, // Ensures text is vertically centered
+        textAlignVertical:
+            TextAlignVertical.center, // Ensures text is vertically centered
         decoration: const InputDecoration(
           hintText: "Search location...",
           prefixIcon: Icon(Icons.search),

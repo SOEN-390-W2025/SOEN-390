@@ -19,53 +19,56 @@ class MapLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-          const Placeholder(),
-          Positioned(
-            top: 10,
-            left: 15,
-            right: 15,
-            child: SearchBarWidget(controller: TextEditingController(),) ,
+        const Placeholder(),
+        Positioned(
+          top: 10,
+          left: 15,
+          right: 15,
+          child: SearchBarWidget(
+            controller: TextEditingController(),
           ),
-          Positioned(
-            top: 100,
-            right: 15,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // My Location Button (Separate Box)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10), // Space between boxes
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      const BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: _mapButton(Icons.my_location, onMyLocation),
+        ),
+        Positioned(
+          top: 100,
+          right: 15,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // My Location Button (Separate Box)
+              Container(
+                margin:
+                    const EdgeInsets.only(bottom: 10), // Space between boxes
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5,
+                    ),
+                  ],
                 ),
+                child: _mapButton(Icons.my_location, onMyLocation),
+              ),
 
-                // Zoom Controls (Separate Box)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      const BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _mapButton(Icons.add, onZoomIn, isTop: true),
-                      const Divider(height: 1, color: Colors.grey),
-                      _mapButton(Icons.remove, onZoomOut, isTop: false),
-                    ],
+              // Zoom Controls (Separate Box)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _mapButton(Icons.add, onZoomIn, isTop: true),
+                    const Divider(height: 1, color: Colors.grey),
+                    _mapButton(Icons.remove, onZoomOut, isTop: false),
+                  ],
                 ),
               ),
             ],
@@ -75,14 +78,15 @@ class MapLayout extends StatelessWidget {
     );
   }
 
-  Widget _mapButton(IconData icon, VoidCallback onPressed, {bool isTop = false}) {
+  Widget _mapButton(IconData icon, VoidCallback onPressed,
+      {bool isTop = false}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: isTop ?
-          const BorderRadius.vertical(top: Radius.circular(10)) :
-          const BorderRadius.vertical(bottom: Radius.circular(10)),
+        borderRadius: isTop
+            ? const BorderRadius.vertical(top: Radius.circular(10))
+            : const BorderRadius.vertical(bottom: Radius.circular(10)),
         child: Container(
           padding: const EdgeInsets.all(10),
           width: 40,
