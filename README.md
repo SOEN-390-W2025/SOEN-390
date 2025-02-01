@@ -11,6 +11,15 @@
 | Name           | Student ID | Email                     |
 | -------------- | ---------- | ------------------------- |
 | Nathan Grenier | 40250986   | nathangrenier01@gmail.com |
+| Sumer Abd Alla | 40247712   | sendingtosumer@gmail.com  |
+| David Carciente | 40247907  | davidcarciente@outlook.com|
+| Giuliano Verdone | 40252190 | giulianoverdone@gmail.com |
+| Nirav Patel | 40248940   | niravp0703@gmail.com |
+| Nathanial Hwong | 40243583   | nathanial.hwong8@gmail.com|
+| Brian Tkatch | 40191139   | brian@briantkatch.com  |
+| Jutipong Puntuleng | 40080233   | p.jutipong13@gmail.com|
+| Rym Bensalem | 40237684  | rymbensalem816@gmail.com |
+
 
 # Getting Started
 

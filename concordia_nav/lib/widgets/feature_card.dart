@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Custom FeatureCard Widget with a fixed size
 class FeatureCard extends StatelessWidget {
   final String title;
   final Icon icon;
@@ -11,35 +10,37 @@ class FeatureCard extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.onPress,
-    this.iconSize = 50.0, // Default icon size
+    this.iconSize = 40.0, // Reduced default icon size
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 165.0, // Set a fixed width for the card
-      height: 165.0, // Set a fixed height for the card
+      width: 165.0,
+      height: 165.0,
       child: GestureDetector(
         onTap: onPress,
         child: Card(
-          elevation: 4.0, // Add elevation for a shadow effect
+          elevation: 4.0,
           color: const Color.fromARGB(255, 240, 240, 240),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 8.0,
-              vertical: 16.0
+              vertical: 8.0, // Reduced padding
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  icon.icon,
-                  size: iconSize,
+                Expanded(
+                  child: Icon(
+                    icon.icon,
+                    size: iconSize,
+                  ),
                 ),
                 Text(
                   title,
@@ -49,7 +50,6 @@ class FeatureCard extends StatelessWidget {
                   ),
                 ),
               ],
-
             ),
           ),
         ),
