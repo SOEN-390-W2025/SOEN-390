@@ -61,19 +61,17 @@ dev_dependencies:
   mockito: ^5.4.5
   build_runner: ^2.4.14
 
+plugin:
+  platforms:
+    android:
+      package: com.example.concordia_nav
+      pluginClass: ConcordiaNavPlugin
+    ios:
+      pluginClass: ConcordiaNavPlugin
+
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-
-  # commented out for now as it is the reason why google maps does not work
-  # -> error reported in BUG-002
-  #plugin:
-  #  platforms:
-  #    android:
-  #      package: com.example.concordia_nav
-  #      pluginClass: ConcordiaNavPlugin
-  #    ios:
-  #      pluginClass: ConcordiaNavPlugin
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
