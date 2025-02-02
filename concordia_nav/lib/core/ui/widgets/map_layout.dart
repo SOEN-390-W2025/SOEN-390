@@ -20,10 +20,6 @@ class MapLayout extends StatelessWidget {
           top: 10,
           left: 15,
           right: 15,
-          /*  
-              Note that the placeholder searchbar is tentative and
-              may be replaced with a Google Maps control
-           */
           child: SearchBarWidget(controller: searchController),
         ),
       ],
