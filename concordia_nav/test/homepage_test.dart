@@ -39,7 +39,6 @@ void main() {
     const bool loyMapPressed = false;
     const bool outdoorDirectionsPressed = false;
     const bool nextClassDirectionsPressed = false;
-    const bool indoorDirectionsPressed = false;
     const bool findNearbyFacilitiesPressed = false;
 
     // Build the HomePage widget with mock onPress handlers
@@ -70,8 +69,16 @@ void main() {
 
     // Tap on the Indoor directions FeatureCard
     await tester.tap(find.text('Indoor directions'));
-    await tester.pump();
-    expect(indoorDirectionsPressed, isFalse);
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+
+    // Tap the back button in the app bar
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+
+    // Verify that the app has returned to the HomePage
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Concordia Campus Guide'), findsOneWidget);
 
     // Tap on the Find nearby facilities FeatureCard
     await tester.tap(find.text('Find nearby facilities'));
