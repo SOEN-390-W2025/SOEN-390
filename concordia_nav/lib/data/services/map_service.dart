@@ -1,5 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../../data/domain-model/campus.dart';
+import '../domain-model/campus.dart';
 
 class MapService {
   late GoogleMapController _mapController;

@@ -1,11 +1,17 @@
+// ignore_for_file: prefer_final_fields
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
 import '../../data/domain-model/campus.dart';
 import '../../data/services/map_service.dart';
 
 class MapViewModel {
-  final MapRepository _mapRepository = MapRepository();
-  final MapService _mapService = MapService();
+  MapRepository _mapRepository = MapRepository();
+  MapService _mapService = MapService();
+
+  MapViewModel({MapRepository? mapRepository, MapService? mapService})
+      : _mapRepository = mapRepository ?? MapRepository(),
+        _mapService = mapService ?? MapService();
 
   /// Fetches the initial camera position for the given campus.
   Future<CameraPosition> getInitialCameraPosition(Campus campus) async {
