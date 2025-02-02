@@ -48,8 +48,8 @@ dependencies:
   provider: ^6.1.2
   cupertino_icons: ^1.0.8
   http: ^1.3.0
-  google_maps_flutter: ^2.10.0
   flutter_dotenv: ^5.2.1
+  google_maps_flutter: ^2.10.0
 
 dev_dependencies:
   flutter_test:
@@ -65,13 +65,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  plugin:
-    platforms:
-      android:
-        package: com.example.concordia_nav
-        pluginClass: ConcordiaNavPlugin
-      ios:
-        pluginClass: ConcordiaNavPlugin
+  # commented out for now as it is the reason why google maps does not work
+  # -> error reported in BUG-002
+  #plugin:
+  #  platforms:
+  #    android:
+  #      package: com.example.concordia_nav
+  #      pluginClass: ConcordiaNavPlugin
+  #    ios:
+  #      pluginClass: ConcordiaNavPlugin
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -81,7 +83,7 @@ flutter:
   # under assets as well.
   assets:
     - assets/images/
-    - ../.env
+    - .env
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
