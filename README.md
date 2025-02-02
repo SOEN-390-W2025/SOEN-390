@@ -29,6 +29,20 @@
 | `flutter analyze` | Run Flutter's Linter      |
 | `flutter run`     | Start the Dev Environment |
 
+## Environment Variables
+
+Secrets and other configuration values are managed through environment variables. When developing locally, they can be configured by creating a `.env` file in the project's root (concordia_nav), the same location where `pubspec.yaml` is found.
+
+> **Note**: Default values should be optimized for local development, such that
+> a developer can clone and run the project successfully without having to
+> override any configuration values.
+
+The following variables can be configured:
+
+| Variable            | Description                       | Value                      |
+| ------------------- | --------------------------------- | -------------------------- |
+| GOOGLE_MAPS_API_KEY | Used to integrate Google Maps API | `YOUR_GOOGLE_MAPS_API_KEY` |
+
 ## Generating RPS Scripts
 
 1. First, install the `rps` package globally using: `dart pub global activate rps`
@@ -55,20 +69,3 @@ Apple Developer team:
 CONNAV_IOS_BUNDLE_ID=Concordia Nav
 CONNAV_APP_NAME=com.YOURDOMAIN.concordia_nav
 ```
-
-## Environment Variables
-
-Secrets and other configuration values are managed through environment
-variables. When developing locally, they can be configured by creating a `.env`
-file in the project's root (concordia_nav), the same location
-where `pubspec.yaml` is found.
-
-> **Note**: Default values should be optimized for local development, such that
-> a developer can clone and run the project successfully without having to
-> override any configuration values.
-
-The following variables can be configured:
-
-| VAR | DESC | DEFAULT |
-| ------------------------ | ---------------------------------------------------- | --------------------------------------------------------------------------------------- | |
-| GOOGLE_MAPS_API_KEY | Used to integrate Google Maps API | `YOUR_GOOGLE_MAPS_API_KEY` |
