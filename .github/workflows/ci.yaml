@@ -27,7 +27,7 @@ jobs:
       working-directory: .
       run: |
         touch .env
-        echo {{ secrets.GOOGLE_MAPS_API_KEY }} >> .env
+        echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
     
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
