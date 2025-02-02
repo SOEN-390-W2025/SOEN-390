@@ -8,13 +8,13 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10),
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
-          BoxShadow(
+          const BoxShadow(
             color: Colors.black26,
             blurRadius: 5,
           ),
@@ -23,7 +23,7 @@ class SearchBarWidget extends StatelessWidget {
       child: TextField(
         controller: controller,
         textAlignVertical: TextAlignVertical.center, // Ensures text is vertically centered
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           hintText: "Search location...",
           prefixIcon: Icon(Icons.search),
           border: InputBorder.none,

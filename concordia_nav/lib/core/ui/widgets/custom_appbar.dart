@@ -7,7 +7,7 @@ PreferredSizeWidget customAppBar(
   Icon? actionIcon,
   Function? onActionPressed
   }) {
-  bool isHomePage = ModalRoute.of(context)?.settings.name == '/';
+  final isHomePage = ModalRoute.of(context)?.settings.name == '/';
 
   return AppBar(
     backgroundColor: Theme.of(context).primaryColor,
