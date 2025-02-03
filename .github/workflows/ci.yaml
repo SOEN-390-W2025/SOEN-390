@@ -28,7 +28,18 @@ jobs:
       run: |
         touch .env
         echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
-    
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'oracle'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        accept-android-licenses: true
+
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       id: flutter-action
@@ -48,6 +59,9 @@ jobs:
     
     - name: Run unit tests
       run: rps test unit
+
+    - name: Build (Debug)
+      run: rps build android --debug
 
     - name: Generate Code Coverage Report
       run: rps coverage
@@ -83,11 +97,3 @@ jobs:
     #   with:
     #     api-level: 35
     #     script: rps test integration
-  
-  # build:
-  #   runs-on: ubuntu-latest
-  #   needs: 
-  #     - test
-  #   steps:
-  #   - name: Checkout repository
-  #     uses: actions/checkout@v2
