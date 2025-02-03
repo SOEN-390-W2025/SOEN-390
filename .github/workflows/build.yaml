@@ -1,0 +1,73 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'oracle'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        accept-android-licenses: true
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      id: flutter-action
+      with:
+        channel: stable
+        cache: true
+    - run: flutter --version
+
+    - name: Create .env file
+      working-directory: .
+      run: |
+        touch .env
+        echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
+    
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Install rps package globally
+      run: dart pub global activate rps
+
+    - name: Run unit tests
+      run: rps test unit
+
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+
+    - name: Configure Gradle Properties
+      run: |
+        echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+        echo "storeFile=upload-keystore.jks" >> android/key.properties
+
+    - name: Build Signed APK
+      run: rps build android --release
+
+    - name: Upload APK to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/app/outputs/flutter-apk/app-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -24,10 +24,14 @@
 
 ## Useful Flutter Commands
 
-| Command           | Description               |
-| ----------------- | ------------------------- |
-| `flutter analyze` | Run Flutter's Linter      |
-| `flutter run`     | Start the Dev Environment |
+| Command             | `rps` Equivalent    | Description                                                                                       |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
+| `flutter get`       | `rps get`           | Install the Project's Dependencies                                                                |
+| `flutter analyze`   | `rps lint check`    | Run Flutter's Linter                                                                              |
+| `flutter run`       | `rps run`           | Start the Dev Environment                                                                         |
+| `flutter build apk` | `rps build android` | Build the android apk (Pass `--debug` for the debug build)                                        |
+| `flutter build ipa` | `rps build ios`     | Build the ios ipa                                                                                 |
+| `flutter install`   | `rps install`       | Install the app on the connected device. Can pass --release or --debug flags. (Default --release) |
 
 ## Environment Variables
 
