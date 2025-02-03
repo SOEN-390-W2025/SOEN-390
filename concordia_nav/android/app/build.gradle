@@ -5,6 +5,9 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+Project flutter_env_native = project(':flutter_env_native')
+apply from: "${flutter_env_native.projectDir}/envConfig.gradle"
+
 android {
     namespace = "com.example.concordia_nav"
     compileSdk = flutter.compileSdkVersion
@@ -28,7 +31,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = System.getenv("GOOGLE_MAPS_API_KEY") ?: ""
+        resValue "string", "google_maps_api_key", GOOGLE_MAPS_API_KEY ?: ""
     }
 
 

@@ -240,6 +240,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_env_native:
+    dependency: "direct main"
+    description:
+      name: flutter_env_native
+      sha256: "3da347b4769452b9a67ea63239f6f63a46d7c183cac55c1a41972cbb8763eb8a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   flutter_lints:
     dependency: "direct dev"
     description:
