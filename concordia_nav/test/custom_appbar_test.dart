@@ -90,5 +90,42 @@ void main() {
       expect(actualIcon.icon, expectedIcon.icon); // Compare IconData
       expect(actualIcon.color, expectedIcon.color); // Compare color
     });
+
+    testWidgets('tapping the Settings button should bring to settingspage', (WidgetTester tester) async {
+      // Build the customAppBar inside a MaterialApp
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+
+      // Ensure the widget tree is rendered
+      await tester.pump();
+
+      // find the Settings icon and tap it
+      await tester.tap(find.byIcon(Icons.settings));
+
+      // wait till the screen changes
+      await tester.pumpAndSettle();
+
+      // should be in the Settings page
+      expect(find.text('Settings'), findsOneWidget);
+    });
+
+    testWidgets('back button in the Settings page brings back to home', (WidgetTester tester) async {
+      // Build the customAppBar inside a MaterialApp
+      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+      await tester.pump();
+
+      // find the Settings icon and tap it
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pumpAndSettle();
+      expect(find.text('Settings'), findsOneWidget);
+
+      // find back button in settings page and tap it 
+      await tester.tap(find.byIcon(Icons.arrow_back));
+
+      // wait till the screen changes
+      await tester.pumpAndSettle();
+
+      // should be in the Home page
+      expect(find.text('Home'), findsOneWidget);
+    });
   });
 }
