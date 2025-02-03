@@ -25,15 +25,25 @@ scripts:
   format:
     fix: dart format .
     check: dart format --output=none --set-exit-if-changed .
-  coverage: flutter test --coverage --branch-coverage
   test:
     unit: flutter test -r expanded
     integration: flutter test integration_test
+    all: rps test unit && rps test integration
   lint:
     check: flutter analyze
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
-  build: flutter build apk --release
+  coverage: flutter test --coverage --branch-coverage
+  run: flutter run --dart-define-from-file=../.env
+  clean: flutter clean
+  build: 
+    android: 
+      $script: flutter build apk --dart-define-from-file=../.env
+      $description: Build the android app. Can pass --debug or --release flag. (Default --release)
+    ios: flutter build ipa
+  install: 
+    $script: flutter install
+    $description: Install the app on the connected device. Can pass --release or --debug flags. (Default --release)
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
