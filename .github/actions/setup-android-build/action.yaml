@@ -12,4 +12,5 @@ runs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
-        accept-android-licenses: true
+        accept-android-sdk-licenses: true
+        log-accepted-android-sdk-licenses: false
