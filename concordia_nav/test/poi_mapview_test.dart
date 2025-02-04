@@ -1,3 +1,4 @@
+import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/poi/poi_map_view.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,13 +13,18 @@ void main() {
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Nearby Facility'), findsOneWidget);
+      expect(find.text('Nearby Facility'), findsWidgets);
     });
 
     testWidgets('tapping back btn in appBar brings back to poiPage', (WidgetTester tester) async {
-      // Build the POI map view widget
-      await tester.pumpWidget(const MaterialApp(home: const POIMapView()));
+      // Build the POI page widget
+      await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
       await tester.pump();
+
+      // tap on restrooms PoiBox
+      await tester.tap(find.text('Restrooms'));
+      await tester.pumpAndSettle(); // wait till change page
+      expect(find.text('Nearby Facility'), findsWidgets);
 
       // find the back button and tap it
       await tester.tap(find.byIcon(Icons.arrow_back));

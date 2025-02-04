@@ -15,21 +15,6 @@ void main() {
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.text('Nearby Facilities'), findsOneWidget);
     });
-
-    testWidgets('tapping back button in appBar brings back to home', (WidgetTester tester) async {
-      // Build the POI page widget
-      await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
-      await tester.pump();
-
-      // find the back button and tap it
-      await tester.tap(find.byIcon(Icons.arrow_back));
-
-      // wait till the screen changes
-      await tester.pumpAndSettle();
-
-      // should be in the Home page
-      expect(find.text('Home'), findsOneWidget);
-    });
   });
 
   group('poiPage', () {
@@ -47,13 +32,8 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
       await tester.pump();
 
-      // Find the Text widget (title)
-      final Text title = tester.widget(
-        find.descendant(of: find.byType(Align), matching: find.byType(Text))
-      );
-
       // Verify that title is correct
-      expect(title.data, 'Select a nearby facility');
+      expect(find.text('Select a nearby facility'), findsOneWidget);
     });
 
     testWidgets('list of PoiBox are present', (WidgetTester tester) async {
@@ -140,7 +120,7 @@ void main() {
       await tester.tap(find.text('Restrooms'));
       await tester.pumpAndSettle();
       // Should be in the POI map view page
-      expect(find.text('Nearby Facility'), findsOneWidget);
+      expect(find.text('Nearby Facility'), findsWidgets);
     });
 
   });

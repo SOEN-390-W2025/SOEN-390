@@ -35,13 +35,13 @@ class PoiBox extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Title and Icon
-                Text(
+                Flexible(child: Text(
                   title,
                   style: const TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
+                ),),
                 Icon(
                   icon.icon,
                   size: iconSize,

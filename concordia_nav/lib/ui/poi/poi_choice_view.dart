@@ -14,12 +14,7 @@ class POIChoiceView extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            Positioned(
-              top: 10,
-              left: 15,
-              right: 15,
-              child: SearchBarWidget(controller: TextEditingController(),) ,
-            ),
+            SearchBarWidget(controller: TextEditingController(),),
             const SizedBox(height: 20),
             const Align(
               alignment: Alignment.centerLeft, // Align text to the left
