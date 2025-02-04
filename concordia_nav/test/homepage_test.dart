@@ -35,8 +35,6 @@ void main() {
 
   testWidgets('FeatureCard onPress should be triggered',
       (WidgetTester tester) async {
-    const bool sgwMapPressed = false;
-    const bool loyMapPressed = false;
     const bool outdoorDirectionsPressed = false;
     const bool nextClassDirectionsPressed = false;
     const bool findNearbyFacilitiesPressed = false;
@@ -46,16 +44,25 @@ void main() {
       home: const HomePage(),
     ));
 
+    // Tap on the Menu button
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pump();
+
     // Tap on the SGW map FeatureCard
     await tester.tap(find.text('SGW map'));
-    await tester.pump();
-    expect(sgwMapPressed,
-        isFalse); // Since the onPress is not implemented, it should remain false
+    await tester.pumpAndSettle();
+
+    // Press the back button
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
 
     // Tap on the LOY map FeatureCard
     await tester.tap(find.text('LOY map'));
-    await tester.pump();
-    expect(loyMapPressed, isFalse);
+    await tester.pumpAndSettle();
+
+    // Press the back button
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
 
     // Tap on the Outdoor directions FeatureCard
     await tester.tap(find.text('Outdoor directions'));

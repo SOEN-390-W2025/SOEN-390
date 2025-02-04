@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'campus_map_view.dart';
 import 'custom_appbar.dart';
 import 'feature_card.dart';
+import '../../../data/domain-model/campus.dart';
 import 'indoor_map_view.dart';
 
 class HomePage extends StatelessWidget {
@@ -18,10 +20,7 @@ class HomePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.location_on,
-                  size: 40.0,
-                ),
+                const Icon(Icons.location_on, size: 40.0),
                 const SizedBox(width: 10),
                 Text(
                   'Concordia Campus Guide',
@@ -33,8 +32,8 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-            // SGW and LOY maps
             const SizedBox(height: 40),
+            // SGW and LOY maps
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -42,17 +41,23 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'SGW map',
                     icon: const Icon(Icons.map),
-                    onPress: () {
-                      // TODO: Implement navigation to SGW map
-                    },
+                    onPress: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const CampusMapPage(campus: Campus.sgw)),
+                    ),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'LOY map',
                     icon: const Icon(Icons.map),
-                    onPress: () {
-                      // TODO: Implement navigation to LOY map
-                    },
+                    onPress: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const CampusMapPage(campus: Campus.loy)),
+                    ),
                   ),
                 ],
               ),
