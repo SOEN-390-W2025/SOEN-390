@@ -5,6 +5,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:  
   android:
     name: 🚀 Android Release
@@ -17,6 +20,13 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Update version in pubspec.yaml
+      env:
+        TAG: ${{ github.event.release.tag_name }}
+      run: |
+        VERSION=${TAG#v}
+        sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
 
     - name: Create .env file
       uses: ./.github/actions/create-env
@@ -44,8 +54,11 @@ jobs:
       run: rps build android --release
 
     - name: Upload APK to Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: build/app/outputs/flutter-apk/app-release.apk
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./concordia_nav/build/app/outputs/flutter-apk/app-release.apk
+        asset_name: concordia_nav.apk
+        asset_content_type: application/vnd.android.package-archive
