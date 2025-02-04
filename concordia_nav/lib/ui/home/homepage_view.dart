@@ -6,7 +6,7 @@ import '../../../data/domain-model/campus.dart';
 import '../indoor_map/indoor_map_view.dart';
 import '../poi/poi_choice_view.dart';
 import '../indoor_location/indoor_location_view.dart';
-
+import '../outdoor_location/outdoor_selection_view.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -73,9 +73,12 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Outdoor directions',
                     icon: const Icon(Icons.maps_home_work),
-                    onPress: () {
-                      // TODO: Implement navigation to Outdoor map
-                    },
+                    onPress: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OutdoorSelectionView()
+                      ),
+                    )
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
