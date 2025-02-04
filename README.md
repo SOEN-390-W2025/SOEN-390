@@ -1,5 +1,11 @@
 # SOEN 390
 
+| Branch  | Status                                                                                                                                                                       |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main    | [![CI](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml/badge.svg)](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml)                |
+|         |
+| develop | [![CI](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml) |
+
 [![codecov](https://codecov.io/github/NathanGrenier/SOEN-390/graph/badge.svg?token=QWLVNVQUYB)](https://codecov.io/github/NathanGrenier/SOEN-390)
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=SOEN-390-W2025_SOEN-390)](https://sonarcloud.io/summary/new_code?id=SOEN-390-W2025_SOEN-390)
@@ -24,10 +30,14 @@
 
 ## Useful Flutter Commands
 
-| Command           | Description               |
-| ----------------- | ------------------------- |
-| `flutter analyze` | Run Flutter's Linter      |
-| `flutter run`     | Start the Dev Environment |
+| Command             | `rps` Equivalent    | Description                                                                                       |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
+| `flutter get`       | `rps get`           | Install the Project's Dependencies                                                                |
+| `flutter analyze`   | `rps lint check`    | Run Flutter's Linter                                                                              |
+| `flutter run`       | `rps run`           | Start the Dev Environment                                                                         |
+| `flutter build apk` | `rps build android` | Build the android apk (Pass `--debug` for the debug build)                                        |
+| `flutter build ipa` | `rps build ios`     | Build the ios ipa                                                                                 |
+| `flutter install`   | `rps install`       | Install the app on the connected device. Can pass --release or --debug flags. (Default --release) |
 
 ## Environment Variables
 

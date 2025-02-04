@@ -2,17 +2,14 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
   test:
+    name: 🧪 Run Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,48 +21,18 @@ jobs:
         fetch-depth: 0
     
     - name: Create .env file
-      working-directory: .
-      run: |
-        touch .env
-        echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
-    
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      id: flutter-action
+      uses: ./.github/actions/create-env
       with:
-        channel: stable
-        cache: true
-    - run: flutter --version
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
-    - name: Install dependencies
-      run: flutter pub get
-
-    - name: Install rps package globally
-      run: dart pub global activate rps
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
 
     - name: Run linter
       run: rps lint check
     
     - name: Run unit tests
       run: rps test unit
-
-    - name: Generate Code Coverage Report
-      run: rps coverage
-
-    - name: Upload Coverage Report to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        directory: ./concordia_nav/coverage
-        fail_ci_if_error: false
-        files: ./lcov.info,
-        verbose: true
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: NathanGrenier/SOEN-390
-    
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v4
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     
     # - name: Enable KVM group perms
     #   if: ${{ runner.os == 'Linux' }}
@@ -83,11 +50,79 @@ jobs:
     #   with:
     #     api-level: 35
     #     script: rps test integration
-  
-  # build:
-  #   runs-on: ubuntu-latest
-  #   needs: 
-  #     - test
-  #   steps:
-  #   - name: Checkout repository
-  #     uses: actions/checkout@v2
+
+  build:
+    name: 📦 Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Create .env file
+      uses: ./.github/actions/create-env
+      with:
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
+
+    - name: Setup Android Build
+      uses: ./.github/actions/setup-android-build
+
+    - name: Build (Debug)
+      run: rps build android --debug
+
+  coverage:
+    name: 📊 Coverage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create .env file
+      uses: ./.github/actions/create-env
+      with:
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
+
+    - name: Generate Code Coverage Report
+      run: rps coverage
+
+    - name: Upload Coverage Report to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        directory: ./concordia_nav/coverage
+        fail_ci_if_error: false
+        files: ./lcov.info,
+        verbose: true
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: NathanGrenier/SOEN-390
+
+  sonarqube:
+    name: 🔍 SonarQube
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v4
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

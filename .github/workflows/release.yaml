@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:  
+  android:
+    name: 🚀 Android Release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update version in pubspec.yaml
+      env:
+        TAG: ${{ github.event.release.tag_name }}
+      run: |
+        VERSION=${TAG#v}
+        sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
+
+    - name: Create .env file
+      uses: ./.github/actions/create-env
+      with:
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
+    
+    - name: Setup Android Build
+      uses: ./.github/actions/setup-android-build
+
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+
+    - name: Configure Gradle Properties
+      run: |
+        echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+        echo "storeFile=upload-keystore.jks" >> android/key.properties
+
+    - name: Build Signed APK
+      run: rps build android --release
+
+    - name: Upload APK to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./concordia_nav/build/app/outputs/flutter-apk/app-release.apk
+        asset_name: concordia_nav.apk
+        asset_content_type: application/vnd.android.package-archive

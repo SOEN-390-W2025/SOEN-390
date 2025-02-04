@@ -8,6 +8,12 @@ plugins {
 Project flutter_env_native = project(':flutter_env_native')
 apply from: "${flutter_env_native.projectDir}/envConfig.gradle"
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.example.concordia_nav"
     compileSdk = flutter.compileSdkVersion
@@ -23,7 +29,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.concordia_nav"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
@@ -34,12 +39,22 @@ android {
         resValue "string", "google_maps_api_key", GOOGLE_MAPS_API_KEY ?: ""
     }
 
+    signingConfigs {
+        release {
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword = keystoreProperties['storePassword']
+        }
+    }
 
     buildTypes {
+        // Optional (already the default when passing --debug)
+        debug {
+            signingConfig signingConfigs.debug 
+        }
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 }
