@@ -5,6 +5,7 @@ import '../../widgets/feature_card.dart';
 import '../../../data/domain-model/campus.dart';
 import '../indoor_map/indoor_map_view.dart';
 import '../poi/poi_choice_view.dart';
+import '../indoor_location/indoor_location_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -80,9 +81,12 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Next class directions',
                     icon: const Icon(Icons.calendar_today),
-                    onPress: () {
-                      // TODO: Implement navigation to Next class directions
-                    },
+                    onPress: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const IndoorLocationView()
+                      ),
+                    )
                   ),
                 ],
               ),
