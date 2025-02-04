@@ -1,5 +1,5 @@
-import 'package:concordia_nav/core/ui/widgets/settings_page.dart';
-import 'package:concordia_nav/core/ui/widgets/settings_tile.dart';
+import 'package:concordia_nav/widgets/settings_page.dart';
+import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,8 @@ void main() {
       expect(find.text('Settings'), findsOneWidget);
     });
 
-    testWidgets('appBar leading IconButton should include a back button', (WidgetTester tester) async {
+    testWidgets('appBar leading IconButton should include a back button',
+        (WidgetTester tester) async {
       // Build the SettingsPage widget
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
@@ -24,7 +25,8 @@ void main() {
 
       // Find the leading IconButton
       final IconButton leadingIconButton = tester.widget(
-        find.descendant(of: find.byType(AppBar), matching: find.byType(IconButton).first),
+        find.descendant(
+            of: find.byType(AppBar), matching: find.byType(IconButton).first),
       );
 
       const expectedIcon = const Icon(Icons.arrow_back, color: Colors.white);
@@ -36,7 +38,8 @@ void main() {
   });
 
   group('settingTiles', () {
-    testWidgets('list of SettingsTiles are present', (WidgetTester tester) async {
+    testWidgets('list of SettingsTiles are present',
+        (WidgetTester tester) async {
       // Build the SettingsPage widget
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
@@ -44,7 +47,8 @@ void main() {
       expect(find.byType(SettingsTile), findsNWidgets(7));
     });
 
-    testWidgets('list of SettingsTiles are accurate', (WidgetTester tester) async {
+    testWidgets('list of SettingsTiles are accurate',
+        (WidgetTester tester) async {
       // Build the SettingsPage widget
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
@@ -77,7 +81,8 @@ void main() {
       expect(find.byIcon(Icons.login), findsOneWidget);
     });
 
-    testWidgets('SettingsTile onPress is possible', (WidgetTester tester) async {
+    testWidgets('SettingsTile onPress is possible',
+        (WidgetTester tester) async {
       // Build the SettingsPage widget
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
@@ -107,7 +112,8 @@ void main() {
 
       // Tap on Login SettingsTile
       await tester.ensureVisible(find.text('Login'));
-      await tester.pumpAndSettle(); // ensures and waits for the SettingsTile to be visible in the renderbox
+      await tester
+          .pumpAndSettle(); // ensures and waits for the SettingsTile to be visible in the renderbox
       await tester.tap(find.text('Login'));
       await tester.pump();
     });

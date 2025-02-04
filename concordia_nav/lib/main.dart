@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'core/ui/themes/app_theme.dart';
-import 'core/ui/widgets/homepage_view.dart';
+import 'ui/themes/app_theme.dart';
+import 'ui/home/homepage_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

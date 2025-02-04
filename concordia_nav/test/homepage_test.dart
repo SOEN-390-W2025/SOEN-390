@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/core/ui/widgets/homepage_view.dart';
+import 'package:concordia_nav/ui/home/homepage_view.dart';
 
 void main() {
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
