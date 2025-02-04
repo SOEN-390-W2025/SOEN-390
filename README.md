@@ -1,5 +1,11 @@
 # SOEN 390
 
+| Branch  | Status                                                                                                                                                                       |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main    | [![CI](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml/badge.svg)](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml)                |
+|         |
+| develop | [![CI](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/SOEN-390-W2025/SOEN-390/actions/workflows/ci.yaml) |
+
 [![codecov](https://codecov.io/github/NathanGrenier/SOEN-390/graph/badge.svg?token=QWLVNVQUYB)](https://codecov.io/github/NathanGrenier/SOEN-390)
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=SOEN-390-W2025_SOEN-390)](https://sonarcloud.io/summary/new_code?id=SOEN-390-W2025_SOEN-390)
