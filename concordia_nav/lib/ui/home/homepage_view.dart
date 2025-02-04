@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/campus_map_view.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
-import '../../../data/domain-model/campus.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/indoor_map_view.dart';
 
 class HomePage extends StatelessWidget {
@@ -45,7 +45,7 @@ class HomePage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              const CampusMapPage(campus: Campus.sgw)),
+                              const CampusMapPage(campus: ConcordiaCampus.sgw)),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              const CampusMapPage(campus: Campus.loy)),
+                              const CampusMapPage(campus: ConcordiaCampus.loy)),
                     ),
                   ),
                 ],

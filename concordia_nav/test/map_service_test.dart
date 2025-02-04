@@ -3,7 +3,7 @@ import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:test/test.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
-import 'package:concordia_nav/data/domain-model/campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 
 // Generate mocks for GoogleMapController
 @GenerateMocks([GoogleMapController])
@@ -29,7 +29,7 @@ void main() {
 
     test('getInitialCameraPosition should return correct CameraPosition', () {
       // Arrange
-      const campus = Campus.loy;
+      const campus = ConcordiaCampus.loy;
       final expectedCameraPosition = CameraPosition(
         target: LatLng(campus.lat, campus.lng),
         zoom: 17.0,

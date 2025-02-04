@@ -1,45 +1,46 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/data/domain-model/campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 
 void main() {
   group('Campus Class Tests', () {
     test('Verify SGW campus properties', () {
-      expect(Campus.sgw.name, "SGW Campus");
-      expect(Campus.sgw.abbreviation, "sgw");
-      expect(Campus.sgw.lat, 45.4973);
-      expect(Campus.sgw.lng, -73.5793);
+      expect(ConcordiaCampus.sgw.name, "SGW Campus");
+      expect(ConcordiaCampus.sgw.abbreviation, "sgw");
+      expect(ConcordiaCampus.sgw.lat, 45.4973);
+      expect(ConcordiaCampus.sgw.lng, -73.5793);
     });
 
     test('Verify LOY campus properties', () {
-      expect(Campus.loy.name, "LOY Campus");
-      expect(Campus.loy.abbreviation, "loy");
-      expect(Campus.loy.lat, 45.4582);
-      expect(Campus.loy.lng, -73.6405);
+      expect(ConcordiaCampus.loy.name, "LOY Campus");
+      expect(ConcordiaCampus.loy.abbreviation, "loy");
+      expect(ConcordiaCampus.loy.lat, 45.4582);
+      expect(ConcordiaCampus.loy.lng, -73.6405);
     });
 
     test('Verify unknown campus properties', () {
-      expect(Campus.unknown.name, "Unknown");
-      expect(Campus.unknown.abbreviation, "unknown");
-      expect(Campus.unknown.lat, 45.4582);
-      expect(Campus.unknown.lng, -73.6405);
+      expect(ConcordiaCampus.unknown.name, "Unknown");
+      expect(ConcordiaCampus.unknown.abbreviation, "unknown");
+      expect(ConcordiaCampus.unknown.lat, 45.4582);
+      expect(ConcordiaCampus.unknown.lng, -73.6405);
     });
 
     test('Campus.fromAbbreviation returns correct campus', () {
-      expect(Campus.fromAbbreviation("sgw"), Campus.sgw);
-      expect(Campus.fromAbbreviation("loy"), Campus.loy);
+      expect(ConcordiaCampus.fromAbbreviation("sgw"), ConcordiaCampus.sgw);
+      expect(ConcordiaCampus.fromAbbreviation("loy"), ConcordiaCampus.loy);
     });
 
     test('Campus.fromAbbreviation returns unknown for invalid abbreviation',
         () {
-      expect(Campus.fromAbbreviation("xyz"), Campus.unknown);
-      expect(Campus.fromAbbreviation(""), Campus.unknown);
+      expect(ConcordiaCampus.fromAbbreviation("xyz"), ConcordiaCampus.unknown);
+      expect(ConcordiaCampus.fromAbbreviation(""), ConcordiaCampus.unknown);
     });
 
     test('Campus.campuses contains only predefined campuses', () {
-      expect(Campus.campuses.length, 2);
-      expect(Campus.campuses, contains(Campus.sgw));
-      expect(Campus.campuses, contains(Campus.loy));
-      expect(Campus.campuses, isNot(contains(Campus.unknown)));
+      expect(ConcordiaCampus.campuses.length, 2);
+      expect(ConcordiaCampus.campuses, contains(ConcordiaCampus.sgw));
+      expect(ConcordiaCampus.campuses, contains(ConcordiaCampus.loy));
+      expect(
+          ConcordiaCampus.campuses, isNot(contains(ConcordiaCampus.unknown)));
     });
   });
 }
