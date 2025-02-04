@@ -12,7 +12,6 @@ class POIMapView extends StatelessWidget {
       body: Stack(
         children: [
           MapLayout(
-            searchController: TextEditingController(),
             mapWidget: Container(),
           ),
           Positioned(
