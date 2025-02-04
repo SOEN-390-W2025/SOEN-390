@@ -2,6 +2,7 @@ enum RoomCategory {
   auditorium,
   classroom,
   conference,
+  exitOutdoors,
   kitchen,
   lab,
   library,
