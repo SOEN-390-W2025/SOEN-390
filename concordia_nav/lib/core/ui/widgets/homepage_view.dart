@@ -4,6 +4,7 @@ import 'custom_appbar.dart';
 import 'feature_card.dart';
 import '../../../data/domain-model/campus.dart';
 import 'indoor_map_view.dart';
+import 'poi_choice_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -105,9 +106,11 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Find nearby facilities',
                     icon: const Icon(Icons.wash),
-                    onPress: () {
-                      // TODO: Implement navigation to POI map
-                    },
+                    onPress: () => Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const POIChoiceView()
+                      ),
+                    )
                   ),
                 ],
               ),
