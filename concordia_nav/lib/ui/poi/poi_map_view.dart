@@ -61,14 +61,14 @@ class POIMapView extends StatelessWidget {
                 children: [
                   Text(
                     'Time', // Placeholder text
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     'Distance', // Placeholder text
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
                     ),
