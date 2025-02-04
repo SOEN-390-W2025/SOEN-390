@@ -122,6 +122,12 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
+
+    - name: Generate Code Coverage Report
+      run: rps coverage
+
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v4
       env:
