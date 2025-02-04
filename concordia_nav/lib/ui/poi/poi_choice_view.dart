@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/custom_appbar.dart';
 import 'poi_map_view.dart';
 import '../../widgets/search_bar.dart';
-import 'poi_box.dart';
+import '../../widgets/poi_box.dart';
 
 class POIChoiceView extends StatelessWidget {
   const POIChoiceView({super.key});
@@ -89,7 +89,7 @@ class POIChoiceView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   PoiBox(
-                    title: 'Health centers',
+                    title: 'Health Centers',
                     icon: const Icon(Icons.local_hospital_outlined),
                     onPress: () {
                       // TODO: Implement Health centers choice
@@ -113,7 +113,7 @@ class POIChoiceView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   PoiBox(
-                    title: 'Food & Drink',
+                    title: 'Food & Drinks',
                     icon: const Icon(Icons.food_bank_outlined),
                     onPress: () {
                       // TODO: Implement food and drink choice
