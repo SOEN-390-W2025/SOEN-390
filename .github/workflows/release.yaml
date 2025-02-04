@@ -5,14 +5,9 @@ on:
   release:
     types: [published]
 
-jobs:
-  setup:
-    uses: ./.github/workflows/shared-setup.yaml
-    secrets: inherit
-  
+jobs:  
   android:
     name: 🚀 Android Release
-    needs: [setup]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -23,33 +18,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up JDK
-      uses: actions/setup-java@v3
+    - name: Create .env file
+      uses: ./.github/actions/create-env
       with:
-        java-version: '17'
-        distribution: 'oracle'
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        accept-android-licenses: true
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
     
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      id: flutter-action
-      with:
-        channel: stable
-        cache: true
-    - run: flutter --version
-    
-    - name: Install dependencies
-      run: flutter pub get
-
-    - name: Install rps package globally
-      run: dart pub global activate rps
-
-    - name: Run unit tests
-      run: rps test unit
+    - name: Setup Android Build
+      uses: ./.github/actions/setup-android-build
 
     - name: Decode Keystore
       run: |

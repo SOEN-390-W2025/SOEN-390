@@ -8,13 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
-    uses: ./.github/workflows/shared-setup.yaml
-    secrets: inherit
-
   test:
     name: 🧪 Run Tests
-    needs: [setup]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -25,44 +20,19 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Download .env file
-      uses: actions/download-artifact@v4
+    - name: Create .env file
+      uses: ./.github/actions/create-env
       with:
-        name: env-file
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'oracle'
-
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        accept-android-licenses: true
-
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      id: flutter-action
-      with:
-        channel: stable
-        cache: true
-    - run: flutter --version
-
-    - name: Install dependencies
-      run: flutter pub get
-
-    - name: Install rps package globally
-      run: dart pub global activate rps
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
 
     - name: Run linter
       run: rps lint check
     
     - name: Run unit tests
       run: rps test unit
-
-    - name: Build (Debug)
-      run: rps build android --debug
     
     # - name: Enable KVM group perms
     #   if: ${{ runner.os == 'Linux' }}
@@ -81,9 +51,34 @@ jobs:
     #     api-level: 35
     #     script: rps test integration
 
+  build:
+    name: 📦 Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./concordia_nav
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Create .env file
+      uses: ./.github/actions/create-env
+      with:
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
+
+    - name: Setup Android Build
+      uses: ./.github/actions/setup-android-build
+
+    - name: Build (Debug)
+      run: rps build android --debug
+
   coverage:
     name: 📊 Coverage
-    needs: [setup]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -94,23 +89,13 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Download .env file
-      uses: actions/download-artifact@v4
+    - name: Create .env file
+      uses: ./.github/actions/create-env
       with:
-        name: env-file
+        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      id: flutter-action
-      with:
-        channel: stable
-        cache: true
-
-    - name: Install dependencies
-      run: flutter pub get
-
-    - name: Install rps package globally
-      run: dart pub global activate rps
+    - name: Setup Flutter
+      uses: ./.github/actions/setup-flutter
 
     - name: Generate Code Coverage Report
       run: rps coverage
