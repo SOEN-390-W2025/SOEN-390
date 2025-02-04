@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"editor.tabSize": 2,
+		"editor.useTabStops": false,
+		"editor.rulers": [80],
+		"[dart]": {
+    		"editor.defaultFormatter": "Dart-Code.dart-code",
+  		},
+	}
+}

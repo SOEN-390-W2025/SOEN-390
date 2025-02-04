@@ -1,4 +1,4 @@
-import 'package:concordia_nav/core/ui/widgets/homepage_view.dart';
+import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import 'package:concordia_nav/data/repositories/map_repository.dart';
 import 'package:concordia_nav/data/domain-model/campus.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
-import 'package:concordia_nav/core/utils/map_viewmodel.dart';
+import 'package:concordia_nav/utils/map_viewmodel.dart';
 
 import 'map_viewmodel_test.mocks.dart';
 
