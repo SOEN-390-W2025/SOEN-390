@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/widgets/indoor_map_view.dart';
+import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
 
 void main() {

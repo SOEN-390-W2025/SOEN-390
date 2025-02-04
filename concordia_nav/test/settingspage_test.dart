@@ -1,4 +1,4 @@
-import 'package:concordia_nav/widgets/settings_page.dart';
+import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';

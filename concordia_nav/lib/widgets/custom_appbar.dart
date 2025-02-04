@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'settings_page.dart';
+import '../ui/setting/settings_page.dart';
 
 // Custom AppBar widget that accepts a title
 PreferredSizeWidget customAppBar(BuildContext context, String title,
