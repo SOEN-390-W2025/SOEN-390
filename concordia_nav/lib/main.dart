@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'ui/themes/app_theme.dart';
 import 'ui/home/homepage_view.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -12,6 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       home: const HomePage(),
     );

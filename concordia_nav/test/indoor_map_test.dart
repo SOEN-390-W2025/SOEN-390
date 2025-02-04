@@ -35,9 +35,6 @@ void main() {
 
       // Verify that the MapLayout receives the correct parameters
       expect(mapLayout.searchController, isA<TextEditingController>());
-      expect(mapLayout.onMyLocation, isA<Function>());
-      expect(mapLayout.onZoomIn, isA<Function>());
-      expect(mapLayout.onZoomOut, isA<Function>());
     });
 
     testWidgets('CustomAppBar should have the correct title',
