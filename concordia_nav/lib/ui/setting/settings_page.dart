@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'settings_tile.dart';
+import '../../widgets/settings_tile.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

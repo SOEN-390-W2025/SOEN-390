@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../widgets/campus_map_view.dart';
+import '../campus_map/campus_map_view.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
 import '../../../data/domain-model/campus.dart';
-import '../../widgets/indoor_map_view.dart';
+import '../indoor_map/indoor_map_view.dart';
+import '../poi/poi_choice_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -105,9 +106,11 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Find nearby facilities',
                     icon: const Icon(Icons.wash),
-                    onPress: () {
-                      // TODO: Implement navigation to POI map
-                    },
+                    onPress: () => Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const POIChoiceView()
+                      ),
+                    )
                   ),
                 ],
               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'custom_appbar.dart';
-import 'map_layout.dart';
+import '../../widgets/custom_appbar.dart';
+import '../../widgets/map_layout.dart';
 
 class IndoorMapView extends StatelessWidget {
   const IndoorMapView({super.key});
