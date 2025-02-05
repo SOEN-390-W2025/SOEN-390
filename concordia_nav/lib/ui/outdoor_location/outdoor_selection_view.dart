@@ -23,7 +23,7 @@ class OutdoorSelectionView extends StatelessWidget {
               hintText: 'Search location ...',
               icon: Icons.search,
               iconColor: Colors.black,
-              ),
+            ),
             const SizedBox(height: 15),
             const Align(
               alignment: Alignment.centerLeft,
