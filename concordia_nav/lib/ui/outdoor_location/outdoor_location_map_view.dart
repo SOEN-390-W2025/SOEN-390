@@ -7,9 +7,8 @@ import '../../widgets/map_layout.dart';
 import '../../widgets/search_bar.dart';
 class OutdoorLocationMapView extends StatefulWidget {
   final Campus campus;
-  final String destination; // The destination received from the previous screen
 
-  const OutdoorLocationMapView({super.key, required this.destination, required this.campus});
+  const OutdoorLocationMapView({super.key, required this.campus});
 
   @override
   State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
