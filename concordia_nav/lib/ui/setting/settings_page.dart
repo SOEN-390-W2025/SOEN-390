@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
+import 'calendar/calendar_link_view.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -32,9 +33,13 @@ class SettingsPage extends StatelessWidget {
           SettingsTile(
             icon: Icons.calendar_today,
             title: 'My calendar',
-            onTap: () {
-              // TODO: Implement navigation to Calendar page.
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => 
+                  const CalendarLinkView(),
+              )
+            )
           ),
           SettingsTile(
             icon: Icons.notifications,
