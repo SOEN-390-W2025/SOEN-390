@@ -71,13 +71,6 @@ class SettingsPage extends StatelessWidget {
               // TODO: Implement navigation to Guide page.
             },
           ),
-          SettingsTile(
-            icon: Icons.login,
-            title: 'Login',
-            onTap: () {
-              // TODO: Implement navigation to Login page.
-            },
-          ),
         ],
       ),
     );
