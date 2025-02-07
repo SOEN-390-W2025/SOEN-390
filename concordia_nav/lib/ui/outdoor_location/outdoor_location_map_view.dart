@@ -29,7 +29,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Outdoor Location'),
+      appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
           // Add your map widget here (for now it's just a container)

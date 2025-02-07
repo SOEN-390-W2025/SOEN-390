@@ -26,5 +26,6 @@ void main() {
       // Verify that MapLayout widget exists
       expect(find.byType(MapLayout), findsOneWidget);
     });
+
   });
 }

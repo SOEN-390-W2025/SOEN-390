@@ -109,9 +109,22 @@ void main() {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('FeatureCard onPress should be triggered with correct navigations',
+  testWidgets('Outdoor Directions navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    await tester.pump();
+
+    // Tap on the Outdoor Directions FeatureCard
+    await tester.tap(find.byIcon(Icons.maps_home_work));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+
+    // Tap the back button in the app bar
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+  });
+
+  testWidgets('Main menu items are present',
       (WidgetTester tester) async {
-    const bool outdoorDirectionsPressed = false;
 
     // Build the HomePage widget with mock onPress handlers
     await tester.pumpWidget(const MaterialApp(
@@ -121,11 +134,6 @@ void main() {
     // Tap on the Menu button
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
-
-    // Tap on the Outdoor directions FeatureCard
-    await tester.tap(find.text('Outdoor directions'));
-    await tester.pump();
-    expect(outdoorDirectionsPressed, isFalse);
 
     // Verify that the app has returned to the HomePage
     expect(find.text('Home'), findsOneWidget);
