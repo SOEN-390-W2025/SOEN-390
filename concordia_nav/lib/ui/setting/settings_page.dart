@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
+import 'accessibility/accessibility_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -54,7 +55,11 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.accessibility,
             title: 'Accessibility',
             onTap: () {
-              // TODO: Implement navigation to Accessibility page
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const AccessibilityPage();
+                }),
+              );
             },
           ),
           SettingsTile(
