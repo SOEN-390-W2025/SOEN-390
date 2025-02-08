@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ui/themes/app_theme.dart';
-import 'ui/home/homepage_view.dart';
+import 'widgets/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: const HomePage(),
+      home: const SplashScreen(),
     );
   }
 }
