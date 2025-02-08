@@ -2,9 +2,36 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/calendar.dart';
 import '../../../widgets/custom_appbar.dart';
 import 'calandar_view.dart';
+import 'package:device_calendar/device_calendar.dart';
 
-class CalendarLinkView extends StatelessWidget {
+class CalendarLinkView extends StatefulWidget {
   const CalendarLinkView({super.key});
+
+  @override
+  CalendarLinkViewState createState() => CalendarLinkViewState();
+}
+  
+class CalendarLinkViewState extends State<CalendarLinkView> {
+  @override
+  void initState() {
+    super.initState();
+    // Check calendar permissions as soon as the page is loaded
+    checkCalendarPermission();
+  }
+
+  // Check calendar permission when the page is loaded
+  Future<void> checkCalendarPermission() async {
+    final plugin = DeviceCalendarPlugin();
+    final hasPermissions = await plugin.hasPermissions();
+
+    if (mounted && hasPermissions.isSuccess && hasPermissions.data == true) {
+      // If permissions are granted, navigate to CalendarView
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const CalendarView()),
+      );
+    }
+  }
 
   /// Request calendar permissions.
   Future<void> requestCalendarPermissions(BuildContext context) async {
@@ -15,7 +42,7 @@ class CalendarLinkView extends StatelessWidget {
       if (permissionsGranted) {
         // Assume there is no error
         // Navigate to calendar view
-        await Navigator.push(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const CalendarView()),
         );
