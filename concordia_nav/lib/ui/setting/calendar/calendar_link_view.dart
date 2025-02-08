@@ -4,18 +4,29 @@ import '../../../widgets/custom_appbar.dart';
 import 'calendar_view.dart';
 
 class CalendarLinkView extends StatefulWidget {
-  const CalendarLinkView({super.key});
+  final CalendarRepository? calendarRepository;
+
+  const CalendarLinkView({super.key, this.calendarRepository});
 
   @override
   CalendarLinkViewState createState() => CalendarLinkViewState();
 }
-  
+
 class CalendarLinkViewState extends State<CalendarLinkView> {
+  late CalendarRepository _calendarRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    // If no calendarRepository is passed, instantiate one
+    _calendarRepository = widget.calendarRepository ?? CalendarRepository();
+  }
+
   /// Request calendar permissions.
   Future<void> requestCalendarPermissions(BuildContext context) async {
     // Check if permission is granted
-    final permissionsGranted = await CalendarRepository().checkPermissions();
-    
+    final permissionsGranted = await _calendarRepository.checkPermissions();
+
     if (context.mounted) {
       if (permissionsGranted) {
         // Assume there is no error
@@ -24,12 +35,12 @@ class CalendarLinkViewState extends State<CalendarLinkView> {
           context,
           MaterialPageRoute(builder: (context) => const CalendarView()),
         );
-
       } else {
         // Show an error if permission is denied
-
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permission denied. Please enable it in settings.')),
+          const SnackBar(
+              content:
+                  Text('Permission denied. Please enable it in settings.')),
         );
       }
     }
