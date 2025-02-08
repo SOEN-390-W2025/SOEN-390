@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
 import 'accessibility/accessibility_page.dart';
-import 'calendar/calandar_view.dart';
+import 'calendar/calendar_view.dart';
 import 'calendar/calendar_link_view.dart';
 import 'package:device_calendar/device_calendar.dart';
 
