@@ -1,9 +1,75 @@
+import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
+import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:mockito/mockito.dart';
+
+import 'calendar_repository_test.mocks.dart';
 
 void main() {
+  group('SettingsPage', () {
+    late MockDeviceCalendarPlugin mockPlugin;
+
+    setUp(() {
+      mockPlugin = MockDeviceCalendarPlugin();
+    });
+
+    testWidgets(
+      'navigates to CalendarView when permissions are granted',
+      (WidgetTester tester) async {
+        // Arrange: Mock hasPermissions to return true
+        when(mockPlugin.hasPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = true);
+        when(mockPlugin.requestPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = true);
+
+        // Pump the SettingsPage widget
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SettingsPage(plugin: mockPlugin),
+          ),
+        );
+
+        // Simulate tapping the "My calendar" tile
+        await tester.tap(find.text('My calendar'));
+        await tester.pumpAndSettle(); // Wait for the navigation to complete
+
+        // Assert that Navigator.push was called and navigated to CalendarView
+        verify(mockPlugin.hasPermissions()).called(1);
+        expect(find.byType(CalendarView), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'navigates to CalendarLinkView when permissions are not granted',
+      (WidgetTester tester) async {
+        // Arrange: Mock hasPermissions to return false
+        when(mockPlugin.hasPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = false);
+        when(mockPlugin.requestPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = false);
+
+        // Pump the SettingsPage widget
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SettingsPage(plugin: mockPlugin),
+          ),
+        );
+
+        // Simulate tapping the "My calendar" tile
+        await tester.tap(find.text('My calendar'));
+        await tester.pumpAndSettle(); // Wait for the navigation to complete
+
+        // Assert that Navigator.push was called and navigated to CalendarLinkView
+        verify(mockPlugin.hasPermissions()).called(1);
+        expect(find.byType(CalendarLinkView), findsOneWidget);
+      },
+    );
+  });
+
   group('settingsAppBar', () {
     testWidgets('appBar has the right title', (WidgetTester tester) async {
       // Build the SettingsPage widget
