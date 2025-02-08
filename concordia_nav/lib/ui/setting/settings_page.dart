@@ -1,8 +1,48 @@
 import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
+import 'accessibility/accessibility_page.dart';
+import 'calendar/calendar_view.dart';
+import 'calendar/calendar_link_view.dart';
+import 'package:device_calendar/device_calendar.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class SettingsPage extends StatefulWidget {
+  final DeviceCalendarPlugin?
+      plugin; // Optional parameter for dependency injection
+
+  const SettingsPage({super.key, this.plugin});
+
+  @override
+  State<SettingsPage> createState() => SettingsPageState();
+}
+
+class SettingsPageState extends State<SettingsPage> {
+  late final DeviceCalendarPlugin plugin; // Initialize this field
+
+  @override
+  void initState() {
+    super.initState();
+    // If no plugin is provided, create a new one
+    plugin = widget.plugin ?? DeviceCalendarPlugin();
+  }
+
+  Future<void> checkCalendarPermission() async {
+    final hasPermissions = await plugin.hasPermissions();
+
+    if (mounted) {
+      if (hasPermissions.isSuccess && hasPermissions.data == true) {
+        // If permissions are granted, navigate to CalendarView
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CalendarView()),
+        );
+      } else {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CalendarLinkView()),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +72,7 @@ class SettingsPage extends StatelessWidget {
           SettingsTile(
             icon: Icons.calendar_today,
             title: 'My calendar',
-            onTap: () {
-              // TODO: Implement navigation to Calendar page.
-            },
+            onTap: () => checkCalendarPermission(),
           ),
           SettingsTile(
             icon: Icons.notifications,
@@ -54,7 +92,11 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.accessibility,
             title: 'Accessibility',
             onTap: () {
-              // TODO: Implement navigation to Accessibility page
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return const AccessibilityPage();
+                }),
+              );
             },
           ),
           SettingsTile(
@@ -69,13 +111,6 @@ class SettingsPage extends StatelessWidget {
             title: 'Guide',
             onTap: () {
               // TODO: Implement navigation to Guide page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.login,
-            title: 'Login',
-            onTap: () {
-              // TODO: Implement navigation to Login page.
             },
           ),
         ],
