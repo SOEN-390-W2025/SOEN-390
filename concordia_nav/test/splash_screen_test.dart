@@ -24,7 +24,7 @@ void main() {
       (WidgetTester tester) async {
     // Pump SplashScreen
     await tester.pumpWidget(
-      MaterialApp(key: UniqueKey(), home: SplashScreen()),
+      MaterialApp(key: UniqueKey(), home: const SplashScreen()),
     );
 
     // Wait for the delay duration (3 seconds in this case)
