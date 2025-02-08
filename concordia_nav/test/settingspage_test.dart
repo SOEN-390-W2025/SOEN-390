@@ -44,7 +44,7 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
       // Verify that exactly 7 SettingsTile exist
-      expect(find.byType(SettingsTile), findsNWidgets(7));
+      expect(find.byType(SettingsTile), findsNWidgets(6));
     });
 
     testWidgets('list of SettingsTiles are accurate',
@@ -75,10 +75,6 @@ void main() {
       // Verify that the Guide SettingsTile text and icon are present
       expect(find.text('Guide'), findsOneWidget);
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
-
-      // Verify that the Login SettingsTile text and icon are present
-      expect(find.text('Login'), findsOneWidget);
-      expect(find.byIcon(Icons.login), findsOneWidget);
     });
 
     testWidgets('SettingsTile onPress is possible',
@@ -100,7 +96,9 @@ void main() {
 
       // Tap on Accessibility SettingsTile
       await tester.tap(find.text('Accessibility'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
       // Tap on Contact SettingsTile
       await tester.tap(find.text('Contact'));
@@ -108,13 +106,6 @@ void main() {
 
       // Tap on Guide SettingsTile
       await tester.tap(find.text('Guide'));
-      await tester.pump();
-
-      // Tap on Login SettingsTile
-      await tester.ensureVisible(find.text('Login'));
-      await tester
-          .pumpAndSettle(); // ensures and waits for the SettingsTile to be visible in the renderbox
-      await tester.tap(find.text('Login'));
       await tester.pump();
     });
   });
