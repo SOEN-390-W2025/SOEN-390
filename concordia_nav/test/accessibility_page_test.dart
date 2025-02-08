@@ -1,8 +1,20 @@
+import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
 
 void main() {
+  testWidgets('renders AccessibilityPage with non-constant key',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AccessibilityPage(key: UniqueKey()),
+      ),
+    );
+
+    expect(find.text('Accessibility'), findsOneWidget);
+  });
+
   testWidgets('Accessibility Page should render correctly',
       (WidgetTester tester) async {
     // Build the HomePage widget
