@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
