@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/calendar.dart';
 import '../../../widgets/custom_appbar.dart';
 import 'calandar_view.dart';
-import 'package:device_calendar/device_calendar.dart';
 
 class CalendarLinkView extends StatefulWidget {
   const CalendarLinkView({super.key});
