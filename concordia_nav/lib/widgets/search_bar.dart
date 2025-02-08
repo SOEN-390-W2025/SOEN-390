@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  final TextEditingController controller;
+   final TextEditingController controller;
+  final String hintText;
+  final IconData icon;
+  final Color iconColor;
 
-  const SearchBarWidget({super.key, required this.controller});
+  const SearchBarWidget({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    required this.icon,
+    required this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +33,9 @@ class SearchBarWidget extends StatelessWidget {
         controller: controller,
         textAlignVertical:
             TextAlignVertical.center, // Ensures text is vertically centered
-        decoration: const InputDecoration(
-          hintText: "Search location...",
-          prefixIcon: Icon(Icons.search),
+        decoration: InputDecoration(
+          hintText: hintText,
+          prefixIcon: Icon(icon, color: iconColor),
           border: InputBorder.none,
         ),
       ),

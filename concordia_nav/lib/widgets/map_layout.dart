@@ -21,7 +21,12 @@ class MapLayout extends StatelessWidget {
             top: 10,
             left: 15,
             right: 15,
-            child: SearchBarWidget(controller: searchController!),
+            child: SearchBarWidget(
+              controller: searchController!,
+              hintText: 'Search location ...',
+              icon: Icons.search,
+              iconColor: Colors.black,
+            ),
           ),
       ],
     );
