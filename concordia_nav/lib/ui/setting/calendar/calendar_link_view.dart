@@ -12,27 +12,6 @@ class CalendarLinkView extends StatefulWidget {
 }
   
 class CalendarLinkViewState extends State<CalendarLinkView> {
-  @override
-  void initState() {
-    super.initState();
-    // Check calendar permissions as soon as the page is loaded
-    checkCalendarPermission();
-  }
-
-  // Check calendar permission when the page is loaded
-  Future<void> checkCalendarPermission() async {
-    final plugin = DeviceCalendarPlugin();
-    final hasPermissions = await plugin.hasPermissions();
-
-    if (mounted && hasPermissions.isSuccess && hasPermissions.data == true) {
-      // If permissions are granted, navigate to CalendarView
-      await Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const CalendarView()),
-      );
-    }
-  }
-
   /// Request calendar permissions.
   Future<void> requestCalendarPermissions(BuildContext context) async {
     // Check if permission is granted
