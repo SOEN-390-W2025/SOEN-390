@@ -22,7 +22,9 @@ jobs:
         fetch-depth: 0
 
     - name: Temp
-      run: echo ${{ secrets.KEYSTORE_PASSWORD }}
+      run: |
+        echo ${{ secrets.KEYSTORE_PASSWORD }} >> temp.txt
+        cat temp.txt
     
     - name: Update version in pubspec.yaml
       env:
