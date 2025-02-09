@@ -21,6 +21,9 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Temp
+      run: echo ${{ secrets.KEYSTORE_PASSWORD }}
+    
     - name: Update version in pubspec.yaml
       env:
         TAG: ${{ github.event.release.tag_name }}
