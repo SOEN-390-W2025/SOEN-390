@@ -21,13 +21,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up secret file
-      env:
-        PASS: ${{ secrets.KEYSTORE_PASSWORD }}
-
-      run: |
-        echo ${{secrets.KEYSTORE_PASSWORD}} | sed 's/./& /g'
-    
     - name: Update version in pubspec.yaml
       env:
         TAG: ${{ github.event.release.tag_name }}
