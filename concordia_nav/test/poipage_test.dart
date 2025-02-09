@@ -6,6 +6,17 @@ import 'package:flutter/material.dart';
 
 void main() {
   group('poiAppBar', () {
+    testWidgets('renders POIChoiceView with non-constant key',
+        (WidgetTester tester) async {
+      // Build the POI page widget
+      await tester
+          .pumpWidget(MaterialApp(home: POIChoiceView(key: UniqueKey())));
+      await tester.pump();
+
+      // Verify that the appBar exists and has the right title
+      expect(find.text('Nearby Facilities'), findsOneWidget);
+    });
+
     testWidgets('appBar has the right title', (WidgetTester tester) async {
       // Build the POI page widget
       await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
@@ -27,7 +38,8 @@ void main() {
       expect(find.byType(SearchBarWidget), findsOneWidget);
     });
 
-    testWidgets('selection title exists and is correct', (WidgetTester tester) async {
+    testWidgets('selection title exists and is correct',
+        (WidgetTester tester) async {
       // Build the POI page widget
       await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
       await tester.pump();
@@ -122,6 +134,5 @@ void main() {
       // Should be in the POI map view page
       expect(find.text('Nearby Facility'), findsWidgets);
     });
-
   });
 }
