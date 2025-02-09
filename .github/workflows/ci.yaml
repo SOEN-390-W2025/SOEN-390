@@ -78,6 +78,10 @@ jobs:
       uses: ./.github/actions/build-android
       with:
         release: ${{ github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        keystore-base64: ${{ secrets.KEYSTORE_BASE64 }}
+        keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
+        key-password: ${{ secrets.KEY_PASSWORD }}
+        key-alias: ${{ secrets.KEY_ALIAS }}
 
   coverage:
     name: 📊 Coverage

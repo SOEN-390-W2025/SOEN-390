@@ -5,6 +5,18 @@ inputs:
     description: 'Whether to build in release mode'
     required: true
     default: 'false'
+  keystore-base64:
+    description: 'Keystore Base64 Encoded'
+    required: true
+  keystore-password:
+    description: 'Keystore Password'
+    required: true
+  key-password:
+    description: 'Key Password'
+    required: true
+  key-alias:
+    description: 'Key Alias'
+    required: true
 runs:
   using: composite
   steps:
