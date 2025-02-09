@@ -24,25 +24,27 @@ runs:
     shell: bash
     run: |
       if [ "${{ inputs.release }}" == 'true' ]; then
-        echo "Building in release mode"
+        echo "[INFO] Building in release mode."
       else
-        echo "Building in debug mode"
+        echo "[INFO] Building in debug mode."
       fi
   
   - name: Decode Keystore
     if: ${{ inputs.release == 'true' }}
     shell: bash
     run: |
-      echo "${{ inputs.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+      base64 -d <<< "${{ inputs.keystore-base64 }}" > android/app/upload-keystore.jks
 
   - name: Configure Gradle Properties
     if: ${{ inputs.release == 'true' }}
     shell: bash
     run: |
-      echo "storePassword=${{ inputs.KEYSTORE_PASSWORD }}" > android/key.properties
-      echo "keyPassword=${{ inputs.KEY_PASSWORD }}" >> android/key.properties
-      echo "keyAlias=${{ inputs.KEY_ALIAS }}" >> android/key.properties
-      echo "storeFile=upload-keystore.jks" >> android/key.properties
+      {
+        echo "storePassword=${{ inputs.keystore-password }}"
+        echo "keyPassword=${{ inputs.key-password }}"
+        echo "keyAlias=${{ inputs.key-alias }}"
+        echo "storeFile=upload-keystore.jks"
+      } > android/key.properties
 
   - name: Build APK
     shell: bash
