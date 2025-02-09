@@ -74,8 +74,10 @@ jobs:
     - name: Setup Android Build
       uses: ./.github/actions/setup-android-build
 
-    - name: Build (Debug)
-      run: rps build android --debug
+    - name: Build (Release or Debug)
+      uses: ./.github/actions/build-android
+      with:
+        release: ${{ github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
 
   coverage:
     name: 📊 Coverage

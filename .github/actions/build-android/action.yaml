@@ -1,0 +1,42 @@
+name: Build Android 
+description: Builds the Android .apk in release or debug mode depending on the branch refs.
+inputs:
+  release:
+    description: 'Whether to build in release mode'
+    required: true
+    default: 'false'
+runs:
+  using: composite
+  steps:
+  - name: Build Type
+    shell: bash
+    run: |
+      if [ "${{ inputs.release }}" == 'true' ]; then
+        echo "Building in release mode"
+      else
+        echo "Building in debug mode"
+      fi
+  
+  - name: Decode Keystore
+    if: ${{ inputs.release == 'true' }}
+    shell: bash
+    run: |
+      echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+
+  - name: Configure Gradle Properties
+    if: ${{ inputs.release == 'true' }}
+    shell: bash
+    run: |
+      echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+      echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+      echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+      echo "storeFile=upload-keystore.jks" >> android/key.properties
+
+  - name: Build APK
+    shell: bash
+    run: |
+      if [ "${{ inputs.release }}" == 'true' ]; then
+        rps build android --release
+      else
+        rps build android --debug
+      fi
