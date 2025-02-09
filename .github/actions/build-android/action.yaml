@@ -31,12 +31,14 @@ runs:
   
   - name: Decode Keystore
     if: ${{ inputs.release == 'true' }}
+    working-directory: ./concordia_nav
     shell: bash
     run: |
       base64 -d <<< "${{ inputs.keystore-base64 }}" > android/app/upload-keystore.jks
 
   - name: Configure Gradle Properties
     if: ${{ inputs.release == 'true' }}
+    working-directory: ./concordia_nav
     shell: bash
     run: |
       {
@@ -47,6 +49,7 @@ runs:
       } > android/key.properties
 
   - name: Build APK
+    working-directory: ./concordia_nav
     shell: bash
     run: |
       if [ "${{ inputs.release }}" == 'true' ]; then
