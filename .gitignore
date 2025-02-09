@@ -1,5 +1,8 @@
 # Build Environment Variables
 concordia_nav/ios/Flutter/Environment.xcconfig
+.env
+.env.*
+.artifacts/
 
 # .vscode
 .vscode/
