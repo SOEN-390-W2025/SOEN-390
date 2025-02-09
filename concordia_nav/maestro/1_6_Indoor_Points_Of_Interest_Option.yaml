@@ -1,10 +1,11 @@
 appId: com.example.concordia_nav
 ---
 - tapOn: "ConU Nav"
-- tapOn:
-    point: "7%,9%"
-- assertVisible: "Settings"
-- assertVisible: "My calendar"
-- tapOn: "My calendar"
-- assertVisible: "Preferences"
-- tapOn: "Preferences"
+- assertVisible: "Find nearby facilities"
+- tapOn: "Find nearby facilities"
+- assertVisible: "Nearby Facilities"
+- assertVisible: Restrooms
+- tapOn: "Restrooms"
+- assertVisible: "Nearby Facility"
+- assertVisible: "Time"
+- assertVisible: "Distance"
