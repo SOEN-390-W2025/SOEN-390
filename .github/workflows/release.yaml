@@ -39,19 +39,14 @@ jobs:
     - name: Setup Android Build
       uses: ./.github/actions/setup-android-build
 
-    - name: Decode Keystore
-      run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
-
-    - name: Configure Gradle Properties
-      run: |
-        echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-        echo "storeFile=upload-keystore.jks" >> android/key.properties
-
-    - name: Build Signed APK
-      run: rps build android --release
+    - name: Build Release
+      uses: ./.github/actions/build-android
+      with:
+        release: "true"
+        keystore-base64: ${{ secrets.KEYSTORE_BASE64 }}
+        keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
+        key-password: ${{ secrets.KEY_PASSWORD }}
+        key-alias: ${{ secrets.KEY_ALIAS }}
 
     - name: Upload APK to Release
       uses: actions/upload-release-asset@v1
