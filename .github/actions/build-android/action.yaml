@@ -25,8 +25,11 @@ runs:
     run: |
       if [ "${{ inputs.release }}" == 'true' ]; then
         echo "[INFO] Building in release mode."
-      else
+      elif [ "${{ inputs.release }}" == 'false' ]; then
         echo "[INFO] Building in debug mode."
+      else
+        echo "[ERROR] Invalid parameter for 'release'. Expected 'true' or 'false' got '${{ inputs.release }}'."
+        exit 1
       fi
   
   - name: Decode Keystore
