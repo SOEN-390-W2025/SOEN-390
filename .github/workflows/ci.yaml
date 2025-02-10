@@ -39,7 +39,7 @@ jobs:
 
     - name: Cancel workflow on failure
       if: failure()
-      uses: vishnudxb/cancel-workflow-action@v1.2
+      uses: vishnudxb/cancel-workflow@v1.2
       with:
         repo: ${{ github.repository }}
         workflow_id: ${{ github.run_id }}
