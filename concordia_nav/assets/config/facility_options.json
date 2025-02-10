@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Restrooms",
+    "icon": "wc_outlined",
+    "route": "POIMapView"
+  },
+  {
+    "title": "Elevators",
+    "icon": "elevator_outlined",
+    "route": ""
+  },
+  {
+    "title": "Staircases",
+    "icon": "stairs_outlined",
+    "route": ""
+  },
+  {
+    "title": "Emergency Exit",
+    "icon": "directions_run_outlined",
+    "route": ""
+  },
+  {
+    "title": "Health Centers",
+    "icon": "local_hospital_outlined",
+    "route": ""
+  },
+  {
+    "title": "Lost and Found",
+    "icon": "archive_outlined",
+    "route": ""
+  },
+  {
+    "title": "Food & Drinks",
+    "icon": "food_bank_outlined",
+    "route": ""
+  },
+  {
+    "title": "Others",
+    "icon": "more_outlined",
+    "route": ""
+  }
+]

@@ -36,12 +36,12 @@ scripts:
   coverage: flutter test --coverage --branch-coverage
   run: flutter run --dart-define-from-file=../.env
   clean: flutter clean
-  build: 
-    android: 
+  build:
+    android:
       $script: flutter build apk --dart-define-from-file=../.env
       $description: Build the android app. Can pass --debug or --release flag. (Default --release)
     ios: flutter build ipa
-  install: 
+  install:
     $script: flutter install
     $description: Install the app on the connected device. Can pass --release or --debug flags. (Default --release)
 
@@ -92,6 +92,7 @@ flutter:
   # under assets as well.
   assets:
     - assets/images/
+    - assets/config/
     - ../.env
 
   # To add custom fonts to your application, add a fonts section here,
