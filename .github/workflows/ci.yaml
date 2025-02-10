@@ -37,9 +37,6 @@ jobs:
     - name: Run unit tests
       run: rps test unit
 
-    - name: Fail
-      run: exit 1
-
     - name: Cancel workflow on failure
       if: failure()
       uses: vishnudxb/cancel-workflow@v1.2
