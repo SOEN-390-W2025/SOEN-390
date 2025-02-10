@@ -35,7 +35,7 @@ class POIViewModel extends ChangeNotifier {
       _poiList = await _repository.fetchPOIData();
       _filteredPOIList = _poiList;
       _errorMessage = null;
-    } catch (e) {
+    } on Exception {
       _errorMessage = "Failed to load data. Try again later.";
     } finally {
       _isLoading = false;
@@ -45,7 +45,7 @@ class POIViewModel extends ChangeNotifier {
 
   /// Search filter logic for POI list, based on the search bar input
   void _filterPOIs() {
-    String query = searchController.text.toLowerCase();
+    final String query = searchController.text.toLowerCase();
 
     if (query.isEmpty) {
       _filteredPOIList = _poiList;
