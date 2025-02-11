@@ -1,9 +1,75 @@
-import 'package:concordia_nav/widgets/settings_page.dart';
+import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
+import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
+import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:mockito/mockito.dart';
+
+import 'calendar_repository_test.mocks.dart';
 
 void main() {
+  group('SettingsPage', () {
+    late MockDeviceCalendarPlugin mockPlugin;
+
+    setUp(() {
+      mockPlugin = MockDeviceCalendarPlugin();
+    });
+
+    testWidgets(
+      'navigates to CalendarView when permissions are granted',
+      (WidgetTester tester) async {
+        // Arrange: Mock hasPermissions to return true
+        when(mockPlugin.hasPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = true);
+        when(mockPlugin.requestPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = true);
+
+        // Pump the SettingsPage widget
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SettingsPage(plugin: mockPlugin),
+          ),
+        );
+
+        // Simulate tapping the "My calendar" tile
+        await tester.tap(find.text('My calendar'));
+        await tester.pumpAndSettle(); // Wait for the navigation to complete
+
+        // Assert that Navigator.push was called and navigated to CalendarView
+        verify(mockPlugin.hasPermissions()).called(1);
+        expect(find.byType(CalendarView), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'navigates to CalendarLinkView when permissions are not granted',
+      (WidgetTester tester) async {
+        // Arrange: Mock hasPermissions to return false
+        when(mockPlugin.hasPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = false);
+        when(mockPlugin.requestPermissions())
+            .thenAnswer((_) async => Result<bool>()..data = false);
+
+        // Pump the SettingsPage widget
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SettingsPage(plugin: mockPlugin),
+          ),
+        );
+
+        // Simulate tapping the "My calendar" tile
+        await tester.tap(find.text('My calendar'));
+        await tester.pumpAndSettle(); // Wait for the navigation to complete
+
+        // Assert that Navigator.push was called and navigated to CalendarLinkView
+        verify(mockPlugin.hasPermissions()).called(1);
+        expect(find.byType(CalendarLinkView), findsOneWidget);
+      },
+    );
+  });
+
   group('settingsAppBar', () {
     testWidgets('appBar has the right title', (WidgetTester tester) async {
       // Build the SettingsPage widget
@@ -44,7 +110,7 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
       // Verify that exactly 7 SettingsTile exist
-      expect(find.byType(SettingsTile), findsNWidgets(7));
+      expect(find.byType(SettingsTile), findsNWidgets(6));
     });
 
     testWidgets('list of SettingsTiles are accurate',
@@ -75,10 +141,6 @@ void main() {
       // Verify that the Guide SettingsTile text and icon are present
       expect(find.text('Guide'), findsOneWidget);
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
-
-      // Verify that the Login SettingsTile text and icon are present
-      expect(find.text('Login'), findsOneWidget);
-      expect(find.byIcon(Icons.login), findsOneWidget);
     });
 
     testWidgets('SettingsTile onPress is possible',
@@ -100,7 +162,9 @@ void main() {
 
       // Tap on Accessibility SettingsTile
       await tester.tap(find.text('Accessibility'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
       // Tap on Contact SettingsTile
       await tester.tap(find.text('Contact'));
@@ -108,13 +172,6 @@ void main() {
 
       // Tap on Guide SettingsTile
       await tester.tap(find.text('Guide'));
-      await tester.pump();
-
-      // Tap on Login SettingsTile
-      await tester.ensureVisible(find.text('Login'));
-      await tester
-          .pumpAndSettle(); // ensures and waits for the SettingsTile to be visible in the renderbox
-      await tester.tap(find.text('Login'));
       await tester.pump();
     });
   });

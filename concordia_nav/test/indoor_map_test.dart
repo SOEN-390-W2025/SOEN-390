@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/widgets/indoor_map_view.dart';
+import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
 
 void main() {
   group('IndoorMapView Widget Tests', () {
+    testWidgets('IndoorMapView should render correctly with non-constant key',
+        (WidgetTester tester) async {
+      // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: IndoorMapView(key: UniqueKey()),
+        ),
+      );
+
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.text('Indoor Map'), findsOneWidget);
+
+      // Verify that the MapLayout is rendered
+      expect(find.byType(MapLayout), findsOneWidget);
+    });
+
     testWidgets('IndoorMapView should render correctly',
         (WidgetTester tester) async {
       // Build the IndoorMapView widget

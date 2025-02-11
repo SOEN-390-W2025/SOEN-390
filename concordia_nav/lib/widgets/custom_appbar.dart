@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'settings_page.dart';
+import '../ui/setting/settings_page.dart';
 
 // Custom AppBar widget that accepts a title
 PreferredSizeWidget customAppBar(BuildContext context, String title,
     {Icon? actionIcon, Function? onActionPressed}) {
-  final isHomePage = ModalRoute.of(context)?.settings.name == '/';
+  final isHomePage = ModalRoute.of(context)?.isFirst ?? false;
 
   return AppBar(
     backgroundColor: Theme.of(context).primaryColor,

@@ -33,63 +33,110 @@ void main() {
     expect(find.byIcon(Icons.wash), findsOneWidget);
   });
 
-  testWidgets('FeatureCard onPress should be triggered',
-      (WidgetTester tester) async {
-    const bool outdoorDirectionsPressed = false;
-    const bool nextClassDirectionsPressed = false;
-    const bool findNearbyFacilitiesPressed = false;
-
-    // Build the HomePage widget with mock onPress handlers
-    await tester.pumpWidget(const MaterialApp(
-      home: const HomePage(),
-    ));
-
-    // Tap on the Menu button
-    await tester.tap(find.byIcon(Icons.menu));
+  testWidgets('SGW campus navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
 
     // Tap on the SGW map FeatureCard
     await tester.tap(find.text('SGW map'));
     await tester.pumpAndSettle();
+    expect(find.text('SGW Campus'), findsOneWidget);
 
     // Press the back button
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
+    expect(find.text('Home'), findsOneWidget);
+  });
 
-    // Tap on the LOY map FeatureCard
+  testWidgets('Loyola campus navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    await tester.pump();
+
+    // Tap on the Loyola map FeatureCard
     await tester.tap(find.text('LOY map'));
     await tester.pumpAndSettle();
+    expect(find.text('LOY Campus'), findsOneWidget);
 
     // Press the back button
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
+    expect(find.text('Home'), findsOneWidget);
+  });
 
-    // Tap on the Outdoor directions FeatureCard
-    await tester.tap(find.text('Outdoor directions'));
+  testWidgets('Indoor Directions navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
-    expect(outdoorDirectionsPressed, isFalse);
-
-    // Tap on the Next class directions FeatureCard
-    await tester.tap(find.text('Next class directions'));
-    await tester.pump();
-    expect(nextClassDirectionsPressed, isFalse);
 
     // Tap on the Indoor directions FeatureCard
     await tester.tap(find.text('Indoor directions'));
     await tester.pumpAndSettle(); // Wait for navigation to complete
-    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+    expect(find.text('Indoor Map'), findsOneWidget);
 
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle(); // Wait for navigation to complete
+    expect(find.text('Home'), findsOneWidget);
+  });
+
+  testWidgets('Nearby Facilities navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    await tester.pump();
+
+    // Tap on the Find nearby facilities FeatureCard
+    await tester.tap(find.byIcon(Icons.wash));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+
+    // Tap the back button in the app bar
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+  });
+
+  testWidgets('Next Class navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    await tester.pump();
+
+    // Tap on the Next Class directions FeatureCard
+    await tester.tap(find.byIcon(Icons.calendar_today));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+
+    // Tap the back button in the app bar
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+  });
+
+  testWidgets('Outdoor Directions navigation should work', (WidgetTester tester) async {
+    // Build the HomePage widget
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    await tester.pump();
+
+    // Tap on the Outdoor Directions FeatureCard
+    await tester.tap(find.byIcon(Icons.maps_home_work));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+
+    // Tap the back button in the app bar
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
+  });
+
+  testWidgets('Main menu items are present',
+      (WidgetTester tester) async {
+
+    // Build the HomePage widget with mock onPress handlers
+    await tester.pumpWidget(const MaterialApp(
+      home: const HomePage()
+    ));
+    await tester.pump();
+    // Tap on the Menu button
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pump();
 
     // Verify that the app has returned to the HomePage
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Concordia Campus Guide'), findsOneWidget);
-
-    // Tap on the Find nearby facilities FeatureCard
-    await tester.tap(find.text('Find nearby facilities'));
-    await tester.pump();
-    expect(findNearbyFacilitiesPressed, isFalse);
   });
 }

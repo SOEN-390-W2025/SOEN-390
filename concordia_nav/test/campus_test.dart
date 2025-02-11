@@ -1,8 +1,31 @@
+import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 
 void main() {
   group('Campus Class Tests', () {
+    testWidgets('CampusMapPage should render correctly with non-constant key',
+        (WidgetTester tester) async {
+      // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CampusMapPage(
+            key: UniqueKey(),
+            campus: Campus.loy,
+          ),
+        ),
+      );
+
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.byType(CampusMapPage), findsOneWidget);
+
+      // Press the button that swaps campus views
+      expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.swap_horiz));
+      await tester.pumpAndSettle();
+    });
+
     test('Verify SGW campus properties', () {
       expect(ConcordiaCampus.sgw.name, "SGW Campus");
       expect(ConcordiaCampus.sgw.abbreviation, "sgw");
