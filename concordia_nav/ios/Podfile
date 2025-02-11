@@ -40,6 +40,13 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+
+    # Don't request location permissions while app isn't open
+    if target.name == "geolocator_apple"
+      target.build_configurations.each do |config|
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'BYPASS_PERMISSION_LOCATION_ALWAYS=1']
+      end
+    end
   end
 
   flutter_env_plugin_path = File.join(Dir.pwd, '.symlinks', 'plugins', 'flutter_env_native', 'ios', 'setup_env.sh')
