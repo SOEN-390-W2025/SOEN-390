@@ -1,4 +1,5 @@
 import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
+import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
@@ -17,8 +18,18 @@ void main() {
 
   testWidgets('Accessibility Page should render correctly',
       (WidgetTester tester) async {
+    // define routes needed for this test
+    final routes = {
+      '/': (context) => const HomePage(),
+      '/SettingsPage': (context) => const SettingsPage(),
+      '/AccessibilityPage': (context) => const AccessibilityPage(),
+    };
+
     // Build the HomePage widget
-    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    await tester.pumpWidget(MaterialApp(
+      initialRoute: '/',
+      routes: routes,
+    ));
 
     // Verify that the app bar is present and has the correct title
     expect(find.byType(AppBar), findsOneWidget);

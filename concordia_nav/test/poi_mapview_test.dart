@@ -17,9 +17,18 @@ void main() {
     });
 
     testWidgets('tapping back btn in appBar brings back to poiPage', (WidgetTester tester) async {
-      // Build the POI page widget
-      await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
-      await tester.pump();
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const POIChoiceView(),
+        '/POIMapView': (context) => const POIMapView(),
+      };
+
+      // Build the POIChoiceView widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
+      await tester.pumpAndSettle();
 
       // tap on restrooms PoiBox
       await tester.tap(find.text('Restrooms'));

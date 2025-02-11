@@ -1,4 +1,5 @@
 import 'package:concordia_nav/ui/home/homepage_view.dart';
+import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -92,11 +93,17 @@ void main() {
     });
 
     testWidgets('tapping the Settings button should bring to settingspage', (WidgetTester tester) async {
-      // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const HomePage(),
+        '/SettingsPage': (context) => const SettingsPage(),
+      };
 
-      // Ensure the widget tree is rendered
-      await tester.pump();
+      // Build the HomePage widget with the AppBar
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
 
       // find the Settings icon and tap it
       await tester.tap(find.byIcon(Icons.settings));
@@ -109,9 +116,17 @@ void main() {
     });
 
     testWidgets('back button in the Settings page brings back to home', (WidgetTester tester) async {
-      // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
-      await tester.pump();
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const HomePage(),
+        '/SettingsPage': (context) => const SettingsPage(),
+      };
+
+      // Build the HomePage widget with the AppBar
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
 
       // find the Settings icon and tap it
       await tester.tap(find.byIcon(Icons.settings));

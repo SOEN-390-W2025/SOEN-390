@@ -500,6 +500,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  mockingjay:
+    dependency: "direct dev"
+    description:
+      name: mockingjay
+      sha256: cea2f3d38d1343beb6908f0ade5724c12304ee74014fbd274b4065a4b7db6536
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   mockito:
     dependency: "direct dev"
     description:
@@ -508,6 +516,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.5"
+  mocktail:
+    dependency: transitive
+    description:
+      name: mocktail
+      sha256: "890df3f9688106f25755f26b1c60589a92b3ab91a22b8b224947ad041bf172d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   nested:
     dependency: transitive
     description:
