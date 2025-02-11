@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
-import '../../../../data/domain-model/campus.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/search_bar.dart';
+
 class OutdoorLocationMapView extends StatefulWidget {
-  final Campus campus;
+  final ConcordiaCampus campus;
 
   const OutdoorLocationMapView({super.key, required this.campus});
 
@@ -16,11 +17,10 @@ class OutdoorLocationMapView extends StatefulWidget {
 
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   final MapViewModel _mapViewModel = MapViewModel();
-  late Campus _currentCampus;
+  late ConcordiaCampus _currentCampus;
   final String destination = '';
-  
-  @override
 
+  @override
   void initState() {
     super.initState();
     _currentCampus = widget.campus;

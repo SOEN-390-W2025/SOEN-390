@@ -1,3 +1,3 @@
 class IndoorRoutingService {
-  IndoorRoute getRoute(Location origin, Location destination) {}
+  //IndoorRoute getRoute(Location origin, Location destination) {}
 }

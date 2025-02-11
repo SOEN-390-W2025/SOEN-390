@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-<<<<<<< HEAD:concordia_nav/lib/widgets/campus_map_view.dart
-import '../../utils/map_viewmodel.dart';
-import '../data/domain-model/concordia_campus.dart';
-import 'custom_appbar.dart';
-import 'map_layout.dart';
-=======
 import '../../../utils/map_viewmodel.dart';
-import '../../../../data/domain-model/campus.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
->>>>>>> develop:concordia_nav/lib/ui/campus_map/campus_map_view.dart
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;

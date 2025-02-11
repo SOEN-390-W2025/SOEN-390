@@ -41,7 +41,7 @@ void main() {
     // Tap on the SGW map FeatureCard
     await tester.tap(find.text('SGW map'));
     await tester.pumpAndSettle();
-    expect(find.text('SGW Campus'), findsOneWidget);
+    expect(find.text('Sir George Williams Campus'), findsOneWidget);
 
     // Press the back button
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -49,7 +49,8 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Loyola campus navigation should work', (WidgetTester tester) async {
+  testWidgets('Loyola campus navigation should work',
+      (WidgetTester tester) async {
     // Build the HomePage widget
     await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
@@ -57,7 +58,7 @@ void main() {
     // Tap on the Loyola map FeatureCard
     await tester.tap(find.text('LOY map'));
     await tester.pumpAndSettle();
-    expect(find.text('LOY Campus'), findsOneWidget);
+    expect(find.text('Loyola Campus'), findsOneWidget);
 
     // Press the back button
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -65,7 +66,8 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Indoor Directions navigation should work', (WidgetTester tester) async {
+  testWidgets('Indoor Directions navigation should work',
+      (WidgetTester tester) async {
     // Build the HomePage widget
     await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
@@ -81,7 +83,8 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Nearby Facilities navigation should work', (WidgetTester tester) async {
+  testWidgets('Nearby Facilities navigation should work',
+      (WidgetTester tester) async {
     // Build the HomePage widget
     await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
@@ -109,7 +112,8 @@ void main() {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Outdoor Directions navigation should work', (WidgetTester tester) async {
+  testWidgets('Outdoor Directions navigation should work',
+      (WidgetTester tester) async {
     // Build the HomePage widget
     await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
@@ -123,13 +127,9 @@ void main() {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Main menu items are present',
-      (WidgetTester tester) async {
-
+  testWidgets('Main menu items are present', (WidgetTester tester) async {
     // Build the HomePage widget with mock onPress handlers
-    await tester.pumpWidget(const MaterialApp(
-      home: const HomePage()
-    ));
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
     // Tap on the Menu button
     await tester.tap(find.byIcon(Icons.menu));
