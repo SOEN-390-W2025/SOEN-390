@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import '../campus_map/campus_map_view.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
 import '../../../data/domain-model/campus.dart';
-import '../indoor_map/indoor_map_view.dart';
-import '../poi/poi_choice_view.dart';
-import '../indoor_location/indoor_location_view.dart';
-import '../outdoor_location/outdoor_location_map_view.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -43,22 +38,20 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'SGW map',
                     icon: const Icon(Icons.map),
-                    onPress: () => Navigator.push(
+                    onPress: () => Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const CampusMapPage(campus: Campus.sgw)),
+                      '/CampusMapPage',
+                      arguments: Campus.sgw
                     ),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'LOY map',
                     icon: const Icon(Icons.map),
-                    onPress: () => Navigator.push(
+                    onPress: () => Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const CampusMapPage(campus: Campus.loy)),
+                      '/CampusMapPage',
+                      arguments: Campus.loy
                     ),
                   ),
                 ],
@@ -73,23 +66,17 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Outdoor directions',
                     icon: const Icon(Icons.maps_home_work),
-                    onPress: () => Navigator.push(
+                    onPress: () => Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const OutdoorLocationMapView(campus: Campus.sgw)
-                      ),
+                      '/OutdoorLocationMapView',
+                      arguments: Campus.sgw
                     )
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'Next class directions',
                     icon: const Icon(Icons.calendar_today),
-                    onPress: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const IndoorLocationView()
-                      ),
-                    )
+                    onPress: () => Navigator.pushNamed(context, '/IndoorLocationView')
                   ),
                 ],
               ),
@@ -103,21 +90,13 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Indoor directions',
                     icon: const Icon(Icons.meeting_room),
-                    onPress: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const IndoorMapView()),
-                    ),
+                    onPress: () => Navigator.pushNamed(context, '/IndoorMapView'),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'Find nearby facilities',
                     icon: const Icon(Icons.wash),
-                    onPress: () => Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (context) => const POIChoiceView()
-                      ),
-                    )
+                    onPress: () => Navigator.pushNamed(context, '/POIChoiceView')
                   ),
                 ],
               ),

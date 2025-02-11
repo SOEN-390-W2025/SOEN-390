@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/calendar.dart';
 import '../../../widgets/custom_appbar.dart';
-import 'calendar_view.dart';
 
 class CalendarLinkView extends StatefulWidget {
   final CalendarRepository? calendarRepository;
@@ -31,10 +30,7 @@ class CalendarLinkViewState extends State<CalendarLinkView> {
       if (permissionsGranted) {
         // Assume there is no error
         // Navigate to calendar view
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const CalendarView()),
-        );
+        await Navigator.pushReplacementNamed(context, '/CalendarView');
       } else {
         // Show an error if permission is denied
         ScaffoldMessenger.of(context).showSnackBar(

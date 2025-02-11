@@ -2,7 +2,7 @@
   {
     "title": "Restrooms",
     "icon": "wc_outlined",
-    "route": "POIMapView"
+    "route": "/POIMapView"
   },
   {
     "title": "Elevators",
