@@ -28,8 +28,16 @@ class CampusMapPageState extends State<CampusMapPage> {
   }
 
   @override
+  /// Builds the campus map page.
+  ///
+  /// This page displays a map of a campus (e.g. SGW or LOY) and
+  /// allows the user to search for a building.
+  ///
+  /// When the user selects a building, a drawer appears with
+  /// information about the building.
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
+      /// Creates a new [MapViewModel] when the widget is created.
       create: (_) => MapViewModel(),
       child: Consumer<MapViewModel>(
         builder: (context, mapViewModel, child) {
@@ -45,6 +53,7 @@ class CampusMapPageState extends State<CampusMapPage> {
             body: Stack(
               children: [
                 FutureBuilder<CameraPosition>(
+                  /// Fetches the initial camera position for the given campus.
                   future: mapViewModel.getInitialCameraPosition(_currentCampus),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -67,15 +76,25 @@ class CampusMapPageState extends State<CampusMapPage> {
                     );
                   },
                 ),
-                 ValueListenableBuilder<ConcordiaBuilding?>(
+                // Building info drawer for selected building
+                ValueListenableBuilder<ConcordiaBuilding?>(
                   valueListenable: mapViewModel.selectedBuildingNotifier,
                   builder: (context, selectedBuilding, child) {
-                    if (selectedBuilding == null) {
-                      return const SizedBox.shrink(); // Don't show drawer if no building selected
-                    }
-                    return BuildingInfoDrawer(
-                      building: selectedBuilding,
-                      onClose: mapViewModel.unselectBuilding,
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return SlideTransition(
+                          position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                              .animate(animation),
+                          child: child,
+                        );
+                      },
+                      child: selectedBuilding != null
+                          ? BuildingInfoDrawer(
+                              building: selectedBuilding,
+                              onClose: mapViewModel.unselectBuilding,
+                            )
+                          : const SizedBox.shrink(),
                     );
                   },
                 ),
