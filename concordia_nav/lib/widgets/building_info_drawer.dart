@@ -15,19 +15,25 @@ class BuildingInfoDrawer extends StatefulWidget {
 class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTickerProviderStateMixin {
   late BuildingInfoDrawerViewModel drawerViewModel;
 
+  /// Initializes the animation controller and slide animation.
   @override
   void initState() {
     super.initState();
     drawerViewModel = BuildingInfoDrawerViewModel();
-    drawerViewModel.initializeAnimation(this); // Initialize animation with this State as vsync
+    drawerViewModel.initializeAnimation(this);
   }
 
+  /// Disposes of the animation controller when the widget is disposed.
   @override
   void dispose() {
     drawerViewModel.dispose();
     super.dispose();
   }
 
+  /// Builds the building info drawer.
+  ///
+  /// The drawer is a DraggableScrollableSheet that contains a ListView with
+  /// the building name, address, and close button.
   @override
   Widget build(BuildContext context) {
     return SlideTransition(
@@ -50,9 +56,11 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      widget.building.name,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    Expanded( // Prevents overflow by constraining the text within available space
+                      child: Text(
+                        widget.building.name,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
