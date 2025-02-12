@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
+import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
@@ -66,8 +67,18 @@ class CampusMapPageState extends State<CampusMapPage> {
                     );
                   },
                 ),
-                if (mapViewModel.selectedBuilding != null)
-                  BuildingInfoDrawer(building: mapViewModel.selectedBuilding!),
+                 ValueListenableBuilder<ConcordiaBuilding?>(
+                  valueListenable: mapViewModel.selectedBuildingNotifier,
+                  builder: (context, selectedBuilding, child) {
+                    if (selectedBuilding == null) {
+                      return const SizedBox.shrink(); // Don't show drawer if no building selected
+                    }
+                    return BuildingInfoDrawer(
+                      building: selectedBuilding,
+                      onClose: mapViewModel.unselectBuilding,
+                    );
+                  },
+                ),
               ],
             ),
           );

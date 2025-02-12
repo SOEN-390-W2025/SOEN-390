@@ -12,7 +12,7 @@ class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
 
-  ConcordiaBuilding? selectedBuilding;
+  ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier = ValueNotifier<ConcordiaBuilding?>(null);
 
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
@@ -53,7 +53,10 @@ class MapViewModel extends ChangeNotifier{
 
   /// Sets the selected building and notifies listeners.
   void selectBuilding(ConcordiaBuilding building) {
-    selectedBuilding = building;
-    notifyListeners();
+    selectedBuildingNotifier.value = building;
+  }
+
+  void unselectBuilding() {
+    selectedBuildingNotifier.value = null;
   }
 }
