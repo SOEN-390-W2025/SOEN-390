@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_final_fields
 
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
@@ -7,9 +8,11 @@ import '../../data/services/map_service.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../../data/repositories/building_repository.dart';
 
-class MapViewModel {
+class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
+
+  ConcordiaBuilding? selectedBuilding;
 
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
@@ -36,9 +39,21 @@ class MapViewModel {
     final List<ConcordiaBuilding> buildings =
         BuildingRepository.buildingByCampusAbbreviation[campusAbbreviation] ?? [];
 
-    final List<LatLng> buildingLocations =
-        buildings.map((b) => LatLng(b.lat, b.lng)).toList();
+    return buildings.map((building) {
+      return Marker(
+        markerId: MarkerId(building.abbreviation),
+        position: LatLng(building.lat, building.lng),
+        // When the marker is tapped, update selectedBuilding
+        onTap: () {
+          selectBuilding(building);
+        },
+      );
+    }).toSet();
+  }
 
-    return _mapService.getCampusMarkers(buildingLocations); // ✅ Uses existing method
+  /// Sets the selected building and notifies listeners.
+  void selectBuilding(ConcordiaBuilding building) {
+    selectedBuilding = building;
+    notifyListeners();
   }
 }
