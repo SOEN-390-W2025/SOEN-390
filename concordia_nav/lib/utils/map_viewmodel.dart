@@ -12,6 +12,7 @@ class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
 
+  GoogleMapController? _mapController;
   ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier = ValueNotifier<ConcordiaBuilding?>(null);
 
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
@@ -26,6 +27,7 @@ class MapViewModel extends ChangeNotifier{
 
   /// Handles map creation and initializes the map service.
   void onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
     _mapService.setMapController(controller);
   }
 
@@ -58,5 +60,17 @@ class MapViewModel extends ChangeNotifier{
 
   void unselectBuilding() {
     selectedBuildingNotifier.value = null;
+  }
+
+  /// Zoom in function
+  Future<void> zoomIn() async {
+    final currentZoom = await _mapController?.getZoomLevel() ?? 14.0;
+    await _mapController?.animateCamera(CameraUpdate.zoomTo(currentZoom + 1));
+  }
+
+  /// Zoom out function
+  Future<void> zoomOut() async {
+    final currentZoom = await _mapController?.getZoomLevel() ?? 14.0;
+    await _mapController?.animateCamera(CameraUpdate.zoomTo(currentZoom - 1));
   }
 }
