@@ -7,6 +7,7 @@ import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/building_info_drawer.dart';
+import '../../widgets/zoom_buttons.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -78,29 +79,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                   },
                 ),
                 // Custom Zoom Buttons Positioned at the Top
-                Positioned(
-                  top: 100,
-                  right: 16,
-                  child: Column(
-                    children: [
-                      FloatingActionButton(
-                        heroTag: "zoom_in",
-                        mini: true,
-                        backgroundColor: Colors.white,
-                        onPressed: mapViewModel.zoomIn,
-                        child: const Icon(Icons.add, color: Colors.black),
-                      ),
-                      const SizedBox(height: 8),
-                      FloatingActionButton(
-                        heroTag: "zoom_out",
-                        mini: true,
-                        backgroundColor: Colors.white,
-                        onPressed: mapViewModel.zoomOut,
-                        child: const Icon(Icons.remove, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                CustomZoomButtons(mapViewModel: mapViewModel),
                 // Building info drawer for selected building
                 ValueListenableBuilder<ConcordiaBuilding?>(
                   valueListenable: mapViewModel.selectedBuildingNotifier,
