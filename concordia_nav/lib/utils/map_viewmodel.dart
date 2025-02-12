@@ -4,6 +4,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
+import '../data/domain-model/concordia_building.dart';
+import '../../data/repositories/building_repository.dart';
 
 class MapViewModel {
   MapRepository _mapRepository = MapRepository();
@@ -30,7 +32,13 @@ class MapViewModel {
   }
 
   /// Retrieves markers for campus buildings.
-  Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
-    return _mapService.getCampusMarkers(buildingLocations);
+  Set<Marker> getCampusMarkers(String campusAbbreviation) {
+    final List<ConcordiaBuilding> buildings =
+        BuildingRepository.buildingByCampusAbbreviation[campusAbbreviation] ?? [];
+
+    final List<LatLng> buildingLocations =
+        buildings.map((b) => LatLng(b.lat, b.lng)).toList();
+
+    return _mapService.getCampusMarkers(buildingLocations); // ✅ Uses existing method
   }
 }

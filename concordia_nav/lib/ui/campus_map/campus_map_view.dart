@@ -51,9 +51,7 @@ class CampusMapPageState extends State<CampusMapPage> {
             mapWidget: GoogleMap(
               onMapCreated: _mapViewModel.onMapCreated,
               initialCameraPosition: snapshot.data!,
-              markers: _mapViewModel.getCampusMarkers([
-                /* TODO: add campus building markers */
-              ]),
+              markers: _mapViewModel.getCampusMarkers(_currentCampus.abbreviation),
               /* TODO: add campus building overlay (polygon shape) */
             ),
           );
