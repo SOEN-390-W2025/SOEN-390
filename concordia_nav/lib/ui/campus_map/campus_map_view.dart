@@ -7,7 +7,7 @@ import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/building_info_drawer.dart';
-import '../../widgets/zoom_buttons.dart';
+import '../../widgets/map_control_buttons.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -78,9 +78,9 @@ class CampusMapPageState extends State<CampusMapPage> {
                     );
                   },
                 ),
-                
+
                 // Custom Zoom Buttons Positioned at the Top
-                CustomZoomButtons(mapViewModel: mapViewModel),
+                MapControllerButtons(mapViewModel: mapViewModel),
 
                 // Building info drawer for selected building
                 ValueListenableBuilder<ConcordiaBuilding?>(

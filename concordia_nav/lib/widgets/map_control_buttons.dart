@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../utils/map_viewmodel.dart';
 
-class CustomZoomButtons extends StatelessWidget {
+class MapControllerButtons extends StatelessWidget {
   final MapViewModel mapViewModel;
 
-  const CustomZoomButtons({super.key, required this.mapViewModel});
+  const MapControllerButtons({super.key, required this.mapViewModel});
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 150,
+      top: 100,
       right: 16,
       child: Column(
-        mainAxisSize: MainAxisSize.min, // No extra space between buttons
+        mainAxisSize: MainAxisSize.min,
         children: [
           InkWell(
             onTap: mapViewModel.zoomIn,
