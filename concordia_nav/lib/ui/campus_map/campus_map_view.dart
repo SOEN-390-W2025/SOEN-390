@@ -78,8 +78,10 @@ class CampusMapPageState extends State<CampusMapPage> {
                     );
                   },
                 ),
+                
                 // Custom Zoom Buttons Positioned at the Top
                 CustomZoomButtons(mapViewModel: mapViewModel),
+
                 // Building info drawer for selected building
                 ValueListenableBuilder<ConcordiaBuilding?>(
                   valueListenable: mapViewModel.selectedBuildingNotifier,
