@@ -39,9 +39,9 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
     return SlideTransition(
       position: drawerViewModel.slideAnimation,
       child: DraggableScrollableSheet(
-        initialChildSize: 0.18,
+        initialChildSize: 0.22,
         minChildSize: 0.1,
-        maxChildSize: 0.18,
+        maxChildSize: 0.23,
         builder: (context, scrollController) {
           return Container(
             padding: const EdgeInsets.all(16),
@@ -56,12 +56,14 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded( // Prevents overflow by constraining the text within available space
+                    /// The building name is displayed in bold font.
+                    Expanded(
                       child: Text(
                         widget.building.name,
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
+                    /// The close button is displayed on the right side of the header.
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () {
@@ -71,7 +73,36 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                   ],
                 ),
                 const SizedBox(height: 8),
+                /// The building address is displayed below the name.
                 Text("${widget.building.city}, ${widget.building.province} ${widget.building.postalCode}"),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /// The "Directions" button is displayed on the left side of the footer.
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement navigation to directions feature
+                      },
+                      icon: const Icon(Icons.directions, color: Colors.white),
+                      label: const Text("Directions", style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    /// The "Indoor Map" button is displayed on the right side of the footer.
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement navigation to indoor maps feature
+                      },
+                      icon: const Icon(Icons.map, color: Colors.white),
+                      label: const Text("Indoor Map", style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           );
