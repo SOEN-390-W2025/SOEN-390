@@ -39,9 +39,9 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
     return SlideTransition(
       position: drawerViewModel.slideAnimation,
       child: DraggableScrollableSheet(
-        initialChildSize: 0.22,
+        initialChildSize: 0.24,
         minChildSize: 0.1,
-        maxChildSize: 0.23,
+        maxChildSize: 0.25,
         builder: (context, scrollController) {
           return Container(
             padding: const EdgeInsets.all(16),
@@ -60,7 +60,7 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                     Expanded(
                       child: Text(
                         widget.building.name,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
                     /// The close button is displayed on the right side of the header.
@@ -74,7 +74,7 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                 ),
                 const SizedBox(height: 8),
                 /// The building address is displayed below the name.
-                Text("${widget.building.city}, ${widget.building.province} ${widget.building.postalCode}"),
+                Text("${widget.building.streetAddress}, ${widget.building.city}, ${widget.building.province} ${widget.building.postalCode}"),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
