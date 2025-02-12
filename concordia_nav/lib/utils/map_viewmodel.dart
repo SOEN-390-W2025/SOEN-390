@@ -37,15 +37,11 @@ class MapViewModel extends ChangeNotifier{
   }
 
   /// Retrieves markers for campus buildings.
-  Set<Marker> getCampusMarkers(String campusAbbreviation) {
-    final List<ConcordiaBuilding> buildings =
-        BuildingRepository.buildingByCampusAbbreviation[campusAbbreviation] ?? [];
-
-    return buildings.map((building) {
+  Set<Marker> getCampusMarkers() {
+    return BuildingRepository.buildingByAbbreviation.values.map((building) {
       return Marker(
         markerId: MarkerId(building.abbreviation),
         position: LatLng(building.lat, building.lng),
-        // When the marker is tapped, update selectedBuilding
         onTap: () {
           selectBuilding(building);
         },

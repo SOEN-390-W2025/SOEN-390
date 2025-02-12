@@ -9,22 +9,25 @@ class MapLayout extends StatelessWidget {
   final TextEditingController? searchController;
   final Widget mapWidget;
   final MapViewModel? mapViewModel;
-  final MapControllerButtons? mapControllerButtons;
 
   const MapLayout({
     super.key,
     this.searchController,
     required this.mapWidget,
     this.mapViewModel,
-    this.mapControllerButtons,
   });
 
   @override
+  /// Builds the map layout with the map widget, search bar, controller buttons, 
+  /// and an optional building info drawer.
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // Main map widget
         mapWidget,
-        if (searchController != null) // Only add SearchBarWidget if controller is not null
+
+        // Search bar positioned at the top if searchController is not null
+        if (searchController != null)
           Positioned(
             top: 10,
             left: 15,
@@ -36,9 +39,13 @@ class MapLayout extends StatelessWidget {
               iconColor: Colors.black,
             ),
           ),
-        
-        if (mapViewModel != null) ...[ // Only add MapControllerButtons if controller is not null
+
+        // Map control buttons and building info drawer if mapViewModel is not null
+        if (mapViewModel != null) ...[
+          // Buttons for controlling the map (zoom in/out)
           MapControllerButtons(mapViewModel: mapViewModel!),
+
+          // Building info drawer appears when a building is selected
           ValueListenableBuilder<ConcordiaBuilding?>(
             valueListenable: mapViewModel!.selectedBuildingNotifier,
             builder: (context, selectedBuilding, child) {
