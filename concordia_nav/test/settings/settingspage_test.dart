@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
 
-import 'calendar_repository_test.mocks.dart';
+import '../calendar/calendar_repository_test.mocks.dart';
 
 void main() {
   group('SettingsPage', () {

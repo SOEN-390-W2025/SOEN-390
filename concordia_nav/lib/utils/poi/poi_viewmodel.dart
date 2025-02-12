@@ -4,7 +4,7 @@ import '../../data/repositories/poi_repository.dart';
 
 /// ViewModel responsible for managing POI data and search functionality.
 class POIViewModel extends ChangeNotifier {
-  final POIRepository _repository = POIRepository();
+  final POIRepository _repository;
   List<POIModel> _poiList = []; // Stores all POIs
   List<POIModel> _filteredPOIList = []; // Stored for search results
   bool _isLoading = true;
@@ -21,7 +21,8 @@ class POIViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   /// Constructor - Initializes POI data and sets up search listener.
-  POIViewModel() {
+  POIViewModel({POIRepository? repository})
+      : _repository = repository ?? POIRepository() {
     loadPOIData();
     searchController.addListener(_filterPOIs); // Listen for search input
   }

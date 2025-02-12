@@ -4,15 +4,18 @@ import '../domain-model/poi.dart';
 
 /// Repository responsible for fetching POI facility options from a JSON file.
 class POIRepository {
-  /// Loads POI data from the configurable POI facility options
+  final Future<String>? Function(String path) loadString;
+
+  // Default constructor that uses rootBundle
+  POIRepository({Future<String>? Function(String path)? loadString})
+      : loadString = loadString ?? rootBundle.loadString;
+
+  /// Loads POI data from a configurable POI facility options
   Future<List<POIModel>> fetchPOIData() async {
     try {
-      // Load JSON file for facility options from the assets/config directory
-      final String response =
-          await rootBundle.loadString('assets/config/facility_options.json');
-      final List<dynamic> data = await json.decode(response);
-
-      // Convert response to a list of POIModel objects
+      final String? response =
+          await (loadString)('assets/config/facility_options.json');
+      final List<dynamic> data = json.decode(response!);
       return data.map((json) => POIModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception("Error loading POI data: $e");

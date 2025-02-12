@@ -38,7 +38,9 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
       IconButton(
         onPressed: () {
           // If a custom function is provided, use it; otherwise, use the default function
-          (onActionPressed ?? () {});
+          if (onActionPressed != null) {
+            onActionPressed();
+          }
         },
         icon: actionIcon ??
             const Icon(

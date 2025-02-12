@@ -8,12 +8,16 @@ import '../../widgets/poi_box.dart';
 /// View that allows users to search and select nearby facilities (POIs).
 /// Uses `POIViewModel` to fetch and filter data dynamically.
 class POIChoiceView extends StatelessWidget {
-  const POIChoiceView({super.key});
+  final POIViewModel? viewModel;
+
+  const POIChoiceView({super.key, this.viewModel});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => POIViewModel(),
+      create: (_) =>
+          viewModel ??
+          POIViewModel(), // Use injected viewModel or create a new one
       child: Scaffold(
         appBar: customAppBar(context, 'Nearby Facilities'),
         body: Consumer<POIViewModel>(

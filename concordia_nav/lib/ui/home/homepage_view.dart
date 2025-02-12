@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
 import '../../../data/domain-model/campus.dart';
+
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final Function? onAppBarActionPressed;
+
+  const HomePage({super.key, this.onAppBarActionPressed});
 
   /// The home page of the app, which displays a list of features
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Home'),
+      appBar:
+          customAppBar(context, 'Home', onActionPressed: onAppBarActionPressed),
       body: Center(
         child: Column(
           children: [
@@ -39,20 +43,16 @@ class HomePage extends StatelessWidget {
                     title: 'SGW map',
                     icon: const Icon(Icons.map),
                     onPress: () => Navigator.pushNamed(
-                      context,
-                      '/CampusMapPage',
-                      arguments: Campus.sgw
-                    ),
+                        context, '/CampusMapPage',
+                        arguments: Campus.sgw),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'LOY map',
                     icon: const Icon(Icons.map),
                     onPress: () => Navigator.pushNamed(
-                      context,
-                      '/CampusMapPage',
-                      arguments: Campus.loy
-                    ),
+                        context, '/CampusMapPage',
+                        arguments: Campus.loy),
                   ),
                 ],
               ),
@@ -64,20 +64,17 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FeatureCard(
-                    title: 'Outdoor directions',
-                    icon: const Icon(Icons.maps_home_work),
-                    onPress: () => Navigator.pushNamed(
-                      context,
-                      '/OutdoorLocationMapView',
-                      arguments: Campus.sgw
-                    )
-                  ),
+                      title: 'Outdoor directions',
+                      icon: const Icon(Icons.maps_home_work),
+                      onPress: () => Navigator.pushNamed(
+                          context, '/OutdoorLocationMapView',
+                          arguments: Campus.sgw)),
                   const SizedBox(width: 20),
                   FeatureCard(
-                    title: 'Next class directions',
-                    icon: const Icon(Icons.calendar_today),
-                    onPress: () => Navigator.pushNamed(context, '/IndoorLocationView')
-                  ),
+                      title: 'Next class directions',
+                      icon: const Icon(Icons.calendar_today),
+                      onPress: () =>
+                          Navigator.pushNamed(context, '/IndoorLocationView')),
                 ],
               ),
             ),
@@ -90,14 +87,15 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Indoor directions',
                     icon: const Icon(Icons.meeting_room),
-                    onPress: () => Navigator.pushNamed(context, '/IndoorMapView'),
+                    onPress: () =>
+                        Navigator.pushNamed(context, '/IndoorMapView'),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
-                    title: 'Find nearby facilities',
-                    icon: const Icon(Icons.wash),
-                    onPress: () => Navigator.pushNamed(context, '/POIChoiceView')
-                  ),
+                      title: 'Find nearby facilities',
+                      icon: const Icon(Icons.wash),
+                      onPress: () =>
+                          Navigator.pushNamed(context, '/POIChoiceView')),
                 ],
               ),
             ),
