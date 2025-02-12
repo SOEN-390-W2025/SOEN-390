@@ -30,6 +30,13 @@ class MapControllerButtons extends StatelessWidget {
                     width: 1.5,
                   ),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 3,
+                    offset: Offset(0, 1), // Shadow position
+                  ),
+                ],
               ),
               child: const Icon(Icons.add, color: Colors.black),
             ),
@@ -44,6 +51,13 @@ class MapControllerButtons extends StatelessWidget {
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 3,
+                    offset: Offset(0, 1), // Shadow position
+                  ),
+                ],
               ),
               child: const Icon(Icons.remove, color: Colors.black),
             ),
