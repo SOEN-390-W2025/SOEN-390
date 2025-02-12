@@ -36,6 +36,51 @@ void main() {
     });
   });
 
+  group('poiViewModel', () {
+    testWidgets('filter option works', (WidgetTester tester) async {
+      await tester.runAsync(() async { // wait for loading JSON
+        // Build the POI page widget
+        await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
+        await tester.pump();
+
+        // Find the SearchBarWidget
+        final searchBarWidget = find.byType(SearchBarWidget).evaluate().single.widget as SearchBarWidget;
+        
+        expect(searchBarWidget.controller.text, "");
+
+        // Enter "Lost" in the searchBar
+        await tester.enterText(find.byType(SearchBarWidget), "Lost");
+        expect(searchBarWidget.controller.text, "Lost");
+        await tester.pumpAndSettle();
+
+        // Verify that a PoiBox is present
+        expect(find.byType(PoiBox), findsAtLeast(1));
+      });
+    });
+
+    testWidgets('filter invalid option removes all poiBoxes', (WidgetTester tester) async {
+      await tester.runAsync(() async { // wait for loading JSON
+        // Build the POI page widget
+        await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
+        await tester.pump();
+
+        // Find the SearchBarWidget
+        final searchBarWidget = find.byType(SearchBarWidget).evaluate().single.widget as SearchBarWidget;
+        
+        expect(searchBarWidget.controller.text, "");
+
+        // Enter "Lost" in the searchBar
+        await tester.enterText(find.byType(SearchBarWidget), "Test");
+        expect(searchBarWidget.controller.text, "Test");
+        await tester.pumpAndSettle();
+
+        // Verify that a PoiBox is present
+        expect(find.byType(PoiBox), findsNothing);
+        expect(find.text("No results found"), findsOneWidget);
+      });
+    });
+  });
+
   group('poiPage', () {
     testWidgets('searchBar and title exists', (WidgetTester tester) async {
       await tester.runAsync(() async { // wait for loading JSON
