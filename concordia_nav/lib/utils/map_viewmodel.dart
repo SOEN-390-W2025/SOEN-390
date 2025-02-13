@@ -29,11 +29,6 @@ class MapViewModel {
     _mapService.moveCamera(location);
   }
 
-  /// Fetches the current location without moving the map.
-  Future<LatLng?> fetchCurrentLocation() async {
-    return await _mapService.getCurrentLocation();
-  }
-
   /// Switches the map camera to a new campus.
   void switchCampus(Campus campus) {
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
@@ -42,6 +37,11 @@ class MapViewModel {
   /// Retrieves markers for campus buildings.
   Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
     return _mapService.getCampusMarkers(buildingLocations);
+  }
+
+    /// Fetches the current location without moving the map.
+  Future<LatLng?> fetchCurrentLocation() async {
+    return await _mapService.getCurrentLocation();
   }
 
   /// Checks if location services are enabled and requests permission.

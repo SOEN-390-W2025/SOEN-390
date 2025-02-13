@@ -1,12 +1,15 @@
+// In your original file
+
 import 'package:flutter/material.dart';
 import '../../../utils/map_viewmodel.dart';
+import 'zoom_buttons.dart'; // Import the new file
 
 class MapControllerButtons extends StatelessWidget {
   final MapViewModel mapViewModel;
   final int style;
 
   const MapControllerButtons({
-    super.key, 
+    super.key,
     required this.mapViewModel,
     this.style = 0,
   });
@@ -28,7 +31,7 @@ class MapControllerButtons extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.all( Radius.circular(100)),
+                borderRadius: BorderRadius.all(Radius.circular(100)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black26,
@@ -41,53 +44,17 @@ class MapControllerButtons extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          InkWell(
+          // Zoom In button
+          ZoomButton(
             onTap: mapViewModel.zoomIn,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color.fromARGB(255, 192, 192, 192),
-                    width: 1.5,
-                  ),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 3,
-                    offset: Offset(0, 1), // Shadow position
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.add, color: Colors.black),
-            ),
+            icon: Icons.add,
+            isZoomInButton: true,
           ),
-          InkWell(
+          // Zoom Out button
+          ZoomButton(
             onTap: mapViewModel.zoomOut,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 3,
-                    offset: Offset(0, 1), // Shadow position
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.remove, color: Colors.black),
-            ),
+            icon: Icons.remove,
+            isZoomInButton: false,
           ),
         ],
       ),
