@@ -1,8 +1,37 @@
 import 'package:concordia_nav/ui/home/homepage_view.dart';
+import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('Test customAppBar in HomePage with custom onActionPressed',
+      (WidgetTester tester) async {
+    bool isPressed = false;
+    void mockOnPressed() {
+      isPressed = true;
+    }
+
+    // Build the HomePage with a custom onAppBarActionPressed
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HomePage(onAppBarActionPressed: mockOnPressed),
+      ),
+    );
+
+    // Find the IconButton in the customAppBar's actions
+    final menuIconFinder = find.byIcon(Icons.menu);
+
+    // Verify that the IconButton is found
+    expect(menuIconFinder, findsOneWidget);
+
+    // Simulate a tap on the IconButton
+    await tester.tap(menuIconFinder);
+    await tester.pump(); // Trigger a frame
+
+    // Verify that the mock function was called
+    expect(isPressed, true);
+  });
+
   group('customAppBar', () {
     // Test that the customAppBar returns an AppBar widget
     testWidgets('should return an AppBar widget', (WidgetTester tester) async {
@@ -91,12 +120,19 @@ void main() {
       expect(actualIcon.color, expectedIcon.color); // Compare color
     });
 
-    testWidgets('tapping the Settings button should bring to settingspage', (WidgetTester tester) async {
-      // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+    testWidgets('tapping the Settings button should bring to settingspage',
+        (WidgetTester tester) async {
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const HomePage(),
+        '/SettingsPage': (context) => const SettingsPage(),
+      };
 
-      // Ensure the widget tree is rendered
-      await tester.pump();
+      // Build the HomePage widget with the AppBar
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
 
       // find the Settings icon and tap it
       await tester.tap(find.byIcon(Icons.settings));
@@ -108,17 +144,26 @@ void main() {
       expect(find.text('Settings'), findsOneWidget);
     });
 
-    testWidgets('back button in the Settings page brings back to home', (WidgetTester tester) async {
-      // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
-      await tester.pump();
+    testWidgets('back button in the Settings page brings back to home',
+        (WidgetTester tester) async {
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const HomePage(),
+        '/SettingsPage': (context) => const SettingsPage(),
+      };
+
+      // Build the HomePage widget with the AppBar
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
 
       // find the Settings icon and tap it
       await tester.tap(find.byIcon(Icons.settings));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
 
-      // find back button in settings page and tap it 
+      // find back button in settings page and tap it
       await tester.tap(find.byIcon(Icons.arrow_back));
 
       // wait till the screen changes

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
-   final TextEditingController controller;
+  final TextEditingController controller;
   final String hintText;
   final IconData icon;
   final Color iconColor;
