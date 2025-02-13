@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../ui/home/homepage_view.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,9 +19,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    await Navigator.pushReplacement(
+    await Navigator.pushReplacementNamed(
       context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
+      '/HomePage',
     );
   }
 

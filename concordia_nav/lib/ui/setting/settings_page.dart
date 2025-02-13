@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
-import 'accessibility/accessibility_page.dart';
-import 'calendar/calendar_view.dart';
-import 'calendar/calendar_link_view.dart';
 import 'package:device_calendar/device_calendar.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -31,15 +28,9 @@ class SettingsPageState extends State<SettingsPage> {
     if (mounted) {
       if (hasPermissions.isSuccess && hasPermissions.data == true) {
         // If permissions are granted, navigate to CalendarView
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CalendarView()),
-        );
+        await Navigator.pushNamed(context, '/CalendarView');
       } else {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CalendarLinkView()),
-        );
+        await Navigator.pushNamed(context, '/CalendarLinkView');
       }
     }
   }
@@ -92,11 +83,7 @@ class SettingsPageState extends State<SettingsPage> {
             icon: Icons.accessibility,
             title: 'Accessibility',
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return const AccessibilityPage();
-                }),
-              );
+              Navigator.pushNamed(context, '/AccessibilityPage');
             },
           ),
           SettingsTile(
