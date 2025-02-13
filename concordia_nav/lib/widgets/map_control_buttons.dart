@@ -8,7 +8,7 @@ class MapControllerButtons extends StatelessWidget {
   const MapControllerButtons({
     super.key, 
     required this.mapViewModel,
-    required this.style,
+    this.style = 0,
   });
 
   @override
@@ -22,7 +22,7 @@ class MapControllerButtons extends StatelessWidget {
           // Current location button
           InkWell(
             onTap: () {
-              // Todo: Add the method to move to current location
+              mapViewModel.moveToCurrentLocation(context);
             },
             child: Container(
               padding: const EdgeInsets.all(12),

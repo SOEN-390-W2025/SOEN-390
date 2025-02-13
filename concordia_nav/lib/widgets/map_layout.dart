@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import '../utils/map_viewmodel.dart';
 import './search_bar.dart';
+import './map_control_buttons.dart';
+
 
 class MapLayout extends StatelessWidget {
   final TextEditingController? searchController;
   final Widget mapWidget;
+  final MapViewModel? mapViewModel;
 
   const MapLayout({
     super.key,
     this.searchController,
     required this.mapWidget,
+    this.mapViewModel,
   });
 
   @override
@@ -28,6 +33,11 @@ class MapLayout extends StatelessWidget {
               iconColor: Colors.black,
             ),
           ),
+                // Map control buttons and building info drawer if mapViewModel is not null
+        if (mapViewModel != null) ...[
+          // Buttons for controlling the map (zoom in/out)
+          MapControllerButtons(mapViewModel: mapViewModel!),
+        ]
       ],
     );
   }
