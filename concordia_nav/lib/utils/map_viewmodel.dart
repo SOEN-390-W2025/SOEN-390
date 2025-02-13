@@ -32,4 +32,14 @@ class MapViewModel {
   Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
     return _mapService.getCampusMarkers(buildingLocations);
   }
+
+  /// Zoom in function
+  Future<void> zoomIn() async {
+    await _mapService.zoomIn();
+  }
+
+  /// Zoom out function
+  Future<void> zoomOut() async {
+    await _mapService.zoomOut();
+  }
 }
