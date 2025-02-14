@@ -1,3 +1,4 @@
+import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
 
-import 'calendar_repository_test.mocks.dart';
+import '../calendar/calendar_repository_test.mocks.dart';
 
 void main() {
   group('SettingsPage', () {
@@ -26,12 +27,17 @@ void main() {
         when(mockPlugin.requestPermissions())
             .thenAnswer((_) async => Result<bool>()..data = true);
 
-        // Pump the SettingsPage widget
-        await tester.pumpWidget(
-          MaterialApp(
-            home: SettingsPage(plugin: mockPlugin),
-          ),
-        );
+        // define routes needed for this test
+        final routes = {
+          '/': (context) => SettingsPage(plugin: mockPlugin),
+          '/CalendarView': (context) => const CalendarView(),
+        };
+
+        // Build the SettingsPage widget
+        await tester.pumpWidget(MaterialApp(
+          initialRoute: '/',
+          routes: routes,
+        ));
 
         // Simulate tapping the "My calendar" tile
         await tester.tap(find.text('My calendar'));
@@ -52,12 +58,17 @@ void main() {
         when(mockPlugin.requestPermissions())
             .thenAnswer((_) async => Result<bool>()..data = false);
 
-        // Pump the SettingsPage widget
-        await tester.pumpWidget(
-          MaterialApp(
-            home: SettingsPage(plugin: mockPlugin),
-          ),
-        );
+        // define routes needed for this test
+        final routes = {
+          '/': (context) => SettingsPage(plugin: mockPlugin),
+          '/CalendarLinkView': (context) => const CalendarLinkView(),
+        };
+
+        // Build the SettingsPage widget
+        await tester.pumpWidget(MaterialApp(
+          initialRoute: '/',
+          routes: routes,
+        ));
 
         // Simulate tapping the "My calendar" tile
         await tester.tap(find.text('My calendar'));
@@ -145,8 +156,17 @@ void main() {
 
     testWidgets('SettingsTile onPress is possible',
         (WidgetTester tester) async {
-      // Build the SettingsPage widget
-      await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
+      // define routes needed for this test
+        final routes = {
+          '/': (context) => const SettingsPage(),
+          '/AccessibilityPage': (context) => const AccessibilityPage(),
+        };
+
+        // Build the SettingsPage widget
+        await tester.pumpWidget(MaterialApp(
+          initialRoute: '/',
+          routes: routes,
+        ));
 
       // Tap on My Calendar SettingsTile
       await tester.tap(find.text('My calendar'));

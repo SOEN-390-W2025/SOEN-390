@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
-import '../../../../data/domain-model/campus.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/search_bar.dart';
+
 class OutdoorLocationMapView extends StatefulWidget {
-  final Campus campus;
+  final ConcordiaCampus campus;
 
   const OutdoorLocationMapView({super.key, required this.campus});
 
@@ -16,11 +17,9 @@ class OutdoorLocationMapView extends StatefulWidget {
 
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   final MapViewModel _mapViewModel = MapViewModel();
-  late Campus _currentCampus;
-  final String destination = '';
-  
-  @override
+  late ConcordiaCampus _currentCampus;
 
+  @override
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
@@ -32,7 +31,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
       appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
-          // Add your map widget here (for now it's just a container)
+          // FutureBuilder to load the map
           FutureBuilder<CameraPosition>(
             future: _mapViewModel.getInitialCameraPosition(_currentCampus),
             builder: (context, snapshot) {
@@ -43,15 +42,32 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                 return const Center(child: Text('Error loading campus map'));
               }
 
-              return MapLayout(
-                mapWidget: GoogleMap(
-                  onMapCreated: _mapViewModel.onMapCreated,
-                  initialCameraPosition: snapshot.data!,
-                  markers: _mapViewModel.getCampusMarkers([
-                    /* TODO: add campus building markers */
-                  ]),
-                  /* TODO: add campus building overlay (polygon shape) */
-                ),
+              return FutureBuilder<Map<String, dynamic>>(
+                future:
+                    _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+                builder: (context, polySnapshot) {
+                  if (polySnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (polySnapshot.hasError) {
+                    return const Center(
+                        child: Text('Error loading polygons and labels'));
+                  }
+
+                  final Set<Polygon> polygons =
+                      polySnapshot.data?["polygons"] ?? {};
+                  final Set<Marker> labelMarkers =
+                      polySnapshot.data?["labels"] ?? {};
+
+                  return MapLayout(
+                    mapWidget: GoogleMap(
+                      onMapCreated: _mapViewModel.onMapCreated,
+                      initialCameraPosition: snapshot.data!,
+                      markers: labelMarkers,
+                      polygons: polygons,
+                    ),
+                  );
+                },
               );
             },
           ),

@@ -1,136 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
-import 'poi_map_view.dart';
 import '../../widgets/search_bar.dart';
 import '../../widgets/poi_box.dart';
 
+/// View that allows users to search and select nearby facilities (POIs).
+/// Uses `POIViewModel` to fetch and filter data dynamically.
 class POIChoiceView extends StatelessWidget {
-  const POIChoiceView({super.key});
+  final POIViewModel? viewModel;
+
+  const POIChoiceView({super.key, this.viewModel});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: customAppBar(context, 'Nearby Facilities'),
-      body: Center(
-        child: Column(
-          children: [
-            SearchBarWidget(
-              controller: TextEditingController(),
-              hintText: 'Search location ...',
-              icon: Icons.search,
-              iconColor: Colors.black,
-            ),
-            const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft, // Align text to the left
-              child: Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(
-                  'Select a nearby facility',
-                  style: TextStyle(
-                    fontSize: 18,
+    return ChangeNotifierProvider(
+      create: (_) =>
+          viewModel ??
+          POIViewModel(), // Use injected viewModel or create a new one
+      child: Scaffold(
+        appBar: customAppBar(context, 'Nearby Facilities'),
+        body: Consumer<POIViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (viewModel.errorMessage != null) {
+              return Center(child: Text(viewModel.errorMessage!));
+            }
+
+            final pois = viewModel.poiList;
+
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SearchBarWidget(
+                    controller: viewModel.searchController,
+                    hintText: 'Search location...',
+                    icon: Icons.search,
+                    iconColor: Colors.black,
                   ),
                 ),
-              ),
-            ),
-            // Restrooms and Elevators
-            const SizedBox(height: 20),
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PoiBox(
-                    title: 'Restrooms',
-                    icon: const Icon(Icons.wc_outlined),
-                    onPress: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const POIMapView()),
+                const SizedBox(height: 10),
+                if (pois.isEmpty) const Center(child: Text("No results found")),
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(20),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 1.5,
                     ),
-                  ),
-                  const SizedBox(width: 20),
-                  PoiBox(
-                    title: 'Elevators',
-                    icon: const Icon(Icons.elevator_outlined),
-                    onPress: () {
-                      // TODO: Implement the elevators choice.
+                    itemCount: pois.length,
+                    itemBuilder: (context, index) {
+                      final poi = pois[index];
+
+                      return PoiBox(
+                        title: poi.title,
+                        icon: Icon(poi.icon),
+                        onPress: () {
+                          if (poi.route.isNotEmpty) {
+                            Navigator.pushNamed(context, poi.route);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("No route available for this POI.")),
+                            );
+                          }
+                        },
+                      );
                     },
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Staircases and Emergency Exits
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PoiBox(
-                    title: 'Staircases',
-                    icon: const Icon(Icons.stairs_outlined),
-                    onPress: () {
-                      // TODO: Implement staircases choice
-                    },
-                  ),
-                  const SizedBox(width: 20),
-                  PoiBox(
-                    title: 'Emergency Exit',
-                    icon: const Icon(Icons.directions_run_outlined),
-                    onPress: () {
-                      // TODO: Implement emergency exits choice
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Health centers and Lost and Found
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PoiBox(
-                    title: 'Health Centers',
-                    icon: const Icon(Icons.local_hospital_outlined),
-                    onPress: () {
-                      // TODO: Implement Health centers choice
-                    },
-                  ),
-                  const SizedBox(width: 20),
-                  PoiBox(
-                    title: 'Lost and Found',
-                    icon: const Icon(Icons.archive_outlined),
-                    onPress: () {
-                      // TODO: Implement lost and found choice
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Food and Drink
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PoiBox(
-                    title: 'Food & Drinks',
-                    icon: const Icon(Icons.food_bank_outlined),
-                    onPress: () {
-                      // TODO: Implement food and drink choice
-                    },
-                  ),
-                  const SizedBox(width: 20),
-                  PoiBox(
-                    title: 'Others',
-                    icon: const Icon(Icons.more_outlined),
-                    onPress: () {
-                      // TODO: Implement others choice
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

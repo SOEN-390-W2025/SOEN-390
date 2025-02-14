@@ -3,7 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:concordia_nav/data/repositories/map_repository.dart';
-import 'package:concordia_nav/data/domain-model/campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 
@@ -27,7 +27,7 @@ void main() {
         'getInitialCameraPosition should return CameraPosition from repository',
         () async {
       // Arrange
-      const campus = Campus.sgw;
+      const campus = ConcordiaCampus.sgw;
       final expectedCameraPosition =
           CameraPosition(target: LatLng(campus.lat, campus.lng), zoom: 17.0);
 
@@ -54,7 +54,7 @@ void main() {
 
     test('switchCampus should move camera to new campus location', () {
       // Arrange
-      const campus = Campus.loy;
+      const campus = ConcordiaCampus.loy;
 
       // Act
       mapViewModel.switchCampus(campus);
@@ -64,29 +64,23 @@ void main() {
           .called(1);
     });
 
-    test('getCampusMarkers should return markers from map service', () {
+    test('getCampusPolygonsAndLabels should return polygons and markers',
+        () async {
       // Arrange
-      final buildingLocations = [
-        const LatLng(37.7749, -122.4194),
-        const LatLng(37.7849, -122.4294),
-      ];
-      final expectedMarkers = {
-        Marker(
-            markerId: MarkerId(const LatLng(37.7749, -122.4194).toString()),
-            position: buildingLocations[0]),
-        Marker(
-            markerId: MarkerId(const LatLng(37.7849, -122.4294).toString()),
-            position: buildingLocations[1]),
-      };
+      const campus = ConcordiaCampus.sgw;
+      final mockPolygons = <Polygon>{};
+      final mockMarkers = <Marker>{};
+      final mockData = {"polygons": mockPolygons, "labels": mockMarkers};
 
-      when(mockMapService.getCampusMarkers(buildingLocations))
-          .thenReturn(expectedMarkers);
+      when(mockMapService.getCampusPolygonsAndLabels(campus))
+          .thenAnswer((_) async => mockData);
 
       // Act
-      final result = mapViewModel.getCampusMarkers(buildingLocations);
+      final result = await mapViewModel.getCampusPolygonsAndLabels(campus);
 
       // Assert
-      expect(result, equals(expectedMarkers));
+      expect(result["polygons"], equals(mockPolygons));
+      expect(result["labels"], equals(mockMarkers));
     });
   });
 }
