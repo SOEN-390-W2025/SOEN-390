@@ -19,15 +19,13 @@ class Connection {
     for (int i = 0; i < floors.length; i++) {
       if (floors[i] == floor1 || floors[i] == floor2) {
         if (found) {
-          break;
+          return fixedWaitTimeSeconds + waitTimePerFloorSeconds * delta;
         }
         found = true;
       }
       if (found) delta += 1;
     }
 
-    return found
-        ? fixedWaitTimeSeconds + waitTimePerFloorSeconds * delta
-        : null;
+    return null;
   }
 }
