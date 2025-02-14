@@ -71,6 +71,7 @@ dev_dependencies:
   test: ^1.25.8
   mockito: ^5.4.5
   build_runner: ^2.4.14
+  mockingjay: ^0.6.0
 
 plugin:
   platforms:
