@@ -1,8 +1,8 @@
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:concordia_nav/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/data/domain-model/campus.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 
 void main() {
@@ -11,7 +11,8 @@ void main() {
         (WidgetTester tester) async {
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(key: UniqueKey(), campus: Campus.sgw)));
+          home: OutdoorLocationMapView(
+              key: UniqueKey(), campus: ConcordiaCampus.sgw)));
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
@@ -22,7 +23,7 @@ void main() {
     testWidgets('appBar has the right title', (WidgetTester tester) async {
       // Build the outdoor directions view widget
       await tester.pumpWidget(const MaterialApp(
-          home: const OutdoorLocationMapView(campus: Campus.sgw)));
+          home: const OutdoorLocationMapView(campus: ConcordiaCampus.sgw)));
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
@@ -35,7 +36,7 @@ void main() {
     testWidgets('mapLayout widget exists', (WidgetTester tester) async {
       // Build the outdoor directions view widget
       await tester.pumpWidget(const MaterialApp(
-          home: const OutdoorLocationMapView(campus: Campus.sgw)));
+          home: const OutdoorLocationMapView(campus: ConcordiaCampus.sgw)));
       await tester.pump();
 
       // Verify that MapLayout widget exists
@@ -46,7 +47,7 @@ void main() {
         (WidgetTester tester) async {
       // Build the outdoor directions view widget
       await tester.pumpWidget(const MaterialApp(
-          home: const OutdoorLocationMapView(campus: Campus.sgw)));
+          home: const OutdoorLocationMapView(campus: ConcordiaCampus.sgw)));
       await tester.pump();
 
       // Verify that two SearchBarWidgets exist
@@ -57,7 +58,7 @@ void main() {
         (WidgetTester tester) async {
       // Build the outdoor directions view widget
       await tester.pumpWidget(const MaterialApp(
-          home: const OutdoorLocationMapView(campus: Campus.sgw)));
+          home: const OutdoorLocationMapView(campus: ConcordiaCampus.sgw)));
       await tester.pump();
 
       // Find the source searchbarwidget
@@ -79,7 +80,7 @@ void main() {
         (WidgetTester tester) async {
       // Build the outdoor directions view widget
       await tester.pumpWidget(const MaterialApp(
-          home: const OutdoorLocationMapView(campus: Campus.sgw)));
+          home: const OutdoorLocationMapView(campus: ConcordiaCampus.sgw)));
       await tester.pump();
 
       // Find the destination searchbarwidget

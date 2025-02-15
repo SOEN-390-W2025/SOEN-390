@@ -3,7 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:concordia_nav/data/repositories/map_repository.dart';
-import 'package:concordia_nav/data/domain-model/campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 
@@ -27,7 +27,7 @@ void main() {
         'getInitialCameraPosition should return CameraPosition from repository',
         () async {
       // Arrange
-      const campus = Campus.sgw;
+      const campus = ConcordiaCampus.sgw;
       final expectedCameraPosition =
           CameraPosition(target: LatLng(campus.lat, campus.lng), zoom: 17.0);
 
@@ -54,7 +54,7 @@ void main() {
 
     test('switchCampus should move camera to new campus location', () {
       // Arrange
-      const campus = Campus.loy;
+      const campus = ConcordiaCampus.loy;
 
       // Act
       mapViewModel.switchCampus(campus);

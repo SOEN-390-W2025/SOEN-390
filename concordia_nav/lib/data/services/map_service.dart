@@ -1,6 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../domain-model/concordia_campus.dart';
 import 'package:geolocator/geolocator.dart';
-import '../domain-model/campus.dart';
 
 class MapService {
   late GoogleMapController _mapController;
@@ -11,7 +11,7 @@ class MapService {
   }
 
   /// Returns the camera position for the given [campus].
-  CameraPosition getInitialCameraPosition(Campus campus) {
+  CameraPosition getInitialCameraPosition(ConcordiaCampus campus) {
     return CameraPosition(
       target: LatLng(campus.lat, campus.lng),
       zoom: 17.0,
