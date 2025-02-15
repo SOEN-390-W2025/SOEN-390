@@ -193,7 +193,7 @@ class BuildingRepository {
       ConcordiaCampus.loy);
 
   static Map<String, List<ConcordiaBuilding>> buildingByCampusAbbreviation = {
-    (ConcordiaCampus.sgw.abbreviation): [h, lb, er, ls, gm, ev, fb, fg, cl],
+    (ConcordiaCampus.sgw.abbreviation): [h, lb, er, ls, gm, ev, mb, fb, fg, cl],
     (ConcordiaCampus.loy.abbreviation): [vl, fc, ad, cj, sp, cc, hu]
   };
 
@@ -204,6 +204,7 @@ class BuildingRepository {
     (BuildingRepository.ls.abbreviation): ls,
     (BuildingRepository.gm.abbreviation): gm,
     (BuildingRepository.ev.abbreviation): ev,
+    (BuildingRepository.mb.abbreviation): mb,
     (BuildingRepository.fb.abbreviation): fb,
     (BuildingRepository.fg.abbreviation): fg,
     (BuildingRepository.cl.abbreviation): cl,
