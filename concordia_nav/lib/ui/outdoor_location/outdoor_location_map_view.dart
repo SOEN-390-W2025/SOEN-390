@@ -26,25 +26,21 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
     _currentCampus = widget.campus;
   }
 
-  // Add this function to get directions and draw the polyline on the map
+  // Get directions and draw polyline on map
   void _getDirections() async {
     if (_destinationController.text.isEmpty) return;
 
     try {
-      // Get the source and destination addresses
-      String originAddress = "1455 boul. de Maisonneuve O, Montreal, QC"; // Replace with dynamic input if needed
+      String originAddress = "1455 boul. de Maisonneuve O, Montreal, QC";
       String destinationAddress = _destinationController.text;
       print("Fetching route from: $originAddress to: $destinationAddress");
 
-      // Fetch the route using the origin and destination addresses
       List<LatLng> routePoints = await _mapViewModel.mapService.getRoutePath(
         originAddress,
         destinationAddress,
       );
       print("Route Points: $routePoints");
-
-      // Update the map with the polyline
-      setState(() {}); // This triggers a rebuild of the widget
+      setState(() {});
     } catch (e) {
       print("Error getting directions: $e");
       ScaffoldMessenger.of(context).showSnackBar(
