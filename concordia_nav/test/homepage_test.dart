@@ -1,4 +1,4 @@
-import 'package:concordia_nav/data/domain-model/campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
@@ -43,7 +43,7 @@ void main() {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as Campus),
+      '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
     };
 
     // Build the HomePage widget
@@ -55,7 +55,7 @@ void main() {
     // Tap on the SGW map FeatureCard
     await tester.tap(find.text('SGW map'));
     await tester.pumpAndSettle();
-    expect(find.text('SGW Campus'), findsOneWidget);
+    expect(find.text('Sir George Williams Campus'), findsOneWidget);
 
     // Press the back button
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -67,7 +67,7 @@ void main() {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as Campus),
+      '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
     };
 
     // Build the HomePage widget
@@ -79,7 +79,7 @@ void main() {
     // Tap on the Loyola map FeatureCard
     await tester.tap(find.text('LOY map'));
     await tester.pumpAndSettle();
-    expect(find.text('LOY Campus'), findsOneWidget);
+    expect(find.text('Loyola Campus'), findsOneWidget);
 
     // Press the back button
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -159,7 +159,7 @@ void main() {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(campus: ModalRoute.of(context)!.settings.arguments as Campus),
+      '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
     };
 
     // Build the HomePage widget
@@ -177,13 +177,9 @@ void main() {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Main menu items are present',
-      (WidgetTester tester) async {
-
+  testWidgets('Main menu items are present', (WidgetTester tester) async {
     // Build the HomePage widget with mock onPress handlers
-    await tester.pumpWidget(const MaterialApp(
-      home: const HomePage()
-    ));
+    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
     await tester.pump();
     // Tap on the Menu button
     await tester.tap(find.byIcon(Icons.menu));

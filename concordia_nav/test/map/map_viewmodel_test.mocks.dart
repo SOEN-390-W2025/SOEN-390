@@ -3,7 +3,7 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:concordia_nav/data/domain-model/campus.dart' as _i4;
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i4;
 import 'package:concordia_nav/data/repositories/map_repository.dart' as _i3;
 import 'package:concordia_nav/data/services/map_service.dart' as _i5;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i2;
@@ -26,7 +26,7 @@ import 'package:mockito/mockito.dart' as _i1;
 class _FakeCameraPosition_0 extends _i1.SmartFake
     implements _i2.CameraPosition {
   _FakeCameraPosition_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [MapRepository].
@@ -38,15 +38,14 @@ class MockMapRepository extends _i1.Mock implements _i3.MapRepository {
   }
 
   @override
-  _i2.CameraPosition getCameraPosition(_i4.Campus? campus) =>
+  _i2.CameraPosition getCameraPosition(_i4.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
-            Invocation.method(#getCameraPosition, [campus]),
-            returnValue: _FakeCameraPosition_0(
-              this,
-              Invocation.method(#getCameraPosition, [campus]),
-            ),
-          )
-          as _i2.CameraPosition);
+        Invocation.method(#getCameraPosition, [campus]),
+        returnValue: _FakeCameraPosition_0(
+          this,
+          Invocation.method(#getCameraPosition, [campus]),
+        ),
+      ) as _i2.CameraPosition);
 }
 
 /// A class which mocks [MapService].
@@ -65,15 +64,14 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
       );
 
   @override
-  _i2.CameraPosition getInitialCameraPosition(_i4.Campus? campus) =>
+  _i2.CameraPosition getInitialCameraPosition(_i4.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
-            Invocation.method(#getInitialCameraPosition, [campus]),
-            returnValue: _FakeCameraPosition_0(
-              this,
-              Invocation.method(#getInitialCameraPosition, [campus]),
-            ),
-          )
-          as _i2.CameraPosition);
+        Invocation.method(#getInitialCameraPosition, [campus]),
+        returnValue: _FakeCameraPosition_0(
+          this,
+          Invocation.method(#getInitialCameraPosition, [campus]),
+        ),
+      ) as _i2.CameraPosition);
 
   @override
   void moveCamera(_i2.LatLng? position, {double? zoom = 17.0}) =>
@@ -85,8 +83,7 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
   @override
   Set<_i2.Marker> getCampusMarkers(List<_i2.LatLng>? buildingLocations) =>
       (super.noSuchMethod(
-            Invocation.method(#getCampusMarkers, [buildingLocations]),
-            returnValue: <_i2.Marker>{},
-          )
-          as Set<_i2.Marker>);
+        Invocation.method(#getCampusMarkers, [buildingLocations]),
+        returnValue: <_i2.Marker>{},
+      ) as Set<_i2.Marker>);
 }

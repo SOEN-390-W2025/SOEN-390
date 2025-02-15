@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
-import '../../../../data/domain-model/campus.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 
 class CampusMapPage extends StatefulWidget {
-  final Campus campus;
+  final ConcordiaCampus campus;
 
   const CampusMapPage({super.key, required this.campus});
 
@@ -17,7 +17,7 @@ class CampusMapPage extends StatefulWidget {
 class CampusMapPageState extends State<CampusMapPage> {
   final MapViewModel _mapViewModel = MapViewModel();
   final TextEditingController _searchController = TextEditingController();
-  late Campus _currentCampus;
+  late ConcordiaCampus _currentCampus;
 
   @override
   void initState() {
