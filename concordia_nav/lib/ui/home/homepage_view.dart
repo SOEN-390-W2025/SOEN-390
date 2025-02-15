@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
-import '../campus_map/campus_map_view.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
-import '../indoor_map/indoor_map_view.dart';
-import '../poi/poi_choice_view.dart';
-import '../indoor_location/indoor_location_view.dart';
-import '../outdoor_location/outdoor_location_map_view.dart';
-
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final Function? onAppBarActionPressed;
+
+  const HomePage({super.key, this.onAppBarActionPressed});
 
   /// The home page of the app, which displays a list of features
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Home'),
+      appBar:
+          customAppBar(context, 'Home', onActionPressed: onAppBarActionPressed),
       body: Center(
         child: Column(
           children: [
@@ -44,23 +41,17 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'SGW map',
                     icon: const Icon(Icons.map),
-                    onPress: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const CampusMapPage(campus: ConcordiaCampus.sgw)),
-                    ),
+                    onPress: () => Navigator.pushNamed(
+                        context, '/CampusMapPage',
+                        arguments: ConcordiaCampus.sgw),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'LOY map',
                     icon: const Icon(Icons.map),
-                    onPress: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const CampusMapPage(campus: ConcordiaCampus.loy)),
-                    ),
+                    onPress: () => Navigator.pushNamed(
+                        context, '/CampusMapPage',
+                        arguments: ConcordiaCampus.loy),
                   ),
                 ],
               ),
@@ -74,23 +65,15 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                       title: 'Outdoor directions',
                       icon: const Icon(Icons.maps_home_work),
-                      onPress: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const OutdoorLocationMapView(
-                                        campus: ConcordiaCampus.sgw)),
-                          )),
+                      onPress: () => Navigator.pushNamed(
+                          context, '/OutdoorLocationMapView',
+                          arguments: ConcordiaCampus.sgw)),
                   const SizedBox(width: 20),
                   FeatureCard(
                       title: 'Next class directions',
                       icon: const Icon(Icons.calendar_today),
-                      onPress: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const IndoorLocationView()),
-                          )),
+                      onPress: () =>
+                          Navigator.pushNamed(context, '/IndoorLocationView')),
                 ],
               ),
             ),
@@ -103,21 +86,15 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Indoor directions',
                     icon: const Icon(Icons.meeting_room),
-                    onPress: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const IndoorMapView()),
-                    ),
+                    onPress: () =>
+                        Navigator.pushNamed(context, '/IndoorMapView'),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
                       title: 'Find nearby facilities',
                       icon: const Icon(Icons.wash),
-                      onPress: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const POIChoiceView()),
-                          )),
+                      onPress: () =>
+                          Navigator.pushNamed(context, '/POIChoiceView')),
                 ],
               ),
             ),
