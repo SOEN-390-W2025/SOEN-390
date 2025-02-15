@@ -33,7 +33,10 @@ class CampusMapPageState extends State<CampusMapPage> {
         _currentCampus.name,
         actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
         onActionPressed: () {
-          // TODO: toggle between SGW and LOY campuses
+          setState(() {
+            _currentCampus =
+                _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
+          });
         },
       ),
       body: FutureBuilder<CameraPosition>(
