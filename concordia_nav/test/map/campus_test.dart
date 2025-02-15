@@ -1,3 +1,4 @@
+import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -57,6 +58,21 @@ void main() {
       expect(ConcordiaCampus.campuses, contains(ConcordiaCampus.sgw));
       expect(ConcordiaCampus.campuses, contains(ConcordiaCampus.loy));
       expect(ConcordiaCampus.campuses, isNot(contains(null)));
+    });
+
+    test('Can create a campus', () {
+      const testCampus = ConcordiaCampus(45.52316480127478, -73.56082777329514, 
+        "Cafe Chat Lheureux", "1374 Ontario St E", "Montreal", "QC", "H2L 1S1", "CCH");
+      expect(testCampus.city, "Montreal");
+      expect(testCampus.abbreviation, "CCH");
+    });
+
+    test('Can create Location', () {
+      const testLocation = Location(45.52316480127478, -73.56082777329514, 
+        "Cafe Chat Lheureux", "1374 Ontario St E", "Montreal", "QC", "H2L 1S1");
+      expect(testLocation.city, "Montreal");
+      expect(testLocation.name, "Cafe Chat Lheureux");
+      expect(testLocation.lat, 45.52316480127478);
     });
   });
 }

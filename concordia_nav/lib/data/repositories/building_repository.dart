@@ -112,14 +112,17 @@ class BuildingRepository {
       "CL",
       ConcordiaCampus.sgw);
 
+  static const loyolaAddress = "7141 rue Sherbrooke O";
+  static const loyolaPC = "H4B 1R6";
+
   static const ConcordiaBuilding vl = ConcordiaBuilding(
       45.45881661941029,
       -73.63891116452257,
       "Vanier Library",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "VL",
       ConcordiaCampus.loy);
 
@@ -127,10 +130,10 @@ class BuildingRepository {
       45.45857671826826,
       -73.6393076015194,
       "Loyola Chapel",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "FC",
       ConcordiaCampus.loy);
 
@@ -138,10 +141,10 @@ class BuildingRepository {
       45.458044368765385,
       -73.63968809327562,
       "Administration Building",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "AD",
       ConcordiaCampus.loy);
 
@@ -149,10 +152,10 @@ class BuildingRepository {
       45.45741387037214,
       -73.64013744595343,
       "Communications and Journalism Building",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "CJ",
       ConcordiaCampus.loy);
 
@@ -160,10 +163,10 @@ class BuildingRepository {
       45.458185975854676,
       -73.64150755341804,
       "Richard J. Renaud Science Complex",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "SP",
       ConcordiaCampus.loy);
 
@@ -171,10 +174,10 @@ class BuildingRepository {
       45.45849250395193,
       -73.64063728872931,
       "Central Building",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "CC",
       ConcordiaCampus.loy);
 
@@ -182,10 +185,10 @@ class BuildingRepository {
       45.4585463918007,
       -73.6418677962107,
       "Applied Science Hub",
-      "7141 rue Sherbrooke O",
+      loyolaAddress,
       "Montreal",
       "QC",
-      "H4B 1R6",
+      loyolaPC,
       "hu",
       ConcordiaCampus.loy);
 

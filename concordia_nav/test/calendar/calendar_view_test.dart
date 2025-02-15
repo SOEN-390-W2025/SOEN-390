@@ -91,11 +91,17 @@ void main() {
       when(mockPlugin.requestPermissions())
           .thenAnswer((_) async => Result<bool>()..data = true);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: CalendarLinkView(calendarRepository: calendarRepository),
-        ),
-      );
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => CalendarLinkView(calendarRepository: calendarRepository),
+        '/CalendarView': (context) => const CalendarView(),
+      };
+
+      // Build the CalendarLinkView widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
 
       await tester.tap(find.text('Link'));
       await tester.pumpAndSettle();
