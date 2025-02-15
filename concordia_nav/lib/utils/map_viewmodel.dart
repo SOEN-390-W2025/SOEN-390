@@ -13,9 +13,17 @@ class MapViewModel {
       : _mapRepository = mapRepository ?? MapRepository(),
         _mapService = mapService ?? MapService();
 
+  /// Mapservice getter
+  MapService get mapService => _mapService;
+
   /// Fetches the initial camera position for the given campus.
   Future<CameraPosition> getInitialCameraPosition(Campus campus) async {
     return _mapRepository.getCameraPosition(campus);
+  }
+
+  /// Get outdoor routing
+  Future<List<LatLng>> getRoutePolyline(String originAddress, String destinationAddress) async {
+    return await _mapService.getRoutePath(originAddress, destinationAddress);
   }
 
   /// Handles map creation and initializes the map service.
