@@ -47,11 +47,16 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                 mapWidget: GoogleMap(
                   onMapCreated: _mapViewModel.onMapCreated,
                   initialCameraPosition: snapshot.data!,
+                  zoomControlsEnabled: false,
+                  myLocationButtonEnabled: false,
+                  myLocationEnabled: true,
                   markers: _mapViewModel.getCampusMarkers([
                     /* TODO: add campus building markers */
                   ]),
                   /* TODO: add campus building overlay (polygon shape) */
                 ),
+                mapViewModel: _mapViewModel,
+                style: 2,
               );
             },
           ),

@@ -52,6 +52,8 @@ class CampusMapPageState extends State<CampusMapPage> {
               onMapCreated: _mapViewModel.onMapCreated,
               initialCameraPosition: snapshot.data!,
               zoomControlsEnabled: false,
+              myLocationButtonEnabled: false,
+              myLocationEnabled: true,
               markers: _mapViewModel.getCampusMarkers([
                 /* TODO: add campus building markers */
               ]),
