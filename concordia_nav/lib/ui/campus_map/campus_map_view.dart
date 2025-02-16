@@ -42,7 +42,7 @@ class CampusMapPageState extends State<CampusMapPage> {
           return Scaffold(
             appBar: customAppBar(
               context,
-              'Campus Map',
+              _currentCampus.name,
               actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
               onActionPressed: () {
                 // TODO: toggle between SGW and LOY campuses
@@ -66,7 +66,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                       mapWidget: GoogleMap(
                         onMapCreated: mapViewModel.onMapCreated,
                         initialCameraPosition: snapshot.data!,
-                        markers: mapViewModel.getCampusMarkers(),
+                        markers: mapViewModel.getCampusMarkers(_currentCampus),
                         zoomControlsEnabled: false,
                         /* TODO: add campus building overlay (polygon shape) */
                       ),
