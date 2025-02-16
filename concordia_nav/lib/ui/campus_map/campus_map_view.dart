@@ -45,6 +45,7 @@ class CampusMapPageState extends State<CampusMapPage> {
             _currentCampus =
                 _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
           });
+          _mapViewModel.moveToLocation(LatLng(_currentCampus.lat, _currentCampus.lng));
         },
       ),
       body: FutureBuilder<CameraPosition>(
