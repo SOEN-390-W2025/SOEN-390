@@ -18,12 +18,19 @@ class OutdoorLocationMapView extends StatefulWidget {
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   final MapViewModel _mapViewModel = MapViewModel();
   late ConcordiaCampus _currentCampus;
-  final String destination = '';
+  late Future<CameraPosition> _initialCameraPosition;
+  bool _locationPermissionGranted = false;
 
   @override
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
+    _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+      });
+    });
   }
 
   @override
@@ -32,9 +39,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
       appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
-          // Add your map widget here (for now it's just a container)
           FutureBuilder<CameraPosition>(
-            future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+            future: _initialCameraPosition,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -49,7 +55,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                   initialCameraPosition: snapshot.data!,
                   zoomControlsEnabled: false,
                   myLocationButtonEnabled: false,
-                  myLocationEnabled: true,
+                  myLocationEnabled: _locationPermissionGranted,
                   markers: _mapViewModel.getCampusMarkers([
                     /* TODO: add campus building markers */
                   ]),
