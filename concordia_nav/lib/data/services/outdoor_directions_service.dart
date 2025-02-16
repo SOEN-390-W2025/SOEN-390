@@ -5,49 +5,68 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class DirectionsService {
   static const String _baseUrl = "https://routes.googleapis.com/directions/v2:computeRoutes";
   static const String _apiKey = "AIzaSyBgcOdiFFHJuUYxvaL1ooPdv3FnRzc3PjI";
-  ///Get the route from Routes API
+
+  /// Fetch route using addresses
   Future<List<LatLng>> fetchRoute(String originAddress, String destinationAddress) async {
-  try {
-    final response = await http.post(
-      Uri.parse("$_baseUrl?key=$_apiKey"),
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask": "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
-      },
-      body: jsonEncode({
-        "origin": {
-          "address": originAddress,
-        },
-        "destination": {
-          "address": destinationAddress,
-        },
-        "travelMode": "DRIVE",
-      }),
+    return _fetchRouteFromAPI(
+      {"address": originAddress,},
+      {"address": destinationAddress,},
     );
-
-    print("API Response Status Code: ${response.statusCode}");
-    print("API Response Body: ${response.body}");
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      final encodedPolyline = data["routes"][0]["polyline"]["encodedPolyline"];
-      print("Encoded Polyline: $encodedPolyline");
-
-
-      List<LatLng> routePoints = _decodePolyline(encodedPolyline);
-      print("Decoded Polyline Points: $routePoints");
-
-      return routePoints;
-    } else {
-      throw Exception("Failed to load directions. Status Code: ${response.statusCode}");
-    }
-  } catch (e) {
-    print("Error fetching route: $e");
-    throw Exception("Failed to load directions: $e");
   }
-}
-  ///Process polyline information
+
+  /// Fetch route using LatLng for origin and address for destination
+  Future<List<LatLng>> fetchRouteFromCoords(LatLng origin, String destinationAddress) async {
+    return _fetchRouteFromAPI(
+      {
+        "location": {
+          "latLng": {
+            "latitude": origin.latitude,
+            "longitude": origin.longitude,
+          },
+        },
+      },
+      {"address": destinationAddress,},
+    );
+  }
+
+  /// Internal method to fetch route from the API
+  Future<List<LatLng>> _fetchRouteFromAPI(Map<String, dynamic> origin, Map<String, dynamic> destination) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$_baseUrl?key=$_apiKey"),
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask": "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
+        },
+        body: jsonEncode({
+          "origin": origin,
+          "destination": destination,
+          "travelMode": "DRIVE",
+        }),
+      );
+
+      print("API Response Status Code: ${response.statusCode}");
+      print("API Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final encodedPolyline = data["routes"][0]["polyline"]["encodedPolyline"];
+        print("Encoded Polyline: $encodedPolyline");
+
+        List<LatLng> routePoints = _decodePolyline(encodedPolyline);
+        print("Decoded Polyline Points: $routePoints");
+
+        return routePoints;
+      } else {
+        throw Exception("Failed to load directions. Status Code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching route: $e");
+      throw Exception("Failed to load directions: $e");
+    }
+  }
+
+  /// Decode polyline information
   List<LatLng> _decodePolyline(String encoded) {
     List<LatLng> points = [];
     int index = 0, len = encoded.length;

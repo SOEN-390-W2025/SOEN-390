@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/outdoor_directions_service.dart';
 import 'package:geolocator/geolocator.dart';
-import '../services/outdoor_directions_service.dart';
 import '../domain-model/campus.dart';
 
 class MapService {
@@ -98,12 +97,25 @@ class MapService {
     return LatLng(position.latitude, position.longitude);
   }
 
-  /// Fetches route polyline and updates the map
-  Future<List<LatLng>> getRoutePath(String originAddress, String destinationAddress) async {
-    List<LatLng> routePoints = await _directionsService.fetchRoute(originAddress, destinationAddress);
-    
+  /// Fetches route polyline using addresses or current location
+  Future<List<LatLng>> getRoutePath(String? originAddress, String destinationAddress) async {
+    List<LatLng> routePoints;
+
+    if (originAddress == null || originAddress.isEmpty) {
+      LatLng? currentLocation = await getCurrentLocation();
+      if (currentLocation == null) {
+        throw Exception("Unable to fetch current location.");
+      }
+      routePoints = await _directionsService.fetchRouteFromCoords(
+        currentLocation,
+        destinationAddress,
+      );
+    } else {
+      routePoints = await _directionsService.fetchRoute(originAddress, destinationAddress);
+    }
+
     Polyline polyline = Polyline(
-      polylineId: PolylineId('$originAddress\_$destinationAddress'),
+      polylineId: PolylineId('${originAddress ?? "current"}_$destinationAddress'),
       color: const Color(0xFF2196F3),
       width: 5,
       points: routePoints,

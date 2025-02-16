@@ -18,6 +18,7 @@ class OutdoorLocationMapView extends StatefulWidget {
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   final MapViewModel _mapViewModel = MapViewModel();
   late Campus _currentCampus;
+  final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
 
   @override
@@ -28,18 +29,11 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
 
   // Get directions and draw polyline on map
   void _getDirections() async {
-    if (_destinationController.text.isEmpty) return;
-
     try {
-      String originAddress = "1455 boul. de Maisonneuve O, Montreal, QC";
-      String destinationAddress = _destinationController.text;
-      print("Fetching route from: $originAddress to: $destinationAddress");
-
-      List<LatLng> routePoints = await _mapViewModel.mapService.getRoutePath(
-        originAddress,
-        destinationAddress,
+      await _mapViewModel.fetchRoute(
+        _sourceController.text.isEmpty ? null : _sourceController.text,
+        _destinationController.text,
       );
-      print("Route Points: $routePoints");
       setState(() {});
     } catch (e) {
       print("Error getting directions: $e");
@@ -55,7 +49,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
       appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
-          // Add your map widget here (for now it's just a container)
           FutureBuilder<CameraPosition>(
             future: _mapViewModel.getInitialCameraPosition(_currentCampus),
             builder: (context, snapshot) {
@@ -70,14 +63,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                 mapWidget: GoogleMap(
                   onMapCreated: _mapViewModel.onMapCreated,
                   initialCameraPosition: snapshot.data!,
-                  polylines: _mapViewModel.mapService.getPolylines(),
+                  polylines: _mapViewModel.polylines,
                   onTap: (LatLng latLng) {
                     print("Map tapped at: $latLng");
                   },
                   markers: _mapViewModel.getCampusMarkers([
                     /* TODO: add campus building markers */
                   ]),
-                  /* TODO: add campus building overlay (polygon shape) */
                 ),
               );
             },
@@ -87,7 +79,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
             left: 15,
             right: 15,
             child: SearchBarWidget(
-              controller: TextEditingController(),
+              controller: _sourceController,
               hintText: 'Your Location',
               icon: Icons.location_on,
               iconColor: Theme.of(context).primaryColor,

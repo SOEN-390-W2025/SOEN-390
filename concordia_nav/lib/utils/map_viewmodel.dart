@@ -9,11 +9,14 @@ import '../../data/services/map_service.dart';
 class MapViewModel {
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
-
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
         _mapService = mapService ?? MapService();
+  Set<Polyline> _polylines = {};
 
+  /// Getter for polylines
+  Set<Polyline> get polylines => _polylines;
+  
   /// Mapservice getter
   MapService get mapService => _mapService;
 
@@ -21,10 +24,29 @@ class MapViewModel {
   Future<CameraPosition> getInitialCameraPosition(Campus campus) async {
     return _mapRepository.getCameraPosition(campus);
   }
+  Future<void> fetchRoute(String? originAddress, String destinationAddress) async {
+    if (destinationAddress.isEmpty) {
+      throw Exception("Please enter a destination address.");
+    }
 
-  /// Get outdoor routing
-  Future<List<LatLng>> getRoutePolyline(String originAddress, String destinationAddress) async {
-    return await _mapService.getRoutePath(originAddress, destinationAddress);
+    try {
+      List<LatLng> routePoints = await _mapService.getRoutePath(
+        originAddress,
+        destinationAddress,
+      );
+
+      Polyline polyline = Polyline(
+        polylineId: PolylineId('${originAddress ?? "current"}_$destinationAddress'),
+        color: const Color(0xFF2196F3),
+        width: 5,
+        points: routePoints,
+      );
+
+      _polylines = {polyline}; // Update polylines
+    } catch (e) {
+      print("Error fetching route: $e");
+      throw Exception("Failed to load directions: $e");
+    }
   }
 
   /// Handles map creation and initializes the map service.
