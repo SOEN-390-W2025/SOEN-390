@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../data/services/outdoor_directions_service.dart';
 import '../data/services/map_service.dart';
