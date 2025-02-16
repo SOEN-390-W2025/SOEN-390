@@ -5,30 +5,50 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/services/indoor_routing_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'indoor_routing_service_test.mocks.dart';
 
+@GenerateMocks([GeolocatorPlatform])
 void main() {
+  group('IndoorRoutingService', () {
+    test('should return null when Geolocator throws an exception', () async {
+      // Arrange
+      final mockGeolocator = MockGeolocatorPlatform();
+      when(mockGeolocator.getCurrentPosition(
+        locationSettings: anyNamed('locationSettings'),
+      )).thenThrow(Exception());
+
+      // Act
+      final result = await IndoorRoutingService.getRoundedLocation();
+
+      // Assert
+      expect(result, isNull);
+    });
+  });
+
   group('test indoor routing service', () {
     // random position far away from campuses
     var testPosition = Position(
-      longitude: 100.0,
-      latitude: 100.0,
-      timestamp: DateTime.now(),
-      accuracy: 30.0,
-      altitude: 20.0,
-      heading: 120,
-      speed: 150.9,
-      speedAccuracy: 10.0, 
-      altitudeAccuracy: 10.0, 
-      headingAccuracy: 10.0);
-    
-    // ensure plugin is initialized 
+        longitude: 100.0,
+        latitude: 100.0,
+        timestamp: DateTime.now(),
+        accuracy: 30.0,
+        altitude: 20.0,
+        heading: 120,
+        speed: 150.9,
+        speedAccuracy: 10.0,
+        altitudeAccuracy: 10.0,
+        headingAccuracy: 10.0);
+
+    // ensure plugin is initialized
     TestWidgetsFlutterBinding.ensureInitialized();
     const MethodChannel locationChannel =
-      MethodChannel('flutter.baseflow.com/geolocator');
+        MethodChannel('flutter.baseflow.com/geolocator');
 
     Future locationHandler(MethodCall methodCall) async {
       // grants access to location permissions
-      if(methodCall.method == 'requestPermission') {
+      if (methodCall.method == 'requestPermission') {
         return 3;
       }
       // return testPosition when searching for the current location
@@ -62,16 +82,16 @@ void main() {
       test('return concordia building located in', () async {
         // position in JMSB
         testPosition = Position(
-          longitude: -73.5788992164221,
-          latitude: 45.4952628500172,
-          timestamp: DateTime.now(),
-          accuracy: 10.0,
-          altitude: 20.0,
-          heading: 120,
-          speed: 0.0,
-          speedAccuracy: 0.0, 
-          altitudeAccuracy: 0.0, 
-          headingAccuracy: 0.0);
+            longitude: -73.5788992164221,
+            latitude: 45.4952628500172,
+            timestamp: DateTime.now(),
+            accuracy: 10.0,
+            altitude: 20.0,
+            heading: 120,
+            speed: 0.0,
+            speedAccuracy: 0.0,
+            altitudeAccuracy: 0.0,
+            headingAccuracy: 0.0);
         final res = await IndoorRoutingService.getRoundedLocation();
         // should return MB building
         expect(res, isA<ConcordiaBuilding>());
@@ -82,16 +102,16 @@ void main() {
       test('return concordia building located in', () async {
         // position in JMSB
         testPosition = Position(
-          longitude: -73.64149708911341,
-          latitude: 45.45813042163085,
-          timestamp: DateTime.now(),
-          accuracy: 10.0,
-          altitude: 20.0,
-          heading: 120,
-          speed: 0.0,
-          speedAccuracy: 0.0, 
-          altitudeAccuracy: 0.0, 
-          headingAccuracy: 0.0);
+            longitude: -73.64149708911341,
+            latitude: 45.45813042163085,
+            timestamp: DateTime.now(),
+            accuracy: 10.0,
+            altitude: 20.0,
+            heading: 120,
+            speed: 0.0,
+            speedAccuracy: 0.0,
+            altitudeAccuracy: 0.0,
+            headingAccuracy: 0.0);
         final res = await IndoorRoutingService.getRoundedLocation();
         // should return SP building
         expect(res, isA<ConcordiaBuilding>());
@@ -102,16 +122,16 @@ void main() {
       test('returns null when accuracy > 50', () async {
         // position with accuracy > 50
         testPosition = Position(
-          longitude: -73.5788992164221,
-          latitude: 45.4952628500172,
-          timestamp: DateTime.now(),
-          accuracy: 70.0,
-          altitude: 20.0,
-          heading: 120,
-          speed: 0.0,
-          speedAccuracy: 0.0, 
-          altitudeAccuracy: 0.0, 
-          headingAccuracy: 0.0);
+            longitude: -73.5788992164221,
+            latitude: 45.4952628500172,
+            timestamp: DateTime.now(),
+            accuracy: 70.0,
+            altitude: 20.0,
+            heading: 120,
+            speed: 0.0,
+            speedAccuracy: 0.0,
+            altitudeAccuracy: 0.0,
+            headingAccuracy: 0.0);
         final res = await IndoorRoutingService.getRoundedLocation();
         expect(res, null); // should return null
       });
