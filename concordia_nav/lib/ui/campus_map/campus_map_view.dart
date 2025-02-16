@@ -18,11 +18,19 @@ class CampusMapPageState extends State<CampusMapPage> {
   final MapViewModel _mapViewModel = MapViewModel();
   final TextEditingController _searchController = TextEditingController();
   late ConcordiaCampus _currentCampus;
+  late Future<CameraPosition> _initialCameraPosition;
+  bool _locationPermissionGranted = false;
 
   @override
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
+    _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+      });
+    });
   }
 
   @override
@@ -40,7 +48,7 @@ class CampusMapPageState extends State<CampusMapPage> {
         },
       ),
       body: FutureBuilder<CameraPosition>(
-        future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+        future: _initialCameraPosition,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -56,7 +64,7 @@ class CampusMapPageState extends State<CampusMapPage> {
               initialCameraPosition: snapshot.data!,
               zoomControlsEnabled: false,
               myLocationButtonEnabled: false,
-              myLocationEnabled: true,
+              myLocationEnabled: _locationPermissionGranted,
               markers: _mapViewModel.getCampusMarkers([
                 /* TODO: add campus building markers */
               ]),

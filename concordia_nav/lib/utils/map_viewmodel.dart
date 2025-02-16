@@ -60,7 +60,9 @@ class MapViewModel {
     if (!hasAccess) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location services or permissions are not available.")),
+          const SnackBar(content: Text(
+            "Location services or permissions are not available. Please enable them in settings."
+          )),
         );
       }
       return false;
