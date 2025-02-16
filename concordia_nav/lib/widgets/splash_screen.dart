@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/splash_screen_viewmodel.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -8,21 +9,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final SplashScreenViewModel _viewModel = SplashScreenViewModel();
+
   @override
   void initState() {
     super.initState();
-    _navigateToHome();
+    _navigateBasedOnLocation();
   }
 
-  Future<void> _navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 3));
-
-    if (!mounted) return;
-
-    await Navigator.pushReplacementNamed(
-      context,
-      '/HomePage',
-    );
+  Future<void> _navigateBasedOnLocation() async {
+    await _viewModel.navigateBasedOnLocation(context);
   }
 
   @override

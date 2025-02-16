@@ -83,4 +83,10 @@ class MapViewModel {
   Future<void> zoomOut() async {
     await _mapService.zoomOut();
   }
+
+  /// Calculates the distance between two points using the service.
+  double getDistance(LatLng point1, LatLng point2) {
+    return _mapService.calculateDistance(point1, point2);
+  }
+
 }
