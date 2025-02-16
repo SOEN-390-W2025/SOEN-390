@@ -7,7 +7,7 @@ import '../repositories/building_repository.dart';
 class IndoorRoutingService {
   //IndoorRoute getRoute(Location origin, Location destination) {}
 
-  static const roundingMinimumProximityMeters = 25.0;
+  static const roundingMinimumProximityMeters = 30.0;
 
   /// Returns at minimum a Location object with latitide and longitude based on
   /// the device location. If the device is within the minimum rounding

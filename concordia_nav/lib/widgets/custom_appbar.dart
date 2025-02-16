@@ -7,11 +7,14 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
 
   return AppBar(
     backgroundColor: Theme.of(context).primaryColor,
-    title: Text(
-      title,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 20,
+    title: FittedBox(
+      fit: BoxFit.fitWidth,
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+        )
       ),
     ),
     centerTitle: true,
