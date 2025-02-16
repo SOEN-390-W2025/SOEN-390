@@ -20,12 +20,12 @@ class IndoorRoutingService {
   static Future<Location?> getRoundedLocation() async {
     List<ConcordiaBuilding>? searchCandidates;
     final Position userPosition;
-    final MapService _mapService = MapService();
+    final MapService mapService = MapService();
 
     try {
       
-      final bool serviceEnabled = await _mapService.isLocationServiceEnabled();
-      final bool hasPermission = await _mapService.checkAndRequestLocationPermission();
+      final bool serviceEnabled = await mapService.isLocationServiceEnabled();
+      final bool hasPermission = await mapService.checkAndRequestLocationPermission();
       // check if location services are enabled
       if (!serviceEnabled) {
         return Future.error('Location services are disabled.');
