@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../services/outdoor_directions_service.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/outdoor_directions_service.dart';
 import '../domain-model/campus.dart';
