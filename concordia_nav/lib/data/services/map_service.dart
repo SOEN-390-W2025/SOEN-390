@@ -69,7 +69,6 @@ class MapService {
       return false; // Permission permanently denied
     }
 
-
     return true; // Permission granted
   }
 
