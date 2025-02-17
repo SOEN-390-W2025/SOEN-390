@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
@@ -34,43 +35,61 @@ class CampusMapPageState extends State<CampusMapPage> {
   }
 
   @override
+  /// Builds the campus map page.
+  ///
+  /// This page displays a map of a campus (e.g. SGW or LOY) and
+  /// allows the user to search for a building.
+  ///
+  /// When the user selects a building, a drawer appears with
+  /// information about the building.
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: customAppBar(
-        context,
-        _currentCampus.name,
-        actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
-        onActionPressed: () {
-          setState(() {
-            _currentCampus =
-                _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
-          });
-        },
-      ),
-      body: FutureBuilder<CameraPosition>(
-        future: _initialCameraPosition,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error loading campus map'));
-          }
-
-          return MapLayout(
-            searchController: _searchController,
-            mapWidget: GoogleMap(
-              onMapCreated: _mapViewModel.onMapCreated,
-              initialCameraPosition: snapshot.data!,
-              zoomControlsEnabled: false,
-              myLocationButtonEnabled: false,
-              myLocationEnabled: _locationPermissionGranted,
-              markers: _mapViewModel.getCampusMarkers([
-                /* TODO: add campus building markers */
-              ]),
-              /* TODO: add campus building overlay (polygon shape) */
+    return ChangeNotifierProvider(
+      /// Creates a new [MapViewModel] when the widget is created.
+      create: (_) => MapViewModel(),
+      child: Consumer<MapViewModel>(
+        builder: (context, mapViewModel, child) {
+          return Scaffold(
+            appBar: customAppBar(
+              context,
+              _currentCampus.name,
+              actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
+              onActionPressed: () {
+                setState(() {
+                  _currentCampus =
+                      _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
+                });
+              },
             ),
-            mapViewModel: _mapViewModel,
+            body: Stack(
+              children: [
+                FutureBuilder<CameraPosition>(
+                  /// Fetches the initial camera position for the given campus.
+                  future: _initialCameraPosition,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return const Center(child: Text('Error loading campus map'));
+                    }
+
+                    return MapLayout(
+                      searchController: _searchController,
+                      mapWidget: GoogleMap(
+                        onMapCreated: mapViewModel.onMapCreated,
+                        initialCameraPosition: snapshot.data!,
+                        zoomControlsEnabled: false,
+                        myLocationButtonEnabled: false,
+                        myLocationEnabled: _locationPermissionGranted,
+                        markers: mapViewModel.getCampusMarkers(_currentCampus),
+                        /* TODO: add campus building overlay (polygon shape) */
+                      ),
+                      mapViewModel: mapViewModel,
+                    );
+                  },
+                ),
+              ],
+            ),
           );
         },
       ),

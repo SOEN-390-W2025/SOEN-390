@@ -56,9 +56,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                   zoomControlsEnabled: false,
                   myLocationButtonEnabled: false,
                   myLocationEnabled: _locationPermissionGranted,
-                  markers: _mapViewModel.getCampusMarkers([
-                    /* TODO: add campus building markers */
-                  ]),
+                  markers: _mapViewModel.getCampusMarkers(_currentCampus),
                   /* TODO: add campus building overlay (polygon shape) */
                 ),
                 mapViewModel: _mapViewModel,

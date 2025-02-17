@@ -5,10 +5,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
+import '../data/domain-model/concordia_building.dart';
+import '../../data/repositories/building_repository.dart';
 
-class MapViewModel {
+class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
+
+  GoogleMapController? _mapController;
+  ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier = ValueNotifier<ConcordiaBuilding?>(null);
 
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
@@ -22,6 +27,7 @@ class MapViewModel {
 
   /// Handles map creation and initializes the map service.
   void onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
     _mapService.setMapController(controller);
   }
 
@@ -36,8 +42,28 @@ class MapViewModel {
   }
 
   /// Retrieves markers for campus buildings.
-  Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
-    return _mapService.getCampusMarkers(buildingLocations);
+  Set<Marker> getCampusMarkers(ConcordiaCampus campus) {
+  final List<ConcordiaBuilding> buildings =
+      BuildingRepository.buildingByCampusAbbreviation[campus.abbreviation] ?? [];
+
+    return buildings.map((building) {
+      return Marker(
+        markerId: MarkerId(building.abbreviation),
+        position: LatLng(building.lat, building.lng),
+        onTap: () {
+          selectBuilding(building);
+        },
+      );
+    }).toSet();
+  }
+
+  /// Sets the selected building and notifies listeners.
+  void selectBuilding(ConcordiaBuilding building) {
+    selectedBuildingNotifier.value = building;
+  }
+
+  void unselectBuilding() {
+    selectedBuildingNotifier.value = null;
   }
 
     /// Fetches the current location without moving the map.
