@@ -12,6 +12,7 @@ class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
 
+  // ignore: unused_field
   GoogleMapController? _mapController;
   ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier = ValueNotifier<ConcordiaBuilding?>(null);
 
