@@ -1,33 +1,97 @@
 import 'package:concordia_nav/data/domain-model/location.dart';
+import 'package:concordia_nav/data/repositories/map_repository.dart';
+import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
+import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
+import 'map_viewmodel_test.mocks.dart';
+
+@GenerateMocks([MapRepository, MapService])
 void main() {
+  late MapViewModel mapViewModel;
+  late MockMapRepository mockMapRepository;
+  late MockMapService mockMapService;
+
+  setUp(() {
+    mockMapRepository = MockMapRepository();
+    mockMapService = MockMapService();
+    mapViewModel = MapViewModel(
+        mapRepository: mockMapRepository, mapService: mockMapService);
+  });
+
   group('Campus Class Tests', () {
     testWidgets('CampusMapPage should render correctly with non-constant key',
         (WidgetTester tester) async {
+      // Arrange
+      final buildingLocations = [
+        const LatLng(37.7749, -122.4194),
+        const LatLng(37.7849, -122.4294),
+      ];
+      final expectedMarkers = {
+        Marker(
+            markerId: MarkerId(const LatLng(37.7749, -122.4194).toString()),
+            position: buildingLocations[0]),
+        Marker(
+            markerId: MarkerId(const LatLng(37.7849, -122.4294).toString()),
+            position: buildingLocations[1]),
+      };
+      when(mockMapService.getCampusMarkers([])).thenReturn(expectedMarkers);
+      when(mockMapRepository.getCameraPosition(ConcordiaCampus.loy)).thenReturn(CameraPosition(target: LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng), zoom: 17.0));
+      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
+      when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
+      when(mapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+      
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         MaterialApp(
           home: CampusMapPage(
             key: UniqueKey(),
             campus: ConcordiaCampus.loy,
+            mapViewModel: mapViewModel,
           ),
         ),
       );
 
+      await tester.pump();
       // Verify that the custom app bar is rendered with the correct title
       expect(find.byType(CampusMapPage), findsOneWidget);
 
       // swaps campus button exists
       expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
+
+      // verify that a MapLayout widget exists
+      expect(find.byType(MapLayout), findsOneWidget);
     });
 
     testWidgets('Can swap between campuses', (WidgetTester tester) async {
+      // Arrange
+      final buildingLocations = [
+        const LatLng(37.7749, -122.4194),
+        const LatLng(37.7849, -122.4294),
+      ];
+      final expectedMarkers = {
+        Marker(
+            markerId: MarkerId(const LatLng(37.7749, -122.4194).toString()),
+            position: buildingLocations[0]),
+        Marker(
+            markerId: MarkerId(const LatLng(37.7849, -122.4294).toString()),
+            position: buildingLocations[1]),
+      };
+      when(mockMapService.getCampusMarkers([])).thenReturn(expectedMarkers);
+      when(mockMapRepository.getCameraPosition(ConcordiaCampus.sgw)).thenReturn(CameraPosition(target: LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng), zoom: 17.0));
+      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
+      when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
+      when(mapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+      
       // Build the CampusMapPage with the SGW campus
-      await tester.pumpWidget(const MaterialApp(home: const CampusMapPage(campus: ConcordiaCampus.sgw)));
+      await tester.pumpWidget(MaterialApp(home: CampusMapPage(campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel)));
       await tester.pump();
 
       // Press the button that swaps campus views
@@ -42,6 +106,32 @@ void main() {
       await tester.tap(find.byIcon(Icons.swap_horiz));
       await tester.pumpAndSettle();
       expect(find.text('Sir George Williams Campus'), findsOneWidget);
+    });
+
+    testWidgets('CampusMapPage displays error when cameraposition not provided',
+        (WidgetTester tester) async {
+      // Arrange
+      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
+      when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
+      when(mapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+      
+      // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CampusMapPage(
+            key: UniqueKey(),
+            campus: ConcordiaCampus.loy,
+            mapViewModel: mapViewModel,
+          ),
+        ),
+      );
+
+      await tester.pump();
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.byType(CampusMapPage), findsOneWidget);
+
+      // Error message is displayed
+      expect(find.text('Error loading campus map'), findsOneWidget);
     });
 
     test('Verify SGW campus properties', () {
