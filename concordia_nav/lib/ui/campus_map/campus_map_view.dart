@@ -16,7 +16,7 @@ class CampusMapPage extends StatefulWidget {
 }
 // need to modify so I can insert mapviewmodel
 class CampusMapPageState extends State<CampusMapPage> {
-  late MapViewModel _mapViewModel = MapViewModel();
+  late MapViewModel _mapViewModel;
   final TextEditingController _searchController = TextEditingController();
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;

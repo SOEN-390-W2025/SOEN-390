@@ -66,6 +66,9 @@ void main() {
       // swaps campus button exists
       expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
 
+      // find current location button
+      expect(find.byIcon(Icons.my_location), findsOneWidget);
+
       // verify that a MapLayout widget exists
       expect(find.byType(MapLayout), findsOneWidget);
     });
@@ -105,6 +108,40 @@ void main() {
       // swap campus again should view SGW
       await tester.tap(find.byIcon(Icons.swap_horiz));
       await tester.pumpAndSettle();
+      expect(find.text('Sir George Williams Campus'), findsOneWidget);
+    });
+
+    testWidgets('current location button works', (WidgetTester tester) async {
+      // Arrange
+      final buildingLocations = [
+        const LatLng(37.7749, -122.4194),
+        const LatLng(37.7849, -122.4294),
+      ];
+      final expectedMarkers = {
+        Marker(
+            markerId: MarkerId(const LatLng(37.7749, -122.4194).toString()),
+            position: buildingLocations[0]),
+        Marker(
+            markerId: MarkerId(const LatLng(37.7849, -122.4294).toString()),
+            position: buildingLocations[1]),
+      };
+      when(mockMapService.getCampusMarkers([])).thenReturn(expectedMarkers);
+      when(mockMapRepository.getCameraPosition(ConcordiaCampus.sgw)).thenReturn(CameraPosition(target: LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng), zoom: 17.0));
+      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
+      when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
+      when(mapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => const LatLng(45.4952628500172, -73.5788992164221));
+
+      // Build the CampusMapPage with the SGW campus
+      await tester.pumpWidget(MaterialApp(home: CampusMapPage(campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel)));
+      await tester.pump();
+
+      // find current location button
+      expect(find.byIcon(Icons.my_location), findsOneWidget);
+      // tap the current location button
+      await tester.tap(find.byIcon(Icons.my_location));
+      await tester.pumpAndSettle();
+      
       expect(find.text('Sir George Williams Campus'), findsOneWidget);
     });
 

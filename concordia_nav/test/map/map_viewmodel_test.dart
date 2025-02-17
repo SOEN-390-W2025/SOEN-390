@@ -149,6 +149,22 @@ void main() {
           .called(1);
     });
 
+    test('zoomIn should be called', () async {
+      // Act
+      await mapViewModel.zoomIn();
+
+      // Assert
+      verify(mockMapService.zoomIn()).called(1);
+    });
+
+    test('zoomOut should be called', () async {
+      // Act
+      await mapViewModel.zoomOut();
+
+      // Assert
+      verify(mockMapService.zoomOut()).called(1);
+    });
+
     test('getCampusMarkers should return markers from map service', () {
       // Arrange
       final buildingLocations = [

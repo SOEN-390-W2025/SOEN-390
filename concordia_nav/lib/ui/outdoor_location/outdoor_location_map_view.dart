@@ -8,15 +8,16 @@ import '../../widgets/search_bar.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
+  final MapViewModel? mapViewModel;
 
-  const OutdoorLocationMapView({super.key, required this.campus});
+  const OutdoorLocationMapView({super.key, required this.campus, this.mapViewModel});
 
   @override
   State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
 }
 
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
-  final MapViewModel _mapViewModel = MapViewModel();
+  late MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
@@ -24,6 +25,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   @override
   void initState() {
     super.initState();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _currentCampus = widget.campus;
     _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
     _mapViewModel.checkLocationAccess().then((hasPermission) {

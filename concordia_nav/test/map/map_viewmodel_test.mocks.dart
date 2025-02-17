@@ -89,6 +89,24 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
       );
 
   @override
+  _i6.Future<void> zoomIn() => (
+      super.noSuchMethod(
+        Invocation.method(#zoomIn, []),
+        returnValue: _i6.Future<void>.value(null),
+        returnValueForMissingStub: _i6.Future<void>.value(null),
+      ) as _i6.Future<void>
+  );
+
+  @override
+  _i6.Future<void> zoomOut() => (
+      super.noSuchMethod(
+        Invocation.method(#zoomOut, []),
+        returnValue: _i6.Future<void>.value(null),
+        returnValueForMissingStub: _i6.Future<void>.value(null),
+      ) as _i6.Future<void>
+  );
+
+  @override
   Set<_i2.Marker> getCampusMarkers(List<_i2.LatLng>? buildingLocations) =>
       (super.noSuchMethod(
             Invocation.method(#getCampusMarkers, [buildingLocations]),
