@@ -21,10 +21,27 @@ void main() {
       // Verify that the custom app bar is rendered with the correct title
       expect(find.byType(CampusMapPage), findsOneWidget);
 
+      // swaps campus button exists
+      expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
+    });
+
+    testWidgets('Can swap between campuses', (WidgetTester tester) async {
+      // Build the CampusMapPage with the SGW campus
+      await tester.pumpWidget(const MaterialApp(home: const CampusMapPage(campus: ConcordiaCampus.sgw)));
+      await tester.pump();
+
       // Press the button that swaps campus views
       expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
       await tester.tap(find.byIcon(Icons.swap_horiz));
       await tester.pumpAndSettle();
+
+      // Verify that it swapped campuses
+      expect(find.text('Loyola Campus'), findsOneWidget);
+
+      // swap campus again should view SGW
+      await tester.tap(find.byIcon(Icons.swap_horiz));
+      await tester.pumpAndSettle();
+      expect(find.text('Sir George Williams Campus'), findsOneWidget);
     });
 
     test('Verify SGW campus properties', () {

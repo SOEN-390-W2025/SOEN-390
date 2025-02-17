@@ -18,6 +18,7 @@ class OutdoorLocationMapView extends StatefulWidget {
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   final MapViewModel _mapViewModel = MapViewModel();
   late ConcordiaCampus _currentCampus;
+  final String destination = '';
 
   @override
   void initState() {

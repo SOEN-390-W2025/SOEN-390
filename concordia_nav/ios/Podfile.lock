@@ -1,6 +1,10 @@
 PODS:
+  - device_calendar (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_env_native (0.0.1):
+    - Flutter
+  - geolocator_apple (1.2.0):
     - Flutter
   - Google-Maps-iOS-Utils (5.0.0):
     - GoogleMaps (~> 8.0)
@@ -17,8 +21,10 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - device_calendar (from `.symlinks/plugins/device_calendar/ios`)
   - Flutter (from `Flutter`)
   - flutter_env_native (from `.symlinks/plugins/flutter_env_native/ios`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
@@ -28,23 +34,29 @@ SPEC REPOS:
     - GoogleMaps
 
 EXTERNAL SOURCES:
+  device_calendar:
+    :path: ".symlinks/plugins/device_calendar/ios"
   Flutter:
     :path: Flutter
   flutter_env_native:
     :path: ".symlinks/plugins/flutter_env_native/ios"
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/ios"
   google_maps_flutter_ios:
     :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
+  device_calendar: b55b2c5406cfba45c95a59f9059156daee1f74ed
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_env_native: 52530b3bced65bd04f849b447c298e75d12565e6
+  flutter_env_native: 1ffd562384b97c82279738dcce4edeeb01857dee
+  geolocator_apple: 1560c3c875af2a412242c7a923e15d0d401966ff
   Google-Maps-iOS-Utils: 66d6de12be1ce6d3742a54661e7a79cb317a9321
-  google_maps_flutter_ios: e31555a04d1986ab130f2b9f24b6cdc861acc6d3
+  google_maps_flutter_ios: 0291eb2aa252298a769b04d075e4a9d747ff7264
   GoogleMaps: 8939898920281c649150e0af74aa291c60f2e77d
-  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 
-PODFILE CHECKSUM: d757acb9fab776c5efe5b61e0203cd432bd0619b
+PODFILE CHECKSUM: d564ec28c1549dab5400f761b476823113375bf4
 
 COCOAPODS: 1.16.2
