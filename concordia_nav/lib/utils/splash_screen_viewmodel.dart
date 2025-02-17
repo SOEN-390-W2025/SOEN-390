@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_locals, use_build_context_synchronously
+// ignore_for_file: prefer_final_locals, use_build_context_synchronously, avoid_catches_without_on_clauses
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -48,7 +48,6 @@ class SplashScreenViewModel {
         await _navigateToHome(context);
       }
     } catch (e) {
-      print('Error determining location: $e');
       // Navigate to home page if there is an error determining the user's location
       await _navigateToHome(context);
     }
