@@ -10,6 +10,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class IconLoader {
   static final Map<String, BitmapDescriptor> _cache = {};
 
+  static Map<String, BitmapDescriptor> get cache => _cache;
+
+  static Future<ByteData> Function(String) loadFunction = rootBundle.load;
+
   /// Loads a [BitmapDescriptor] for the given [iconPath].
   ///
   /// If the icon has been previously loaded, it is retrieved from the cache.
@@ -24,7 +28,7 @@ class IconLoader {
 
     ByteData data;
     try {
-      data = await rootBundle.load(iconPath);
+      data = await loadFunction(iconPath);
     } on FlutterError catch (e) {
       debugPrint("Error loading icon $iconPath: $e");
       data = await rootBundle.load('assets/icons/default.png');

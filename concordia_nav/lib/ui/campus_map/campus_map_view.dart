@@ -7,19 +7,25 @@ import '../../widgets/map_layout.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
+  final CampusMapPageState? customState;
 
-  const CampusMapPage({super.key, required this.campus});
+  const CampusMapPage({super.key, required this.campus, this.customState});
 
   @override
-  State<CampusMapPage> createState() => CampusMapPageState();
+  // ignore: no_logic_in_create_state
+  State<CampusMapPage> createState() => customState ?? CampusMapPageState();
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
-  final MapViewModel _mapViewModel = MapViewModel();
+  final MapViewModel _mapViewModel;
   final TextEditingController _searchController = TextEditingController();
   late ConcordiaCampus _currentCampus;
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
+
+  // Modify constructor to allow dependency injection
+  CampusMapPageState({MapViewModel? mapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel();
 
   @override
   void initState() {
@@ -36,6 +42,9 @@ class CampusMapPageState extends State<CampusMapPage> {
       _labelMarkers = data["labels"];
     });
   }
+
+  Set<Polygon> get polygons => _polygons;
+  Set<Marker> get labelMarkers => _labelMarkers;
 
   @override
   Widget build(BuildContext context) {

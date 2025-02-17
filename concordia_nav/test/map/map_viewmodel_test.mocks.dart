@@ -28,7 +28,7 @@ import 'package:mockito/mockito.dart' as _i1;
 class _FakeCameraPosition_0 extends _i1.SmartFake
     implements _i2.CameraPosition {
   _FakeCameraPosition_0(Object parent, Invocation parentInvocation)
-      : super(parent, parentInvocation);
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [MapRepository].
@@ -42,12 +42,13 @@ class MockMapRepository extends _i1.Mock implements _i3.MapRepository {
   @override
   _i2.CameraPosition getCameraPosition(_i4.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
-        Invocation.method(#getCameraPosition, [campus]),
-        returnValue: _FakeCameraPosition_0(
-          this,
-          Invocation.method(#getCameraPosition, [campus]),
-        ),
-      ) as _i2.CameraPosition);
+            Invocation.method(#getCameraPosition, [campus]),
+            returnValue: _FakeCameraPosition_0(
+              this,
+              Invocation.method(#getCameraPosition, [campus]),
+            ),
+          )
+          as _i2.CameraPosition);
 }
 
 /// A class which mocks [MapService].
@@ -68,12 +69,13 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
   @override
   _i2.CameraPosition getInitialCameraPosition(_i4.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
-        Invocation.method(#getInitialCameraPosition, [campus]),
-        returnValue: _FakeCameraPosition_0(
-          this,
-          Invocation.method(#getInitialCameraPosition, [campus]),
-        ),
-      ) as _i2.CameraPosition);
+            Invocation.method(#getInitialCameraPosition, [campus]),
+            returnValue: _FakeCameraPosition_0(
+              this,
+              Invocation.method(#getInitialCameraPosition, [campus]),
+            ),
+          )
+          as _i2.CameraPosition);
 
   @override
   void moveCamera(_i2.LatLng? position, {double? zoom = 17.0}) =>
@@ -87,9 +89,10 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
     _i4.ConcordiaCampus? campus,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(#getCampusPolygonsAndLabels, [campus]),
-        returnValue: _i6.Future<Map<String, dynamic>>.value(
-          <String, dynamic>{},
-        ),
-      ) as _i6.Future<Map<String, dynamic>>);
+            Invocation.method(#getCampusPolygonsAndLabels, [campus]),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i6.Future<Map<String, dynamic>>);
 }

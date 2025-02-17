@@ -1,31 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 
 // Generate mocks for GoogleMapController
-@GenerateMocks([GoogleMapController])
+@GenerateMocks([GoogleMapController, MapService])
 import 'map_service_test.mocks.dart';
 
 void main() {
-  late MapService mapService;
+  WidgetsFlutterBinding.ensureInitialized();
+
+  late MockMapService mockMapService;
+  late MapService realMapService;
   late MockGoogleMapController mockGoogleMapController;
 
   setUp(() {
-    mapService = MapService();
+    mockMapService = MockMapService();
+    realMapService = MapService();
     mockGoogleMapController = MockGoogleMapController();
   });
 
   group('MapService Tests', () {
-    test('setMapController should set the map controller', () {
+    test('getCampusPolygonsAndLabels should return correct data', () async {
       // Act
-      mapService.setMapController(mockGoogleMapController);
+      final result =
+          await realMapService.getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
 
       // Assert
-      expect(mapService, isNotNull); // Indirectly verify the controller is set
+      expect(result['polygons'], isA<Set<Polygon>>());
+      expect(result['labels'], isA<Set<Marker>>());
+
+      expect(
+          result['polygons'].any((polygon) => polygon.polygonId.value == 'H'),
+          isTrue);
+      expect(result['labels'].any((marker) => marker.markerId.value == 'H'),
+          isTrue);
+    });
+
+    test('setMapController should set the map controller', () {
+      // Act
+      realMapService.setMapController(mockGoogleMapController);
+
+      // Assert
+      expect(
+          realMapService, isNotNull); // Indirectly verify the controller is set
     });
 
     test('getInitialCameraPosition should return correct CameraPosition', () {
@@ -36,8 +57,35 @@ void main() {
         zoom: 17.0,
       );
 
+      when(mockMapService.getInitialCameraPosition(campus))
+          .thenAnswer((_) => expectedCameraPosition);
+
       // Act
-      final result = mapService.getInitialCameraPosition(campus);
+      final result = mockMapService.getInitialCameraPosition(campus);
+
+      // Assert
+      expect(result, equals(expectedCameraPosition));
+    });
+
+    test('getInitialCameraPosition should return correct CameraPosition', () {
+      // Arrange
+      const campus = ConcordiaCampus(
+        45.4582,
+        -73.6405,
+        'Loyola Campus',
+        'Some other parameter 1',
+        'Some other parameter 2',
+        'Some other parameter 3',
+        'Some other parameter 4',
+        'Some other parameter 5',
+      );
+      final expectedCameraPosition = CameraPosition(
+        target: LatLng(campus.lat, campus.lng),
+        zoom: 17.0,
+      );
+
+      // Act
+      final result = realMapService.getInitialCameraPosition(campus);
 
       // Assert
       expect(result, equals(expectedCameraPosition));
@@ -46,10 +94,10 @@ void main() {
     test('moveCamera should call animateCamera on the map controller', () {
       // Arrange
       const position = LatLng(37.7749, -122.4194);
-      mapService.setMapController(mockGoogleMapController);
+      realMapService.setMapController(mockGoogleMapController);
 
       // Act
-      mapService.moveCamera(position);
+      realMapService.moveCamera(position);
 
       // Assert
       verify(mockGoogleMapController.animateCamera(
@@ -112,11 +160,11 @@ void main() {
       };
 
       // Mock response
-      when(mapService.getCampusPolygonsAndLabels(campus)).thenAnswer(
+      when(mockMapService.getCampusPolygonsAndLabels(campus)).thenAnswer(
           (_) async => {"polygons": mockPolygons, "labels": mockMarkers});
 
       // Act
-      final result = await mapService.getCampusPolygonsAndLabels(campus);
+      final result = await mockMapService.getCampusPolygonsAndLabels(campus);
 
       // Assert
       expect(result["polygons"], equals(mockPolygons));

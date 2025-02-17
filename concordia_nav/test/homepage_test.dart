@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
@@ -7,8 +9,20 @@ import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mockito/mockito.dart';
+import 'map/campus_test.mocks.dart';
 
 void main() {
+  late OutdoorLocationMapViewState mockOutdoorLocationMapViewState;
+  late MockMapViewModel mockMapViewModel;
+
+  setUp(() {
+    mockMapViewModel = MockMapViewModel();
+    mockOutdoorLocationMapViewState =
+        OutdoorLocationMapViewState(mapViewModel: mockMapViewModel);
+  });
+
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
     // Build the HomePage widget
     await tester.pumpWidget(const MaterialApp(home: const HomePage()));
@@ -43,7 +57,9 @@ void main() {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+      '/CampusMapPage': (context) => CampusMapPage(
+          campus:
+              ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
     };
 
     // Build the HomePage widget
@@ -63,11 +79,14 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Loyola campus navigation should work', (WidgetTester tester) async {
+  testWidgets('Loyola campus navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+      '/CampusMapPage': (context) => CampusMapPage(
+          campus:
+              ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
     };
 
     // Build the HomePage widget
@@ -87,7 +106,8 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Indoor Directions navigation should work', (WidgetTester tester) async {
+  testWidgets('Indoor Directions navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
@@ -111,7 +131,8 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Nearby Facilities navigation should work', (WidgetTester tester) async {
+  testWidgets('Nearby Facilities navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
@@ -155,22 +176,42 @@ void main() {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Outdoor Directions navigation should work', (WidgetTester tester) async {
+  testWidgets('Outdoor Directions navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+      '/CampusMapPage': (context) => CampusMapPage(
+          campus:
+              ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+      '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
+            customState: mockOutdoorLocationMapViewState,
+          ),
     };
+
+    when(mockMapViewModel.getCampusPolygonsAndLabels(any))
+        .thenAnswer((_) async {
+      return {
+        "polygons": <Polygon>{const Polygon(polygonId: PolygonId('polygon1'))},
+        "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      };
+    });
+
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
 
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
       initialRoute: '/',
       routes: routes,
     ));
-    
+
     // Tap on the Outdoor Directions FeatureCard
-    await tester.tap(find.byIcon(Icons.maps_home_work));
-    await tester.pumpAndSettle(); // Wait for navigation to complete
+    await tester.tap(find.text("Outdoor directions"));
+    await tester.pumpAndSettle();
 
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));

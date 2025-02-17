@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter/services.dart';
 import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
+
+typedef LoadStringFunction = Future<String> Function(String);
 
 class BuildingRepository {
   static const ConcordiaBuilding h = ConcordiaBuilding(

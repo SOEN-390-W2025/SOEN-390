@@ -8,17 +8,25 @@ import '../../widgets/search_bar.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
+  final OutdoorLocationMapViewState? customState;
 
-  const OutdoorLocationMapView({super.key, required this.campus});
+  const OutdoorLocationMapView(
+      {super.key, required this.campus, this.customState});
 
   @override
-  State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
+  State<OutdoorLocationMapView> createState() =>
+      // ignore: no_logic_in_create_state
+      customState ?? OutdoorLocationMapViewState();
 }
 
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
-  final MapViewModel _mapViewModel = MapViewModel();
+  final MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
   final String destination = '';
+
+// Modify constructor to allow dependency injection
+  OutdoorLocationMapViewState({MapViewModel? mapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel();
 
   @override
   void initState() {
@@ -49,10 +57,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                 builder: (context, polySnapshot) {
                   if (polySnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  }
-                  if (polySnapshot.hasError) {
-                    return const Center(
-                        child: Text('Error loading polygons and labels'));
                   }
 
                   final Set<Polygon> polygons =

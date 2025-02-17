@@ -4,7 +4,6 @@ import 'dart:async';
 import '../domain-model/concordia_campus.dart';
 import '../repositories/building_repository.dart';
 import 'helpers/icon_loader.dart';
-import '../domain-model/concordia_campus.dart';
 
 class MapService {
   late GoogleMapController _mapController;

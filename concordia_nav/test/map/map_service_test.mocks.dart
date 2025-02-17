@@ -6,6 +6,8 @@
 import 'dart:async' as _i4;
 import 'dart:typed_data' as _i5;
 
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i7;
+import 'package:concordia_nav/data/services/map_service.dart' as _i6;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i3;
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
     as _i2;
@@ -38,6 +40,12 @@ class _FakeScreenCoordinate_1 extends _i1.SmartFake
 
 class _FakeLatLng_2 extends _i1.SmartFake implements _i2.LatLng {
   _FakeLatLng_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeCameraPosition_3 extends _i1.SmartFake
+    implements _i2.CameraPosition {
+  _FakeCameraPosition_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -184,4 +192,50 @@ class MockGoogleMapController extends _i1.Mock
     Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [MapService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMapService extends _i1.Mock implements _i6.MapService {
+  MockMapService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  void setMapController(_i3.GoogleMapController? controller) =>
+      super.noSuchMethod(
+        Invocation.method(#setMapController, [controller]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i2.CameraPosition getInitialCameraPosition(_i7.ConcordiaCampus? campus) =>
+      (super.noSuchMethod(
+            Invocation.method(#getInitialCameraPosition, [campus]),
+            returnValue: _FakeCameraPosition_3(
+              this,
+              Invocation.method(#getInitialCameraPosition, [campus]),
+            ),
+          )
+          as _i2.CameraPosition);
+
+  @override
+  void moveCamera(_i2.LatLng? position, {double? zoom = 17.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#moveCamera, [position], {#zoom: zoom}),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i4.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+    _i7.ConcordiaCampus? campus,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCampusPolygonsAndLabels, [campus]),
+            returnValue: _i4.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i4.Future<Map<String, dynamic>>);
 }
