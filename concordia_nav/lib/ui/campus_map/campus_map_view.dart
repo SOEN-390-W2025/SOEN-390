@@ -7,33 +7,31 @@ import '../../widgets/map_layout.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
-  final CampusMapPageState? customState;
+  final MapViewModel? mapViewModel;
 
-  const CampusMapPage({super.key, required this.campus, this.customState});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
   // ignore: no_logic_in_create_state
-  State<CampusMapPage> createState() => customState ?? CampusMapPageState();
+  State<CampusMapPage> createState() =>
+      // ignore: no_logic_in_create_state
+      CampusMapPageState(mapViewModel: mapViewModel);
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
-  final MapViewModel _mapViewModel;
-  final TextEditingController _searchController = TextEditingController();
-  late ConcordiaCampus _currentCampus;
-  Set<Polygon> _polygons = {};
-  Set<Marker> _labelMarkers = {};
-
   // Modify constructor to allow dependency injection
   CampusMapPageState({MapViewModel? mapViewModel})
       : _mapViewModel = mapViewModel ?? MapViewModel();
 
-  @override
-  void initState() {
-    super.initState();
-    _currentCampus = widget.campus;
+  final MapViewModel _mapViewModel;
+  late ConcordiaCampus _currentCampus;
+  late Future<CameraPosition> _initialCameraPosition;
+  bool _locationPermissionGranted = false;
+  final TextEditingController _searchController = TextEditingController();
+  Set<Polygon> _polygons = {};
+  Set<Marker> _labelMarkers = {};
 
-    _loadMapData();
-  }
+  MapViewModel get mapViewModel => _mapViewModel;
 
   Future<void> _loadMapData() async {
     final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
@@ -43,8 +41,22 @@ class CampusMapPageState extends State<CampusMapPage> {
     });
   }
 
-  Set<Polygon> get polygons => _polygons;
-  Set<Marker> get labelMarkers => _labelMarkers;
+  @override
+  void initState() {
+    super.initState();
+    _currentCampus = widget.campus;
+
+    _loadMapData();
+
+    _initialCameraPosition =
+        _mapViewModel.getInitialCameraPosition(_currentCampus);
+
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +71,12 @@ class CampusMapPageState extends State<CampusMapPage> {
                 ? ConcordiaCampus.loy
                 : ConcordiaCampus.sgw;
           });
+          _mapViewModel
+              .moveToLocation(LatLng(_currentCampus.lat, _currentCampus.lng));
         },
       ),
       body: FutureBuilder<CameraPosition>(
-        future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+        future: _initialCameraPosition,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -71,15 +85,28 @@ class CampusMapPageState extends State<CampusMapPage> {
             return const Center(child: Text('Error loading campus map'));
           }
 
-          return MapLayout(
-            searchController: _searchController,
-            mapWidget: GoogleMap(
-              buildingsEnabled: false,
-              onMapCreated: _mapViewModel.onMapCreated,
-              initialCameraPosition: snapshot.data!,
-              polygons: _polygons,
-              markers: _labelMarkers, // Add labels as markers
-            ),
+          return FutureBuilder<Map<String, dynamic>>(
+            future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+            builder: (context, polySnapshot) {
+              if (polySnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return MapLayout(
+                searchController: _searchController,
+                mapWidget: GoogleMap(
+                  buildingsEnabled: false,
+                  onMapCreated: _mapViewModel.onMapCreated,
+                  initialCameraPosition: snapshot.data!,
+                  markers: _labelMarkers,
+                  polygons: _polygons,
+                  zoomControlsEnabled: false,
+                  myLocationButtonEnabled: false,
+                  myLocationEnabled: _locationPermissionGranted,
+                ),
+                mapViewModel: _mapViewModel,
+              );
+            },
           );
         },
       ),

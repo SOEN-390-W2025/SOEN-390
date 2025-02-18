@@ -8,21 +8,22 @@ import '../../widgets/search_bar.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
-  final OutdoorLocationMapViewState? customState;
+  final MapViewModel? mapViewModel;
 
   const OutdoorLocationMapView(
-      {super.key, required this.campus, this.customState});
+      {super.key, required this.campus, this.mapViewModel});
 
   @override
   State<OutdoorLocationMapView> createState() =>
       // ignore: no_logic_in_create_state
-      customState ?? OutdoorLocationMapViewState();
+      OutdoorLocationMapViewState(mapViewModel: mapViewModel);
 }
 
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
-  final MapViewModel _mapViewModel;
+  late MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
-  final String destination = '';
+  late Future<CameraPosition> _initialCameraPosition;
+  bool _locationPermissionGranted = false;
 
 // Modify constructor to allow dependency injection
   OutdoorLocationMapViewState({MapViewModel? mapViewModel})
@@ -31,7 +32,15 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   @override
   void initState() {
     super.initState();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _currentCampus = widget.campus;
+    _initialCameraPosition =
+        _mapViewModel.getInitialCameraPosition(_currentCampus);
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+      });
+    });
   }
 
   @override
@@ -42,7 +51,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
         children: [
           // FutureBuilder to load the map
           FutureBuilder<CameraPosition>(
-            future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+            future: _initialCameraPosition,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -59,18 +68,38 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  final Set<Polygon> polygons =
-                      polySnapshot.data?["polygons"] ?? {};
-                  final Set<Marker> labelMarkers =
-                      polySnapshot.data?["labels"] ?? {};
+                  return FutureBuilder<Map<String, dynamic>>(
+                    future: _mapViewModel
+                        .getCampusPolygonsAndLabels(_currentCampus),
+                    builder: (context, polySnapshot) {
+                      if (polySnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                  return MapLayout(
-                    mapWidget: GoogleMap(
-                      onMapCreated: _mapViewModel.onMapCreated,
-                      initialCameraPosition: snapshot.data!,
-                      markers: labelMarkers,
-                      polygons: polygons,
-                    ),
+                      final Set<Polygon> polygons =
+                          polySnapshot.data?["polygons"] ?? {};
+                      final Set<Marker> labelMarkers =
+                          polySnapshot.data?["labels"] ?? {};
+
+                      if (!_locationPermissionGranted) {
+                        return const Center(
+                            child: Text('Location permission not granted'));
+                      }
+
+                      return MapLayout(
+                        mapWidget: GoogleMap(
+                          onMapCreated: _mapViewModel.onMapCreated,
+                          initialCameraPosition: snapshot.data!,
+                          markers: labelMarkers,
+                          polygons: polygons,
+                          myLocationButtonEnabled: false,
+                          myLocationEnabled: _locationPermissionGranted,
+                        ),
+                        mapViewModel: _mapViewModel,
+                        style: 2,
+                      );
+                    },
                   );
                 },
               );

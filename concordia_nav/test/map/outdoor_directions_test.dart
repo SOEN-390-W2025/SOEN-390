@@ -10,12 +10,9 @@ import 'campus_test.mocks.dart';
 
 void main() {
   late MockMapViewModel mockMapViewModel;
-  late OutdoorLocationMapViewState mockOutdoorLocationMapViewState;
 
   setUp(() {
     mockMapViewModel = MockMapViewModel();
-    mockOutdoorLocationMapViewState =
-        OutdoorLocationMapViewState(mapViewModel: mockMapViewModel);
   });
 
   testWidgets('OutdoorLocationMapView displays polygons and labels correctly',
@@ -29,6 +26,8 @@ void main() {
       };
     });
 
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -36,10 +35,7 @@ void main() {
     // Build the widget with mock MapViewModel
     await tester.pumpWidget(MaterialApp(
       home: OutdoorLocationMapView(
-          campus: ConcordiaCampus.sgw,
-          customState:
-              mockOutdoorLocationMapViewState // You can pass your actual campus here
-          ),
+          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
     ));
 
     // Wait for the FutureBuilders to resolve

@@ -3,6 +3,7 @@ import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
 import '../domain-model/location.dart';
 import '../repositories/building_repository.dart';
+import 'map_service.dart';
 
 class IndoorRoutingService {
   //IndoorRoute getRoute(Location origin, Location destination) {}
@@ -19,9 +20,22 @@ class IndoorRoutingService {
   static Future<Location?> getRoundedLocation() async {
     List<ConcordiaBuilding>? searchCandidates;
     final Position userPosition;
+    final MapService mapService = MapService();
 
     try {
-      await Geolocator.requestPermission();
+      
+      final bool serviceEnabled = await mapService.isLocationServiceEnabled();
+      final bool hasPermission = await mapService.checkAndRequestLocationPermission();
+      // check if location services are enabled
+      if (!serviceEnabled) {
+        return Future.error('Location services are disabled.');
+      }
+      // check if location permissions are granted
+      if (!hasPermission) {
+        return Future.error('Location permissions are denied.');
+      }
+
+      // Get the user's current location
       userPosition = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
               accuracy: LocationAccuracy.bestForNavigation));
