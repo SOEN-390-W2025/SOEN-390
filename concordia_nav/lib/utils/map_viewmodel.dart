@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_fields
+// ignore_for_file: prefer_final_fields, prefer_final_locals
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,19 +6,21 @@ import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
 import '../data/domain-model/concordia_building.dart';
-import '../../data/repositories/building_repository.dart';
-
+import '../data/repositories/building_repository.dart';
+import '../data/services/building_service.dart ';
 class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository = MapRepository();
   MapService _mapService = MapService();
+  BuildingService _buildingService = BuildingService();
 
   // ignore: unused_field
   GoogleMapController? _mapController;
   ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier = ValueNotifier<ConcordiaBuilding?>(null);
 
-  MapViewModel({MapRepository? mapRepository, MapService? mapService})
+  MapViewModel({MapRepository? mapRepository, MapService? mapService, BuildingService? buildingService})
       : _mapRepository = mapRepository ?? MapRepository(),
-        _mapService = mapService ?? MapService();
+        _mapService = mapService ?? MapService(),
+        _buildingService = buildingService ?? BuildingService();
 
   /// Fetches the initial camera position for the given campus.
   Future<CameraPosition> getInitialCameraPosition(
@@ -42,35 +44,67 @@ class MapViewModel extends ChangeNotifier{
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
   }
 
-  /// Fetches both polygons and labeled icons for a given campus building.
+  /// Fetches polygons and campus markers from BuildingRepository.
   Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-      ConcordiaCampus campus) {
-    return _mapService.getCampusPolygonsAndLabels(campus);
-  }
-  
-  /// Retrieves markers for campus buildings.
-  Set<Marker> getCampusMarkers(ConcordiaCampus campus) {
-  final List<ConcordiaBuilding> buildings =
-      BuildingRepository.buildingByCampusAbbreviation[campus.abbreviation] ?? [];
+      ConcordiaCampus campus) async {
+    final String campusName = (campus.name == "Loyola Campus") ? "loy" : "sgw";
 
-    return buildings.map((building) {
-      return Marker(
-        markerId: MarkerId(building.abbreviation),
-        position: LatLng(building.lat, building.lng),
+    // Load polygons and label positions (markers should be placed at label positions)
+    final Map<String, dynamic> data =
+        await BuildingRepository.loadBuildingPolygonsAndLabels(campusName);
+
+    final Map<String, List<LatLng>> polygonsData = data["polygons"];
+    final Map<String, LatLng> labelPositions = data["labels"];
+
+    final Set<Polygon> polygonSet = polygonsData.entries.map((entry) {
+      return Polygon(
+        polygonId: PolygonId(entry.key),
+        points: entry.value,
+        strokeWidth: 3,
+        strokeColor: const Color(0xFFB48107),
+        fillColor: const Color(0xFFe5a712),
         onTap: () {
-          selectBuilding(building);
+          // ConcordiaBuilding? building = _buildingService.getBuildingByAbbreviation(entry.key.toLowerCase());
+          // // Ensure building is not null before selecting it
+          // if (building != null) {
+          //   _mapViewModel.selectBuilding(building);
+          // } else {
+          //   print("Building not found for abbreviation: ${entry.key}");
+          // }
         },
       );
     }).toSet();
+
+    // Load campus markers (placed at centroid of each building polygon)
+    final Set<Marker> labelMarkers = {};
+    for (var entry in labelPositions.entries) {
+      final BitmapDescriptor icon = await _mapService.getCustomIcon(entry.key);
+      labelMarkers.add(
+        Marker(
+          markerId: MarkerId(entry.key),
+          position: entry.value, // Use centroid as position
+          icon: icon,
+          onTap: () {
+            ConcordiaBuilding? building = _buildingService.getBuildingByAbbreviation(entry.key);
+            selectBuilding(building!);
+          },
+        ),
+      );
+    }
+
+    return {"polygons": polygonSet, "labels": labelMarkers};
   }
 
   /// Sets the selected building and notifies listeners.
   void selectBuilding(ConcordiaBuilding building) {
     selectedBuildingNotifier.value = building;
+    notifyListeners();
   }
 
   void unselectBuilding() {
+    print('Unselecting building');
     selectedBuildingNotifier.value = null;
+    notifyListeners();
   }
 
   /// Fetches the current location without moving the map.
