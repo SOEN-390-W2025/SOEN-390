@@ -6,7 +6,7 @@ import '../domain-model/campus.dart';
 
 class MapService {
   late GoogleMapController _mapController;
-  Set<Polyline> _polylines = {};
+  final Set<Polyline> _polylines = {};
   final DirectionsService _directionsService = DirectionsService();
 
   /// Sets the Google Maps controller.
