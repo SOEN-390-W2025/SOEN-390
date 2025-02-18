@@ -44,14 +44,18 @@ class MapViewModel extends ChangeNotifier{
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
   }
 
-  /// Fetches polygons and campus markers from BuildingRepository.
-  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-      ConcordiaCampus campus) async {
-    final String campusName = (campus.name == "Loyola Campus") ? "loy" : "sgw";
+  /// Fetches polygons and campus markers from BuildingRepository for a specific campus or all campuses.
+  Future<Map<String, dynamic>> _getPolygonsAndLabels(
+      {String? campusName}) async {
 
-    // Load polygons and label positions (markers should be placed at label positions)
-    final Map<String, dynamic> data =
-        await BuildingRepository.loadBuildingPolygonsAndLabels(campusName);
+    Map<String, dynamic> data;
+
+    // If campusName is provided, load data for that specific campus, else load data for all campuses.
+    if (campusName != null) {
+      data = await BuildingRepository.loadBuildingPolygonsAndLabels(campusName);
+    } else {
+      data = await BuildingRepository.loadAllBuildingPolygonsAndLabels();
+    }
 
     final Map<String, List<LatLng>> polygonsData = data["polygons"];
     final Map<String, LatLng> labelPositions = data["labels"];
@@ -64,13 +68,7 @@ class MapViewModel extends ChangeNotifier{
         strokeColor: const Color(0xFFB48107),
         fillColor: const Color(0xFFe5a712),
         onTap: () {
-          // ConcordiaBuilding? building = _buildingService.getBuildingByAbbreviation(entry.key.toLowerCase());
-          // // Ensure building is not null before selecting it
-          // if (building != null) {
-          //   _mapViewModel.selectBuilding(building);
-          // } else {
-          //   print("Building not found for abbreviation: ${entry.key}");
-          // }
+          // Handle onTap if needed
         },
       );
     }).toSet();
@@ -93,6 +91,17 @@ class MapViewModel extends ChangeNotifier{
     }
 
     return {"polygons": polygonSet, "labels": labelMarkers};
+  }
+
+  /// Fetches polygons and campus markers for a specific campus.
+  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(ConcordiaCampus campus) async {
+    final String campusName = (campus.name == "Loyola Campus") ? "loy" : "sgw";
+    return await _getPolygonsAndLabels(campusName: campusName);
+  }
+
+  /// Fetches polygons and campus markers for all campuses.
+  Future<Map<String, dynamic>> getAllCampusPolygonsAndLabels() async {
+    return await _getPolygonsAndLabels();
   }
 
   /// Sets the selected building and notifies listeners.
