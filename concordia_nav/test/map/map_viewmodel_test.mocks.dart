@@ -8,6 +8,7 @@ import 'package:concordia_nav/data/repositories/map_repository.dart' as _i3;
 import 'package:concordia_nav/data/services/map_service.dart' as _i5;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'dart:async' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -26,6 +27,11 @@ import 'package:mockito/mockito.dart' as _i1;
 class _FakeCameraPosition_0 extends _i1.SmartFake
     implements _i2.CameraPosition {
   _FakeCameraPosition_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeLatLng_2 extends _i1.SmartFake implements _i2.LatLng {
+  _FakeLatLng_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -83,10 +89,58 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
       );
 
   @override
+  _i6.Future<void> zoomIn() => (
+      super.noSuchMethod(
+        Invocation.method(#zoomIn, []),
+        returnValue: _i6.Future<void>.value(null),
+        returnValueForMissingStub: _i6.Future<void>.value(null),
+      ) as _i6.Future<void>
+  );
+
+  @override
+  _i6.Future<void> zoomOut() => (
+      super.noSuchMethod(
+        Invocation.method(#zoomOut, []),
+        returnValue: _i6.Future<void>.value(null),
+        returnValueForMissingStub: _i6.Future<void>.value(null),
+      ) as _i6.Future<void>
+  );
+
+  @override
   Set<_i2.Marker> getCampusMarkers(List<_i2.LatLng>? buildingLocations) =>
       (super.noSuchMethod(
             Invocation.method(#getCampusMarkers, [buildingLocations]),
             returnValue: <_i2.Marker>{},
           )
           as Set<_i2.Marker>);
+
+  @override
+  _i6.Future<bool> isLocationServiceEnabled() =>
+      (super.noSuchMethod(
+            Invocation.method(#isLocationServiceEnabled, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<bool> checkAndRequestLocationPermission() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkAndRequestLocationPermission, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<_i2.LatLng> getCurrentLocation() =>
+      (super.noSuchMethod(
+            Invocation.method(#getCurrentLocation, []),
+            returnValue: _i6.Future<_i2.LatLng>.value(
+              _FakeLatLng_2(
+                this,
+                Invocation.method(#getCurrentLocation, []),
+              ),
+            ),
+          )
+          as _i6.Future<_i2.LatLng>);
+
 }

@@ -7,15 +7,16 @@ import '../../widgets/map_layout.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
+  final MapViewModel? mapViewModel;
 
-  const CampusMapPage({super.key, required this.campus});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
   State<CampusMapPage> createState() => CampusMapPageState();
 }
-
+// need to modify so I can insert mapviewmodel
 class CampusMapPageState extends State<CampusMapPage> {
-  final MapViewModel _mapViewModel = MapViewModel();
+  late MapViewModel _mapViewModel;
   final TextEditingController _searchController = TextEditingController();
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;
@@ -24,6 +25,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   @override
   void initState() {
     super.initState();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _currentCampus = widget.campus;
     _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
     _mapViewModel.checkLocationAccess().then((hasPermission) {
@@ -45,6 +47,7 @@ class CampusMapPageState extends State<CampusMapPage> {
             _currentCampus =
                 _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
           });
+          _mapViewModel.moveToLocation(LatLng(_currentCampus.lat, _currentCampus.lng));
         },
       ),
       body: FutureBuilder<CameraPosition>(
