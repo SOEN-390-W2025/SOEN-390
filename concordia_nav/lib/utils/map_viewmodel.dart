@@ -42,6 +42,12 @@ class MapViewModel extends ChangeNotifier{
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
   }
 
+  /// Fetches both polygons and labeled icons for a given campus building.
+  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+      ConcordiaCampus campus) {
+    return _mapService.getCampusPolygonsAndLabels(campus);
+  }
+  
   /// Retrieves markers for campus buildings.
   Set<Marker> getCampusMarkers(ConcordiaCampus campus) {
   final List<ConcordiaBuilding> buildings =
@@ -67,7 +73,7 @@ class MapViewModel extends ChangeNotifier{
     selectedBuildingNotifier.value = null;
   }
 
-    /// Fetches the current location without moving the map.
+  /// Fetches the current location without moving the map.
   Future<LatLng?> fetchCurrentLocation() async {
     return await _mapService.getCurrentLocation();
   }
@@ -77,19 +83,20 @@ class MapViewModel extends ChangeNotifier{
     final bool serviceEnabled = await _mapService.isLocationServiceEnabled();
     if (!serviceEnabled) return false;
 
-    final bool hasPermission = await _mapService.checkAndRequestLocationPermission();
+    final bool hasPermission =
+        await _mapService.checkAndRequestLocationPermission();
     return hasPermission;
   }
 
   /// Fetches current location and moves the camera.
-  Future<bool> moveToCurrentLocation(BuildContext context) async {
+  Future<bool> moveToCurrentLocation(BuildContext? context) async {
     final bool hasAccess = await checkLocationAccess();
     if (!hasAccess) {
-      if (context.mounted) {
+      if (context!.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(
-            "Location services or permissions are not available. Please enable them in settings."
-          )),
+          const SnackBar(
+              content: Text(
+                  "Location services or permissions are not available. Please enable them in settings.")),
         );
       }
       return false;

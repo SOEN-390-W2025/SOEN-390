@@ -40,6 +40,10 @@ void main() {
         speedAccuracy: 10.0,
         altitudeAccuracy: 10.0,
         headingAccuracy: 10.0);
+    // ref to permission integers: https://github.com/Baseflow/flutter-geolocator/blob/main/geolocator_platform_interface/lib/src/extensions/integer_extensions.dart
+    var permission = 3; // permission set to accept
+    const request = 3; // request permission set to accept
+    var service = true; // locationService set to true
 
     // ensure plugin is initialized
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +53,7 @@ void main() {
     Future locationHandler(MethodCall methodCall) async {
       // grants access to location permissions
       if (methodCall.method == 'requestPermission') {
-        return 3;
+        return request;
       }
       // return testPosition when searching for the current location
       if (methodCall.method == 'getCurrentPosition') {
@@ -57,11 +61,11 @@ void main() {
       }
       // set to true when device tries to check for permissions
       if (methodCall.method == 'isLocationServiceEnabled') {
-        return true;
+        return service;
       }
       // returns authorized when checking for location permissions
       if (methodCall.method == 'checkPermission') {
-        return 3;
+        return permission;
       }
     }
 
@@ -134,6 +138,19 @@ void main() {
             headingAccuracy: 0.0);
         final res = await IndoorRoutingService.getRoundedLocation();
         expect(res, null); // should return null
+      });
+
+      test('returns error message if service disabled', () async {
+        service = false;
+        // should return an error
+        expect(IndoorRoutingService.getRoundedLocation(), throwsA('Location services are disabled.'));
+      });
+
+      test('returns error message if service disabled', () async {
+        service = true;
+        permission = 1;
+        // should return an error
+        expect(IndoorRoutingService.getRoundedLocation(), throwsA('Location permissions are denied.'));
       });
     });
   });
