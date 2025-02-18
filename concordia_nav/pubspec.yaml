@@ -96,34 +96,38 @@ flutter:
     - ../.env
     - assets/config/
     - assets/images/
-    - assets/icons/default.png
-    - assets/icons/CL.png
-    - assets/icons/EV.png
-    - assets/icons/FB.png
-    - assets/icons/FG.png
-    - assets/icons/GM.png
-    - assets/icons/H.png
-    - assets/icons/LS.png
-    - assets/icons/MB.png
-    - assets/icons/TD.png
-    - assets/icons/VA.png
-    - assets/icons/RA.png
-    - assets/icons/PC.png
-    - assets/icons/VL.png
-    - assets/icons/PT.png
-    - assets/icons/SC.png
-    - assets/icons/VE.png
-    - assets/icons/PS.png
-    - assets/icons/HA.png
-    - assets/icons/PY.png
-    - assets/icons/RF.png
-    - assets/icons/SP.png
-    - assets/icons/GE.png
-    - assets/icons/CJ.png
-    - assets/icons/CC.png
-    - assets/icons/AD.png
     - assets/maps/outdoor/sgw/polygons.json
     - assets/maps/outdoor/loy/polygons.json
+    - assets/icons/default.png
+    - assets/icons/AD.png
+    - assets/icons/CC.png
+    - assets/icons/CJ.png
+    - assets/icons/CL.png
+    - assets/icons/EV.png
+    - assets/icons/ER.png
+    - assets/icons/FB.png
+    - assets/icons/FC.png
+    - assets/icons/FG.png
+    - assets/icons/GE.png
+    - assets/icons/GM.png
+    - assets/icons/HA.png
+    - assets/icons/H.png
+    - assets/icons/HU.png
+    - assets/icons/LB.png
+    - assets/icons/LS.png
+    - assets/icons/MB.png
+    - assets/icons/PC.png
+    - assets/icons/PS.png
+    - assets/icons/PT.png
+    - assets/icons/PY.png
+    - assets/icons/RA.png
+    - assets/icons/RF.png
+    - assets/icons/SC.png
+    - assets/icons/SP.png
+    - assets/icons/TD.png
+    - assets/icons/VA.png
+    - assets/icons/VE.png
+    - assets/icons/VL.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
