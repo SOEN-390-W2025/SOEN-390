@@ -25,7 +25,6 @@ class CampusMapPageState extends State<CampusMapPage> {
 
   final MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
-  late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
   final TextEditingController _searchController = TextEditingController();
   Set<Polygon> _polygons = {};
@@ -48,9 +47,6 @@ class CampusMapPageState extends State<CampusMapPage> {
 
     _loadMapData();
 
-    _initialCameraPosition =
-        _mapViewModel.getInitialCameraPosition(_currentCampus);
-
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
@@ -67,16 +63,13 @@ class CampusMapPageState extends State<CampusMapPage> {
         actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
         onActionPressed: () {
           setState(() {
-            _currentCampus = _currentCampus == ConcordiaCampus.sgw
-                ? ConcordiaCampus.loy
-                : ConcordiaCampus.sgw;
+            _currentCampus = _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
           });
-          _mapViewModel
-              .moveToLocation(LatLng(_currentCampus.lat, _currentCampus.lng));
+          _loadMapData();
         },
       ),
       body: FutureBuilder<CameraPosition>(
-        future: _initialCameraPosition,
+        future: _mapViewModel.getInitialCameraPosition(_currentCampus),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
