@@ -111,7 +111,6 @@ class MapViewModel extends ChangeNotifier{
   }
 
   void unselectBuilding() {
-    print('Unselecting building');
     selectedBuildingNotifier.value = null;
     notifyListeners();
   }
@@ -166,7 +165,6 @@ class MapViewModel extends ChangeNotifier{
   for (var entry in polygons.entries) {
     final String buildingAbbr = entry.key;
     final List<LatLng> polygon = entry.value;
-    print('Checking building: $buildingAbbr');
     if (_isPointInPolygon(currentLocation, polygon)) {
       // If inside the polygon, get the building details and show the drawer
       final ConcordiaBuilding? building = _buildingService.getBuildingByAbbreviation(buildingAbbr);

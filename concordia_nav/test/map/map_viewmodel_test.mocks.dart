@@ -84,7 +84,6 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
         returnValueForMissingStub: null,
       );
 
-  @override
   _i6.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
     _i4.ConcordiaCampus? campus,
   ) =>

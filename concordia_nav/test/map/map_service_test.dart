@@ -1,3 +1,4 @@
+import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,11 +13,13 @@ import 'map_service_test.mocks.dart';
 @GenerateMocks([GoogleMapController, MapService, GeolocatorPlatform])
 void main() {
   late MockMapService mockMapService;
+  late MapViewModel realmapViewModel;
   late MapService realMapService;
   late MockGoogleMapController mockGoogleMapController;
 
   setUp(() {
     mockMapService = MockMapService();
+    realmapViewModel = MapViewModel();
     realMapService = MapService();
     mockGoogleMapController = MockGoogleMapController();
   });
@@ -25,7 +28,7 @@ void main() {
     test('getCampusPolygonsAndLabels should return correct data', () async {
       // Act
       final result =
-          await realMapService.getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
+          await realmapViewModel.getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
 
       // Assert
       expect(result['polygons'], isA<Set<Polygon>>());
