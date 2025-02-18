@@ -23,6 +23,7 @@ class MapControllerButtons extends StatelessWidget {
           // Current location button
           InkWell(
             onTap: () {
+              mapViewModel.checkBuildingAtCurrentLocation(context);
               mapViewModel.moveToCurrentLocation(context);
             },
             child: Container(

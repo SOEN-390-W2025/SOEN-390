@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_fields, prefer_final_locals
+// ignore_for_file: prefer_final_fields, prefer_final_locals, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -130,6 +130,54 @@ class MapViewModel extends ChangeNotifier{
         await _mapService.checkAndRequestLocationPermission();
     return hasPermission;
   }
+
+  // Helper function to check if a point is inside a polygon
+  bool _isPointInPolygon(LatLng point, List<LatLng> polygon) {
+    int i, j = polygon.length - 1;
+    bool inside = false;
+
+    for (i = 0; i < polygon.length; j = i++) {
+      final LatLng pi = polygon[i];
+      final LatLng pj = polygon[j];
+
+      if ((pi.longitude > point.longitude) != (pj.longitude > point.longitude) &&
+          (point.latitude <
+                  (pj.latitude - pi.latitude) * (point.longitude - pi.longitude) /
+                      (pj.longitude - pi.longitude) +
+                      pi.latitude)) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  }
+
+  Future<void> checkBuildingAtCurrentLocation(BuildContext context) async {
+  final LatLng? currentLocation = await fetchCurrentLocation();
+  if (currentLocation == null) {
+    // Handle case where location is not available
+    return;
+  }
+
+  // Load the polygons and labels
+  final Map<String, dynamic> data = await BuildingRepository.loadAllBuildingPolygonsAndLabels();
+  final Map<String, List<LatLng>> polygons = data['polygons'];
+
+  // Check each polygon to see if the current location is inside any of them
+  for (var entry in polygons.entries) {
+    final String buildingAbbr = entry.key;
+    final List<LatLng> polygon = entry.value;
+    print('Checking building: $buildingAbbr');
+    if (_isPointInPolygon(currentLocation, polygon)) {
+      // If inside the polygon, get the building details and show the drawer
+      final ConcordiaBuilding? building = _buildingService.getBuildingByAbbreviation(buildingAbbr);
+      selectBuilding(building!);
+      return;
+    }
+  }
+
+  // If not inside any building polygon, unselect building or show a default message
+  unselectBuilding();
+}
 
   /// Fetches current location and moves the camera.
   Future<bool> moveToCurrentLocation(BuildContext? context) async {

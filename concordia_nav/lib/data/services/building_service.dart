@@ -1,3 +1,8 @@
+// ignore_for_file: prefer_final_locals
+
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
@@ -50,4 +55,5 @@ class BuildingService {
     }
     return null; // Return null if no building matches the name
   }
+
 }
