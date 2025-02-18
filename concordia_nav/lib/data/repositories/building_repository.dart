@@ -195,7 +195,7 @@ class BuildingRepository {
       "Montreal",
       "QC",
       loyolaPC,
-      "hu",
+      "HU",
       ConcordiaCampus.loy);
 
   static Map<String, List<ConcordiaBuilding>> buildingByCampusAbbreviation = {
