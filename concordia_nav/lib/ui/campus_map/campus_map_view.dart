@@ -7,22 +7,32 @@ import '../../widgets/map_layout.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
+  final MapViewModel? mapViewModel;
 
-  const CampusMapPage({super.key, required this.campus});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
   State<CampusMapPage> createState() => CampusMapPageState();
 }
-
+// need to modify so I can insert mapviewmodel
 class CampusMapPageState extends State<CampusMapPage> {
-  final MapViewModel _mapViewModel = MapViewModel();
+  late MapViewModel _mapViewModel;
   final TextEditingController _searchController = TextEditingController();
   late ConcordiaCampus _currentCampus;
+  late Future<CameraPosition> _initialCameraPosition;
+  bool _locationPermissionGranted = false;
 
   @override
   void initState() {
     super.initState();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _currentCampus = widget.campus;
+    _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+      });
+    });
   }
 
   @override
@@ -37,10 +47,11 @@ class CampusMapPageState extends State<CampusMapPage> {
             _currentCampus =
                 _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
           });
+          _mapViewModel.moveToLocation(LatLng(_currentCampus.lat, _currentCampus.lng));
         },
       ),
       body: FutureBuilder<CameraPosition>(
-        future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+        future: _initialCameraPosition,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -54,11 +65,15 @@ class CampusMapPageState extends State<CampusMapPage> {
             mapWidget: GoogleMap(
               onMapCreated: _mapViewModel.onMapCreated,
               initialCameraPosition: snapshot.data!,
+              zoomControlsEnabled: false,
+              myLocationButtonEnabled: false,
+              myLocationEnabled: _locationPermissionGranted,
               markers: _mapViewModel.getCampusMarkers([
                 /* TODO: add campus building markers */
               ]),
               /* TODO: add campus building overlay (polygon shape) */
             ),
+            mapViewModel: _mapViewModel,
           );
         },
       ),
