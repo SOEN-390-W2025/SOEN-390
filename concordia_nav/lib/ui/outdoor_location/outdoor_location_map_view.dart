@@ -10,10 +10,13 @@ class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
   final MapViewModel? mapViewModel;
 
-  const OutdoorLocationMapView({super.key, required this.campus, this.mapViewModel});
+  const OutdoorLocationMapView(
+      {super.key, required this.campus, this.mapViewModel});
 
   @override
-  State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
+  State<OutdoorLocationMapView> createState() =>
+      // ignore: no_logic_in_create_state
+      OutdoorLocationMapViewState(mapViewModel: mapViewModel);
 }
 
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
@@ -22,12 +25,17 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
 
+// Modify constructor to allow dependency injection
+  OutdoorLocationMapViewState({MapViewModel? mapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel();
+
   @override
   void initState() {
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _currentCampus = widget.campus;
-    _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
+    _initialCameraPosition =
+        _mapViewModel.getInitialCameraPosition(_currentCampus);
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
@@ -41,6 +49,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
       appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
+          // FutureBuilder to load the map
           FutureBuilder<CameraPosition>(
             future: _initialCameraPosition,
             builder: (context, snapshot) {
@@ -51,20 +60,48 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                 return const Center(child: Text('Error loading campus map'));
               }
 
-              return MapLayout(
-                mapWidget: GoogleMap(
-                  onMapCreated: _mapViewModel.onMapCreated,
-                  initialCameraPosition: snapshot.data!,
-                  zoomControlsEnabled: false,
-                  myLocationButtonEnabled: false,
-                  myLocationEnabled: _locationPermissionGranted,
-                  markers: _mapViewModel.getCampusMarkers([
-                    /* TODO: add campus building markers */
-                  ]),
-                  /* TODO: add campus building overlay (polygon shape) */
-                ),
-                mapViewModel: _mapViewModel,
-                style: 2,
+              return FutureBuilder<Map<String, dynamic>>(
+                future:
+                    _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+                builder: (context, polySnapshot) {
+                  if (polySnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return FutureBuilder<Map<String, dynamic>>(
+                    future: _mapViewModel
+                        .getCampusPolygonsAndLabels(_currentCampus),
+                    builder: (context, polySnapshot) {
+                      if (polySnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final Set<Polygon> polygons =
+                          polySnapshot.data?["polygons"] ?? {};
+                      final Set<Marker> labelMarkers =
+                          polySnapshot.data?["labels"] ?? {};
+
+                      if (!_locationPermissionGranted) {
+                        return const Center(
+                            child: Text('Location permission not granted'));
+                      }
+
+                      return MapLayout(
+                        mapWidget: GoogleMap(
+                          onMapCreated: _mapViewModel.onMapCreated,
+                          initialCameraPosition: snapshot.data!,
+                          markers: labelMarkers,
+                          polygons: polygons,
+                          myLocationButtonEnabled: false,
+                          myLocationEnabled: _locationPermissionGranted,
+                        ),
+                        mapViewModel: _mapViewModel,
+                        style: 2,
+                      );
+                    },
+                  );
+                },
               );
             },
           ),
