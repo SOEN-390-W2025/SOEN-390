@@ -45,30 +45,24 @@ class DirectionsService {
         }),
       );
 
-      print("API Response Status Code: ${response.statusCode}");
-      print("API Response Body: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final encodedPolyline = data["routes"][0]["polyline"]["encodedPolyline"];
-        print("Encoded Polyline: $encodedPolyline");
 
-        List<LatLng> routePoints = _decodePolyline(encodedPolyline);
-        print("Decoded Polyline Points: $routePoints");
+        final List<LatLng> routePoints = _decodePolyline(encodedPolyline);
 
         return routePoints;
       } else {
         throw Exception("Failed to load directions. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error fetching route: $e");
       throw Exception("Failed to load directions: $e");
     }
   }
 
   /// Decode polyline information
   List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> points = [];
+    final List<LatLng> points = [];
     int index = 0, len = encoded.length;
     int lat = 0, lng = 0;
 
@@ -79,7 +73,7 @@ class DirectionsService {
         result |= (b & 0x1F) << shift;
         shift += 5;
       } while (b >= 0x20);
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      final int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
       lat += dlat;
 
       shift = 0;
@@ -89,7 +83,7 @@ class DirectionsService {
         result |= (b & 0x1F) << shift;
         shift += 5;
       } while (b >= 0x20);
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      final int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
       lng += dlng;
 
       points.add(LatLng(lat / 1E5, lng / 1E5));

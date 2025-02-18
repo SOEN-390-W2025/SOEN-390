@@ -30,12 +30,12 @@ class MapViewModel {
     }
 
     try {
-      List<LatLng> routePoints = await _mapService.getRoutePath(
+      final List<LatLng> routePoints = await _mapService.getRoutePath(
         originAddress,
         destinationAddress,
       );
 
-      Polyline polyline = Polyline(
+      final Polyline polyline = Polyline(
         polylineId: PolylineId('${originAddress ?? "current"}_$destinationAddress'),
         color: const Color(0xFF2196F3),
         width: 5,
@@ -44,7 +44,6 @@ class MapViewModel {
 
       _polylines = {polyline}; // Update polylines
     } catch (e) {
-      print("Error fetching route: $e");
       throw Exception("Failed to load directions: $e");
     }
   }

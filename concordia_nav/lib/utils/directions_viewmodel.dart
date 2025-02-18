@@ -11,7 +11,7 @@ class DirectionsViewModel {
     String origin;
 
     if (originAddress == null || originAddress.isEmpty) {
-      LatLng? currentLocation = await _mapService.getCurrentLocation();
+      final LatLng? currentLocation = await _mapService.getCurrentLocation();
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
@@ -21,7 +21,7 @@ class DirectionsViewModel {
     }
 
     // Fetch the route from the DirectionsService
-    List<LatLng> routePoints = await _directionsService.fetchRoute(origin, destinationAddress);
+    final List<LatLng> routePoints = await _directionsService.fetchRoute(origin, destinationAddress);
     return routePoints;
   }
 }

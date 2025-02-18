@@ -28,20 +28,25 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   }
 
   // Get directions and draw polyline on map
-  void _getDirections() async {
-    try {
-      await _mapViewModel.fetchRoute(
-        _sourceController.text.isEmpty ? null : _sourceController.text,
-        _destinationController.text,
-      );
+  Future<void> _getDirections() async {
+  try {
+    await _mapViewModel.fetchRoute(
+      _sourceController.text.isEmpty ? null : _sourceController.text,
+      _destinationController.text,
+    );
+
+    if (mounted) {
       setState(() {});
-    } catch (e) {
-      print("Error getting directions: $e");
+    }
+  // ignore: avoid_catches_without_on_clauses
+  } catch (e) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to load directions: $e")),
       );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +70,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                   initialCameraPosition: snapshot.data!,
                   polylines: _mapViewModel.polylines,
                   onTap: (LatLng latLng) {
-                    print("Map tapped at: $latLng");
                   },
                   markers: _mapViewModel.getCampusMarkers([
                     /* TODO: add campus building markers */

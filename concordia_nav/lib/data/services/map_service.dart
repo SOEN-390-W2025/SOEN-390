@@ -102,7 +102,7 @@ class MapService {
     List<LatLng> routePoints;
 
     if (originAddress == null || originAddress.isEmpty) {
-      LatLng? currentLocation = await getCurrentLocation();
+      final LatLng? currentLocation = await getCurrentLocation();
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
@@ -114,15 +114,13 @@ class MapService {
       routePoints = await _directionsService.fetchRoute(originAddress, destinationAddress);
     }
 
-    Polyline polyline = Polyline(
+    final Polyline polyline = Polyline(
       polylineId: PolylineId('${originAddress ?? "current"}_$destinationAddress'),
       color: const Color(0xFF2196F3),
       width: 5,
       points: routePoints,
     );
-    print("Created Polyline: ${polyline.polylineId} with ${polyline.points.length} points");
     _polylines.add(polyline);
-    print("Polylines Set: $_polylines");
     return routePoints;
   }
 
