@@ -43,8 +43,10 @@ void main() {
 
     test('checkLocationAccess should return permission accepted', () async {
       // Arrange
-      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
-      when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
+      when(mockMapService.isLocationServiceEnabled())
+          .thenAnswer((_) async => true);
+      when(mockMapService.checkAndRequestLocationPermission())
+          .thenAnswer((_) async => true);
 
       // Act
       final result = await mapViewModel.checkLocationAccess();
@@ -55,7 +57,8 @@ void main() {
 
     test('checkLocationAccess should return false when denied', () async {
       // Arrange
-      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
+      when(mockMapService.isLocationServiceEnabled())
+          .thenAnswer((_) async => false);
 
       // Act
       final result = await mapViewModel.checkLocationAccess();
@@ -66,7 +69,8 @@ void main() {
 
     test('getCurrentLocation provides a LatLng', () async {
       // Arrange
-      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => const LatLng(45.4952628500172, -73.5788992164221));
+      when(mockMapService.getCurrentLocation()).thenAnswer(
+          (_) async => const LatLng(45.4952628500172, -73.5788992164221));
 
       // Act
       final result = await mapViewModel.fetchCurrentLocation();
@@ -76,15 +80,19 @@ void main() {
       expect(result?.latitude, 45.4952628500172);
     });
 
-    testWidgets("moveToCurrentLocation returns true with accesses", (WidgetTester tester) async {
+    testWidgets("moveToCurrentLocation returns true with accesses",
+        (WidgetTester tester) async {
       // Build a material app and fetch its build context
       await tester.pumpWidget(MaterialApp(home: Material(child: Container())));
       final BuildContext context = tester.element(find.byType(Container));
 
       // Arrange
-      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
-      when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
-      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => const LatLng(45.4952628500172, -73.5788992164221));
+      when(mockMapService.isLocationServiceEnabled())
+          .thenAnswer((_) async => true);
+      when(mockMapService.checkAndRequestLocationPermission())
+          .thenAnswer((_) async => true);
+      when(mockMapService.getCurrentLocation()).thenAnswer(
+          (_) async => const LatLng(45.4952628500172, -73.5788992164221));
 
       // Act
       final result = await mapViewModel.moveToCurrentLocation(context);
@@ -93,13 +101,30 @@ void main() {
       expect(result, true);
     });
 
-    testWidgets("moveToCurrentLocation returns false with snackbar when locationService disabled", (WidgetTester tester) async {
+    test(
+        'moveToLocation should call moveCamera on MapService with correct LatLng',
+        () {
+      // Arrange
+      const LatLng testLocation = LatLng(45.5017, -73.5673);
+
+      // Act
+      mapViewModel.moveToLocation(testLocation);
+
+      // Assert
+      verify(mockMapService.moveCamera(testLocation)).called(1);
+    });
+
+    testWidgets(
+        "moveToCurrentLocation returns false with snackbar when locationService disabled",
+        (WidgetTester tester) async {
       // Build a material app and fetch its build context
-      await tester.pumpWidget(const MaterialApp(home: Material(child: Scaffold())));
+      await tester
+          .pumpWidget(const MaterialApp(home: Material(child: Scaffold())));
       final BuildContext context = tester.element(find.byType(Scaffold));
 
       // Arrange
-      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
+      when(mockMapService.isLocationServiceEnabled())
+          .thenAnswer((_) async => false);
 
       // Act
       final result = await mapViewModel.moveToCurrentLocation(context);
@@ -108,23 +133,27 @@ void main() {
       await tester.pump();
       expect(find.byType(SnackBar), findsOneWidget);
       expect(result, false);
-    });  
+    });
 
-    testWidgets("moveToCurrentLocation returns false when location null", (WidgetTester tester) async {
+    testWidgets("moveToCurrentLocation returns false when location null",
+        (WidgetTester tester) async {
       // Build a material app and fetch its build context
-      await tester.pumpWidget(const MaterialApp(home: Material(child: Scaffold())));
+      await tester
+          .pumpWidget(const MaterialApp(home: Material(child: Scaffold())));
       final BuildContext context = tester.element(find.byType(Scaffold));
 
       // Arrange
-      when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
-      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => const LatLng(100.0, 100.0));
+      when(mockMapService.isLocationServiceEnabled())
+          .thenAnswer((_) async => false);
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => const LatLng(100.0, 100.0));
 
       // Act
       final result = await mapViewModel.moveToCurrentLocation(context);
 
       // Assert
       expect(result, false);
-    }); 
+    });
 
     test('onMapCreated should set map controller in map service', () {
       // Arrange
@@ -165,29 +194,22 @@ void main() {
       verify(mockMapService.zoomOut()).called(1);
     });
 
-    test('getCampusMarkers should return markers from map service', () {
+    test('getCampusMarkers should return markers from map service', () async {
       // Arrange
-      final buildingLocations = [
-        const LatLng(37.7749, -122.4194),
-        const LatLng(37.7849, -122.4294),
-      ];
-      final expectedMarkers = {
-        Marker(
-            markerId: MarkerId(const LatLng(37.7749, -122.4194).toString()),
-            position: buildingLocations[0]),
-        Marker(
-            markerId: MarkerId(const LatLng(37.7849, -122.4294).toString()),
-            position: buildingLocations[1]),
-      };
+      const campus = ConcordiaCampus.sgw;
+      final mockPolygons = <Polygon>{};
+      final mockMarkers = <Marker>{};
+      final mockData = {"polygons": mockPolygons, "labels": mockMarkers};
 
-      when(mockMapService.getCampusMarkers(buildingLocations))
-          .thenReturn(expectedMarkers);
+      when(mockMapService.getCampusPolygonsAndLabels(campus))
+          .thenAnswer((_) async => mockData);
 
       // Act
-      final result = mapViewModel.getCampusMarkers(buildingLocations);
+      final result = await mapViewModel.getCampusPolygonsAndLabels(campus);
 
       // Assert
-      expect(result, equals(expectedMarkers));
+      expect(result["polygons"], equals(mockPolygons));
+      expect(result["labels"], equals(mockMarkers));
     });
   });
 }

@@ -35,12 +35,13 @@ class MapViewModel {
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
   }
 
-  /// Retrieves markers for campus buildings.
-  Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
-    return _mapService.getCampusMarkers(buildingLocations);
+  /// Fetches both polygons and labeled icons for a given campus building.
+  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+      ConcordiaCampus campus) {
+    return _mapService.getCampusPolygonsAndLabels(campus);
   }
 
-    /// Fetches the current location without moving the map.
+  /// Fetches the current location without moving the map.
   Future<LatLng?> fetchCurrentLocation() async {
     return await _mapService.getCurrentLocation();
   }
@@ -50,19 +51,20 @@ class MapViewModel {
     final bool serviceEnabled = await _mapService.isLocationServiceEnabled();
     if (!serviceEnabled) return false;
 
-    final bool hasPermission = await _mapService.checkAndRequestLocationPermission();
+    final bool hasPermission =
+        await _mapService.checkAndRequestLocationPermission();
     return hasPermission;
   }
 
   /// Fetches current location and moves the camera.
-  Future<bool> moveToCurrentLocation(BuildContext context) async {
+  Future<bool> moveToCurrentLocation(BuildContext? context) async {
     final bool hasAccess = await checkLocationAccess();
     if (!hasAccess) {
-      if (context.mounted) {
+      if (context!.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(
-            "Location services or permissions are not available. Please enable them in settings."
-          )),
+          const SnackBar(
+              content: Text(
+                  "Location services or permissions are not available. Please enable them in settings.")),
         );
       }
       return false;
