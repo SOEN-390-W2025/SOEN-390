@@ -5,10 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class DirectionsService {
   static const String _baseUrl =
       "https://routes.googleapis.com/directions/v2:computeRoutes";
-<<<<<<< HEAD
-=======
-  static const String _apiKey = "";
->>>>>>> ff2a8ac63587c4bdf7d65eb4e77d671d99ecb073
 
   /// Fetch route using addresses
   Future<List<LatLng>> fetchRoute(
