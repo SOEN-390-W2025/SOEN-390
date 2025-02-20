@@ -11,13 +11,13 @@ class MapControllerButtons extends StatelessWidget {
   const MapControllerButtons({
     super.key,
     required this.mapViewModel,
-    this.style = 0,
+    this.style = 1,
   });
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: style == 0 ? 100 : 150,
+      top: style == 1 ? 100 : 150,
       right: 16,
       child: Column(
         mainAxisSize: MainAxisSize.min,

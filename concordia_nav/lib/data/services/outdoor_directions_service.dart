@@ -3,19 +3,26 @@ import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DirectionsService {
-  static const String _baseUrl = "https://routes.googleapis.com/directions/v2:computeRoutes";
-  static const String _apiKey = "AIzaSyBgcOdiFFHJuUYxvaL1ooPdv3FnRzc3PjI";
+  static const String _baseUrl =
+      "https://routes.googleapis.com/directions/v2:computeRoutes";
+  static const String _apiKey = "AIzaSyCAwFwu0wMvZRjB7g4w9RuqFr3JJ1WHt8w";
 
   /// Fetch route using addresses
-  Future<List<LatLng>> fetchRoute(String originAddress, String destinationAddress) async {
+  Future<List<LatLng>> fetchRoute(
+      String originAddress, String destinationAddress) async {
     return _fetchRouteFromAPI(
-      {"address": originAddress,},
-      {"address": destinationAddress,},
+      {
+        "address": originAddress,
+      },
+      {
+        "address": destinationAddress,
+      },
     );
   }
 
   /// Fetch route using LatLng for origin and address for destination
-  Future<List<LatLng>> fetchRouteFromCoords(LatLng origin, String destinationAddress) async {
+  Future<List<LatLng>> fetchRouteFromCoords(
+      LatLng origin, String destinationAddress) async {
     return _fetchRouteFromAPI(
       {
         "location": {
@@ -25,18 +32,22 @@ class DirectionsService {
           },
         },
       },
-      {"address": destinationAddress,},
+      {
+        "address": destinationAddress,
+      },
     );
   }
 
   /// Internal method to fetch route from the API
-  Future<List<LatLng>> _fetchRouteFromAPI(Map<String, dynamic> origin, Map<String, dynamic> destination) async {
+  Future<List<LatLng>> _fetchRouteFromAPI(
+      Map<String, dynamic> origin, Map<String, dynamic> destination) async {
     try {
       final response = await http.post(
         Uri.parse("$_baseUrl?key=$_apiKey"),
         headers: {
           "Content-Type": "application/json",
-          "X-Goog-FieldMask": "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
+          "X-Goog-FieldMask":
+              "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
         },
         body: jsonEncode({
           "origin": origin,
@@ -47,13 +58,15 @@ class DirectionsService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final encodedPolyline = data["routes"][0]["polyline"]["encodedPolyline"];
+        final encodedPolyline =
+            data["routes"][0]["polyline"]["encodedPolyline"];
 
         final List<LatLng> routePoints = _decodePolyline(encodedPolyline);
 
         return routePoints;
       } else {
-        throw Exception("Failed to load directions. Status Code: ${response.statusCode}");
+        throw Exception(
+            "Failed to load directions. Status Code: ${response.statusCode}");
       }
     } catch (e) {
       throw Exception("Failed to load directions: $e");

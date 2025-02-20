@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
-import '../../../data/domain-model/campus.dart';
 
 class HomePage extends StatelessWidget {
   final Function? onAppBarActionPressed;
@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget {
                     icon: const Icon(Icons.map),
                     onPress: () => Navigator.pushNamed(
                         context, '/CampusMapPage',
-                        arguments: Campus.sgw),
+                        arguments: ConcordiaCampus.sgw),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
@@ -52,7 +52,7 @@ class HomePage extends StatelessWidget {
                     icon: const Icon(Icons.map),
                     onPress: () => Navigator.pushNamed(
                         context, '/CampusMapPage',
-                        arguments: Campus.loy),
+                        arguments: ConcordiaCampus.loy),
                   ),
                 ],
               ),
@@ -68,7 +68,7 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.maps_home_work),
                       onPress: () => Navigator.pushNamed(
                           context, '/OutdoorLocationMapView',
-                          arguments: Campus.sgw)),
+                          arguments: ConcordiaCampus.sgw)),
                   const SizedBox(width: 20),
                   FeatureCard(
                       title: 'Next class directions',

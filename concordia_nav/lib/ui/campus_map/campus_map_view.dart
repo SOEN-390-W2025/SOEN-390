@@ -1,28 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
-import '../../../../data/domain-model/campus.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 
 class CampusMapPage extends StatefulWidget {
-  final Campus campus;
+  final ConcordiaCampus campus;
+  final MapViewModel? mapViewModel;
 
-  const CampusMapPage({super.key, required this.campus});
+  const   CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
-  State<CampusMapPage> createState() => CampusMapPageState();
+  // ignore: no_logic_in_create_state
+  State<CampusMapPage> createState() =>
+      // ignore: no_logic_in_create_state
+      CampusMapPageState(mapViewModel: mapViewModel);
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
-  final MapViewModel _mapViewModel = MapViewModel();
+  // Modify constructor to allow dependency injection
+  CampusMapPageState({MapViewModel? mapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel();
+
+  final MapViewModel _mapViewModel;
+  late ConcordiaCampus _currentCampus;
+  bool _locationPermissionGranted = false;
   final TextEditingController _searchController = TextEditingController();
-  late Campus _currentCampus;
+  Set<Polygon> _polygons = {};
+  Set<Marker> _labelMarkers = {};
+
+  MapViewModel get mapViewModel => _mapViewModel;
+
+  Future<void> _loadMapData() async {
+    final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
+    setState(() {
+      _polygons = data["polygons"];
+      _labelMarkers = data["labels"];
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
+
+    _loadMapData();
+
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+      });
+    });
   }
 
   @override
@@ -33,7 +62,10 @@ class CampusMapPageState extends State<CampusMapPage> {
         _currentCampus.name,
         actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
         onActionPressed: () {
-          // TODO: toggle between SGW and LOY campuses
+          setState(() {
+            _currentCampus = _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
+          });
+          _loadMapData();
         },
       ),
       body: FutureBuilder<CameraPosition>(
@@ -46,18 +78,28 @@ class CampusMapPageState extends State<CampusMapPage> {
             return const Center(child: Text('Error loading campus map'));
           }
 
-          return MapLayout(
-            searchController: _searchController,
-            mapWidget: GoogleMap(
-              onMapCreated: _mapViewModel.onMapCreated,
-              initialCameraPosition: snapshot.data!,
-              zoomControlsEnabled: false,
-              markers: _mapViewModel.getCampusMarkers([
-                /* TODO: add campus building markers */
-              ]),
-              /* TODO: add campus building overlay (polygon shape) */
-            ),
-            mapViewModel: _mapViewModel,
+          return FutureBuilder<Map<String, dynamic>>(
+            future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+            builder: (context, polySnapshot) {
+              if (polySnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return MapLayout(
+                searchController: _searchController,
+                mapWidget: GoogleMap(
+                  buildingsEnabled: false,
+                  onMapCreated: _mapViewModel.onMapCreated,
+                  initialCameraPosition: snapshot.data!,
+                  markers: _labelMarkers,
+                  polygons: _polygons,
+                  zoomControlsEnabled: false,
+                  myLocationButtonEnabled: false,
+                  myLocationEnabled: _locationPermissionGranted,
+                ),
+                mapViewModel: _mapViewModel,
+              );
+            },
           );
         },
       ),
