@@ -7,8 +7,8 @@ import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
 
 class MapViewModel {
-  MapRepository _mapRepository = MapRepository();
-  MapService _mapService = MapService();
+  MapRepository _mapRepository;
+  MapService _mapService;
 
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
@@ -92,5 +92,4 @@ class MapViewModel {
   double getDistance(LatLng point1, LatLng point2) {
     return _mapService.calculateDistance(point1, point2);
   }
-
 }

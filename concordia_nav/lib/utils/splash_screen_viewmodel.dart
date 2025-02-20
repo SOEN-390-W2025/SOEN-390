@@ -6,7 +6,11 @@ import '../data/domain-model/concordia_campus.dart';
 import 'map_viewmodel.dart';
 
 class SplashScreenViewModel {
-  final MapViewModel _mapViewModel = MapViewModel();
+  final MapViewModel _mapViewModel;
+
+  // Constructor with dependency injection for MapViewModel
+  SplashScreenViewModel({MapViewModel? mapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel();
 
   /// Navigates to the closest campus map if the user is within 1km of either campus,
   /// otherwise navigates to the home page.
@@ -15,7 +19,7 @@ class SplashScreenViewModel {
       bool hasAccess = await _mapViewModel.checkLocationAccess();
       if (!hasAccess) {
         // Navigate to home page if the user has denied location access
-        await _navigateToHome(context);
+        await navigateToHome(context);
         return;
       }
 
@@ -23,7 +27,7 @@ class SplashScreenViewModel {
       LatLng? currentLocation = await _mapViewModel.fetchCurrentLocation();
       if (currentLocation == null) {
         // Navigate to home page if the user's location cannot be determined
-        await _navigateToHome(context);
+        await navigateToHome(context);
         return;
       }
 
@@ -40,28 +44,29 @@ class SplashScreenViewModel {
 
       // Navigate to the closest campus map if the user is within 1km
       // of either campus, otherwise navigate to the home page
-      if (distanceToSGW < 1000) {
-        await _navigateToCampus(context, ConcordiaCampus.sgw);
-      } else if (distanceToLOY < 1000) {
-        await _navigateToCampus(context, ConcordiaCampus.loy);
+      if (distanceToSGW < 1000.0) {
+        await navigateToCampus(context, ConcordiaCampus.sgw);
+      } else if (distanceToLOY < 1000.0) {
+        await navigateToCampus(context, ConcordiaCampus.loy);
       } else {
-        await _navigateToHome(context);
+        await navigateToHome(context);
       }
     } catch (e) {
       // Navigate to home page if there is an error determining the user's location
-      await _navigateToHome(context);
+      await navigateToHome(context);
     }
   }
 
   /// Navigates to the specified campus map page.
-  Future<void> _navigateToCampus(BuildContext context, ConcordiaCampus campus) async {
+  Future<void> navigateToCampus(
+      BuildContext context, ConcordiaCampus campus) async {
     // Push a replacement route to the CampusMapPage with the specified campus
-    await Navigator.pushReplacementNamed(context, '/CampusMapPage', arguments: campus);
+    await Navigator.pushReplacementNamed(context, '/CampusMapPage',
+        arguments: campus);
   }
 
   /// Navigates to the home page.
-  Future<void> _navigateToHome(BuildContext context) async {
-    // Push a replacement route to the HomePage
+  Future<void> navigateToHome(BuildContext context) async {
     await Navigator.pushReplacementNamed(context, '/HomePage');
   }
 }

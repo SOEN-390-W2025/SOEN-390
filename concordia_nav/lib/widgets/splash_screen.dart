@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import '../utils/map_viewmodel.dart';
 import '../utils/splash_screen_viewmodel.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final SplashScreenViewModel viewModel;
+
+  SplashScreen({super.key, SplashScreenViewModel? viewModel})
+      : viewModel =
+            viewModel ?? SplashScreenViewModel(mapViewModel: MapViewModel());
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final SplashScreenViewModel _viewModel = SplashScreenViewModel();
-
   @override
   void initState() {
     super.initState();
@@ -18,7 +21,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateBasedOnLocation() async {
-    await _viewModel.navigateBasedOnLocation(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.viewModel.navigateBasedOnLocation(context);
+    });
   }
 
   @override
