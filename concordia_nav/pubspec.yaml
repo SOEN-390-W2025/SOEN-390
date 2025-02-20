@@ -34,11 +34,11 @@ scripts:
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
   coverage: flutter test --coverage --branch-coverage
-  run: flutter run --dart-define-from-file=../.env
+  run: flutter run --dart-define-from-file=./.env
   clean: flutter clean
   build:
     android:
-      $script: flutter build apk --dart-define-from-file=../.env
+      $script: flutter build apk --dart-define-from-file=./.env
       $description: Build the android app. Can pass --debug or --release flag. (Default --release)
     ios: flutter build ipa
   install:
