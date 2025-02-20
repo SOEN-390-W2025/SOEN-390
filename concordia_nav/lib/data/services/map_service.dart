@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import '../services/outdoor_directions_service.dart';
-import 'dart:async';
 import '../domain-model/concordia_campus.dart';
 import '../repositories/building_repository.dart';
 import 'helpers/icon_loader.dart';
-import 'package:geolocator/geolocator.dart';
 
 class MapService {
   late GoogleMapController _mapController;

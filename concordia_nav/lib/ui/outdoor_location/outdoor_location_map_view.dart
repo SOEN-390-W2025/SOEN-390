@@ -14,22 +14,16 @@ class OutdoorLocationMapView extends StatefulWidget {
       {super.key, required this.campus, this.mapViewModel});
 
   @override
-  State<OutdoorLocationMapView> createState() =>
-      // ignore: no_logic_in_create_state
-      OutdoorLocationMapViewState(mapViewModel: mapViewModel);
+  State<OutdoorLocationMapView> createState() => _OutdoorLocationMapViewState();
 }
 
-class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
+class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
   late MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
   final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
-
-  // Modify constructor to allow dependency injection
-  OutdoorLocationMapViewState({MapViewModel? mapViewModel})
-      : _mapViewModel = mapViewModel ?? MapViewModel();
 
   @override
   void initState() {
@@ -38,26 +32,24 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
     _currentCampus = widget.campus;
     _initialCameraPosition =
         _mapViewModel.getInitialCameraPosition(_currentCampus);
-    _mapViewModel.checkLocationAccess().then((hasPermission) {
+    _mapViewModel.mapService
+        .checkAndRequestLocationPermission()
+        .then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
       });
     });
   }
 
-// Get directions and draw polyline on map
+  /// Triggers the route fetching and updates the map with the new polyline and destination marker.
   Future<void> _getDirections() async {
     try {
       await _mapViewModel.fetchRoute(
         _sourceController.text.isEmpty ? null : _sourceController.text,
         _destinationController.text,
       );
-
-      if (mounted) {
-        setState(() {});
-      }
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+      setState(() {});
+    } on Error catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to load directions: $e")),
@@ -74,14 +66,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
         children: [
           FutureBuilder<CameraPosition>(
             future: _initialCameraPosition,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+            builder: (context, camSnapshot) {
+              if (camSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (snapshot.hasError) {
+              if (camSnapshot.hasError) {
                 return const Center(child: Text('Error loading campus map'));
               }
-
               return FutureBuilder<Map<String, dynamic>>(
                 future:
                     _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
@@ -89,40 +80,34 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                   if (polySnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
+                  final Set<Polygon> polygons =
+                      polySnapshot.data?["polygons"] ?? {};
+                  final Set<Marker> labelMarkers =
+                      polySnapshot.data?["labels"] ?? {};
 
-                  return FutureBuilder<Map<String, dynamic>>(
-                    future: _mapViewModel
-                        .getCampusPolygonsAndLabels(_currentCampus),
-                    builder: (context, polySnapshot) {
-                      if (polySnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                  if (_mapViewModel.destinationMarker != null) {
+                    labelMarkers.add(_mapViewModel.destinationMarker!);
+                  }
 
-                      final Set<Polygon> polygons =
-                          polySnapshot.data?["polygons"] ?? {};
-                      final Set<Marker> labelMarkers =
-                          polySnapshot.data?["labels"] ?? {};
+                  if (!_locationPermissionGranted) {
+                    return const Center(
+                        child: Text('Location permission not granted'));
+                  }
 
-                      if (!_locationPermissionGranted) {
-                        return const Center(
-                            child: Text('Location permission not granted'));
-                      }
-
-                      return MapLayout(
-                        mapWidget: GoogleMap(
-                          onMapCreated: _mapViewModel.onMapCreated,
-                          initialCameraPosition: snapshot.data!,
-                          markers: labelMarkers,
-                          polygons: polygons,
-                          myLocationButtonEnabled: false,
-                          zoomControlsEnabled: false,
-                          myLocationEnabled: _locationPermissionGranted,
-                        ),
-                        mapViewModel: _mapViewModel,
-                        style: 2,
-                      );
-                    },
+                  return MapLayout(
+                    mapWidget: GoogleMap(
+                      onMapCreated: _mapViewModel.onMapCreated,
+                      initialCameraPosition: camSnapshot.data!,
+                      markers: labelMarkers,
+                      polygons: polygons,
+                      polylines: _mapViewModel.polylines,
+                      myLocationButtonEnabled: true,
+                      zoomControlsEnabled: false,
+                      buildingsEnabled: false,
+                      myLocationEnabled: _locationPermissionGranted,
+                    ),
+                    mapViewModel: _mapViewModel,
+                    style: 2,
                   );
                 },
               );

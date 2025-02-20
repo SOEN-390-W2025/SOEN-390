@@ -62,6 +62,9 @@ dependencies:
   google_maps_flutter: ^2.10.0
   flutter_env_native: ^0.1.0
   geolocator: ^13.0.2
+  google_directions_api: ^0.10.0
+  flutter_polyline_points: ^2.1.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -93,12 +96,13 @@ flutter:
   # Note: any other .env files, ex. a file named .env.prod, should be declared
   # under assets as well.
   assets:
-    - ../.env
+    - .env
     - assets/config/
     - assets/images/
     - assets/maps/outdoor/sgw/polygons.json
     - assets/maps/outdoor/loy/polygons.json
     - assets/icons/default.png
+    - assets/icons/destination.png
     - assets/icons/AD.png
     - assets/icons/CC.png
     - assets/icons/CJ.png

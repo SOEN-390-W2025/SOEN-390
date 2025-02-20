@@ -6,10 +6,11 @@ class DirectionsViewModel {
   final DirectionsService _directionsService = DirectionsService();
   final MapService _mapService = MapService();
 
-  /// Fetch route polyline and return it
-  Future<List<LatLng>> getRoutePolyline(String? originAddress, String destinationAddress) async {
+  /// Returns a polyline (as a list of LatLng) for the given route.
+  /// If no origin is provided, the current location is fetched.
+  Future<List<LatLng>> getRoutePolyline(
+      String? originAddress, String destinationAddress) async {
     String origin;
-
     if (originAddress == null || originAddress.isEmpty) {
       final LatLng? currentLocation = await _mapService.getCurrentLocation();
       if (currentLocation == null) {
@@ -20,8 +21,6 @@ class DirectionsViewModel {
       origin = originAddress;
     }
 
-    // Fetch the route from the DirectionsService
-    final List<LatLng> routePoints = await _directionsService.fetchRoute(origin, destinationAddress);
-    return routePoints;
+    return _directionsService.fetchRoute(origin, destinationAddress);
   }
 }
