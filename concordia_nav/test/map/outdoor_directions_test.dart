@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
-import 'campus_test.mocks.dart';
+import 'map_viewmodel_test.mocks.dart';
 
 void main() {
   late MockMapViewModel mockMapViewModel;

@@ -286,6 +286,14 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
             returnValue: _i5.Future<_i2.LatLng?>.value(),
           )
           as _i5.Future<_i2.LatLng?>);
+
+  @override
+  double calculateDistance(_i2.LatLng? point1, _i2.LatLng? point2) =>
+      (super.noSuchMethod(
+            Invocation.method(#calculateDistance, [point1, point2]),
+            returnValue: 0.0,
+          )
+          as double);
 }
 
 /// A class which mocks [GeolocatorPlatform].

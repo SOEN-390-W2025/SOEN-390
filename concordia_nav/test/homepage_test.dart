@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
-import 'map/campus_test.mocks.dart';
+import 'map/map_viewmodel_test.mocks.dart';
 
 void main() {
   late MockMapViewModel mockMapViewModel;
@@ -66,18 +66,13 @@ void main() {
 
   testWidgets('SGW campus navigation should work', (WidgetTester tester) async {
     // define routes needed for this test
-    var routes = {
-      '/': (context) => const HomePage(),
+    final routes = {
+      '/HomePage': (context) => const HomePage(),
       '/CampusMapPage': (context) => CampusMapPage(
-          campus:
-              ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
-    };
-
-    routes = {
-      '/': (context) => const HomePage(),
-      '/CampusMapPage': (context) => CampusMapPage(
-          campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-          mapViewModel: mockMapViewModel),
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
+            mapViewModel: mockMapViewModel,
+          ),
     };
 
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
@@ -96,7 +91,7 @@ void main() {
 
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/HomePage',
       routes: routes,
     ));
 
@@ -115,7 +110,7 @@ void main() {
       (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
-      '/': (context) => const HomePage(),
+      '/HomePage': (context) => const HomePage(),
       '/CampusMapPage': (context) => CampusMapPage(
           campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
           mapViewModel: mockMapViewModel),
@@ -137,7 +132,7 @@ void main() {
 
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/HomePage',
       routes: routes,
     ));
 

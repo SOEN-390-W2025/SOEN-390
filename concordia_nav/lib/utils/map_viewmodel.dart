@@ -7,8 +7,8 @@ import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
 
 class MapViewModel {
-  MapRepository _mapRepository = MapRepository();
-  MapService _mapService = MapService();
+  MapRepository _mapRepository;
+  MapService _mapService;
 
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
@@ -86,5 +86,10 @@ class MapViewModel {
   /// Zoom out function
   Future<void> zoomOut() async {
     await _mapService.zoomOut();
+  }
+
+  /// Calculates the distance between two points using the service.
+  double getDistance(LatLng point1, LatLng point2) {
+    return _mapService.calculateDistance(point1, point2);
   }
 }

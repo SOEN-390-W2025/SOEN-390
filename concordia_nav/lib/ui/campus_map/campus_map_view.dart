@@ -9,7 +9,7 @@ class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
   final MapViewModel? mapViewModel;
 
-  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
+  const   CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
   // ignore: no_logic_in_create_state

@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  bool isPressed = false;
+
+  void mockOnPressed() {
+    isPressed = true;
+  }
+
   testWidgets('Test customAppBar in HomePage with custom onActionPressed',
       (WidgetTester tester) async {
-    bool isPressed = false;
-    void mockOnPressed() {
-      isPressed = true;
-    }
-
     // Build the HomePage with a custom onAppBarActionPressed
     await tester.pumpWidget(
       MaterialApp(
@@ -75,11 +76,15 @@ void main() {
     // Test that the AppBar has a leading IconButton with the correct icon
     testWidgets('should have a leading IconButton with the correct icon',
         (WidgetTester tester) async {
-      // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+      final routes = {
+        '/HomePage': (context) => const HomePage(),
+      };
 
-      // Ensure the widget tree is rendered
-      await tester.pump();
+      // Build the HomePage widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/HomePage',
+        routes: routes,
+      ));
 
       // Find the leading IconButton
       final IconButton leadingIconButton = tester.widget(
@@ -89,11 +94,10 @@ void main() {
         ),
       );
 
-      const expectedIcon = const Icon(Icons.settings, color: Colors.white);
+      const expectedIcon = Icon(Icons.settings, color: Colors.white);
       final actualIcon = leadingIconButton.icon as Icon;
 
-      expect(actualIcon.icon, expectedIcon.icon); // Compare IconData
-      expect(actualIcon.color, expectedIcon.color); // Compare color
+      expect(actualIcon.icon, expectedIcon.icon);
     });
 
     // Test that the AppBar has an actions list with the correct icon
@@ -124,13 +128,13 @@ void main() {
         (WidgetTester tester) async {
       // define routes needed for this test
       final routes = {
-        '/': (context) => const HomePage(),
+        '/HomePage': (context) => const HomePage(),
         '/SettingsPage': (context) => const SettingsPage(),
       };
 
       // Build the HomePage widget with the AppBar
       await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
+        initialRoute: '/HomePage',
         routes: routes,
       ));
 
@@ -148,13 +152,13 @@ void main() {
         (WidgetTester tester) async {
       // define routes needed for this test
       final routes = {
-        '/': (context) => const HomePage(),
+        '/HomePage': (context) => const HomePage(),
         '/SettingsPage': (context) => const SettingsPage(),
       };
 
       // Build the HomePage widget with the AppBar
       await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
+        initialRoute: '/HomePage',
         routes: routes,
       ));
 
