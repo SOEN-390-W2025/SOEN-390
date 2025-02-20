@@ -41,7 +41,7 @@ class BuildingService {
     return null;
   }
 
-  // Retrieve the location (LatLng) of a building by name
+  // Retrieve a building by its name
   static ConcordiaBuilding? getbuildingByName(String name) {
     // Iterates through all buildings and finds the one with the matching name
     for (var building in BuildingRepository.buildingByAbbreviation.values) {

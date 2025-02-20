@@ -96,6 +96,9 @@ void main() {
               campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel)));
       await tester.pumpAndSettle();
 
+      when(mapViewModel.checkBuildingAtCurrentLocation(argThat(isA<BuildContext>())))
+          .thenAnswer((_) async => true);
+
       when(mapViewModel.moveToCurrentLocation(argThat(isA<BuildContext>())))
           .thenAnswer((_) async => true);
 

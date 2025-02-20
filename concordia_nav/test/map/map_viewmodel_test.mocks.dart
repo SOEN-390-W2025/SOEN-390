@@ -5,6 +5,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i6;
 
+import 'package:concordia_nav/data/domain-model/concordia_building.dart' as _i9;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i4;
 import 'package:concordia_nav/data/repositories/map_repository.dart' as _i3;
 import 'package:concordia_nav/data/services/map_service.dart' as _i5;
@@ -30,6 +31,11 @@ import 'package:mockito/mockito.dart' as _i1;
 class _FakeCameraPosition_0 extends _i1.SmartFake
     implements _i2.CameraPosition {
   _FakeCameraPosition_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeBitmapDescriptor_0 extends _i1.SmartFake implements _i6.Future<_i2.BitmapDescriptor> {
+  _FakeBitmapDescriptor_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -146,7 +152,21 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
             returnValue: 0.0,
           )
           as double);
+  
+  @override
+  _i6.Future<_i2.BitmapDescriptor> getCustomIcon(String? name) => (
+    super.noSuchMethod(
+      Invocation.method(#getCustomIcon, [name]),
+      returnValue: _FakeBitmapDescriptor_0(
+              this,
+              Invocation.method(#getCustomIcon, [name]),
+            ),
+    ) as _i6.Future<_i2.BitmapDescriptor>
+  );
 }
+
+/// A class which mocks [ValueNotifier].
+class MockValueNotifier<T> extends _i1.Mock implements _i8.ValueNotifier<T> {}
 
 /// A class which mocks [MapViewModel].
 ///
@@ -155,6 +175,9 @@ class MockMapViewModel extends _i1.Mock implements _i7.MapViewModel {
   MockMapViewModel() {
     _i1.throwOnMissingStub(this);
   }
+  
+  @override
+  _i8.ValueNotifier<_i9.ConcordiaBuilding?> get selectedBuildingNotifier => MockValueNotifier();
 
   @override
   _i6.Future<_i2.CameraPosition> getInitialCameraPosition(
@@ -202,6 +225,29 @@ class MockMapViewModel extends _i1.Mock implements _i7.MapViewModel {
           as _i6.Future<Map<String, dynamic>>);
 
   @override
+  _i6.Future<Map<String, dynamic>> getAllCampusPolygonsAndLabels() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllCampusPolygonsAndLabels, []),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i6.Future<Map<String, dynamic>>);
+
+    @override
+  void selectBuilding(_i9.ConcordiaBuilding? building) => super.noSuchMethod(
+        Invocation.method(#selectBuilding, [building]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void unselectBuilding() => super.noSuchMethod(
+        Invocation.method(#unselectBuilding, []),
+        returnValueForMissingStub: null,
+      );
+
+
+  @override
   _i6.Future<_i2.LatLng?> fetchCurrentLocation() =>
       (super.noSuchMethod(
             Invocation.method(#fetchCurrentLocation, []),
@@ -224,6 +270,15 @@ class MockMapViewModel extends _i1.Mock implements _i7.MapViewModel {
             returnValue: _i6.Future<bool>.value(false),
           )
           as _i6.Future<bool>);
+  
+  @override
+  _i6.Future<void> checkBuildingAtCurrentLocation(_i8.BuildContext? context) =>
+      (super.noSuchMethod(
+            Invocation.method(#checkBuildingAtCurrentLocation, [context]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 
   @override
   _i6.Future<void> zoomIn() =>

@@ -7,7 +7,8 @@ import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/repositories/building_repository.dart';
-import '../data/services/building_service.dart ';
+import '../data/services/building_service.dart';
+
 class MapViewModel extends ChangeNotifier{
   MapRepository _mapRepository;
   MapService _mapService;
@@ -150,7 +151,7 @@ class MapViewModel extends ChangeNotifier{
     return inside;
   }
 
-  Future<void> checkBuildingAtCurrentLocation(BuildContext context) async {
+  Future<void> checkBuildingAtCurrentLocation(BuildContext? context) async {
   final LatLng? currentLocation = await fetchCurrentLocation();
   if (currentLocation == null) {
     // Handle case where location is not available
