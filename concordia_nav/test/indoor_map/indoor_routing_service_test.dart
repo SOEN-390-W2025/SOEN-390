@@ -2,6 +2,7 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/services/indoor_routing_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,7 +11,10 @@ import 'package:mockito/mockito.dart';
 import 'indoor_routing_service_test.mocks.dart';
 
 @GenerateMocks([GeolocatorPlatform])
-void main() {
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   group('IndoorRoutingService', () {
     test('should return null when Geolocator throws an exception', () async {
       // Arrange
@@ -143,14 +147,16 @@ void main() {
       test('returns error message if service disabled', () async {
         service = false;
         // should return an error
-        expect(IndoorRoutingService.getRoundedLocation(), throwsA('Location services are disabled.'));
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location services are disabled.'));
       });
 
       test('returns error message if service disabled', () async {
         service = true;
         permission = 1;
         // should return an error
-        expect(IndoorRoutingService.getRoundedLocation(), throwsA('Location permissions are denied.'));
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location permissions are denied.'));
       });
     });
   });

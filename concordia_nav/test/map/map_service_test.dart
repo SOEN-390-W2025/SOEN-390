@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,18 +8,29 @@ import 'package:mockito/mockito.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'map_service_test.mocks.dart';
+import 'outdoor_directions_test.mocks.dart';
 
 // Generate mocks for GoogleMapController
 @GenerateMocks([GoogleMapController, MapService, GeolocatorPlatform])
-void main() {
+Future<void> main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   late MockMapService mockMapService;
   late MapService realMapService;
   late MockGoogleMapController mockGoogleMapController;
+  late MockODSDirectionsService mockODSdirectionsService;
+  late MockDirectionsService mockDirectionsService;
 
   setUp(() {
     mockMapService = MockMapService();
     realMapService = MapService();
     mockGoogleMapController = MockGoogleMapController();
+
+    mockDirectionsService = MockDirectionsService();
+    mockODSdirectionsService = MockODSDirectionsService();
+    mockODSdirectionsService.directionsService = mockDirectionsService;
+
+    realMapService.setDirectionsService(mockODSdirectionsService);
   });
 
   group('MapService Tests', () {
@@ -211,6 +223,55 @@ void main() {
       // Assert
       expect(result["polygons"], equals(mockPolygons));
       expect(result["labels"], equals(mockMarkers));
+    });
+  });
+
+  group('getRoutePath', () {
+    test('returns a valid list of LatLng when route is found', () async {
+      // Arrange
+      const originAddress =
+          '1455 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M8';
+      const destinationAddress =
+          '7141 Sherbrooke St W, Montreal, Quebec H4B 1R6';
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      // Stub the fetchRouteFromCoords method to return the expectedRoute
+      when(mockODSdirectionsService.fetchRouteFromCoords(any, any))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Mock fetchRoute method to return the expected route points
+      when(mockODSdirectionsService.fetchRoute(
+              originAddress, destinationAddress))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Act
+      final routePoints =
+          await realMapService.getRoutePath(originAddress, destinationAddress);
+
+      // Assert
+      expect(routePoints, isA<List<LatLng>>());
+    });
+
+    test('throws exception when route fetching fails', () async {
+      // Arrange
+      const originAddress =
+          '1455 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M8';
+      const destinationAddress =
+          '7141 Sherbrooke St W, Montreal, Quebec H4B 1R6';
+
+      // Mock the method to throw an exception
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenThrow(Exception('Failed to fetch route'));
+
+      // Act & Assert
+      expect(
+        () async => await mockMapService.getRoutePath(
+            originAddress, destinationAddress),
+        throwsException,
+      );
     });
   });
 

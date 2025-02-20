@@ -1,23 +1,157 @@
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
+import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:concordia_nav/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'map_viewmodel_test.mocks.dart';
+import 'outdoor_directions_test.mocks.dart';
 
-void main() {
+@GenerateMocks([gda.DirectionsService, ODSDirectionsService])
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
   late MockMapViewModel mockMapViewModel;
+  late MockMapService mockMapService;
+  late ODSDirectionsService directionsService;
+  late MockDirectionsService mockDirectionsService;
+
+  const Marker mockMarker = Marker(
+    markerId: MarkerId('mock_marker'),
+    alpha: 1.0,
+    anchor: const Offset(0.5, 1.0),
+    consumeTapEvents: false,
+    draggable: false,
+    flat: false,
+    icon: BitmapDescriptor.defaultMarker,
+    infoWindow: InfoWindow.noText,
+    position:
+        const LatLng(37.7749, -122.4194), // Example coordinates (San Francisco)
+    rotation: 0.0,
+    visible: true,
+    zIndex: 0.0,
+  );
+
+  final Set<Polyline> mockPolylines = {
+    const Polyline(
+      polylineId: PolylineId('mock_polyline'),
+      points: [
+        LatLng(37.7749, -122.4194), // Example coordinates
+        LatLng(37.7849, -122.4094),
+      ],
+      color: Color(0xFF0000FF), // Blue color
+      width: 5,
+    ),
+  };
 
   setUp(() {
     mockMapViewModel = MockMapViewModel();
+    mockMapService = MockMapService();
+
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.getCampusPolygonsAndLabels(any))
+        .thenAnswer((_) async {
+      return {
+        "polygons": <Polygon>{const Polygon(polygonId: PolygonId('polygon1'))},
+        "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      };
+    });
+
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+
+    when(mockMapViewModel.mapService).thenReturn(mockMapService);
+    when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
+    when(mockMapViewModel.polylines).thenReturn(mockPolylines);
+
+    mockDirectionsService = MockDirectionsService();
+    directionsService = ODSDirectionsService();
+    directionsService.directionsService = mockDirectionsService;
+  });
+
+  testWidgets('should call fetchRoute when valid data is provided',
+      (WidgetTester tester) async {
+    // Arrange
+    const String origin = 'Current Location';
+    const String destination = 'Destination Address';
+
+    // Mock fetchRoute to return successful result (we can just mock it returning nothing here)
+    when(mockMapViewModel.fetchRoute(any, any)).thenAnswer((_) async {});
+
+    // Build the widget tree
+    await tester.pumpWidget(MaterialApp(
+      home: OutdoorLocationMapView(
+          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
+    ));
+
+    // Enter text in the search bar
+    await tester.enterText(find.byType(SearchBarWidget).first, origin);
+    await tester.enterText(find.byType(SearchBarWidget).at(1), destination);
+
+    // Tap the 'Get Directions' button
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump();
+
+    // Verify if fetchRoute was called
+    verify(mockMapViewModel.fetchRoute(origin, destination)).called(1);
+  });
+
+  test('fetchRoute returns a list of LatLng when API call is successful',
+      () async {
+    const origin = 'New York, NY';
+    const destination = 'Los Angeles, CA';
+    const encodedPolyline = 'a~l~Fjk~uOwHJy@P';
+
+    const mockResult = gda.DirectionsResult(
+      routes: [
+        gda.DirectionsRoute(
+          overviewPolyline: gda.OverviewPolyline(points: encodedPolyline),
+        )
+      ],
+    );
+
+    when(mockDirectionsService.route(any, any)).thenAnswer((invocation) async {
+      final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+          invocation.positionalArguments[1];
+      callback(mockResult, gda.DirectionsStatus.ok);
+    });
+
+    final List<LatLng> result =
+        await directionsService.fetchRoute(origin, destination);
+
+    expect(result, isA<List<LatLng>>());
+    expect(result.isNotEmpty, true);
+  });
+
+  test('fetchRoute throws an error when no routes are returned', () async {
+    const origin = 'New York, NY';
+    const destination = 'Los Angeles, CA';
+
+    when(mockDirectionsService.route(any, any)).thenAnswer((invocation) async {
+      throw Exception('An error occurred while fetching directions.');
+    });
+
+    expect(() async => await directionsService.fetchRoute(origin, destination),
+        throwsA(isA<Exception>()));
   });
 
   testWidgets('OutdoorLocationMapView displays polygons and labels correctly',
       (WidgetTester tester) async {
     // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
     when(mockMapViewModel.getCampusPolygonsAndLabels(any))
         .thenAnswer((_) async {
       return {

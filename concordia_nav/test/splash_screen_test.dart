@@ -4,13 +4,17 @@ import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:concordia_nav/utils/splash_screen_viewmodel.dart';
 import 'package:concordia_nav/widgets/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'map/map_viewmodel_test.mocks.dart';
 
-void main() {
+Future<void> main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   late SplashScreenViewModel splashScreenViewModel;
   late MockMapViewModel mockMapViewModel;
   late MapViewModel realMapViewModel;

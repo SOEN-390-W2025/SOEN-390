@@ -3,7 +3,7 @@ import '../data/services/outdoor_directions_service.dart';
 import '../data/services/map_service.dart';
 
 class DirectionsViewModel {
-  final DirectionsService _directionsService = DirectionsService();
+  final ODSDirectionsService _directionsService = ODSDirectionsService();
   final MapService _mapService = MapService();
 
   /// Returns a polyline (as a list of LatLng) for the given route.

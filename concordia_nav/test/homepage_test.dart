@@ -6,17 +6,54 @@ import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
 import 'map/map_viewmodel_test.mocks.dart';
 
-void main() {
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   late MockMapViewModel mockMapViewModel;
+  late MockMapService mockMapService;
+
+  const Marker mockMarker = Marker(
+    markerId: MarkerId('mock_marker'),
+    alpha: 1.0,
+    anchor: const Offset(0.5, 1.0),
+    consumeTapEvents: false,
+    draggable: false,
+    flat: false,
+    icon: BitmapDescriptor.defaultMarker,
+    infoWindow: InfoWindow.noText,
+    position:
+        const LatLng(37.7749, -122.4194), // Example coordinates (San Francisco)
+    rotation: 0.0,
+    visible: true,
+    zIndex: 0.0,
+  );
+
+  final Set<Polyline> mockPolylines = {
+    const Polyline(
+      polylineId: PolylineId('mock_polyline'),
+      points: [
+        LatLng(37.7749, -122.4194), // Example coordinates
+        LatLng(37.7849, -122.4094),
+      ],
+      color: Color(0xFF0000FF), // Blue color
+      width: 5,
+    ),
+  };
 
   setUp(() {
     mockMapViewModel = MockMapViewModel();
+    mockMapService = MockMapService();
+    when(mockMapViewModel.mapService).thenReturn(mockMapService);
+    when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
+    when(mockMapViewModel.polylines).thenReturn(mockPolylines);
   });
 
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
@@ -233,6 +270,9 @@ void main() {
             mapViewModel: mockMapViewModel,
           ),
     };
+
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
 
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 

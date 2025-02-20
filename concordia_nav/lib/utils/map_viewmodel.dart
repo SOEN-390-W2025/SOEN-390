@@ -35,9 +35,6 @@ class MapViewModel {
   /// Fetches the route and updates the polyline and destination marker.
   Future<void> fetchRoute(
       String? originAddress, String destinationAddress) async {
-    if (destinationAddress.isEmpty) {
-      throw Exception("Please enter a destination address.");
-    }
     try {
       // Get the route as a list of LatLng coordinates.
       final List<LatLng> routePoints =

@@ -6,8 +6,10 @@
 import 'dart:async' as _i5;
 import 'dart:typed_data' as _i6;
 
-import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i8;
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i9;
 import 'package:concordia_nav/data/services/map_service.dart' as _i7;
+import 'package:concordia_nav/data/services/outdoor_directions_service.dart'
+    as _i8;
 import 'package:geolocator/geolocator.dart' as _i3;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i4;
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
@@ -216,7 +218,14 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
       );
 
   @override
-  _i2.CameraPosition getInitialCameraPosition(_i8.ConcordiaCampus? campus) =>
+  void setDirectionsService(_i8.ODSDirectionsService? directionsService) =>
+      super.noSuchMethod(
+        Invocation.method(#setDirectionsService, [directionsService]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i2.CameraPosition getInitialCameraPosition(_i9.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
             Invocation.method(#getInitialCameraPosition, [campus]),
             returnValue: _FakeCameraPosition_3(
@@ -235,7 +244,7 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
 
   @override
   _i5.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-    _i8.ConcordiaCampus? campus,
+    _i9.ConcordiaCampus? campus,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getCampusPolygonsAndLabels, [campus]),
@@ -294,6 +303,28 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
             returnValue: 0.0,
           )
           as double);
+
+  @override
+  _i5.Future<List<_i2.LatLng>> getRoutePath(
+    String? originAddress,
+    String? destinationAddress,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRoutePath, [
+              originAddress,
+              destinationAddress,
+            ]),
+            returnValue: _i5.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
+          )
+          as _i5.Future<List<_i2.LatLng>>);
+
+  @override
+  Set<_i2.Polyline> getPolylines() =>
+      (super.noSuchMethod(
+            Invocation.method(#getPolylines, []),
+            returnValue: <_i2.Polyline>{},
+          )
+          as Set<_i2.Polyline>);
 }
 
 /// A class which mocks [GeolocatorPlatform].

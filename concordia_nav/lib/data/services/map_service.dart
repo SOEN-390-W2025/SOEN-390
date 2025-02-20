@@ -9,10 +9,14 @@ import 'helpers/icon_loader.dart';
 class MapService {
   late GoogleMapController _mapController;
   final Set<Polyline> _polylines = {};
-  final DirectionsService _directionsService = DirectionsService();
+  ODSDirectionsService _directionsService = ODSDirectionsService();
 
   void setMapController(GoogleMapController controller) {
     _mapController = controller;
+  }
+
+  void setDirectionsService(ODSDirectionsService directionsService) {
+    _directionsService = directionsService;
   }
 
   /// Returns the camera position for the given [campus].

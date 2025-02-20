@@ -22,6 +22,63 @@ void main() {
         mapRepository: mockMapRepository, mapService: mockMapService);
   });
 
+  group('fetchRoute', () {
+    test('throws exception when destinationAddress is empty', () async {
+      // Arrange
+      const originAddress = 'origin';
+      const destinationAddress = '';
+
+      // Act & Assert
+      expect(
+          () async =>
+              await mapViewModel.fetchRoute(originAddress, destinationAddress),
+          throwsException);
+    });
+
+    test(
+        'successfully fetches route and creates polyline and destination marker',
+        () async {
+      // Arrange
+      const originAddress = 'origin';
+      const destinationAddress = 'destination';
+
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      // Mock getRoutePath to return the routePoints
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenAnswer((_) async => routePoints);
+
+      // Act
+      await mapViewModel.fetchRoute(originAddress, destinationAddress);
+
+      // Assert
+      expect(mapViewModel.polylines.isNotEmpty, true);
+      expect(mapViewModel.destinationMarker, isNotNull);
+      expect(
+          mapViewModel.destinationMarker?.position, equals(routePoints.last));
+    });
+
+    test('throws exception when route fetching fails', () async {
+      // Arrange
+      const originAddress = 'origin';
+      const destinationAddress = 'destination';
+
+      // Mock getRoutePath to throw an exception
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenThrow(Exception('Failed to fetch route'));
+
+      // Act & Assert
+      expect(
+        () async =>
+            await mapViewModel.fetchRoute(originAddress, destinationAddress),
+        throwsException,
+      );
+    });
+  });
+
   group('MapViewModel Tests', () {
     test(
         'getInitialCameraPosition should return CameraPosition from repository',

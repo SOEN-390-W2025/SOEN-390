@@ -11,19 +11,21 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// The polyline is then decoded into a list of [LatLng] coordinates using the
 /// flutter_polyline_points package. The API key for accessing the Google Directions API
 /// is loaded from environment variables via the flutter_dotenv package.
-class DirectionsService {
+class ODSDirectionsService {
   // Singleton instance of DirectionsService.
-  static final DirectionsService _instance = DirectionsService._internal();
+  static final ODSDirectionsService _instance =
+      ODSDirectionsService._internal();
+  gda.DirectionsService directionsService = gda.DirectionsService();
 
   // Flag to ensure the DirectionsService is initialized only once.
   static bool _initialized = false;
 
-  /// Factory constructor to return a singleton instance of [DirectionsService].
+  /// Factory constructor to return a singleton instance of [ODSDirectionsService].
   ///
   /// Upon first instantiation, this constructor retrieves the API key from the environment
   /// variables and initializes the google_directions_api package with the provided key.
   /// Throws an [Exception] if the API key is not found.
-  factory DirectionsService() {
+  factory ODSDirectionsService() {
     if (!_initialized) {
       final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
       if (apiKey == null) {
@@ -37,7 +39,7 @@ class DirectionsService {
   }
 
   // Private constructor for singleton pattern.
-  DirectionsService._internal();
+  ODSDirectionsService._internal();
 
   /// Fetches a route between the given origin and destination addresses.
   ///
@@ -63,9 +65,6 @@ class DirectionsService {
       destination: destinationAddress,
       travelMode: gda.TravelMode.driving, // TODO: refactor in TASK-3.3.2
     );
-
-    // Instantiate the directions service from the google_directions_api package.
-    final directionsService = gda.DirectionsService();
 
     // Execute the route request with a callback to process the result.
     await directionsService.route(request,
