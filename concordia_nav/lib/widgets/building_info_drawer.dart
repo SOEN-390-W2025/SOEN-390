@@ -42,7 +42,7 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
     return SlideTransition(
       position: drawerViewModel.slideAnimation,
       child: DraggableScrollableSheet(
-        initialChildSize: 0.27,
+        initialChildSize: 0.3,
         minChildSize: 0.15,
         maxChildSize: 0.3,
         builder: (context, scrollController) {
