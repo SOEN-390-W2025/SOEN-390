@@ -102,7 +102,7 @@ void main() {
         'polygons': <Polygon>{const Polygon(polygonId: PolygonId('1'))},
         'labels': <Marker>{const Marker(markerId: MarkerId('1'))},
       };
-      
+
       when(mockMapViewModel.checkLocationAccess())
           .thenAnswer((_) async => true);
 
@@ -150,7 +150,7 @@ void main() {
         (WidgetTester tester) async {
       // Arrange
 
-      double distanceToLoy = realMapViewModel.getDistance(
+      final double distanceToLoy = realMapViewModel.getDistance(
           const LatLng(45.458, -73.639),
           LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng));
 
