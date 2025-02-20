@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
@@ -55,51 +56,67 @@ class CampusMapPageState extends State<CampusMapPage> {
   }
 
   @override
+  /// Builds the campus map page.
+  ///
+  /// This page displays a map of a campus (e.g. SGW or LOY) and
+  /// allows the user to search for a building.
+  ///
+  /// When the user selects a building, a drawer appears with
+  /// information about the building.
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: customAppBar(
-        context,
-        _currentCampus.name,
-        actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
-        onActionPressed: () {
-          setState(() {
-            _currentCampus = _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
-          });
-          _loadMapData();
-        },
-      ),
-      body: FutureBuilder<CameraPosition>(
-        future: _mapViewModel.getInitialCameraPosition(_currentCampus),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error loading campus map'));
-          }
+    return ChangeNotifierProvider(
+      /// Creates a new [MapViewModel] when the widget is created.
+      create: (_) => MapViewModel(),
+      child: Consumer<MapViewModel>(
+        builder: (context, mapViewModel, child) {
+          return Scaffold(
+            appBar: customAppBar(
+              context,
+              _currentCampus.name,
+              actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
+              onActionPressed: () {
+                setState(() {
+                  _currentCampus =
+                      _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
+                  _loadMapData();
+                  _mapViewModel.unselectBuilding();
+                });
+              },
+            ),
+            body:  FutureBuilder<CameraPosition>(
+              /// Fetches the initial camera position for the given campus.
+              future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading campus map'));
+                }
+                return FutureBuilder<Map<String, dynamic>>(
+                  future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+                  builder: (context, polySnapshot) {
+                    if (polySnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-          return FutureBuilder<Map<String, dynamic>>(
-            future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
-            builder: (context, polySnapshot) {
-              if (polySnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return MapLayout(
-                searchController: _searchController,
-                mapWidget: GoogleMap(
-                  buildingsEnabled: false,
-                  onMapCreated: _mapViewModel.onMapCreated,
-                  initialCameraPosition: snapshot.data!,
-                  markers: _labelMarkers,
-                  polygons: _polygons,
-                  zoomControlsEnabled: false,
-                  myLocationButtonEnabled: false,
-                  myLocationEnabled: _locationPermissionGranted,
-                ),
-                mapViewModel: _mapViewModel,
-              );
-            },
+                  return MapLayout(
+                    searchController: _searchController,
+                    mapWidget: GoogleMap(
+                      buildingsEnabled: false,
+                      onMapCreated: _mapViewModel.onMapCreated,
+                      initialCameraPosition: snapshot.data!,
+                      markers: _labelMarkers,
+                      polygons: _polygons,
+                      zoomControlsEnabled: false,
+                      myLocationButtonEnabled: false,
+                      myLocationEnabled: _locationPermissionGranted,
+                    ),
+                    mapViewModel: _mapViewModel,
+                  );
+                });
+              },
+            ),
           );
         },
       ),

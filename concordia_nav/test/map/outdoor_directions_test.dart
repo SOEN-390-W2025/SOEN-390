@@ -17,8 +17,8 @@ void main() {
 
   testWidgets('OutdoorLocationMapView displays polygons and labels correctly',
       (WidgetTester tester) async {
-    // Mocking the getCampusPolygonsAndLabels method to return fake data
-    when(mockMapViewModel.getCampusPolygonsAndLabels(any))
+    // Mocking the getAllCampusPolygonsAndLabels method to return fake data
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
         .thenAnswer((_) async {
       return {
         "polygons": <Polygon>{const Polygon(polygonId: PolygonId('polygon1'))},

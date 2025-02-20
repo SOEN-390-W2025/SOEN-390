@@ -234,6 +234,10 @@ void main() {
           ),
     };
 
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels()).thenAnswer((_) async => {
+        "polygons": <Polygon>{const Polygon(polygonId: PolygonId('polygon1'))},
+        "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      });
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
     when(mockMapViewModel.getCampusPolygonsAndLabels(any))
