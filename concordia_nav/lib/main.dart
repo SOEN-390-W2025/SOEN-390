@@ -29,12 +29,16 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(),
+        '/': (context) => SplashScreen(),
         '/HomePage': (context) => const HomePage(),
-        '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+        '/CampusMapPage': (context) => CampusMapPage(
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
         '/IndoorLocationView': (context) => const IndoorLocationView(),
         '/IndoorMapView': (context) => const IndoorMapView(),
-        '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+        '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
         '/POIChoiceView': (context) => const POIChoiceView(),
         '/POIMapView': (context) => const POIMapView(),
         '/AccessibilityPage': (context) => const AccessibilityPage(),

@@ -8,6 +8,8 @@ import 'dart:async' as _i6;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i4;
 import 'package:concordia_nav/data/repositories/map_repository.dart' as _i3;
 import 'package:concordia_nav/data/services/map_service.dart' as _i5;
+import 'package:concordia_nav/utils/map_viewmodel.dart' as _i7;
+import 'package:flutter/material.dart' as _i8;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -136,4 +138,116 @@ class MockMapService extends _i1.Mock implements _i5.MapService {
             returnValue: _i6.Future<_i2.LatLng?>.value(),
           )
           as _i6.Future<_i2.LatLng?>);
+
+  @override
+  double calculateDistance(_i2.LatLng? point1, _i2.LatLng? point2) =>
+      (super.noSuchMethod(
+            Invocation.method(#calculateDistance, [point1, point2]),
+            returnValue: 0.0,
+          )
+          as double);
+}
+
+/// A class which mocks [MapViewModel].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMapViewModel extends _i1.Mock implements _i7.MapViewModel {
+  MockMapViewModel() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<_i2.CameraPosition> getInitialCameraPosition(
+    _i4.ConcordiaCampus? campus,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getInitialCameraPosition, [campus]),
+            returnValue: _i6.Future<_i2.CameraPosition>.value(
+              _FakeCameraPosition_0(
+                this,
+                Invocation.method(#getInitialCameraPosition, [campus]),
+              ),
+            ),
+          )
+          as _i6.Future<_i2.CameraPosition>);
+
+  @override
+  void onMapCreated(_i2.GoogleMapController? controller) => super.noSuchMethod(
+    Invocation.method(#onMapCreated, [controller]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void moveToLocation(_i2.LatLng? location) => super.noSuchMethod(
+    Invocation.method(#moveToLocation, [location]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void switchCampus(_i4.ConcordiaCampus? campus) => super.noSuchMethod(
+    Invocation.method(#switchCampus, [campus]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i6.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+    _i4.ConcordiaCampus? campus,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCampusPolygonsAndLabels, [campus]),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i6.Future<Map<String, dynamic>>);
+
+  @override
+  _i6.Future<_i2.LatLng?> fetchCurrentLocation() =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchCurrentLocation, []),
+            returnValue: _i6.Future<_i2.LatLng?>.value(),
+          )
+          as _i6.Future<_i2.LatLng?>);
+
+  @override
+  _i6.Future<bool> checkLocationAccess() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkLocationAccess, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<bool> moveToCurrentLocation(_i8.BuildContext? context) =>
+      (super.noSuchMethod(
+            Invocation.method(#moveToCurrentLocation, [context]),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> zoomIn() =>
+      (super.noSuchMethod(
+            Invocation.method(#zoomIn, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> zoomOut() =>
+      (super.noSuchMethod(
+            Invocation.method(#zoomOut, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  double getDistance(_i2.LatLng? point1, _i2.LatLng? point2) =>
+      (super.noSuchMethod(
+            Invocation.method(#getDistance, [point1, point2]),
+            returnValue: 0.0,
+          )
+          as double);
 }

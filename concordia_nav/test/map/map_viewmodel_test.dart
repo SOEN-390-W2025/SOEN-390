@@ -9,7 +9,7 @@ import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'map_viewmodel_test.mocks.dart';
 
-@GenerateMocks([MapRepository, MapService])
+@GenerateMocks([MapRepository, MapService, MapViewModel])
 void main() {
   late MapViewModel mapViewModel;
   late MockMapRepository mockMapRepository;

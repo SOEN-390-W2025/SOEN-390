@@ -1,6 +1,4 @@
 import 'package:concordia_nav/data/domain-model/location.dart';
-import 'package:concordia_nav/data/repositories/map_repository.dart';
-import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
@@ -8,11 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'campus_test.mocks.dart';
+import 'map_viewmodel_test.mocks.dart';
 
-@GenerateMocks([MapRepository, MapService])
 void main() {
   group('Campus Class Tests', () {
     late MapViewModel mapViewModel;

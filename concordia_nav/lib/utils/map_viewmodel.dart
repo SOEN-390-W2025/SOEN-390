@@ -9,8 +9,8 @@ import '../data/domain-model/concordia_building.dart';
 import '../data/repositories/building_repository.dart';
 import '../data/services/building_service.dart ';
 class MapViewModel extends ChangeNotifier{
-  MapRepository _mapRepository = MapRepository();
-  MapService _mapService = MapService();
+  MapRepository _mapRepository;
+  MapService _mapService;
   BuildingService _buildingService = BuildingService();
 
   // ignore: unused_field
@@ -207,5 +207,10 @@ class MapViewModel extends ChangeNotifier{
   /// Zoom out function
   Future<void> zoomOut() async {
     await _mapService.zoomOut();
+  }
+
+  /// Calculates the distance between two points using the service.
+  double getDistance(LatLng point1, LatLng point2) {
+    return _mapService.calculateDistance(point1, point2);
   }
 }
