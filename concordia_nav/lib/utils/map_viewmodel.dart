@@ -1,14 +1,13 @@
-// ignore_for_file: prefer_final_fields
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
-import '../../data/domain-model/campus.dart';
+import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
 
 class MapViewModel {
-  MapRepository _mapRepository = MapRepository();
-  MapService _mapService = MapService();
+  final MapRepository _mapRepository;
+  final MapService _mapService;
+
   MapViewModel({MapRepository? mapRepository, MapService? mapService})
       : _mapRepository = mapRepository ?? MapRepository(),
         _mapService = mapService ?? MapService();
@@ -16,15 +15,18 @@ class MapViewModel {
 
   /// Getter for polylines
   Set<Polyline> get polylines => _polylines;
-  
+
   /// Mapservice getter
   MapService get mapService => _mapService;
 
   /// Fetches the initial camera position for the given campus.
-  Future<CameraPosition> getInitialCameraPosition(Campus campus) async {
+  Future<CameraPosition> getInitialCameraPosition(
+      ConcordiaCampus campus) async {
     return _mapRepository.getCameraPosition(campus);
   }
-  Future<void> fetchRoute(String? originAddress, String destinationAddress) async {
+
+  Future<void> fetchRoute(
+      String? originAddress, String destinationAddress) async {
     if (destinationAddress.isEmpty) {
       throw Exception("Please enter a destination address.");
     }
@@ -36,7 +38,8 @@ class MapViewModel {
       );
 
       final Polyline polyline = Polyline(
-        polylineId: PolylineId('${originAddress ?? "current"}_$destinationAddress'),
+        polylineId:
+            PolylineId('${originAddress ?? "current"}_$destinationAddress'),
         color: const Color(0xFF2196F3),
         width: 5,
         points: routePoints,
@@ -59,16 +62,17 @@ class MapViewModel {
   }
 
   /// Switches the map camera to a new campus.
-  void switchCampus(Campus campus) {
+  void switchCampus(ConcordiaCampus campus) {
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
   }
 
-  /// Retrieves markers for campus buildings.
-  Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
-    return _mapService.getCampusMarkers(buildingLocations);
+  /// Fetches both polygons and labeled icons for a given campus building.
+  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+      ConcordiaCampus campus) {
+    return _mapService.getCampusPolygonsAndLabels(campus);
   }
-  
-    /// Fetches the current location without moving the map.
+
+  /// Fetches the current location without moving the map.
   Future<LatLng?> fetchCurrentLocation() async {
     return await _mapService.getCurrentLocation();
   }
@@ -78,17 +82,20 @@ class MapViewModel {
     final bool serviceEnabled = await _mapService.isLocationServiceEnabled();
     if (!serviceEnabled) return false;
 
-    final bool hasPermission = await _mapService.checkAndRequestLocationPermission();
+    final bool hasPermission =
+        await _mapService.checkAndRequestLocationPermission();
     return hasPermission;
   }
 
   /// Fetches current location and moves the camera.
-  Future<bool> moveToCurrentLocation(BuildContext context) async {
+  Future<bool> moveToCurrentLocation(BuildContext? context) async {
     final bool hasAccess = await checkLocationAccess();
     if (!hasAccess) {
-      if (context.mounted) {
+      if (context!.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location services or permissions are not available.")),
+          const SnackBar(
+              content: Text(
+                  "Location services or permissions are not available. Please enable them in settings.")),
         );
       }
       return false;
@@ -110,5 +117,10 @@ class MapViewModel {
   /// Zoom out function
   Future<void> zoomOut() async {
     await _mapService.zoomOut();
+  }
+
+  /// Calculates the distance between two points using the service.
+  double getDistance(LatLng point1, LatLng point2) {
+    return _mapService.calculateDistance(point1, point2);
   }
 }

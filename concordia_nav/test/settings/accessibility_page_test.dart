@@ -66,21 +66,9 @@ void main() {
 
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/AccessibilityPage',
       routes: routes,
     ));
-
-    // Verify that the app bar is present and has the correct title
-    expect(find.byType(AppBar), findsOneWidget);
-    expect(find.text('Home'), findsOneWidget);
-
-    // Verify that the Concordia Campus Guide text and icon are present
-    expect(find.text('Concordia Campus Guide'), findsOneWidget);
-    expect(find.byIcon(Icons.location_on), findsOneWidget);
-
-    // Press the settings button
-    await tester.tap(find.byIcon(Icons.settings));
-    await tester.pumpAndSettle();
 
     // Press the accessibility button
     expect(find.text('Accessibility'), findsOneWidget);

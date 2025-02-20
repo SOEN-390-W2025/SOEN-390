@@ -1,28 +1,30 @@
+import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/outdoor_directions_service.dart';
+import 'dart:async';
+import '../domain-model/concordia_campus.dart';
+import '../repositories/building_repository.dart';
+import 'helpers/icon_loader.dart';
 import 'package:geolocator/geolocator.dart';
-import '../domain-model/campus.dart';
 
 class MapService {
   late GoogleMapController _mapController;
   final Set<Polyline> _polylines = {};
   final DirectionsService _directionsService = DirectionsService();
 
-  /// Sets the Google Maps controller.
   void setMapController(GoogleMapController controller) {
     _mapController = controller;
   }
 
   /// Returns the camera position for the given [campus].
-  CameraPosition getInitialCameraPosition(Campus campus) {
+  CameraPosition getInitialCameraPosition(ConcordiaCampus campus) {
     return CameraPosition(
       target: LatLng(campus.lat, campus.lng),
       zoom: 17.0,
     );
   }
 
-  /// Moves the camera to a new position.
   void moveCamera(LatLng position, {double zoom = 17.0}) {
     _mapController.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -31,14 +33,48 @@ class MapService {
     );
   }
 
-  /// Adds markers for buildings (this method can be expanded).
-  Set<Marker> getCampusMarkers(List<LatLng> buildingLocations) {
-    return buildingLocations.map((latLng) {
-      return Marker(
-        markerId: MarkerId(latLng.toString()),
-        position: latLng,
+  /// Fetches polygons and campus markers from BuildingRepository.
+  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+      ConcordiaCampus campus) async {
+    final String campusName = (campus.name == "Loyola Campus") ? "loy" : "sgw";
+
+    // Load polygons and label positions (markers should be placed at label positions)
+    final Map<String, dynamic> data =
+        await BuildingRepository.loadBuildingPolygonsAndLabels(campusName);
+
+    final Map<String, List<LatLng>> polygonsData = data["polygons"];
+    final Map<String, LatLng> labelPositions = data["labels"];
+
+    final Set<Polygon> polygonSet = polygonsData.entries.map((entry) {
+      return Polygon(
+        polygonId: PolygonId(entry.key),
+        points: entry.value,
+        strokeWidth: 3,
+        strokeColor: const Color(0xFFB48107),
+        fillColor: const Color(0xFFe5a712),
       );
     }).toSet();
+
+    // Load campus markers (placed at centroid of each building polygon)
+    final Set<Marker> labelMarkers = {};
+    for (var entry in labelPositions.entries) {
+      final BitmapDescriptor icon = await _getCustomIcon(entry.key);
+      labelMarkers.add(
+        Marker(
+          markerId: MarkerId(entry.key),
+          position: entry.value, // Use centroid as position
+          icon: icon,
+        ),
+      );
+    }
+
+    return {"polygons": polygonSet, "labels": labelMarkers};
+  }
+
+  /// Loads a custom icon for each label from /assets/icons/{name}.png.
+  Future<BitmapDescriptor> _getCustomIcon(String name) async {
+    final String iconPath = 'assets/icons/$name.png';
+    return IconLoader.loadBitmapDescriptor(iconPath);
   }
 
   /// Zoom in function
@@ -97,8 +133,19 @@ class MapService {
     return LatLng(position.latitude, position.longitude);
   }
 
+  /// Returns the distance (in meters) between two locations.
+  double calculateDistance(LatLng point1, LatLng point2) {
+    return Geolocator.distanceBetween(
+      point1.latitude,
+      point1.longitude,
+      point2.latitude,
+      point2.longitude,
+    );
+  }
+
   /// Fetches route polyline using addresses or current location
-  Future<List<LatLng>> getRoutePath(String? originAddress, String destinationAddress) async {
+  Future<List<LatLng>> getRoutePath(
+      String? originAddress, String destinationAddress) async {
     List<LatLng> routePoints;
 
     if (originAddress == null || originAddress.isEmpty) {
@@ -111,11 +158,13 @@ class MapService {
         destinationAddress,
       );
     } else {
-      routePoints = await _directionsService.fetchRoute(originAddress, destinationAddress);
+      routePoints = await _directionsService.fetchRoute(
+          originAddress, destinationAddress);
     }
 
     final Polyline polyline = Polyline(
-      polylineId: PolylineId('${originAddress ?? "current"}_$destinationAddress'),
+      polylineId:
+          PolylineId('${originAddress ?? "current"}_$destinationAddress'),
       color: const Color(0xFF2196F3),
       width: 5,
       points: routePoints,
