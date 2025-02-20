@@ -34,6 +34,9 @@ scripts:
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
   coverage: flutter test --coverage --branch-coverage
+  codecov: 
+    windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
+    mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
   run: flutter run --dart-define-from-file=../.env
   clean: flutter clean
   build:
@@ -44,6 +47,9 @@ scripts:
   install:
     $script: flutter install
     $description: Install the app on the connected device. Can pass --release or --debug flags. (Default --release)
+  ci:
+    $script: rps clean && rps format check && rps lint check && rps test unit && rps build android --debug && rps coverage 
+    $description: Run all of the commands that are part of the ci pipeline
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
