@@ -10,6 +10,5 @@ runs:
     - name: Create .env file
       shell: bash
       run: |
-        mkdir -p /concordia_nav
         touch /concordia_nav/.env
         echo "GOOGLE_MAPS_API_KEY=${{ inputs.google-maps-api-key }}" >> .env
