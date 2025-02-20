@@ -132,9 +132,10 @@ class MapService {
   /// Returns the distance (in meters) between two locations.
   double calculateDistance(LatLng point1, LatLng point2) {
     return Geolocator.distanceBetween(
-      point1.latitude, point1.longitude,
-      point2.latitude, point2.longitude,
+      point1.latitude,
+      point1.longitude,
+      point2.latitude,
+      point2.longitude,
     );
   }
-
 }

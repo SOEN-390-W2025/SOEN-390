@@ -4,7 +4,8 @@ import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
 
 void main() {
   group('calendarPage appBar', () {
-    testWidgets('appBar should exist with the right title', (WidgetTester tester) async {
+    testWidgets('appBar should exist with the right title',
+        (WidgetTester tester) async {
       // Build the calendar view widget
       await tester.pumpWidget(const MaterialApp(home: const CalendarView()));
       await tester.pump();

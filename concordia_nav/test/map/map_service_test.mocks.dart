@@ -30,29 +30,29 @@ import 'package:mockito/mockito.dart' as _i1;
 
 class _FakeLatLngBounds_0 extends _i1.SmartFake implements _i2.LatLngBounds {
   _FakeLatLngBounds_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeScreenCoordinate_1 extends _i1.SmartFake
     implements _i2.ScreenCoordinate {
   _FakeScreenCoordinate_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeLatLng_2 extends _i1.SmartFake implements _i2.LatLng {
   _FakeLatLng_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakeCameraPosition_3 extends _i1.SmartFake
     implements _i2.CameraPosition {
   _FakeCameraPosition_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 class _FakePosition_4 extends _i1.SmartFake implements _i3.Position {
   _FakePosition_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [GoogleMapController].
@@ -71,133 +71,115 @@ class MockGoogleMapController extends _i1.Mock
   @override
   _i5.Future<void> clearTileCache(_i2.TileOverlayId? tileOverlayId) =>
       (super.noSuchMethod(
-            Invocation.method(#clearTileCache, [tileOverlayId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+        Invocation.method(#clearTileCache, [tileOverlayId]),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   _i5.Future<void> animateCamera(_i2.CameraUpdate? cameraUpdate) =>
       (super.noSuchMethod(
-            Invocation.method(#animateCamera, [cameraUpdate]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+        Invocation.method(#animateCamera, [cameraUpdate]),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   _i5.Future<void> moveCamera(_i2.CameraUpdate? cameraUpdate) =>
       (super.noSuchMethod(
-            Invocation.method(#moveCamera, [cameraUpdate]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+        Invocation.method(#moveCamera, [cameraUpdate]),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> setMapStyle(String? mapStyle) =>
-      (super.noSuchMethod(
-            Invocation.method(#setMapStyle, [mapStyle]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+  _i5.Future<void> setMapStyle(String? mapStyle) => (super.noSuchMethod(
+        Invocation.method(#setMapStyle, [mapStyle]),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i5.Future<String?> getStyleError() =>
-      (super.noSuchMethod(
-            Invocation.method(#getStyleError, []),
-            returnValue: _i5.Future<String?>.value(),
-          )
-          as _i5.Future<String?>);
+  _i5.Future<String?> getStyleError() => (super.noSuchMethod(
+        Invocation.method(#getStyleError, []),
+        returnValue: _i5.Future<String?>.value(),
+      ) as _i5.Future<String?>);
 
   @override
-  _i5.Future<_i2.LatLngBounds> getVisibleRegion() =>
-      (super.noSuchMethod(
+  _i5.Future<_i2.LatLngBounds> getVisibleRegion() => (super.noSuchMethod(
+        Invocation.method(#getVisibleRegion, []),
+        returnValue: _i5.Future<_i2.LatLngBounds>.value(
+          _FakeLatLngBounds_0(
+            this,
             Invocation.method(#getVisibleRegion, []),
-            returnValue: _i5.Future<_i2.LatLngBounds>.value(
-              _FakeLatLngBounds_0(
-                this,
-                Invocation.method(#getVisibleRegion, []),
-              ),
-            ),
-          )
-          as _i5.Future<_i2.LatLngBounds>);
+          ),
+        ),
+      ) as _i5.Future<_i2.LatLngBounds>);
 
   @override
   _i5.Future<_i2.ScreenCoordinate> getScreenCoordinate(_i2.LatLng? latLng) =>
       (super.noSuchMethod(
+        Invocation.method(#getScreenCoordinate, [latLng]),
+        returnValue: _i5.Future<_i2.ScreenCoordinate>.value(
+          _FakeScreenCoordinate_1(
+            this,
             Invocation.method(#getScreenCoordinate, [latLng]),
-            returnValue: _i5.Future<_i2.ScreenCoordinate>.value(
-              _FakeScreenCoordinate_1(
-                this,
-                Invocation.method(#getScreenCoordinate, [latLng]),
-              ),
-            ),
-          )
-          as _i5.Future<_i2.ScreenCoordinate>);
+          ),
+        ),
+      ) as _i5.Future<_i2.ScreenCoordinate>);
 
   @override
   _i5.Future<_i2.LatLng> getLatLng(_i2.ScreenCoordinate? screenCoordinate) =>
       (super.noSuchMethod(
+        Invocation.method(#getLatLng, [screenCoordinate]),
+        returnValue: _i5.Future<_i2.LatLng>.value(
+          _FakeLatLng_2(
+            this,
             Invocation.method(#getLatLng, [screenCoordinate]),
-            returnValue: _i5.Future<_i2.LatLng>.value(
-              _FakeLatLng_2(
-                this,
-                Invocation.method(#getLatLng, [screenCoordinate]),
-              ),
-            ),
-          )
-          as _i5.Future<_i2.LatLng>);
+          ),
+        ),
+      ) as _i5.Future<_i2.LatLng>);
 
   @override
   _i5.Future<void> showMarkerInfoWindow(_i2.MarkerId? markerId) =>
       (super.noSuchMethod(
-            Invocation.method(#showMarkerInfoWindow, [markerId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+        Invocation.method(#showMarkerInfoWindow, [markerId]),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   _i5.Future<void> hideMarkerInfoWindow(_i2.MarkerId? markerId) =>
       (super.noSuchMethod(
-            Invocation.method(#hideMarkerInfoWindow, [markerId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+        Invocation.method(#hideMarkerInfoWindow, [markerId]),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   _i5.Future<bool> isMarkerInfoWindowShown(_i2.MarkerId? markerId) =>
       (super.noSuchMethod(
-            Invocation.method(#isMarkerInfoWindowShown, [markerId]),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
+        Invocation.method(#isMarkerInfoWindowShown, [markerId]),
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
-  _i5.Future<double> getZoomLevel() =>
-      (super.noSuchMethod(
-            Invocation.method(#getZoomLevel, []),
-            returnValue: _i5.Future<double>.value(0.0),
-          )
-          as _i5.Future<double>);
+  _i5.Future<double> getZoomLevel() => (super.noSuchMethod(
+        Invocation.method(#getZoomLevel, []),
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i5.Future<_i6.Uint8List?> takeSnapshot() =>
-      (super.noSuchMethod(
-            Invocation.method(#takeSnapshot, []),
-            returnValue: _i5.Future<_i6.Uint8List?>.value(),
-          )
-          as _i5.Future<_i6.Uint8List?>);
+  _i5.Future<_i6.Uint8List?> takeSnapshot() => (super.noSuchMethod(
+        Invocation.method(#takeSnapshot, []),
+        returnValue: _i5.Future<_i6.Uint8List?>.value(),
+      ) as _i5.Future<_i6.Uint8List?>);
 
   @override
   void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#dispose, []),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [MapService].
@@ -218,13 +200,12 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
   @override
   _i2.CameraPosition getInitialCameraPosition(_i8.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
-            Invocation.method(#getInitialCameraPosition, [campus]),
-            returnValue: _FakeCameraPosition_3(
-              this,
-              Invocation.method(#getInitialCameraPosition, [campus]),
-            ),
-          )
-          as _i2.CameraPosition);
+        Invocation.method(#getInitialCameraPosition, [campus]),
+        returnValue: _FakeCameraPosition_3(
+          this,
+          Invocation.method(#getInitialCameraPosition, [campus]),
+        ),
+      ) as _i2.CameraPosition);
 
   @override
   void moveCamera(_i2.LatLng? position, {double? zoom = 17.0}) =>
@@ -238,62 +219,50 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
     _i8.ConcordiaCampus? campus,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#getCampusPolygonsAndLabels, [campus]),
-            returnValue: _i5.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
-          )
-          as _i5.Future<Map<String, dynamic>>);
+        Invocation.method(#getCampusPolygonsAndLabels, [campus]),
+        returnValue: _i5.Future<Map<String, dynamic>>.value(
+          <String, dynamic>{},
+        ),
+      ) as _i5.Future<Map<String, dynamic>>);
 
   @override
-  _i5.Future<void> zoomIn() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomIn, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+  _i5.Future<void> zoomIn() => (super.noSuchMethod(
+        Invocation.method(#zoomIn, []),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> zoomOut() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomOut, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
+  _i5.Future<void> zoomOut() => (super.noSuchMethod(
+        Invocation.method(#zoomOut, []),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i5.Future<bool> isLocationServiceEnabled() =>
-      (super.noSuchMethod(
-            Invocation.method(#isLocationServiceEnabled, []),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
+  _i5.Future<bool> isLocationServiceEnabled() => (super.noSuchMethod(
+        Invocation.method(#isLocationServiceEnabled, []),
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
-  _i5.Future<bool> checkAndRequestLocationPermission() =>
-      (super.noSuchMethod(
-            Invocation.method(#checkAndRequestLocationPermission, []),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
+  _i5.Future<bool> checkAndRequestLocationPermission() => (super.noSuchMethod(
+        Invocation.method(#checkAndRequestLocationPermission, []),
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
-  _i5.Future<_i2.LatLng?> getCurrentLocation() =>
-      (super.noSuchMethod(
-            Invocation.method(#getCurrentLocation, []),
-            returnValue: _i5.Future<_i2.LatLng?>.value(),
-          )
-          as _i5.Future<_i2.LatLng?>);
+  _i5.Future<_i2.LatLng?> getCurrentLocation() => (super.noSuchMethod(
+        Invocation.method(#getCurrentLocation, []),
+        returnValue: _i5.Future<_i2.LatLng?>.value(),
+      ) as _i5.Future<_i2.LatLng?>);
 
   @override
   double calculateDistance(_i2.LatLng? point1, _i2.LatLng? point2) =>
       (super.noSuchMethod(
-            Invocation.method(#calculateDistance, [point1, point2]),
-            returnValue: 0.0,
-          )
-          as double);
+        Invocation.method(#calculateDistance, [point1, point2]),
+        returnValue: 0.0,
+      ) as double);
 }
 
 /// A class which mocks [GeolocatorPlatform].
@@ -306,123 +275,106 @@ class MockGeolocatorPlatform extends _i1.Mock
   }
 
   @override
-  _i5.Future<_i3.LocationPermission> checkPermission() =>
-      (super.noSuchMethod(
-            Invocation.method(#checkPermission, []),
-            returnValue: _i5.Future<_i3.LocationPermission>.value(
-              _i3.LocationPermission.denied,
-            ),
-          )
-          as _i5.Future<_i3.LocationPermission>);
+  _i5.Future<_i3.LocationPermission> checkPermission() => (super.noSuchMethod(
+        Invocation.method(#checkPermission, []),
+        returnValue: _i5.Future<_i3.LocationPermission>.value(
+          _i3.LocationPermission.denied,
+        ),
+      ) as _i5.Future<_i3.LocationPermission>);
 
   @override
-  _i5.Future<_i3.LocationPermission> requestPermission() =>
-      (super.noSuchMethod(
-            Invocation.method(#requestPermission, []),
-            returnValue: _i5.Future<_i3.LocationPermission>.value(
-              _i3.LocationPermission.denied,
-            ),
-          )
-          as _i5.Future<_i3.LocationPermission>);
+  _i5.Future<_i3.LocationPermission> requestPermission() => (super.noSuchMethod(
+        Invocation.method(#requestPermission, []),
+        returnValue: _i5.Future<_i3.LocationPermission>.value(
+          _i3.LocationPermission.denied,
+        ),
+      ) as _i5.Future<_i3.LocationPermission>);
 
   @override
-  _i5.Future<bool> isLocationServiceEnabled() =>
-      (super.noSuchMethod(
-            Invocation.method(#isLocationServiceEnabled, []),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
+  _i5.Future<bool> isLocationServiceEnabled() => (super.noSuchMethod(
+        Invocation.method(#isLocationServiceEnabled, []),
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
   _i5.Future<_i3.Position?> getLastKnownPosition({
     bool? forceLocationManager = false,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#getLastKnownPosition, [], {
-              #forceLocationManager: forceLocationManager,
-            }),
-            returnValue: _i5.Future<_i3.Position?>.value(),
-          )
-          as _i5.Future<_i3.Position?>);
+        Invocation.method(#getLastKnownPosition, [], {
+          #forceLocationManager: forceLocationManager,
+        }),
+        returnValue: _i5.Future<_i3.Position?>.value(),
+      ) as _i5.Future<_i3.Position?>);
 
   @override
   _i5.Future<_i3.Position> getCurrentPosition({
     _i3.LocationSettings? locationSettings,
   }) =>
       (super.noSuchMethod(
+        Invocation.method(#getCurrentPosition, [], {
+          #locationSettings: locationSettings,
+        }),
+        returnValue: _i5.Future<_i3.Position>.value(
+          _FakePosition_4(
+            this,
             Invocation.method(#getCurrentPosition, [], {
               #locationSettings: locationSettings,
             }),
-            returnValue: _i5.Future<_i3.Position>.value(
-              _FakePosition_4(
-                this,
-                Invocation.method(#getCurrentPosition, [], {
-                  #locationSettings: locationSettings,
-                }),
-              ),
-            ),
-          )
-          as _i5.Future<_i3.Position>);
+          ),
+        ),
+      ) as _i5.Future<_i3.Position>);
 
   @override
-  _i5.Stream<_i3.ServiceStatus> getServiceStatusStream() =>
-      (super.noSuchMethod(
-            Invocation.method(#getServiceStatusStream, []),
-            returnValue: _i5.Stream<_i3.ServiceStatus>.empty(),
-          )
-          as _i5.Stream<_i3.ServiceStatus>);
+  _i5.Stream<_i3.ServiceStatus> getServiceStatusStream() => (super.noSuchMethod(
+        Invocation.method(#getServiceStatusStream, []),
+        returnValue: _i5.Stream<_i3.ServiceStatus>.empty(),
+      ) as _i5.Stream<_i3.ServiceStatus>);
 
   @override
   _i5.Stream<_i3.Position> getPositionStream({
     _i3.LocationSettings? locationSettings,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#getPositionStream, [], {
-              #locationSettings: locationSettings,
-            }),
-            returnValue: _i5.Stream<_i3.Position>.empty(),
-          )
-          as _i5.Stream<_i3.Position>);
+        Invocation.method(#getPositionStream, [], {
+          #locationSettings: locationSettings,
+        }),
+        returnValue: _i5.Stream<_i3.Position>.empty(),
+      ) as _i5.Stream<_i3.Position>);
 
   @override
   _i5.Future<_i3.LocationAccuracyStatus> requestTemporaryFullAccuracy({
     required String? purposeKey,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#requestTemporaryFullAccuracy, [], {
-              #purposeKey: purposeKey,
-            }),
-            returnValue: _i5.Future<_i3.LocationAccuracyStatus>.value(
-              _i3.LocationAccuracyStatus.reduced,
-            ),
-          )
-          as _i5.Future<_i3.LocationAccuracyStatus>);
+        Invocation.method(#requestTemporaryFullAccuracy, [], {
+          #purposeKey: purposeKey,
+        }),
+        returnValue: _i5.Future<_i3.LocationAccuracyStatus>.value(
+          _i3.LocationAccuracyStatus.reduced,
+        ),
+      ) as _i5.Future<_i3.LocationAccuracyStatus>);
 
   @override
   _i5.Future<_i3.LocationAccuracyStatus> getLocationAccuracy() =>
       (super.noSuchMethod(
-            Invocation.method(#getLocationAccuracy, []),
-            returnValue: _i5.Future<_i3.LocationAccuracyStatus>.value(
-              _i3.LocationAccuracyStatus.reduced,
-            ),
-          )
-          as _i5.Future<_i3.LocationAccuracyStatus>);
+        Invocation.method(#getLocationAccuracy, []),
+        returnValue: _i5.Future<_i3.LocationAccuracyStatus>.value(
+          _i3.LocationAccuracyStatus.reduced,
+        ),
+      ) as _i5.Future<_i3.LocationAccuracyStatus>);
 
   @override
-  _i5.Future<bool> openAppSettings() =>
-      (super.noSuchMethod(
-            Invocation.method(#openAppSettings, []),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
+  _i5.Future<bool> openAppSettings() => (super.noSuchMethod(
+        Invocation.method(#openAppSettings, []),
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
-  _i5.Future<bool> openLocationSettings() =>
-      (super.noSuchMethod(
-            Invocation.method(#openLocationSettings, []),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
+  _i5.Future<bool> openLocationSettings() => (super.noSuchMethod(
+        Invocation.method(#openLocationSettings, []),
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
   double distanceBetween(
@@ -432,15 +384,14 @@ class MockGeolocatorPlatform extends _i1.Mock
     double? endLongitude,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#distanceBetween, [
-              startLatitude,
-              startLongitude,
-              endLatitude,
-              endLongitude,
-            ]),
-            returnValue: 0.0,
-          )
-          as double);
+        Invocation.method(#distanceBetween, [
+          startLatitude,
+          startLongitude,
+          endLatitude,
+          endLongitude,
+        ]),
+        returnValue: 0.0,
+      ) as double);
 
   @override
   double bearingBetween(
@@ -450,13 +401,12 @@ class MockGeolocatorPlatform extends _i1.Mock
     double? endLongitude,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#bearingBetween, [
-              startLatitude,
-              startLongitude,
-              endLatitude,
-              endLongitude,
-            ]),
-            returnValue: 0.0,
-          )
-          as double);
+        Invocation.method(#bearingBetween, [
+          startLatitude,
+          startLongitude,
+          endLatitude,
+          endLongitude,
+        ]),
+        returnValue: 0.0,
+      ) as double);
 }

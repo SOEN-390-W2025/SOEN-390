@@ -143,14 +143,16 @@ void main() {
       test('returns error message if service disabled', () async {
         service = false;
         // should return an error
-        expect(IndoorRoutingService.getRoundedLocation(), throwsA('Location services are disabled.'));
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location services are disabled.'));
       });
 
       test('returns error message if service disabled', () async {
         service = true;
         permission = 1;
         // should return an error
-        expect(IndoorRoutingService.getRoundedLocation(), throwsA('Location permissions are denied.'));
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location permissions are denied.'));
       });
     });
   });

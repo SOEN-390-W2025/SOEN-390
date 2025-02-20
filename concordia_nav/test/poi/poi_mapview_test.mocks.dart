@@ -32,18 +32,14 @@ class MockPOIRepository extends _i1.Mock implements _i2.POIRepository {
   }
 
   @override
-  _i3.Future<String>? Function(String) get loadString =>
-      (super.noSuchMethod(
-            Invocation.getter(#loadString),
-            returnValue: (String path) => null,
-          )
-          as _i3.Future<String>? Function(String));
+  _i3.Future<String>? Function(String) get loadString => (super.noSuchMethod(
+        Invocation.getter(#loadString),
+        returnValue: (String path) => null,
+      ) as _i3.Future<String>? Function(String));
 
   @override
-  _i3.Future<List<_i4.POIModel>> fetchPOIData() =>
-      (super.noSuchMethod(
-            Invocation.method(#fetchPOIData, []),
-            returnValue: _i3.Future<List<_i4.POIModel>>.value(<_i4.POIModel>[]),
-          )
-          as _i3.Future<List<_i4.POIModel>>);
+  _i3.Future<List<_i4.POIModel>> fetchPOIData() => (super.noSuchMethod(
+        Invocation.method(#fetchPOIData, []),
+        returnValue: _i3.Future<List<_i4.POIModel>>.value(<_i4.POIModel>[]),
+      ) as _i3.Future<List<_i4.POIModel>>);
 }

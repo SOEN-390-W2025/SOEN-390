@@ -3,7 +3,6 @@ import '../utils/map_viewmodel.dart';
 import './search_bar.dart';
 import './map_control_buttons.dart';
 
-
 class MapLayout extends StatelessWidget {
   final TextEditingController? searchController;
   final Widget mapWidget;
@@ -23,7 +22,8 @@ class MapLayout extends StatelessWidget {
     return Stack(
       children: [
         mapWidget,
-        if (searchController != null) // Only add SearchBarWidget if controller is not null
+        if (searchController !=
+            null) // Only add SearchBarWidget if controller is not null
           Positioned(
             top: 10,
             left: 15,
@@ -35,10 +35,13 @@ class MapLayout extends StatelessWidget {
               iconColor: Colors.black,
             ),
           ),
-                // Map control buttons and building info drawer if mapViewModel is not null
+        // Map control buttons and building info drawer if mapViewModel is not null
         if (mapViewModel != null) ...[
           // Buttons for controlling the map (zoom in/out)
-          MapControllerButtons(mapViewModel: mapViewModel!, style: style,),
+          MapControllerButtons(
+            mapViewModel: mapViewModel!,
+            style: style,
+          ),
         ]
       ],
     );

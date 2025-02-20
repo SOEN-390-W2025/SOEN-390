@@ -26,7 +26,7 @@ import 'package:mockito/mockito.dart' as _i1;
 class _FakeDeviceCalendarPlugin_0 extends _i1.SmartFake
     implements _i2.DeviceCalendarPlugin {
   _FakeDeviceCalendarPlugin_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [CalendarRepository].
@@ -39,39 +39,33 @@ class MockCalendarRepository extends _i1.Mock
   }
 
   @override
-  _i2.DeviceCalendarPlugin get plugin =>
-      (super.noSuchMethod(
-            Invocation.getter(#plugin),
-            returnValue: _FakeDeviceCalendarPlugin_0(
-              this,
-              Invocation.getter(#plugin),
-            ),
-          )
-          as _i2.DeviceCalendarPlugin);
+  _i2.DeviceCalendarPlugin get plugin => (super.noSuchMethod(
+        Invocation.getter(#plugin),
+        returnValue: _FakeDeviceCalendarPlugin_0(
+          this,
+          Invocation.getter(#plugin),
+        ),
+      ) as _i2.DeviceCalendarPlugin);
 
   @override
   set plugin(_i2.DeviceCalendarPlugin? _plugin) => super.noSuchMethod(
-    Invocation.setter(#plugin, _plugin),
-    returnValueForMissingStub: null,
-  );
+        Invocation.setter(#plugin, _plugin),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  _i4.Future<bool> checkPermissions() =>
-      (super.noSuchMethod(
-            Invocation.method(#checkPermissions, []),
-            returnValue: _i4.Future<bool>.value(false),
-          )
-          as _i4.Future<bool>);
+  _i4.Future<bool> checkPermissions() => (super.noSuchMethod(
+        Invocation.method(#checkPermissions, []),
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
 
   @override
-  _i4.Future<List<_i3.UserCalendar>> getUserCalendars() =>
-      (super.noSuchMethod(
-            Invocation.method(#getUserCalendars, []),
-            returnValue: _i4.Future<List<_i3.UserCalendar>>.value(
-              <_i3.UserCalendar>[],
-            ),
-          )
-          as _i4.Future<List<_i3.UserCalendar>>);
+  _i4.Future<List<_i3.UserCalendar>> getUserCalendars() => (super.noSuchMethod(
+        Invocation.method(#getUserCalendars, []),
+        returnValue: _i4.Future<List<_i3.UserCalendar>>.value(
+          <_i3.UserCalendar>[],
+        ),
+      ) as _i4.Future<List<_i3.UserCalendar>>);
 
   @override
   _i4.Future<List<_i3.UserCalendarEvent>> getEvents(
@@ -80,16 +74,15 @@ class MockCalendarRepository extends _i1.Mock
     DateTime? utcStart,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#getEvents, [
-              selectedCalendars,
-              timeSpan,
-              utcStart,
-            ]),
-            returnValue: _i4.Future<List<_i3.UserCalendarEvent>>.value(
-              <_i3.UserCalendarEvent>[],
-            ),
-          )
-          as _i4.Future<List<_i3.UserCalendarEvent>>);
+        Invocation.method(#getEvents, [
+          selectedCalendars,
+          timeSpan,
+          utcStart,
+        ]),
+        returnValue: _i4.Future<List<_i3.UserCalendarEvent>>.value(
+          <_i3.UserCalendarEvent>[],
+        ),
+      ) as _i4.Future<List<_i3.UserCalendarEvent>>);
 
   @override
   _i4.Future<List<_i3.UserCalendarEvent>> getEventsOnLocalDate(
@@ -97,13 +90,12 @@ class MockCalendarRepository extends _i1.Mock
     int? offset,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#getEventsOnLocalDate, [
-              selectedCalendars,
-              offset,
-            ]),
-            returnValue: _i4.Future<List<_i3.UserCalendarEvent>>.value(
-              <_i3.UserCalendarEvent>[],
-            ),
-          )
-          as _i4.Future<List<_i3.UserCalendarEvent>>);
+        Invocation.method(#getEventsOnLocalDate, [
+          selectedCalendars,
+          offset,
+        ]),
+        returnValue: _i4.Future<List<_i3.UserCalendarEvent>>.value(
+          <_i3.UserCalendarEvent>[],
+        ),
+      ) as _i4.Future<List<_i3.UserCalendarEvent>>);
 }

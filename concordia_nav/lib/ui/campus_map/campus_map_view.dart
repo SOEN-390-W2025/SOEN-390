@@ -9,7 +9,7 @@ class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
   final MapViewModel? mapViewModel;
 
-  const   CampusMapPage({super.key, required this.campus, this.mapViewModel});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
   // ignore: no_logic_in_create_state
@@ -63,7 +63,9 @@ class CampusMapPageState extends State<CampusMapPage> {
         actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
         onActionPressed: () {
           setState(() {
-            _currentCampus = _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
+            _currentCampus = _currentCampus == ConcordiaCampus.sgw
+                ? ConcordiaCampus.loy
+                : ConcordiaCampus.sgw;
           });
           _loadMapData();
         },
