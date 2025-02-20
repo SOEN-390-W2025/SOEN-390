@@ -7,8 +7,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import '../directions/outdoor_directions_test.mocks.dart';
 import 'map_service_test.mocks.dart';
-import 'outdoor_directions_test.mocks.dart';
 
 // Generate mocks for GoogleMapController
 @GenerateMocks([GoogleMapController, MapService, GeolocatorPlatform])

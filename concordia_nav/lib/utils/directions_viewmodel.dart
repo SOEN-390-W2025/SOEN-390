@@ -3,8 +3,18 @@ import '../data/services/outdoor_directions_service.dart';
 import '../data/services/map_service.dart';
 
 class DirectionsViewModel {
-  final ODSDirectionsService _directionsService = ODSDirectionsService();
-  final MapService _mapService = MapService();
+  ODSDirectionsService _directionsService = ODSDirectionsService();
+  MapService _mapService = MapService();
+
+  /// Allows setting a custom directions service (for testing).
+  set directionsService(ODSDirectionsService service) {
+    _directionsService = service;
+  }
+
+  /// Allows setting a custom map service (for testing).
+  set mapService(MapService service) {
+    _mapService = service;
+  }
 
   /// Returns a polyline (as a list of LatLng) for the given route.
   /// If no origin is provided, the current location is fetched.

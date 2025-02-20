@@ -10,7 +10,7 @@ import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'map_viewmodel_test.mocks.dart';
+import '../map/map_viewmodel_test.mocks.dart';
 import 'outdoor_directions_test.mocks.dart';
 
 @GenerateMocks([gda.DirectionsService, ODSDirectionsService])
