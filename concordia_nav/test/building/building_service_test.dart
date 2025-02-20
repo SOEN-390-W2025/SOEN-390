@@ -68,6 +68,13 @@ void main () {
       expect(result, isA<List<String>>());
       expect(result.contains('Faubourg Tower'), false);
       expect(result.contains('Loyola Chapel'), true);
+
+      // get empty list for invalid campus
+      const downtown = ConcordiaCampus(45.50633503668689, -73.57066983419425, "downtown", null, null, null, null, 'dtn');
+      result = buildingService.getBuildingNamesForCampus(downtown);
+
+      // check that we get empty list
+      expect(result.length, 0);
     });
 
     test('getBuildingLocationByAbbreviation returns location of building', () {

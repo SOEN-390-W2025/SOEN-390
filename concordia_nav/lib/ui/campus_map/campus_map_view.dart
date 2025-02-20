@@ -79,6 +79,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                   _currentCampus =
                       _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
                   _loadMapData();
+                  _mapViewModel.unselectBuilding();
                 });
               },
             ),

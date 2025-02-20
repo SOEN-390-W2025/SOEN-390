@@ -18,24 +18,5 @@ void main() {
       expect(find.byIcon(Icons.map), findsOneWidget); // finds indoor map button
       expect(find.text(BuildingRepository.ad.name), findsOneWidget);
     });
-/*
-    testWidgets('can open drawer', (WidgetTester tester) async {
-      // 
-
-    });
-
-    testWidgets('can close drawer', (WidgetTester tester) async {
-      // Build the buildinginfodrawer widget
-      await tester.pumpWidget(MaterialApp(home: BuildingInfoDrawer(
-        building: BuildingRepository.ad, 
-        onClose: MapViewModel().unselectBuilding)));
-
-      // find close button
-      expect(find.byIcon(Icons.close), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(DraggableScrollableSheet), findsNothing);
-    });*/
   });
 }
