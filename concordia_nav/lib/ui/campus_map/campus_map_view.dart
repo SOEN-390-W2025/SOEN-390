@@ -82,6 +82,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                       : ConcordiaCampus.sgw;
                 });
                 _loadMapData();
+                _mapViewModel.unselectBuilding();
               },
             ),
             body: FutureBuilder<CameraPosition>(
