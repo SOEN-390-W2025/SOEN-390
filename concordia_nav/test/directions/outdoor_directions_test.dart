@@ -98,7 +98,9 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    when(mockMapViewModel.fetchRoute(any, any)).thenAnswer((_) async {});
+    when(mockMapViewModel.fetchRoute(any, any)).thenAnswer((_) async {
+      return;
+    });
 
     // Build the widget tree
     await tester.pumpWidget(MaterialApp(

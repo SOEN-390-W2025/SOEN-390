@@ -80,13 +80,11 @@ class CampusMapPageState extends State<CampusMapPage> {
                   _currentCampus = _currentCampus == ConcordiaCampus.sgw
                       ? ConcordiaCampus.loy
                       : ConcordiaCampus.sgw;
-                  _loadMapData();
-                  _mapViewModel.unselectBuilding();
                 });
+                _loadMapData();
               },
             ),
             body: FutureBuilder<CameraPosition>(
-              /// Fetches the initial camera position for the given campus.
               future: _mapViewModel.getInitialCameraPosition(_currentCampus),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -95,6 +93,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                 if (snapshot.hasError) {
                   return const Center(child: Text('Error loading campus map'));
                 }
+
                 return FutureBuilder<Map<String, dynamic>>(
                     future: _mapViewModel
                         .getCampusPolygonsAndLabels(_currentCampus),

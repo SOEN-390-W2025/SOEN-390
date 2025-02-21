@@ -17,13 +17,15 @@ class OutdoorLocationMapView extends StatefulWidget {
   State<OutdoorLocationMapView> createState() => _OutdoorLocationMapViewState();
 }
 
-class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
+class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
+    with WidgetsBindingObserver {
   late MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
   final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
+  bool _isKeyboardVisible = false;
 
   @override
   void initState() {
@@ -39,9 +41,28 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
         _locationPermissionGranted = hasPermission;
       });
     });
+
+    WidgetsBinding.instance
+        .addObserver(this); // Start observing keyboard changes
   }
 
-  /// Triggers the route fetching and updates the map with the new polyline and destination marker.
+  @override
+  void dispose() {
+    _sourceController.dispose();
+    _destinationController.dispose();
+    WidgetsBinding.instance
+        .removeObserver(this); // Remove observer to prevent memory leaks
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    setState(() {
+      _isKeyboardVisible = bottomInset > 1;
+    });
+  }
+
   Future<void> _getDirections() async {
     try {
       await _mapViewModel.fetchRoute(
@@ -134,15 +155,16 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
               iconColor: const Color(0xFFDA3A16),
             ),
           ),
-          Positioned(
-            bottom: 30,
-            left: 15,
-            right: 15,
-            child: ElevatedButton(
-              onPressed: _getDirections,
-              child: const Text('Get Directions'),
+          if (_isKeyboardVisible) // Show button only when keyboard is visible
+            Positioned(
+              bottom: 30,
+              left: 15,
+              right: 15,
+              child: ElevatedButton(
+                onPressed: _getDirections,
+                child: const Text('Get Directions'),
+              ),
             ),
-          ),
         ],
       ),
     );
