@@ -1,5 +1,11 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter/services.dart';
 import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
+
+typedef LoadStringFunction = Future<String> Function(String);
 
 class BuildingRepository {
   static const ConcordiaBuilding h = ConcordiaBuilding(
@@ -189,7 +195,7 @@ class BuildingRepository {
       "Montreal",
       "QC",
       loyolaPC,
-      "hu",
+      "HU",
       ConcordiaCampus.loy);
 
   static Map<String, List<ConcordiaBuilding>> buildingByCampusAbbreviation = {
@@ -216,4 +222,56 @@ class BuildingRepository {
     (BuildingRepository.cc.abbreviation): cc,
     (BuildingRepository.hu.abbreviation): hu,
   };
+
+  /// Helper method to load polygons and label positions from a specified path.
+  static Future<Map<String, dynamic>> _loadPolygonsAndLabels(String path) async {
+    try {
+      final String jsonString = await rootBundle.loadString(path);
+      final Map<String, dynamic> jsonData = json.decode(jsonString);
+
+      final Map<String, List<LatLng>> polygons = {};
+      final Map<String, LatLng> labelPositions = {};
+
+      jsonData.forEach((abbr, coordinates) {
+        if (buildingByAbbreviation.containsKey(abbr)) {
+          final List<LatLng> points = (coordinates as List)
+              .map((coord) => LatLng(coord[0], coord[1]))
+              .toList();
+
+          polygons[abbr] = points;
+          labelPositions[abbr] = _calculateBoundsCenter(points);
+        }
+      });
+
+      return {"polygons": polygons, "labels": labelPositions};
+    } on Error catch (e) {
+      if (kDebugMode) {
+        print('Error loading building polygons and labels: $e');
+      }
+      return {"polygons": {}, "labels": {}};
+    }
+  }
+
+  /// Loads polygons and label positions (centroids for markers) from assets for a specific campus.
+  static Future<Map<String, dynamic>> loadBuildingPolygonsAndLabels(String campusName) async {
+    final String path = 'assets/maps/outdoor/$campusName/polygons.json';
+    return await _loadPolygonsAndLabels(path);
+  }
+
+  /// Loads all polygons and label positions (centroids for markers) from assets.
+  static Future<Map<String, dynamic>> loadAllBuildingPolygonsAndLabels() async {
+    const String path = 'assets/maps/outdoor/all/polygons.json';
+    return await _loadPolygonsAndLabels(path);
+  }
+  
+  /// Uses LatLngBounds to find the center (centroid) of a polygon.
+  static LatLng _calculateBoundsCenter(List<LatLng> points) {
+    double sumLat = 0;
+    double sumLng = 0;
+    for (LatLng point in points) {
+      sumLat += point.latitude;
+      sumLng += point.longitude;
+    }
+    return LatLng(sumLat / points.length, sumLng / points.length);
+  }
 }

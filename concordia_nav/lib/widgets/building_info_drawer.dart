@@ -7,13 +7,15 @@ class BuildingInfoDrawer extends StatefulWidget {
   final ConcordiaBuilding building;
   final VoidCallback onClose;
 
-  const BuildingInfoDrawer({super.key, required this.building, required this.onClose});
+  const BuildingInfoDrawer(
+      {super.key, required this.building, required this.onClose});
 
   @override
   State<BuildingInfoDrawer> createState() => _BuildingInfoDrawerState();
 }
 
-class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTickerProviderStateMixin {
+class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
+    with SingleTickerProviderStateMixin {
   late BuildingInfoDrawerViewModel drawerViewModel;
 
   /// Initializes the animation controller and slide animation.
@@ -37,19 +39,24 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
   /// the building name, address, and close button.
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
     return SlideTransition(
       position: drawerViewModel.slideAnimation,
       child: DraggableScrollableSheet(
-        initialChildSize: 0.24,
-        minChildSize: 0.1,
-        maxChildSize: 0.25,
+        initialChildSize: 0.3,
+        minChildSize: 0.15,
+        maxChildSize: 0.3,
         builder: (context, scrollController) {
           return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
+            padding: EdgeInsets.symmetric(
+                horizontal: screenHeight * 0.02, vertical: screenHeight * 0.02),
+            decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
+              borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(screenHeight * 0.02)),
+              boxShadow: const [
+                BoxShadow(color: Colors.black26, blurRadius: 5)
+              ],
             ),
             child: ListView(
               controller: scrollController,
@@ -61,22 +68,30 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                     Expanded(
                       child: Text(
                         widget.building.name,
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: screenHeight * 0.028,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
+
                     /// The close button is displayed on the right side of the header.
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () {
-                        drawerViewModel.closeDrawer(widget.onClose); // Close with animation
+                        drawerViewModel.closeDrawer(
+                            widget.onClose); // Close with animation
                       },
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: screenHeight * 0.01),
+
                 /// The building address is displayed below the name.
-                Text("${widget.building.streetAddress}, ${widget.building.city}, ${widget.building.province} ${widget.building.postalCode}"),
-                const SizedBox(height: 16),
+                Text(
+                  "${widget.building.streetAddress}, ${widget.building.city}, ${widget.building.province} ${widget.building.postalCode}",
+                  style: TextStyle(fontSize: screenHeight * 0.018),
+                ),
+                SizedBox(height: screenHeight * 0.02),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -94,20 +109,33 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer> with SingleTick
                         );
                       },
                       icon: const Icon(Icons.directions, color: Colors.white),
-                      label: const Text("Directions", style: TextStyle(color: Colors.white)),
+                      label: Text("Directions",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: screenHeight * 0.018)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenHeight * 0.03,
+                            vertical: screenHeight * 0.015),
                       ),
                     ),
+
                     /// The "Indoor Map" button is displayed on the right side of the footer.
                     ElevatedButton.icon(
                       onPressed: () {
                         // TODO: Implement navigation to indoor maps feature
                       },
                       icon: const Icon(Icons.map, color: Colors.white),
-                      label: const Text("Indoor Map", style: TextStyle(color: Colors.white)),
+                      label: Text("Indoor Map",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: screenHeight * 0.018)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenHeight * 0.03,
+                            vertical: screenHeight * 0.015),
                       ),
                     ),
                   ],

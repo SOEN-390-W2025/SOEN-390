@@ -13,9 +13,11 @@ import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
 import 'ui/themes/app_theme.dart';
 import 'widgets/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
 
@@ -29,12 +31,16 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(),
+        '/': (context) => SplashScreen(),
         '/HomePage': (context) => const HomePage(),
-        '/CampusMapPage': (context) => CampusMapPage(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+        '/CampusMapPage': (context) => CampusMapPage(
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
         '/IndoorLocationView': (context) => const IndoorLocationView(),
         '/IndoorMapView': (context) => const IndoorMapView(),
-        '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+        '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
         '/POIChoiceView': (context) => const POIChoiceView(),
         '/POIMapView': (context) => const POIMapView(),
         '/AccessibilityPage': (context) => const AccessibilityPage(),

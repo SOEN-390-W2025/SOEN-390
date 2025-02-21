@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
+
 class HomePage extends StatelessWidget {
   final Function? onAppBarActionPressed;
 

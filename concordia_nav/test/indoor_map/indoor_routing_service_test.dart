@@ -2,6 +2,7 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/services/indoor_routing_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,7 +11,10 @@ import 'package:mockito/mockito.dart';
 import 'indoor_routing_service_test.mocks.dart';
 
 @GenerateMocks([GeolocatorPlatform])
-void main() {
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   group('IndoorRoutingService', () {
     test('should return null when Geolocator throws an exception', () async {
       // Arrange
@@ -40,6 +44,10 @@ void main() {
         speedAccuracy: 10.0,
         altitudeAccuracy: 10.0,
         headingAccuracy: 10.0);
+    // ref to permission integers: https://github.com/Baseflow/flutter-geolocator/blob/main/geolocator_platform_interface/lib/src/extensions/integer_extensions.dart
+    var permission = 3; // permission set to accept
+    const request = 3; // request permission set to accept
+    var service = true; // locationService set to true
 
     // ensure plugin is initialized
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +57,7 @@ void main() {
     Future locationHandler(MethodCall methodCall) async {
       // grants access to location permissions
       if (methodCall.method == 'requestPermission') {
-        return 3;
+        return request;
       }
       // return testPosition when searching for the current location
       if (methodCall.method == 'getCurrentPosition') {
@@ -57,11 +65,11 @@ void main() {
       }
       // set to true when device tries to check for permissions
       if (methodCall.method == 'isLocationServiceEnabled') {
-        return true;
+        return service;
       }
       // returns authorized when checking for location permissions
       if (methodCall.method == 'checkPermission') {
-        return 3;
+        return permission;
       }
     }
 
@@ -134,6 +142,21 @@ void main() {
             headingAccuracy: 0.0);
         final res = await IndoorRoutingService.getRoundedLocation();
         expect(res, null); // should return null
+      });
+
+      test('returns error message if service disabled', () async {
+        service = false;
+        // should return an error
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location services are disabled.'));
+      });
+
+      test('returns error message if service disabled', () async {
+        service = true;
+        permission = 1;
+        // should return an error
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location permissions are denied.'));
       });
     });
   });

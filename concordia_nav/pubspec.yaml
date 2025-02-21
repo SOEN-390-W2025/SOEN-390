@@ -34,11 +34,11 @@ scripts:
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
   coverage: flutter test --coverage --branch-coverage
-  run: flutter run --dart-define-from-file=../.env
+  run: flutter run --dart-define-from-file=./.env
   clean: flutter clean
   build:
     android:
-      $script: flutter build apk --dart-define-from-file=../.env
+      $script: flutter build apk --dart-define-from-file=./.env
       $description: Build the android app. Can pass --debug or --release flag. (Default --release)
     ios: flutter build ipa
   install:
@@ -62,6 +62,9 @@ dependencies:
   google_maps_flutter: ^2.10.0
   flutter_env_native: ^0.1.0
   geolocator: ^13.0.2
+  google_directions_api: ^0.10.0
+  flutter_polyline_points: ^2.1.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -93,9 +96,43 @@ flutter:
   # Note: any other .env files, ex. a file named .env.prod, should be declared
   # under assets as well.
   assets:
-    - assets/images/
+    - .env
     - assets/config/
-    - ../.env
+    - assets/images/
+    - assets/maps/outdoor/all/polygons.json
+    - assets/maps/outdoor/sgw/polygons.json
+    - assets/maps/outdoor/loy/polygons.json
+    - assets/icons/default.png
+    - assets/icons/destination.png
+    - assets/icons/AD.png
+    - assets/icons/CC.png
+    - assets/icons/CJ.png
+    - assets/icons/CL.png
+    - assets/icons/EV.png
+    - assets/icons/ER.png
+    - assets/icons/FB.png
+    - assets/icons/FC.png
+    - assets/icons/FG.png
+    - assets/icons/GE.png
+    - assets/icons/GM.png
+    - assets/icons/HA.png
+    - assets/icons/H.png
+    - assets/icons/HU.png
+    - assets/icons/LB.png
+    - assets/icons/LS.png
+    - assets/icons/MB.png
+    - assets/icons/PC.png
+    - assets/icons/PS.png
+    - assets/icons/PT.png
+    - assets/icons/PY.png
+    - assets/icons/RA.png
+    - assets/icons/RF.png
+    - assets/icons/SC.png
+    - assets/icons/SP.png
+    - assets/icons/TD.png
+    - assets/icons/VA.png
+    - assets/icons/VE.png
+    - assets/icons/VL.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
