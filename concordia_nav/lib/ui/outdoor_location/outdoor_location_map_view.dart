@@ -57,7 +57,7 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   @override
   void didChangeMetrics() {
-    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    final bottomInset = View.of(context).viewInsets.bottom;
     setState(() {
       _isKeyboardVisible = bottomInset > 1;
     });
