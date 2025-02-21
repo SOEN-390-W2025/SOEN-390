@@ -14,10 +14,10 @@ class OutdoorLocationMapView extends StatefulWidget {
       {super.key, required this.campus, this.mapViewModel});
 
   @override
-  State<OutdoorLocationMapView> createState() => _OutdoorLocationMapViewState();
+  State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
 }
 
-class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
+class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     with WidgetsBindingObserver {
   late MapViewModel _mapViewModel;
   late ConcordiaCampus _currentCampus;
@@ -25,7 +25,7 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   bool _locationPermissionGranted = false;
   final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
-  bool _isKeyboardVisible = false;
+  bool isKeyboardVisible = false;
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   void didChangeMetrics() {
     final bottomInset = View.of(context).viewInsets.bottom;
     setState(() {
-      _isKeyboardVisible = bottomInset > 1;
+      isKeyboardVisible = bottomInset > 1;
     });
   }
 
@@ -155,7 +155,7 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               iconColor: const Color(0xFFDA3A16),
             ),
           ),
-          if (_isKeyboardVisible) // Show button only when keyboard is visible
+          if (isKeyboardVisible) // Show button only when keyboard is visible
             Positioned(
               bottom: 30,
               left: 15,

@@ -98,9 +98,7 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    when(mockMapViewModel.fetchRoute(any, any)).thenAnswer((_) async {
-      return;
-    });
+    when(mockMapViewModel.fetchRoute(any, any)).thenAnswer((_) async {});
 
     // Build the widget tree
     await tester.pumpWidget(MaterialApp(
@@ -108,9 +106,25 @@ void main() async {
           campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
     ));
 
-    // Enter text in the search bar
+    // Enter text in the search bars
     await tester.enterText(find.byType(SearchBarWidget).first, origin);
     await tester.enterText(find.byType(SearchBarWidget).at(1), destination);
+
+    // Manually trigger a state change to simulate keyboard visibility
+    (tester.state<OutdoorLocationMapViewState>(
+            find.byType(OutdoorLocationMapView)))
+        // ignore: invalid_use_of_protected_member
+        .setState(() {
+      (tester.state<OutdoorLocationMapViewState>(
+              find.byType(OutdoorLocationMapView)))
+          .isKeyboardVisible = true;
+    });
+
+    // Pump the widget again to reflect the UI update
+    await tester.pump();
+
+    // Verify the button is now visible
+    expect(find.byType(ElevatedButton), findsOneWidget);
 
     // Tap the 'Get Directions' button
     await tester.tap(find.byType(ElevatedButton));
