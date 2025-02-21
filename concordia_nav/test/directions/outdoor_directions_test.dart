@@ -1,3 +1,4 @@
+import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:google_directions_api/google_directions_api.dart' as gda;
@@ -57,6 +58,9 @@ void main() async {
 
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
+
     when(mockMapViewModel.getCampusPolygonsAndLabels(any))
         .thenAnswer((_) async {
       return {
@@ -87,7 +91,13 @@ void main() async {
     const String origin = 'Current Location';
     const String destination = 'Destination Address';
 
-    // Mock fetchRoute to return successful result (we can just mock it returning nothing here)
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
     when(mockMapViewModel.fetchRoute(any, any)).thenAnswer((_) async {});
 
     // Build the widget tree
@@ -152,13 +162,13 @@ void main() async {
     // Mocking the getCampusPolygonsAndLabels method to return fake data
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
-    when(mockMapViewModel.getCampusPolygonsAndLabels(any))
-        .thenAnswer((_) async {
-      return {
-        "polygons": <Polygon>{const Polygon(polygonId: PolygonId('polygon1'))},
-        "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
-      };
-    });
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
 
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 

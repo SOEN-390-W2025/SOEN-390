@@ -1,17 +1,31 @@
+// ignore_for_file: prefer_final_fields, prefer_final_locals, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/services/map_service.dart';
+import '../data/domain-model/concordia_building.dart';
+import '../data/repositories/building_repository.dart';
+import '../data/services/building_service.dart';
 import '../data/services/helpers/icon_loader.dart';
 
-class MapViewModel {
-  final MapRepository _mapRepository;
-  final MapService _mapService;
+class MapViewModel extends ChangeNotifier {
+  MapRepository _mapRepository;
+  MapService _mapService;
+  BuildingService _buildingService = BuildingService();
 
-  MapViewModel({MapRepository? mapRepository, MapService? mapService})
+  // ignore: unused_field
+  GoogleMapController? _mapController;
+  ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier =
+      ValueNotifier<ConcordiaBuilding?>(null);
+
+  MapViewModel(
+      {MapRepository? mapRepository,
+      MapService? mapService,
+      BuildingService? buildingService})
       : _mapRepository = mapRepository ?? MapRepository(),
-        _mapService = mapService ?? MapService();
+        _mapService = mapService ?? MapService(),
+        _buildingService = buildingService ?? BuildingService();
 
   // Holds the current set of polylines to be rendered.
   Set<Polyline> _polylines = {};
@@ -69,6 +83,7 @@ class MapViewModel {
 
   /// Handles map creation and initializes the map service.
   void onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
     _mapService.setMapController(controller);
   }
 
@@ -82,10 +97,76 @@ class MapViewModel {
     _mapService.moveCamera(LatLng(campus.lat, campus.lng));
   }
 
-  /// Fetches both polygons and labeled icons for a given campus building.
+  /// Fetches polygons and campus markers from BuildingRepository for a specific campus or all campuses.
+  Future<Map<String, dynamic>> _getPolygonsAndLabels(
+      {String? campusName}) async {
+    Map<String, dynamic> data;
+
+    // If campusName is provided, load data for that specific campus, else load data for all campuses.
+    if (campusName != null) {
+      data = await BuildingRepository.loadBuildingPolygonsAndLabels(campusName);
+    } else {
+      data = await BuildingRepository.loadAllBuildingPolygonsAndLabels();
+    }
+
+    final Map<String, List<LatLng>> polygonsData = data["polygons"];
+    final Map<String, LatLng> labelPositions = data["labels"];
+
+    final Set<Polygon> polygonSet = polygonsData.entries.map((entry) {
+      return Polygon(
+        polygonId: PolygonId(entry.key),
+        points: entry.value,
+        strokeWidth: 3,
+        strokeColor: const Color(0xFFB48107),
+        fillColor: const Color(0xFFe5a712),
+        onTap: () {
+          // Handle onTap if needed
+        },
+      );
+    }).toSet();
+
+    // Load campus markers (placed at centroid of each building polygon)
+    final Set<Marker> labelMarkers = {};
+    for (var entry in labelPositions.entries) {
+      final BitmapDescriptor icon = await _mapService.getCustomIcon(entry.key);
+      labelMarkers.add(
+        Marker(
+          markerId: MarkerId(entry.key),
+          position: entry.value, // Use centroid as position
+          icon: icon,
+          onTap: () {
+            ConcordiaBuilding? building =
+                _buildingService.getBuildingByAbbreviation(entry.key);
+            selectBuilding(building!);
+          },
+        ),
+      );
+    }
+
+    return {"polygons": polygonSet, "labels": labelMarkers};
+  }
+
+  /// Fetches polygons and campus markers for a specific campus.
   Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-      ConcordiaCampus campus) {
-    return _mapService.getCampusPolygonsAndLabels(campus);
+      ConcordiaCampus campus) async {
+    final String campusName = (campus.name == "Loyola Campus") ? "loy" : "sgw";
+    return await _getPolygonsAndLabels(campusName: campusName);
+  }
+
+  /// Fetches polygons and campus markers for all campuses.
+  Future<Map<String, dynamic>> getAllCampusPolygonsAndLabels() async {
+    return await _getPolygonsAndLabels();
+  }
+
+  /// Sets the selected building and notifies listeners.
+  void selectBuilding(ConcordiaBuilding building) {
+    selectedBuildingNotifier.value = building;
+    notifyListeners();
+  }
+
+  void unselectBuilding() {
+    selectedBuildingNotifier.value = null;
+    notifyListeners();
   }
 
   /// Fetches the current location without moving the map.
@@ -101,6 +182,57 @@ class MapViewModel {
     final bool hasPermission =
         await _mapService.checkAndRequestLocationPermission();
     return hasPermission;
+  }
+
+  // Helper function to check if a point is inside a polygon
+  bool _isPointInPolygon(LatLng point, List<LatLng> polygon) {
+    int i, j = polygon.length - 1;
+    bool inside = false;
+
+    for (i = 0; i < polygon.length; j = i++) {
+      final LatLng pi = polygon[i];
+      final LatLng pj = polygon[j];
+
+      if ((pi.longitude > point.longitude) !=
+              (pj.longitude > point.longitude) &&
+          (point.latitude <
+              (pj.latitude - pi.latitude) *
+                      (point.longitude - pi.longitude) /
+                      (pj.longitude - pi.longitude) +
+                  pi.latitude)) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  }
+
+  Future<void> checkBuildingAtCurrentLocation(BuildContext? context) async {
+    final LatLng? currentLocation = await fetchCurrentLocation();
+    if (currentLocation == null) {
+      // Handle case where location is not available
+      return;
+    }
+
+    // Load the polygons and labels
+    final Map<String, dynamic> data =
+        await BuildingRepository.loadAllBuildingPolygonsAndLabels();
+    final Map<String, List<LatLng>> polygons = data['polygons'];
+
+    // Check each polygon to see if the current location is inside any of them
+    for (var entry in polygons.entries) {
+      final String buildingAbbr = entry.key;
+      final List<LatLng> polygon = entry.value;
+      if (_isPointInPolygon(currentLocation, polygon)) {
+        // If inside the polygon, get the building details and show the drawer
+        final ConcordiaBuilding? building =
+            _buildingService.getBuildingByAbbreviation(buildingAbbr);
+        selectBuilding(building!);
+        return;
+      }
+    }
+
+    // If not inside any building polygon, unselect building or show a default message
+    unselectBuilding();
   }
 
   /// Fetches current location and moves the camera.

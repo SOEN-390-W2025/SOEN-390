@@ -1,3 +1,4 @@
+import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
@@ -29,6 +30,9 @@ Future<void> main() async {
     splashScreenViewModel = SplashScreenViewModel();
     splashScreenViewModel =
         SplashScreenViewModel(mapViewModel: mockMapViewModel);
+
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
   });
 
   group('navigateBasedOnLocation', () {

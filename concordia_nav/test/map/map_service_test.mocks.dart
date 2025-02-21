@@ -52,8 +52,14 @@ class _FakeCameraPosition_3 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakePosition_4 extends _i1.SmartFake implements _i3.Position {
-  _FakePosition_4(Object parent, Invocation parentInvocation)
+class _FakeBitmapDescriptor_4 extends _i1.SmartFake
+    implements _i2.BitmapDescriptor {
+  _FakeBitmapDescriptor_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakePosition_5 extends _i1.SmartFake implements _i3.Position {
+  _FakePosition_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -243,16 +249,17 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
       );
 
   @override
-  _i5.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-    _i9.ConcordiaCampus? campus,
-  ) =>
+  _i5.Future<_i2.BitmapDescriptor> getCustomIcon(String? name) =>
       (super.noSuchMethod(
-            Invocation.method(#getCampusPolygonsAndLabels, [campus]),
-            returnValue: _i5.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
+            Invocation.method(#getCustomIcon, [name]),
+            returnValue: _i5.Future<_i2.BitmapDescriptor>.value(
+              _FakeBitmapDescriptor_4(
+                this,
+                Invocation.method(#getCustomIcon, [name]),
+              ),
             ),
           )
-          as _i5.Future<Map<String, dynamic>>);
+          as _i5.Future<_i2.BitmapDescriptor>);
 
   @override
   _i5.Future<void> zoomIn() =>
@@ -385,7 +392,7 @@ class MockGeolocatorPlatform extends _i1.Mock
               #locationSettings: locationSettings,
             }),
             returnValue: _i5.Future<_i3.Position>.value(
-              _FakePosition_4(
+              _FakePosition_5(
                 this,
                 Invocation.method(#getCurrentPosition, [], {
                   #locationSettings: locationSettings,

@@ -3,6 +3,7 @@ import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
 
 class MockRootBundle extends Mock {
@@ -22,6 +23,30 @@ void main() {
 
       // Check if the method returns the fallback value in case of error
       expect(result, {'polygons': {}, 'labels': {}});
+    });
+
+    test('loadBuildingPolygonsAndLabels for specific campus loads properly', () async {
+      // Call the method
+      final result = await BuildingRepository.loadBuildingPolygonsAndLabels('sgw');
+
+      // Check that the polygons map has the right type
+      expect(result['polygons'], isA<Map<String, List<LatLng>>>());
+      expect(result['polygons']['H'][0], const LatLng(45.49672, -73.578786));
+      // Check that the labels map has the right type
+      expect(result['labels'], isA<Map<String, LatLng>>());
+    });
+
+    test('loadAllBuildingPolygonsAndLabels loads properly', () async {
+      // Call the method
+      final result = await BuildingRepository.loadAllBuildingPolygonsAndLabels();
+
+      // Check that the polygons map has the right type
+      expect(result['polygons'], isA<Map<String, List<LatLng>>>());
+      expect(result['polygons']['H'][0], const LatLng(45.49672, -73.578786));
+      expect(result['polygons']['AD'][0], const LatLng(45.457967, -73.640003));
+      // Check that the labels map has the right type
+      expect(result['labels'], isA<Map<String, LatLng>>());
+      expect(result['labels']['AD'], const LatLng(45.45806941176471, -73.63977700000001));
     });
 
     test('get list of buildings by sgw campus abbreviation', () {

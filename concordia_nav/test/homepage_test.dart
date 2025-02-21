@@ -1,3 +1,4 @@
+import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
@@ -51,6 +52,8 @@ void main() async {
   setUp(() {
     mockMapViewModel = MockMapViewModel();
     mockMapService = MockMapService();
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
     when(mockMapViewModel.polylines).thenReturn(mockPolylines);
@@ -111,6 +114,9 @@ void main() async {
             mapViewModel: mockMapViewModel,
           ),
     };
+
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
 
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
@@ -271,6 +277,16 @@ void main() async {
           ),
     };
 
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
+
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
 

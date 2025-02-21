@@ -1,3 +1,4 @@
+import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,7 @@ Future<void> main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   late MockMapService mockMapService;
+  late MapViewModel realmapViewModel;
   late MapService realMapService;
   late MockGoogleMapController mockGoogleMapController;
   late MockODSDirectionsService mockODSdirectionsService;
@@ -23,6 +25,7 @@ Future<void> main() async {
 
   setUp(() {
     mockMapService = MockMapService();
+    realmapViewModel = MapViewModel();
     realMapService = MapService();
     mockGoogleMapController = MockGoogleMapController();
 
@@ -36,8 +39,8 @@ Future<void> main() async {
   group('MapService Tests', () {
     test('getCampusPolygonsAndLabels should return correct data', () async {
       // Act
-      final result =
-          await realMapService.getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
+      final result = await realmapViewModel
+          .getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
 
       // Assert
       expect(result['polygons'], isA<Set<Polygon>>());
@@ -165,64 +168,6 @@ Future<void> main() async {
           ),
         ),
       )).called(1);
-    });
-
-    test('getCampusMarkers should return a set of markers for given locations',
-        () async {
-      // Arrange
-      const campus = ConcordiaCampus.sgw;
-
-      // Mock polygon data for "EV" building
-      final List<LatLng> evPolygon = [
-        const LatLng(45.4951601, -73.5778544),
-        const LatLng(45.4958369, -73.5772375),
-        const LatLng(45.496057, -73.5777095),
-        const LatLng(45.4958955, -73.577867),
-        const LatLng(45.4957351, -73.5780097),
-        const LatLng(45.4959616, -73.5785005),
-        const LatLng(45.4956038, -73.5788334),
-        const LatLng(45.4951601, -73.5778544),
-      ];
-
-      // Compute centroid for EV polygon (for marker placement)
-      final double centroidLat =
-          evPolygon.map((p) => p.latitude).reduce((a, b) => a + b) /
-              evPolygon.length;
-      final double centroidLng =
-          evPolygon.map((p) => p.longitude).reduce((a, b) => a + b) /
-              evPolygon.length;
-      final LatLng evCentroid = LatLng(centroidLat, centroidLng);
-
-      // Expected polygon set
-      final Set<Polygon> mockPolygons = {
-        Polygon(
-          polygonId: const PolygonId("EV"),
-          points: evPolygon,
-          strokeWidth: 3,
-          strokeColor: const Color(0xFFB48107),
-          fillColor: const Color(0xFFe5a712),
-        ),
-      };
-
-      // Expected markers set
-      final Set<Marker> mockMarkers = {
-        Marker(
-          markerId: const MarkerId("EV"),
-          position: evCentroid,
-          icon: BitmapDescriptor.defaultMarker, // Mocked icon
-        ),
-      };
-
-      // Mock response
-      when(mockMapService.getCampusPolygonsAndLabels(campus)).thenAnswer(
-          (_) async => {"polygons": mockPolygons, "labels": mockMarkers});
-
-      // Act
-      final result = await mockMapService.getCampusPolygonsAndLabels(campus);
-
-      // Assert
-      expect(result["polygons"], equals(mockPolygons));
-      expect(result["labels"], equals(mockMarkers));
     });
   });
 

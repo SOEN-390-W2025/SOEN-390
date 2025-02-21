@@ -74,8 +74,7 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                 return const Center(child: Text('Error loading campus map'));
               }
               return FutureBuilder<Map<String, dynamic>>(
-                future:
-                    _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+                future: _mapViewModel.getAllCampusPolygonsAndLabels(),
                 builder: (context, polySnapshot) {
                   if (polySnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -98,11 +97,11 @@ class _OutdoorLocationMapViewState extends State<OutdoorLocationMapView> {
                     mapWidget: GoogleMap(
                       onMapCreated: _mapViewModel.onMapCreated,
                       initialCameraPosition: camSnapshot.data!,
+                      zoomControlsEnabled: false,
+                      polylines: _mapViewModel.polylines,
                       markers: labelMarkers,
                       polygons: polygons,
-                      polylines: _mapViewModel.polylines,
-                      myLocationButtonEnabled: true,
-                      zoomControlsEnabled: false,
+                      myLocationButtonEnabled: false,
                       buildingsEnabled: false,
                       myLocationEnabled: _locationPermissionGranted,
                     ),
