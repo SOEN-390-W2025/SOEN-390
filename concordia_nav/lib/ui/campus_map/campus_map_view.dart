@@ -10,7 +10,7 @@ class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
   final MapViewModel? mapViewModel;
 
-  const   CampusMapPage({super.key, required this.campus, this.mapViewModel});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
 
   @override
   // ignore: no_logic_in_create_state
@@ -56,6 +56,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   }
 
   @override
+
   /// Builds the campus map page.
   ///
   /// This page displays a map of a campus (e.g. SGW or LOY) and
@@ -76,15 +77,15 @@ class CampusMapPageState extends State<CampusMapPage> {
               actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
               onActionPressed: () {
                 setState(() {
-                  _currentCampus =
-                      _currentCampus == ConcordiaCampus.sgw ? ConcordiaCampus.loy : ConcordiaCampus.sgw;
-                  _loadMapData();
-                  _mapViewModel.unselectBuilding();
+                  _currentCampus = _currentCampus == ConcordiaCampus.sgw
+                      ? ConcordiaCampus.loy
+                      : ConcordiaCampus.sgw;
                 });
+                _loadMapData();
+                _mapViewModel.unselectBuilding();
               },
             ),
-            body:  FutureBuilder<CameraPosition>(
-              /// Fetches the initial camera position for the given campus.
+            body: FutureBuilder<CameraPosition>(
               future: _mapViewModel.getInitialCameraPosition(_currentCampus),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -93,28 +94,31 @@ class CampusMapPageState extends State<CampusMapPage> {
                 if (snapshot.hasError) {
                   return const Center(child: Text('Error loading campus map'));
                 }
-                return FutureBuilder<Map<String, dynamic>>(
-                  future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
-                  builder: (context, polySnapshot) {
-                    if (polySnapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
 
-                  return MapLayout(
-                    searchController: _searchController,
-                    mapWidget: GoogleMap(
-                      buildingsEnabled: false,
-                      onMapCreated: _mapViewModel.onMapCreated,
-                      initialCameraPosition: snapshot.data!,
-                      markers: _labelMarkers,
-                      polygons: _polygons,
-                      zoomControlsEnabled: false,
-                      myLocationButtonEnabled: false,
-                      myLocationEnabled: _locationPermissionGranted,
-                    ),
-                    mapViewModel: _mapViewModel,
-                  );
-                });
+                return FutureBuilder<Map<String, dynamic>>(
+                    future: _mapViewModel
+                        .getCampusPolygonsAndLabels(_currentCampus),
+                    builder: (context, polySnapshot) {
+                      if (polySnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return MapLayout(
+                        searchController: _searchController,
+                        mapWidget: GoogleMap(
+                          buildingsEnabled: false,
+                          onMapCreated: _mapViewModel.onMapCreated,
+                          initialCameraPosition: snapshot.data!,
+                          markers: _labelMarkers,
+                          polygons: _polygons,
+                          zoomControlsEnabled: false,
+                          myLocationButtonEnabled: false,
+                          myLocationEnabled: _locationPermissionGranted,
+                        ),
+                        mapViewModel: _mapViewModel,
+                      );
+                    });
               },
             ),
           );

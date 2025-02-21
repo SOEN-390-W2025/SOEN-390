@@ -1,17 +1,21 @@
+import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
-import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
 import 'map_viewmodel_test.mocks.dart';
 
-void main() {
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   group('Campus Class Tests', () {
-    late MapViewModel mapViewModel;
+    late MockMapViewModel mapViewModel;
 
     setUp(() {
       mapViewModel = MockMapViewModel();
@@ -28,6 +32,9 @@ void main() {
         zoom: 17.0,
       );
 
+      when(mapViewModel.selectedBuildingNotifier)
+          .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
+
       when(mapViewModel.getInitialCameraPosition(ConcordiaCampus.loy))
           .thenAnswer((_) async => expectedCameraPosition);
 
@@ -41,6 +48,14 @@ void main() {
           .thenAnswer((_) async => mockResponse);
 
       when(mapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+      when(mapViewModel.getAllCampusPolygonsAndLabels())
+          .thenAnswer((_) async => {
+                "polygons": <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+                "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+              });
     });
 
     testWidgets('CampusMapPage should render correctly with non-constant key',
@@ -96,7 +111,8 @@ void main() {
               campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel)));
       await tester.pumpAndSettle();
 
-      when(mapViewModel.checkBuildingAtCurrentLocation(argThat(isA<BuildContext>())))
+      when(mapViewModel
+              .checkBuildingAtCurrentLocation(argThat(isA<BuildContext>())))
           .thenAnswer((_) async => true);
 
       when(mapViewModel.moveToCurrentLocation(argThat(isA<BuildContext>())))

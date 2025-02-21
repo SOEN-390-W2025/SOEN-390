@@ -40,7 +40,7 @@
 
 ## Environment Variables
 
-Secrets and other configuration values are managed through environment variables. When developing locally, they can be configured by creating a `.env` file in the project's root (concordia_nav), the same location where `pubspec.yaml` is found.
+Secrets and other configuration values are managed through environment variables. When developing locally, they can be configured by creating a `.env` file in the project's root (`../concordia_nav`), the same location where `pubspec.yaml` is found.
 
 > **Note**: Default values should be optimized for local development, such that
 > a developer can clone and run the project successfully without having to
@@ -81,4 +81,3 @@ PRODUCT_BUNDLE_IDENTIFIER=com.YOURDOMAIN.concordia-nav
 APPLE_TEAM_ID=A1B2C3D4E5
 CONNAV_APP_NAME=Concordia Nav
 ```
-

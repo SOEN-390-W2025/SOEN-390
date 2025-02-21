@@ -1,5 +1,6 @@
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,28 +8,39 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import '../directions/outdoor_directions_test.mocks.dart';
 import 'map_service_test.mocks.dart';
 
 // Generate mocks for GoogleMapController
 @GenerateMocks([GoogleMapController, MapService, GeolocatorPlatform])
-void main() {
+Future<void> main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   late MockMapService mockMapService;
   late MapViewModel realmapViewModel;
   late MapService realMapService;
   late MockGoogleMapController mockGoogleMapController;
+  late MockODSDirectionsService mockODSdirectionsService;
+  late MockDirectionsService mockDirectionsService;
 
   setUp(() {
     mockMapService = MockMapService();
     realmapViewModel = MapViewModel();
     realMapService = MapService();
     mockGoogleMapController = MockGoogleMapController();
+
+    mockDirectionsService = MockDirectionsService();
+    mockODSdirectionsService = MockODSDirectionsService();
+    mockODSdirectionsService.directionsService = mockDirectionsService;
+
+    realMapService.setDirectionsService(mockODSdirectionsService);
   });
 
   group('MapService Tests', () {
     test('getCampusPolygonsAndLabels should return correct data', () async {
       // Act
-      final result =
-          await realmapViewModel.getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
+      final result = await realmapViewModel
+          .getCampusPolygonsAndLabels(ConcordiaCampus.sgw);
 
       // Assert
       expect(result['polygons'], isA<Set<Polygon>>());
@@ -157,63 +169,54 @@ void main() {
         ),
       )).called(1);
     });
+  });
 
-    test('getCampusMarkers should return a set of markers for given locations',
-        () async {
+  group('getRoutePath', () {
+    test('returns a valid list of LatLng when route is found', () async {
       // Arrange
-      const campus = ConcordiaCampus.sgw;
-
-      // Mock polygon data for "EV" building
-      final List<LatLng> evPolygon = [
-        const LatLng(45.4951601, -73.5778544),
-        const LatLng(45.4958369, -73.5772375),
-        const LatLng(45.496057, -73.5777095),
-        const LatLng(45.4958955, -73.577867),
-        const LatLng(45.4957351, -73.5780097),
-        const LatLng(45.4959616, -73.5785005),
-        const LatLng(45.4956038, -73.5788334),
-        const LatLng(45.4951601, -73.5778544),
+      const originAddress =
+          '1455 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M8';
+      const destinationAddress =
+          '7141 Sherbrooke St W, Montreal, Quebec H4B 1R6';
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
       ];
 
-      // Compute centroid for EV polygon (for marker placement)
-      final double centroidLat =
-          evPolygon.map((p) => p.latitude).reduce((a, b) => a + b) /
-              evPolygon.length;
-      final double centroidLng =
-          evPolygon.map((p) => p.longitude).reduce((a, b) => a + b) /
-              evPolygon.length;
-      final LatLng evCentroid = LatLng(centroidLat, centroidLng);
+      // Stub the fetchRouteFromCoords method to return the expectedRoute
+      when(mockODSdirectionsService.fetchRouteFromCoords(any, any))
+          .thenAnswer((_) async => expectedRoute);
 
-      // Expected polygon set
-      final Set<Polygon> mockPolygons = {
-        Polygon(
-          polygonId: const PolygonId("EV"),
-          points: evPolygon,
-          strokeWidth: 3,
-          strokeColor: const Color(0xFFB48107),
-          fillColor: const Color(0xFFe5a712),
-        ),
-      };
-
-      // Expected markers set
-      final Set<Marker> mockMarkers = {
-        Marker(
-          markerId: const MarkerId("EV"),
-          position: evCentroid,
-          icon: BitmapDescriptor.defaultMarker, // Mocked icon
-        ),
-      };
-
-      // Mock response
-      when(mockMapService.getCampusPolygonsAndLabels(campus)).thenAnswer(
-          (_) async => {"polygons": mockPolygons, "labels": mockMarkers});
+      // Mock fetchRoute method to return the expected route points
+      when(mockODSdirectionsService.fetchRoute(
+              originAddress, destinationAddress))
+          .thenAnswer((_) async => expectedRoute);
 
       // Act
-      final result = await mockMapService.getCampusPolygonsAndLabels(campus);
+      final routePoints =
+          await realMapService.getRoutePath(originAddress, destinationAddress);
 
       // Assert
-      expect(result["polygons"], equals(mockPolygons));
-      expect(result["labels"], equals(mockMarkers));
+      expect(routePoints, isA<List<LatLng>>());
+    });
+
+    test('throws exception when route fetching fails', () async {
+      // Arrange
+      const originAddress =
+          '1455 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M8';
+      const destinationAddress =
+          '7141 Sherbrooke St W, Montreal, Quebec H4B 1R6';
+
+      // Mock the method to throw an exception
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenThrow(Exception('Failed to fetch route'));
+
+      // Act & Assert
+      expect(
+        () async => await mockMapService.getRoutePath(
+            originAddress, destinationAddress),
+        throwsException,
+      );
     });
   });
 

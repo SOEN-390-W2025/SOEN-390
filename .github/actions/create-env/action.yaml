@@ -2,13 +2,14 @@ name: Create .env File
 description: Generates .env file using secrets
 inputs:
   google-maps-api-key:
-    description: 'Google Maps API key'
+    description: "Google Maps API key"
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Create .env file
+    - name: Create .env file in concordia_nav directory
       shell: bash
       run: |
-        touch .env
-        echo "GOOGLE_MAPS_API_KEY=${{ inputs.google-maps-api-key }}" >> .env
+        mkdir -p concordia_nav
+        touch concordia_nav/.env
+        echo "GOOGLE_MAPS_API_KEY=${{ inputs.google-maps-api-key }}" >> concordia_nav/.env

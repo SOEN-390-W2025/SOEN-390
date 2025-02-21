@@ -26,6 +26,63 @@ void main() {
         mapRepository: mockMapRepository, mapService: mockMapService);
   });
 
+  group('fetchRoute', () {
+    test('throws exception when destinationAddress is empty', () async {
+      // Arrange
+      const originAddress = 'origin';
+      const destinationAddress = '';
+
+      // Act & Assert
+      expect(
+          () async =>
+              await mapViewModel.fetchRoute(originAddress, destinationAddress),
+          throwsException);
+    });
+
+    test(
+        'successfully fetches route and creates polyline and destination marker',
+        () async {
+      // Arrange
+      const originAddress = 'origin';
+      const destinationAddress = 'destination';
+
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      // Mock getRoutePath to return the routePoints
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenAnswer((_) async => routePoints);
+
+      // Act
+      await mapViewModel.fetchRoute(originAddress, destinationAddress);
+
+      // Assert
+      expect(mapViewModel.polylines.isNotEmpty, true);
+      expect(mapViewModel.destinationMarker, isNotNull);
+      expect(
+          mapViewModel.destinationMarker?.position, equals(routePoints.last));
+    });
+
+    test('throws exception when route fetching fails', () async {
+      // Arrange
+      const originAddress = 'origin';
+      const destinationAddress = 'destination';
+
+      // Mock getRoutePath to throw an exception
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenThrow(Exception('Failed to fetch route'));
+
+      // Act & Assert
+      expect(
+        () async =>
+            await mapViewModel.fetchRoute(originAddress, destinationAddress),
+        throwsException,
+      );
+    });
+  });
+
   group('MapViewModel Tests', () {
     test(
         'getInitialCameraPosition should return CameraPosition from repository',
@@ -159,7 +216,8 @@ void main() {
       expect(result, false);
     });
 
-    testWidgets('checkBuildingAtCurrentLocation unselects building if far', (WidgetTester tester) async {
+    testWidgets('checkBuildingAtCurrentLocation unselects building if far',
+        (WidgetTester tester) async {
       await tester.runAsync(() async {
         // Build a material app and fetch its build context
         await tester
@@ -169,8 +227,9 @@ void main() {
         // Arrange
         when(mockMapService.isLocationServiceEnabled())
             .thenAnswer((_) async => false);
-        when(mockMapService.getCurrentLocation())
-            .thenAnswer((_) async => const LatLng(45.53045657870464, -73.60871108784625)); // location in hall
+        when(mockMapService.getCurrentLocation()).thenAnswer((_) async =>
+            const LatLng(
+                45.53045657870464, -73.60871108784625)); // location in hall
 
         // Act
         await mapViewModel.checkBuildingAtCurrentLocation(context);
@@ -180,7 +239,8 @@ void main() {
       });
     });
 
-    testWidgets('checkBuildingAtCurrentLocation select building if in', (WidgetTester tester) async {
+    testWidgets('checkBuildingAtCurrentLocation select building if in',
+        (WidgetTester tester) async {
       await tester.runAsync(() async {
         // Build a material app and fetch its build context
         await tester
@@ -190,14 +250,16 @@ void main() {
         // Arrange
         when(mockMapService.isLocationServiceEnabled())
             .thenAnswer((_) async => false);
-        when(mockMapService.getCurrentLocation())
-            .thenAnswer((_) async => const LatLng(45.49716269198435, -73.5791585092084)); // location in hall
+        when(mockMapService.getCurrentLocation()).thenAnswer((_) async =>
+            const LatLng(
+                45.49716269198435, -73.5791585092084)); // location in hall
 
         // Act
         await mapViewModel.checkBuildingAtCurrentLocation(context);
 
         // Assert
-        expect(mapViewModel.selectedBuildingNotifier.value, BuildingRepository.h);
+        expect(
+            mapViewModel.selectedBuildingNotifier.value, BuildingRepository.h);
       });
     });
 
@@ -240,17 +302,15 @@ void main() {
       verify(mockMapService.zoomOut()).called(1);
     });
 
-    test('getCampusPolygonsAndLabels should return values from map service', () async {
+    test('getCampusPolygonsAndLabels should return values from map service',
+        () async {
       // Arrange
       const campus = ConcordiaCampus.sgw;
-      final mockPolygons = <Polygon>{};
-      final mockMarkers = <Marker>{};
-      final mockData = {"polygons": mockPolygons, "labels": mockMarkers};
-      final Future<BitmapDescriptor> bitmapDescriptor = IconLoader.loadBitmapDescriptor('assets/icons/H.png');
+      final Future<BitmapDescriptor> bitmapDescriptor =
+          IconLoader.loadBitmapDescriptor('assets/icons/H.png');
 
-      when(mockMapService.getCustomIcon(any)).thenAnswer((_) async => bitmapDescriptor);
-      when(mockMapService.getCampusPolygonsAndLabels(campus))
-          .thenAnswer((_) async => mockData);
+      when(mockMapService.getCustomIcon(any))
+          .thenAnswer((_) async => bitmapDescriptor);
 
       // Act
       final result = await mapViewModel.getCampusPolygonsAndLabels(campus);
@@ -263,8 +323,10 @@ void main() {
 
     test('getAllCampusPolygonsAndLabels should return right value', () async {
       // Arrange
-      final Future<BitmapDescriptor> bitmapDescriptor = IconLoader.loadBitmapDescriptor('assets/icons/H.png');
-      when(mockMapService.getCustomIcon(any)).thenAnswer((_) async => bitmapDescriptor);
+      final Future<BitmapDescriptor> bitmapDescriptor =
+          IconLoader.loadBitmapDescriptor('assets/icons/H.png');
+      when(mockMapService.getCustomIcon(any))
+          .thenAnswer((_) async => bitmapDescriptor);
 
       // Act
       final result = await mapViewModel.getAllCampusPolygonsAndLabels();
@@ -275,20 +337,25 @@ void main() {
       expect(result["labels"].elementAt(0), isA<Marker>());
     });
 
-    test('selectBuilding should change selectedBuildingNotifier value', () async {
+    test('selectBuilding should change selectedBuildingNotifier value',
+        () async {
       // Select MB building
       mapViewModel.selectBuilding(BuildingRepository.mb);
 
       // should change selectedBuildingNotifier's value
-      expect(mapViewModel.selectedBuildingNotifier.value, BuildingRepository.mb);
+      expect(
+          mapViewModel.selectedBuildingNotifier.value, BuildingRepository.mb);
     });
 
-    test('unselectBuilding should change selectedBuildingNotifier value to null', () async {
+    test(
+        'unselectBuilding should change selectedBuildingNotifier value to null',
+        () async {
       // Select MB building
       mapViewModel.selectBuilding(BuildingRepository.mb);
 
       // should change selectedBuildingNotifier's value
-      expect(mapViewModel.selectedBuildingNotifier.value, BuildingRepository.mb);
+      expect(
+          mapViewModel.selectedBuildingNotifier.value, BuildingRepository.mb);
 
       // unselecting changes value to null
       mapViewModel.unselectBuilding();
