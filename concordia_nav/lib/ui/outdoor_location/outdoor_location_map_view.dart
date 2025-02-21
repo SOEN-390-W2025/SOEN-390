@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
@@ -65,6 +66,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   Future<void> _getDirections() async {
     try {
+      await SystemChannels.textInput.invokeMethod('TextInput.hide');
       await _mapViewModel.fetchRoute(
         _sourceController.text.isEmpty ? null : _sourceController.text,
         _destinationController.text,
