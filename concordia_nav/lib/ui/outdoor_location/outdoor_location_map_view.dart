@@ -162,16 +162,14 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             ),
             if (showModeChips)
               Container(
-                color:
-                    Colors.white, // White background for the scrollable chips
-                width: double.infinity, // Takes the full width available
+                color: Colors.white,
+                width: double.infinity,
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: CustomTravelMode.values
                         .where((mode) {
-                          // Hide the chip if time is "--" or shuttle not available.
                           final String time =
                               _mapViewModel.travelTimes[mode] ?? "--";
                           if (time == "--") return false;
