@@ -28,9 +28,7 @@ runs:
       id: cache-sdk
       with:
         path: |
-          # ${{ runner.tool_cache }}/android-sdk
           ${{ env.ANDROID_SDK_ROOT }}
-          # ${{ env.ANDROID_HOME }}
         key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
 
     - name: Set up Android SDK
@@ -40,13 +38,10 @@ runs:
         accept-android-sdk-licenses: true
         log-accepted-android-sdk-licenses: false
 
-    - name: Debug 
-      shell: bash
-      run: ls -la $ANDROID_SDK_ROOT
-
     - name: Save Android SDK Cache
       if: steps.cache-sdk.outputs.cache-hit != 'true'
       uses: actions/cache@v4
       with:
-        path: ${{ env.ANDROID_SDK_ROOT }}
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}
         key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
