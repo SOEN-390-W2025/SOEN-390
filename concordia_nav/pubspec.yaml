@@ -65,6 +65,8 @@ dependencies:
   google_directions_api: ^0.10.0
   flutter_polyline_points: ^2.1.0
   flutter_dotenv: ^5.2.1
+  url_launcher: ^6.3.1
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -102,8 +104,14 @@ flutter:
     - assets/maps/outdoor/all/polygons.json
     - assets/maps/outdoor/sgw/polygons.json
     - assets/maps/outdoor/loy/polygons.json
+    - assets/maps/outdoor/shuttle_bus_routes/loy_to_sgw.json
+    - assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json
+    - assets/maps/outdoor/shuttle_bus_schedules/monday_thursday.json
+    - assets/maps/outdoor/shuttle_bus_schedules/friday.json
     - assets/icons/default.png
     - assets/icons/destination.png
+    - assets/icons/shuttle_bus.png
+    - assets/icons/shuttle_bus_station.png
     - assets/icons/AD.png
     - assets/icons/CC.png
     - assets/icons/CJ.png
