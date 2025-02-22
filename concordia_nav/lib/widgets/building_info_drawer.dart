@@ -98,7 +98,7 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
                     /// The "Directions" button is displayed on the left side of the footer.
                     ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => OutdoorLocationMapView(
