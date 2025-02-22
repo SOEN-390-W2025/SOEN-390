@@ -6,7 +6,7 @@ import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
-import '../../widgets/source_destination_box.dart';
+import '../../widgets/search_bar.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -26,14 +26,17 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
-  final TextEditingController _sourceController = TextEditingController();
-  final TextEditingController _destinationController = TextEditingController();
+  late TextEditingController _sourceController = TextEditingController();
+  late TextEditingController _destinationController = TextEditingController();
   bool isKeyboardVisible = false;
 
   @override
   void initState() {
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
+    _sourceController = TextEditingController();
+    _destinationController =
+        TextEditingController(text: widget.building?.streetAddress ?? '');
     _currentCampus = widget.campus;
     _initialCameraPosition =
         _mapViewModel.getInitialCameraPosition(_currentCampus);
@@ -63,6 +66,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     final bottomInset = View.of(context).viewInsets.bottom;
     setState(() {
       isKeyboardVisible = bottomInset > 1;
+    });
+  }
+
+  void updateBuilding(ConcordiaBuilding newBuilding) {
+    setState(() {
+      _destinationController.text = newBuilding.streetAddress!;
     });
   }
 
