@@ -77,8 +77,10 @@ class CampusMapPageState extends State<CampusMapPage> {
     super.initState();
     _currentCampus = widget.campus;
 
+    // Fetch initial data once
     _loadMapData();
 
+    // Check for location permission
     checkLocationPermission();
 
     // Populate search list with buildings

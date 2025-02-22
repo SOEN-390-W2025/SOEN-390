@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
@@ -45,34 +44,42 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _mapViewModel = widget.mapViewModel ?? MapViewModel();
-    _currentCampus = widget.campus;
-
-    // Fetch initial data once
-    _loadMapData();
-
-    // Check for location permission
-    _mapViewModel.checkLocationAccess().then((hasPermission) {
-      if (mounted) {
-        setState(() {
-          _locationPermissionGranted = hasPermission;
-          if (_locationPermissionGranted && !searchList.contains("Your Location")) {
-            searchList.insert(0, "Your Location");
-          }
-        });
-      }
-    });
-
-    // Add buildings to search list
+  void getSearchList() {
     final buildings = _buildingViewModel.getBuildings();
     for (var building in buildings) {
       if (!searchList.contains(building)) {
         searchList.add(building);
       }
     }
+  }
+
+  void checkLocationPermission() {
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _sourceController.text = "Your Location";
+        _locationPermissionGranted = hasPermission;
+        if (_locationPermissionGranted && !searchList.contains("Your Location")) {
+          searchList.insert(0, "Your Location");
+        }
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
+    _currentCampus = widget.campus;
+    
+
+    // Fetch initial data once
+    _loadMapData();
+
+    // Check for location permission
+    checkLocationPermission();
+
+    // Populate search list with buildings
+    getSearchList();
 
     WidgetsBinding.instance
         .addObserver(this); // Start observing keyboard changes
@@ -95,23 +102,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     });
   }
 
-  Future<void> _getDirections() async {
-    try {
-      await SystemChannels.textInput.invokeMethod('TextInput.hide');
-      await _mapViewModel.fetchRoute(
-        _sourceController.text.isEmpty ? null : _sourceController.text,
-        _destinationController.text,
-      );
-      setState(() {});
-    } on Error catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to load directions: $e")),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,7 +116,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               initialCameraPosition: _initialCameraPosition!,
               zoomControlsEnabled: false,
               polylines: _mapViewModel.polylines,
-              markers: _labelMarkers,
+              markers: {..._mapViewModel.markers, ..._labelMarkers,},
               polygons: _polygons,
               myLocationButtonEnabled: false,
               buildingsEnabled: false,
@@ -141,6 +131,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             right: 15,
             child: SearchBarWidget(
               controller: _sourceController,
+              controller2: _destinationController,
               hintText: 'Your Location',
               icon: Icons.location_on,
               iconColor: Theme.of(context).primaryColor,
@@ -154,11 +145,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             right: 15,
             child: SearchBarWidget(
               controller: _destinationController,
+              controller2: _sourceController,
               hintText: 'Enter Destination',
               icon: Icons.location_on,
               iconColor: const Color(0xFFDA3A16),
               searchList: searchList,
               mapViewModel: _mapViewModel,
+              isSource: false,
             ),
           ),
         ],

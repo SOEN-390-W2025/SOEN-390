@@ -110,10 +110,10 @@ class MapService {
   /// Fetches route polyline using addresses or current location
   Future<List<LatLng>> getRoutePath(
       String? originAddress, String destinationAddress) async {
+    print("origin: $originAddress, destination: $destinationAddress");
     List<LatLng> routePoints;
-
-    if (originAddress == null || originAddress.isEmpty) {
-      final LatLng? currentLocation = await getCurrentLocation();
+    final LatLng? currentLocation = await getCurrentLocation();
+    if (originAddress!.isEmpty || originAddress == "Your Location") {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
@@ -121,9 +121,17 @@ class MapService {
         currentLocation,
         destinationAddress,
       );
+    } else if (destinationAddress.isEmpty || destinationAddress == "Your Location") {
+      if (currentLocation == null) {
+        throw Exception("Unable to fetch current location.");
+      }
+      routePoints = await _directionsService.fetchRouteFromCoords2(
+        originAddress,
+        currentLocation);
     } else {
       routePoints = await _directionsService.fetchRoute(
-          originAddress, destinationAddress);
+        originAddress,
+        destinationAddress);
     }
 
     final Polyline polyline = Polyline(

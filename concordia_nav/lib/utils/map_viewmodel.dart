@@ -44,10 +44,6 @@ class MapViewModel extends ChangeNotifier {
   /// Getter for polylines
   Set<Polyline> get polylines => _polylines;
 
-  // Destination marker for the route.
-  Marker? _destinationMarker;
-  Marker? get destinationMarker => _destinationMarker;
-
   /// Exposes the MapService.
   MapService get mapService => _mapService;
 
@@ -92,13 +88,22 @@ class MapViewModel extends ChangeNotifier {
 
       // Create a marker for the end user to visualize the destination coords.
       if (routePoints.isNotEmpty) {
-        _destinationMarker = Marker(
+        removeMarker( const MarkerId('source'));
+        removeMarker( const MarkerId('destination'));
+        addMarker( Marker(
+          markerId: const MarkerId('source'),
+          position: routePoints.first,
+          infoWindow: const InfoWindow(title: 'Source'),
+          icon: await IconLoader.loadBitmapDescriptor(
+              'assets/icons/source.png',),
+        ));
+        addMarker( Marker(
           markerId: const MarkerId('destination'),
           position: routePoints.last,
           infoWindow: const InfoWindow(title: 'Destination'),
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/destination.png'),
-        );
+        ));
       }
     } catch (e) {
       throw Exception("Failed to load directions: $e");
@@ -300,16 +305,10 @@ class MapViewModel extends ChangeNotifier {
 
   /// Handles the search selection of a building.
   Future<void> handleSelection(
-    BuildContext context,
     String selectedBuilding,
-    bool isSource,
-    TextEditingController controller,
-    List<String> searchList,
     LatLng? currentLocation
   ) async {
     final buildingViewModel = BuildingViewModel();
-    final markerId = MarkerId(isSource ? "source" : "destination");
-    removeMarker(markerId);
 
     // If the selected building is "Your Location", wait for fetchCurrentLocation to complete
     LatLng? location;
@@ -322,27 +321,7 @@ class MapViewModel extends ChangeNotifier {
 
     if (location == null) return;
 
-    /// Update the text of the search bar
-    controller.text = selectedBuilding;
-
     moveToLocation(location);
-
-    /// Add a marker to the map at the selected location
-    addMarker(
-      Marker(
-        markerId: markerId,
-        position: location,
-        infoWindow: InfoWindow(title: selectedBuilding),
-        icon: isSource
-            ? await BitmapDescriptor.asset(
-                const ImageConfiguration(size: Size(20, 20)),
-                'assets/images/source_marker.png',
-              )
-            : BitmapDescriptor.defaultMarker,
-        anchor: isSource ? const Offset(0.5, 0.5) : const Offset(0.5, 1.0),
-        zIndex: 2,
-      ),
-    );
   }
 
   // Add a new marker to the map

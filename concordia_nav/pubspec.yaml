@@ -104,6 +104,7 @@ flutter:
     - assets/maps/outdoor/loy/polygons.json
     - assets/icons/default.png
     - assets/icons/destination.png
+    - assets/icons/source.png
     - assets/icons/AD.png
     - assets/icons/CC.png
     - assets/icons/CJ.png

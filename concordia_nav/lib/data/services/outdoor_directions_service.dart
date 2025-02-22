@@ -110,4 +110,10 @@ class ODSDirectionsService {
     final originString = "${origin.latitude},${origin.longitude}";
     return fetchRoute(originString, destinationAddress);
   }
+
+  Future<List<LatLng>> fetchRouteFromCoords2(
+      String origin, LatLng destinationAddress) async {
+    final destinationString = "${destinationAddress.latitude},${destinationAddress.longitude}";
+    return fetchRoute(origin, destinationString);
+  }
 }
