@@ -44,6 +44,12 @@ runs:
         else
           echo "script=rps install && rps test integration" >> $GITHUB_ENV
 
+    # - name: Install libpulse Dependency
+    #   shell: bash
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y libpulse0
+
     - name: Run Integration Tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -51,6 +57,6 @@ runs:
         target: default
         arch: x86_64
         force-avd-creation: false
-        emulator-options: -noaudio -no-boot-anim -camera-back none
+        emulator-options: -noaudio -no-boot-anim -camera-back none -gpu swiftshader_indirect
         disable-animations: ${{ inputs.is-main == 'true' && 'true' || 'false' }}
         script: ${{ env.script }}
