@@ -28,6 +28,8 @@ runs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 35
+        target: default
+        arch: x86_64
         force-avd-creation: false
         emulator-options: -noaudio -no-boot-anim -camera-back none
         disable-animations: false
@@ -46,6 +48,8 @@ runs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 35
+        target: default
+        arch: x86_64
         force-avd-creation: false
         emulator-options: -noaudio -no-boot-anim -camera-back none
         disable-animations: ${{ inputs.is-main == 'true' && 'true' || 'false' }}
