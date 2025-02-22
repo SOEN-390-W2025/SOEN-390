@@ -64,9 +64,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   @override
   void didChangeMetrics() {
     final bottomInset = View.of(context).viewInsets.bottom;
-    setState(() {
-      isKeyboardVisible = bottomInset > 1;
-    });
+    final newKeyboardVisible = bottomInset > 1;
+    if (newKeyboardVisible != isKeyboardVisible) {
+      setState(() {
+        // Prevent unnecessary rebuilds
+        isKeyboardVisible = newKeyboardVisible;
+      });
+    }
   }
 
   void updateBuilding(ConcordiaBuilding newBuilding) {
