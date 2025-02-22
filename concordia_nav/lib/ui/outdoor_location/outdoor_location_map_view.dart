@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
+import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
-import '../../widgets/search_bar.dart';
+import '../../widgets/source_destination_box.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
+  final ConcordiaBuilding? building;
   final MapViewModel? mapViewModel;
 
   const OutdoorLocationMapView(
-      {super.key, required this.campus, this.mapViewModel});
+      {super.key, required this.campus, this.building, this.mapViewModel});
 
   @override
   State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
@@ -24,14 +26,17 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition> _initialCameraPosition;
   bool _locationPermissionGranted = false;
-  final TextEditingController _sourceController = TextEditingController();
-  final TextEditingController _destinationController = TextEditingController();
+  late TextEditingController _sourceController = TextEditingController();
+  late TextEditingController _destinationController = TextEditingController();
   bool isKeyboardVisible = false;
 
   @override
   void initState() {
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
+    _sourceController = TextEditingController();
+    _destinationController =
+        TextEditingController(text: widget.building?.streetAddress ?? '');
     _currentCampus = widget.campus;
     _initialCameraPosition =
         _mapViewModel.getInitialCameraPosition(_currentCampus);
@@ -59,8 +64,18 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   @override
   void didChangeMetrics() {
     final bottomInset = View.of(context).viewInsets.bottom;
+    final newKeyboardVisible = bottomInset > 1;
+    if (newKeyboardVisible != isKeyboardVisible) {
+      setState(() {
+        // Prevent unnecessary rebuilds
+        isKeyboardVisible = newKeyboardVisible;
+      });
+    }
+  }
+
+  void updateBuilding(ConcordiaBuilding newBuilding) {
     setState(() {
-      isKeyboardVisible = bottomInset > 1;
+      _destinationController.text = newBuilding.streetAddress!;
     });
   }
 
@@ -84,7 +99,10 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Outdoor Directions'),
+      appBar: customAppBar(
+        context,
+        widget.building == null ? 'Outdoor Location' : widget.campus.name,
+      ),
       body: Stack(
         children: [
           FutureBuilder<CameraPosition>(
@@ -136,25 +154,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             },
           ),
           Positioned(
-            top: 10,
-            left: 15,
-            right: 15,
-            child: SearchBarWidget(
-              controller: _sourceController,
-              hintText: 'Your Location',
-              icon: Icons.location_on,
-              iconColor: Theme.of(context).primaryColor,
-            ),
-          ),
-          Positioned(
-            top: 80,
-            left: 15,
-            right: 15,
-            child: SearchBarWidget(
-              controller: _destinationController,
-              hintText: 'Enter Destination',
-              icon: Icons.location_on,
-              iconColor: const Color(0xFFDA3A16),
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SourceDestinationBox(
+              sourceController: _sourceController,
+              destinationController: _destinationController,
             ),
           ),
           if (isKeyboardVisible) // Show button only when keyboard is visible

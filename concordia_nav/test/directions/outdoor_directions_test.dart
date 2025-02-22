@@ -217,7 +217,7 @@ void main() async {
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Outdoor Directions'), findsOneWidget);
+      expect(find.text('Outdoor Location'), findsOneWidget);
     });
 
     testWidgets('appBar has the right title', (WidgetTester tester) async {
@@ -228,7 +228,7 @@ void main() async {
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Outdoor Directions'), findsOneWidget);
+      expect(find.text('Outdoor Location'), findsOneWidget);
     });
   });
 

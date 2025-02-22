@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../utils/building_drawer_viewmodel.dart';
+import '../ui/outdoor_location/outdoor_location_map_view.dart';
 
 class BuildingInfoDrawer extends StatefulWidget {
   final ConcordiaBuilding building;
@@ -97,7 +98,16 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
                     /// The "Directions" button is displayed on the left side of the footer.
                     ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: Implement navigation to directions feature
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OutdoorLocationMapView(
+                              campus: widget.building.campus,
+                              building: widget.building,
+                            ),
+                          ),
+                          (route) => route.isFirst,
+                        );
                       },
                       icon: const Icon(Icons.directions, color: Colors.white),
                       label: Text("Directions",
