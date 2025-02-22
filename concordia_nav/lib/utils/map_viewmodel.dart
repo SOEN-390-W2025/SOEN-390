@@ -9,11 +9,19 @@ import '../data/domain-model/concordia_building.dart';
 import '../data/repositories/building_repository.dart';
 import '../data/services/building_service.dart';
 import '../data/services/helpers/icon_loader.dart';
+import 'building_viewmodel.dart';
 
 class MapViewModel extends ChangeNotifier {
   MapRepository _mapRepository;
   MapService _mapService;
   BuildingService _buildingService = BuildingService();
+
+  List<Marker> _markers = [];
+  List<Marker> get markers => _markers;
+
+  List<ConcordiaBuilding> _filteredBuildings = [];
+
+  List<ConcordiaBuilding> get filteredBuildings => _filteredBuildings;
 
   // ignore: unused_field
   GoogleMapController? _mapController;
@@ -45,6 +53,17 @@ class MapViewModel extends ChangeNotifier {
   Future<CameraPosition> getInitialCameraPosition(
       ConcordiaCampus campus) async {
     return _mapRepository.getCameraPosition(campus);
+  }
+
+  Future<Map<String, dynamic>> fetchMapData(ConcordiaCampus campus) async {
+    final cameraPosition = await getInitialCameraPosition(campus);
+    final mapData = await getCampusPolygonsAndLabels(campus);
+
+    return {
+      'cameraPosition': cameraPosition,
+      'polygons': mapData['polygons'],
+      'labels': mapData['labels'],
+    };
   }
 
   /// Fetches the route and updates the polyline and destination marker.
@@ -273,5 +292,62 @@ class MapViewModel extends ChangeNotifier {
   /// Calculates the distance between two points using the service.
   double getDistance(LatLng point1, LatLng point2) {
     return _mapService.calculateDistance(point1, point2);
+  }
+
+  /// Handles the search selection of a building.
+  Future<void> handleSelection(
+    BuildContext context,
+    String selectedBuilding,
+    bool isSource,
+    TextEditingController controller,
+    List<String> searchList,
+    LatLng? currentLocation
+  ) async {
+    final buildingViewModel = BuildingViewModel();
+    final markerId = MarkerId(isSource ? "source" : "destination");
+    removeMarker(markerId);
+
+    // If the selected building is "Your Location", wait for fetchCurrentLocation to complete
+    LatLng? location;
+
+    if (selectedBuilding == 'Your Location') {
+      location = currentLocation;
+    } else {
+      location = buildingViewModel.getBuildingLocationByName(selectedBuilding);
+    }
+
+    if (location == null) return;
+
+    /// Update the text of the search bar
+    controller.text = selectedBuilding;
+
+    moveToLocation(location);
+
+    /// Add a marker to the map at the selected location
+    addMarker(
+      Marker(
+        markerId: markerId,
+        position: location,
+        infoWindow: InfoWindow(title: selectedBuilding),
+        icon: isSource
+            ? await BitmapDescriptor.asset(
+                const ImageConfiguration(size: Size(20, 20)),
+                'assets/images/source_marker.png',
+              )
+            : BitmapDescriptor.defaultMarker,
+        anchor: isSource ? const Offset(0.5, 0.5) : const Offset(0.5, 1.0),
+        zIndex: 2,
+      ),
+    );
+  }
+
+  // Add a new marker to the map
+  void addMarker(Marker marker) {
+    _markers.add(marker);
+  }
+
+  // Remove a marker from the map
+  void removeMarker(MarkerId markerId) {
+    _markers.removeWhere((marker) => marker.markerId == markerId);
   }
 }

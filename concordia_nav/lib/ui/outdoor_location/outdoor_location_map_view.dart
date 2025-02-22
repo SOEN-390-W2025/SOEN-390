@@ -144,6 +144,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               hintText: 'Your Location',
               icon: Icons.location_on,
               iconColor: Theme.of(context).primaryColor,
+              searchList: [],
+              mapViewModel: _mapViewModel,
             ),
           ),
           Positioned(
@@ -155,6 +157,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               hintText: 'Enter Destination',
               icon: Icons.location_on,
               iconColor: const Color(0xFFDA3A16),
+              searchList: [],
+              mapViewModel: _mapViewModel,
             ),
           ),
           if (isKeyboardVisible) // Show button only when keyboard is visible

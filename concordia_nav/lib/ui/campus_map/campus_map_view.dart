@@ -1,10 +1,14 @@
+// ignore_for_file: prefer_final_fields
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
+import '../../widgets/search_bar.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -25,20 +29,27 @@ class CampusMapPageState extends State<CampusMapPage> {
       : _mapViewModel = mapViewModel ?? MapViewModel();
 
   final MapViewModel _mapViewModel;
+  final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
   final TextEditingController _searchController = TextEditingController();
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
+  CameraPosition? _initialCameraPosition;
+  List<String> searchList = [];
 
-  MapViewModel get mapViewModel => _mapViewModel;
+  //MapViewModel get mapViewModel => _mapViewModel;
 
   Future<void> _loadMapData() async {
-    final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
-    setState(() {
-      _polygons = data["polygons"];
-      _labelMarkers = data["labels"];
-    });
+    final mapData = await _mapViewModel.fetchMapData(_currentCampus);
+
+    if (mounted) {
+      setState(() {
+        _initialCameraPosition = mapData['cameraPosition'];
+        _polygons = mapData['polygons'];
+        _labelMarkers = mapData['labels'];
+      });
+    }
   }
 
   @override
@@ -51,8 +62,19 @@ class CampusMapPageState extends State<CampusMapPage> {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
+        if (_locationPermissionGranted && !searchList.contains("Your Location")) {
+          searchList.insert(0, "Your Location");
+        }
       });
     });
+
+    // Populate search list with buildings
+    final buildings = _buildingViewModel.getBuildingsByCampus(_currentCampus);
+    for (var building in buildings) {
+      if (!searchList.contains(building)) {
+        searchList.add(building);
+      }
+    }
   }
 
   @override
@@ -85,41 +107,38 @@ class CampusMapPageState extends State<CampusMapPage> {
                 _mapViewModel.unselectBuilding();
               },
             ),
-            body: FutureBuilder<CameraPosition>(
-              future: _mapViewModel.getInitialCameraPosition(_currentCampus),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return const Center(child: Text('Error loading campus map'));
-                }
-
-                return FutureBuilder<Map<String, dynamic>>(
-                    future: _mapViewModel
-                        .getCampusPolygonsAndLabels(_currentCampus),
-                    builder: (context, polySnapshot) {
-                      if (polySnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      return MapLayout(
-                        searchController: _searchController,
-                        mapWidget: GoogleMap(
-                          buildingsEnabled: false,
-                          onMapCreated: _mapViewModel.onMapCreated,
-                          initialCameraPosition: snapshot.data!,
-                          markers: _labelMarkers,
-                          polygons: _polygons,
-                          zoomControlsEnabled: false,
-                          myLocationButtonEnabled: false,
-                          myLocationEnabled: _locationPermissionGranted,
-                        ),
-                        mapViewModel: _mapViewModel,
-                      );
-                    });
-              },
+            body: Stack(
+              children: [
+                if (_initialCameraPosition == null) // Show loading indicator while data is loading
+                  const Center(child: CircularProgressIndicator())
+                else MapLayout(
+                  searchController: _searchController,
+                  mapWidget: GoogleMap(
+                    buildingsEnabled: false,
+                    onMapCreated: _mapViewModel.onMapCreated,
+                    initialCameraPosition: _initialCameraPosition!,
+                    markers: _labelMarkers,
+                    polygons: _polygons,
+                    zoomControlsEnabled: false,
+                    myLocationButtonEnabled: false,
+                    myLocationEnabled: _locationPermissionGranted,
+                  ),
+                  mapViewModel: _mapViewModel,
+                ),
+                Positioned(
+                  top: 10,
+                  left: 15,
+                  right: 15,
+                  child: SearchBarWidget(
+                    controller: _searchController,
+                    hintText: 'Your Location',
+                    icon: Icons.location_on,
+                    iconColor: Theme.of(context).primaryColor,
+                    searchList: searchList,
+                    mapViewModel: _mapViewModel,
+                  ),
+                ),
+              ],
             ),
           );
         },
