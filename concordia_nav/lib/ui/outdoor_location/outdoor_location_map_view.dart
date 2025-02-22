@@ -137,6 +137,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               iconColor: Theme.of(context).primaryColor,
               searchList: searchList,
               mapViewModel: _mapViewModel,
+              onDirectionFetched: () {
+                setState(() {}); // Refresh the page
+              },
             ),
           ),
           Positioned(
@@ -152,6 +155,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               searchList: searchList,
               mapViewModel: _mapViewModel,
               isSource: false,
+              onDirectionFetched: () {
+                setState(() {}); // Refresh the page
+              },
             ),
           ),
         ],

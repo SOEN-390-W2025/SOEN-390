@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_final_locals
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../utils/map_viewmodel.dart';
 import '../utils/building_viewmodel.dart';
 
@@ -15,6 +14,7 @@ class SearchBarWidget extends StatelessWidget {
   final MapViewModel? mapViewModel;
   final bool isSource;
   final bool drawer;
+  final VoidCallback? onDirectionFetched;
 
   const SearchBarWidget({
     super.key,
@@ -27,6 +27,7 @@ class SearchBarWidget extends StatelessWidget {
     this.mapViewModel,
     this.isSource = true,
     this.drawer = false,
+    this.onDirectionFetched,
   });
 
   Future<void> _getDirections() async {
@@ -56,6 +57,8 @@ class SearchBarWidget extends StatelessWidget {
         : location1;
 
     await mapViewModel?.fetchRoute(startLocation, endLocation);
+
+    onDirectionFetched?.call();
   }
 
   Future<void> _handleSelection(BuildContext context) async {
