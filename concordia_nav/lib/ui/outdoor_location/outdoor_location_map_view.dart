@@ -68,7 +68,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   Future<void> _launchGoogleMapsNavigation(LatLng destination) async {
     final url =
-        'google.navigation:q=${destination.latitude},${destination.longitude}&key=YOUR_API_KEY';
+        'google.navigation:q=${destination.latitude},${destination.longitude}';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -171,7 +171,10 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                   child: Row(
                     children: CustomTravelMode.values
                         .where((mode) {
-                          // Completely hide the shuttle chip if not available.
+                          // Hide the chip if time is "--" or shuttle not available.
+                          final String time =
+                              _mapViewModel.travelTimes[mode] ?? "--";
+                          if (time == "--") return false;
                           if (mode == CustomTravelMode.shuttle) {
                             return _mapViewModel.shuttleAvailable;
                           }
