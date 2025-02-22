@@ -13,11 +13,8 @@ runs:
       run: |
         curl -Ls https://get.maestro.mobile.dev | bash
         echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-
-    - name: Gradle cache
-      uses: gradle/actions/setup-gradle@v3
       
-    - name: AVD cache
+    - name: AVD Cache
       uses: actions/cache@v4
       id: avd-cache
       with:
@@ -26,11 +23,11 @@ runs:
           ~/.android/adb*
         key: ${{ runner.os }}-avd-35
 
-    - name: create AVD and generate snapshot for caching
+    - name: Create AVD and Generate Snapshot for Caching
       if: steps.avd-cache.outputs.cache-hit != 'true'
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 35
+        api-level: 31
         force-avd-creation: false
         emulator-options: -noaudio -no-boot-anim -camera-back none
         disable-animations: false
@@ -48,7 +45,7 @@ runs:
     - name: Run Integration Tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 35
+        api-level: 31
         force-avd-creation: false
         emulator-options: -noaudio -no-boot-anim -camera-back none
         disable-animations: ${{ inputs.is-main == 'true' && 'true' || 'false' }}
