@@ -35,6 +35,34 @@ class MapService {
     );
   }
 
+  // moves camera zoom to display the entire directions path
+  void adjustCameraForPath(List<LatLng> points) {
+    double north = points[0].latitude;
+    double south = points[0].latitude;
+    double east = points[0].longitude;
+    double west = points[0].longitude;
+
+    // iterates all path points to determine the bounds
+    for (LatLng point in points) {
+      if (point.latitude > north) north = point.latitude;
+      if (point.latitude < south) south = point.latitude;
+      if (point.longitude > east) east = point.longitude;
+      if (point.longitude < west) west = point.longitude;
+    }
+    LatLngBounds(
+      southwest: LatLng(south, west),
+      northeast: LatLng(north, east),
+    );
+    _mapController.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+                  southwest: LatLng(south, west),
+                  northeast: LatLng(north, east),
+                ), 
+        70)
+      );
+  }
+
   /// Loads a custom icon for each label from /assets/icons/{name}.png.
   Future<BitmapDescriptor> getCustomIcon(String name) async {
     final String iconPath = 'assets/icons/$name.png';
