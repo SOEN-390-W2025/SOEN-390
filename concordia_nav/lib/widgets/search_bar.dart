@@ -12,6 +12,7 @@ class SearchBarWidget extends StatelessWidget {
   final List<String> searchList;
   final MapViewModel? mapViewModel;
   final bool isSource;
+  final bool drawer;
 
   const SearchBarWidget({
     super.key,
@@ -22,6 +23,7 @@ class SearchBarWidget extends StatelessWidget {
     required this.searchList,
     this.mapViewModel,
     this.isSource = false,
+    this.drawer = false,
   });
 
 
@@ -36,13 +38,17 @@ class SearchBarWidget extends StatelessWidget {
 
     final selectedBuilding = (result as List)[0];
     final currentLocation = (result)[1];
-    
-    if (selectedBuilding != 'Your Location') {
-      final building = BuildingViewModel().getBuildingByName(selectedBuilding);
-      mapViewModel?.selectBuilding(building!);
-    } else {
-      if (context.mounted) {
-        await mapViewModel?.checkBuildingAtCurrentLocation(context);
+
+    // If drawer is true, show the drawer
+    if (drawer) {
+      // If the selected building is not "Your Location", show the building info
+      if (selectedBuilding != 'Your Location') {
+        final building = BuildingViewModel().getBuildingByName(selectedBuilding);
+        mapViewModel?.selectBuilding(building!);
+      } else { // If the selected building is "Your Location", check for building at current location
+        if (context.mounted) {
+          await mapViewModel?.checkBuildingAtCurrentLocation(context);
+        }
       }
     }
 

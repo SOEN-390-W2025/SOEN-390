@@ -41,7 +41,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   //MapViewModel get mapViewModel => _mapViewModel;
 
   Future<void> _loadMapData() async {
-    final mapData = await _mapViewModel.fetchMapData(_currentCampus);
+    final mapData = await _mapViewModel.fetchMapData(_currentCampus, true);
 
     if (mounted) {
       setState(() {
@@ -136,6 +136,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                     iconColor: Theme.of(context).primaryColor,
                     searchList: searchList,
                     mapViewModel: _mapViewModel,
+                    drawer: true,
                   ),
                 ),
               ],

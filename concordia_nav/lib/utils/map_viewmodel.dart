@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_final_fields, prefer_final_locals, use_build_context_synchronously
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
@@ -55,9 +57,11 @@ class MapViewModel extends ChangeNotifier {
     return _mapRepository.getCameraPosition(campus);
   }
 
-  Future<Map<String, dynamic>> fetchMapData(ConcordiaCampus campus) async {
+  Future<Map<String, dynamic>> fetchMapData(ConcordiaCampus campus, bool? isCampus) async {
     final cameraPosition = await getInitialCameraPosition(campus);
-    final mapData = await getCampusPolygonsAndLabels(campus);
+    final mapData = isCampus == true
+      ? await getCampusPolygonsAndLabels(campus)
+      : await getAllCampusPolygonsAndLabels();
 
     return {
       'cameraPosition': cameraPosition,

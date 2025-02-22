@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/search_bar.dart';
@@ -21,27 +22,57 @@ class OutdoorLocationMapView extends StatefulWidget {
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     with WidgetsBindingObserver {
   late MapViewModel _mapViewModel;
+  final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
-  late Future<CameraPosition> _initialCameraPosition;
+  CameraPosition? _initialCameraPosition;
   bool _locationPermissionGranted = false;
+  Set<Polygon> _polygons = {};
+  Set<Marker> _labelMarkers = {};
   final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
+  List<String> searchList = [];
   bool isKeyboardVisible = false;
+
+  Future<void> _loadMapData() async {
+    final mapData = await _mapViewModel.fetchMapData(_currentCampus, false);
+
+    if (mounted) {
+      setState(() {
+        _initialCameraPosition = mapData['cameraPosition'];
+        _polygons = mapData['polygons'];
+        _labelMarkers = mapData['labels'];
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _currentCampus = widget.campus;
-    _initialCameraPosition =
-        _mapViewModel.getInitialCameraPosition(_currentCampus);
-    _mapViewModel.mapService
-        .checkAndRequestLocationPermission()
-        .then((hasPermission) {
-      setState(() {
-        _locationPermissionGranted = hasPermission;
-      });
+
+    // Fetch initial data once
+    _loadMapData();
+
+    // Check for location permission
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      if (mounted) {
+        setState(() {
+          _locationPermissionGranted = hasPermission;
+          if (_locationPermissionGranted && !searchList.contains("Your Location")) {
+            searchList.insert(0, "Your Location");
+          }
+        });
+      }
     });
+
+    // Add buildings to search list
+    final buildings = _buildingViewModel.getBuildings();
+    for (var building in buildings) {
+      if (!searchList.contains(building)) {
+        searchList.add(building);
+      }
+    }
 
     WidgetsBinding.instance
         .addObserver(this); // Start observing keyboard changes
@@ -87,53 +118,22 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
-          FutureBuilder<CameraPosition>(
-            future: _initialCameraPosition,
-            builder: (context, camSnapshot) {
-              if (camSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (camSnapshot.hasError) {
-                return const Center(child: Text('Error loading campus map'));
-              }
-              return FutureBuilder<Map<String, dynamic>>(
-                future: _mapViewModel.getAllCampusPolygonsAndLabels(),
-                builder: (context, polySnapshot) {
-                  if (polySnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final Set<Polygon> polygons =
-                      polySnapshot.data?["polygons"] ?? {};
-                  final Set<Marker> labelMarkers =
-                      polySnapshot.data?["labels"] ?? {};
-
-                  if (_mapViewModel.destinationMarker != null) {
-                    labelMarkers.add(_mapViewModel.destinationMarker!);
-                  }
-
-                  if (!_locationPermissionGranted) {
-                    return const Center(
-                        child: Text('Location permission not granted'));
-                  }
-
-                  return MapLayout(
-                    mapWidget: GoogleMap(
-                      onMapCreated: _mapViewModel.onMapCreated,
-                      initialCameraPosition: camSnapshot.data!,
-                      zoomControlsEnabled: false,
-                      polylines: _mapViewModel.polylines,
-                      markers: labelMarkers,
-                      polygons: polygons,
-                      myLocationButtonEnabled: false,
-                      buildingsEnabled: false,
-                      myLocationEnabled: _locationPermissionGranted,
-                    ),
-                    mapViewModel: _mapViewModel,
-                    style: 2,
-                  );
-                },
-              );
-            },
+          if (_initialCameraPosition == null) // Show loading indicator until map is ready
+            const Center(child: CircularProgressIndicator())
+          else MapLayout(
+            mapWidget: GoogleMap(
+              onMapCreated: _mapViewModel.onMapCreated,
+              initialCameraPosition: _initialCameraPosition!,
+              zoomControlsEnabled: false,
+              polylines: _mapViewModel.polylines,
+              markers: _labelMarkers,
+              polygons: _polygons,
+              myLocationButtonEnabled: false,
+              buildingsEnabled: false,
+              myLocationEnabled: _locationPermissionGranted,
+            ),
+            mapViewModel: _mapViewModel,
+            style: 2,
           ),
           Positioned(
             top: 10,
@@ -144,7 +144,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               hintText: 'Your Location',
               icon: Icons.location_on,
               iconColor: Theme.of(context).primaryColor,
-              searchList: [],
+              searchList: searchList,
               mapViewModel: _mapViewModel,
             ),
           ),
@@ -157,20 +157,10 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               hintText: 'Enter Destination',
               icon: Icons.location_on,
               iconColor: const Color(0xFFDA3A16),
-              searchList: [],
+              searchList: searchList,
               mapViewModel: _mapViewModel,
             ),
           ),
-          if (isKeyboardVisible) // Show button only when keyboard is visible
-            Positioned(
-              bottom: 30,
-              left: 15,
-              right: 15,
-              child: ElevatedButton(
-                onPressed: _getDirections,
-                child: const Text('Get Directions'),
-              ),
-            ),
         ],
       ),
     );
