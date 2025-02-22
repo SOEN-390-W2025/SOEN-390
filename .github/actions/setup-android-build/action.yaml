@@ -23,25 +23,9 @@ runs:
           android/app/build.gradle
           android/gradle/wrapper/gradle-wrapper.properties
 
-    - name: Restore Android SDK Cache
-      uses: actions/cache@v4
-      id: cache-sdk
-      with:
-        path: |
-          /usr/local/lib/android/sdk
-        key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
-
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: ${{ inputs.sdk-version }}
         accept-android-sdk-licenses: true
         log-accepted-android-sdk-licenses: false
-
-    - name: Save Android SDK Cache
-      if: steps.cache-sdk.outputs.cache-hit != 'true'
-      uses: actions/cache@v4
-      with:
-        path: |
-          /usr/local/lib/android/sdk
-        key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
