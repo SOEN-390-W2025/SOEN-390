@@ -116,43 +116,36 @@ class MapService {
     final LatLng? currentLocation = await getCurrentLocation();
     final LatLng? origin;
     final LatLng? destination;
-    
+
     if (originAddress!.isEmpty || originAddress == "Your Location") {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
+      origin = currentLocation;
       destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
-      routePoints = await _directionsService.fetchRouteFromCoords(
-        currentLocation,
-        destination!,
-      );
     } else if (destinationAddress.isEmpty || destinationAddress == "Your Location") {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
       origin = BuildingViewModel().getBuildingLocationByName(originAddress);
-      routePoints = await _directionsService.fetchRouteFromCoords(
-        origin!,
-        currentLocation);
+      destination = currentLocation;
     } else if (originAddress!.isEmpty || originAddress == "Your Location" && destinationAddress.isEmpty || destinationAddress == "Your Location") {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
-      routePoints = await _directionsService.fetchRouteFromCoords(
-        currentLocation,
-        currentLocation);
+      origin = currentLocation;
+      destination = currentLocation;
     }
     else {
       destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
       origin = BuildingViewModel().getBuildingLocationByName(originAddress);
-      routePoints = await _directionsService.fetchRouteFromCoords(
-        origin!,
-        destination!);
+
     }
+    routePoints = await _directionsService.fetchRouteFromCoords(origin!,destination!);
 
     final Polyline polyline = Polyline(
       polylineId:
-          PolylineId('${originAddress ?? "current"}_$destinationAddress'),
+          PolylineId('${originAddress}_$destinationAddress'),
       color: const Color(0xFF2196F3),
       width: 5,
       points: routePoints,

@@ -36,6 +36,7 @@ class SearchBarWidget extends StatelessWidget {
       return;
     }
 
+    // Get the start and end locations
     String startLocation = isSource
         ? controller.text
         : controller2!.text;

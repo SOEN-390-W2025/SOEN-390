@@ -96,6 +96,7 @@ class MapViewModel extends ChangeNotifier {
           infoWindow: const InfoWindow(title: 'Source'),
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/source.png',),
+          anchor: const Offset(0.5, 0.5),
         ));
         addMarker( Marker(
           markerId: const MarkerId('destination'),
