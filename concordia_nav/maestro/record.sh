@@ -4,8 +4,7 @@ directory="maestro"
 
 for file in "$directory"/*.yaml; 
 do
-    # Check if the file exists
-    if [[ -f "$file" ]]; then
+    if [[ -f "$file" && "$(basename "$file")" != "config.yaml" ]]; then
         filename=$(basename "$file" .yaml)
         maestro record "$file" --local "$directory/recordings/$filename.mp4"
     fi
