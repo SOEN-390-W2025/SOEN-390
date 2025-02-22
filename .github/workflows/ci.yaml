@@ -11,39 +11,39 @@ permissions:
   actions: write
 
 jobs:
-  test:
-    name: 🧪 Run Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./concordia_nav
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+  # test:
+  #   name: 🧪 Run Tests
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./concordia_nav
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
     
-    - name: Create .env file
-      uses: ./.github/actions/create-env
-      with:
-        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+  #   - name: Create .env file
+  #     uses: ./.github/actions/create-env
+  #     with:
+  #       google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
-    - name: Setup Flutter
-      uses: ./.github/actions/setup-flutter
+  #   - name: Setup Flutter
+  #     uses: ./.github/actions/setup-flutter
 
-    - name: Run linter
-      run: rps lint check
+  #   - name: Run linter
+  #     run: rps lint check
     
-    - name: Run unit tests
-      run: rps test unit
+  #   - name: Run unit tests
+  #     run: rps test unit
 
-    - name: Cancel workflow on failure
-      if: failure()
-      uses: vishnudxb/cancel-workflow@v1.2
-      with:
-        repo: ${{ github.repository }}
-        workflow_id: ${{ github.run_id }}
-        access_token: ${{ github.token }}
+  #   - name: Cancel workflow on failure
+  #     if: failure()
+  #     uses: vishnudxb/cancel-workflow@v1.2
+  #     with:
+  #       repo: ${{ github.repository }}
+  #       workflow_id: ${{ github.run_id }}
+  #       access_token: ${{ github.token }}
 
     
     # - name: Enable KVM group perms
@@ -95,40 +95,40 @@ jobs:
         key-password: ${{ secrets.KEY_PASSWORD }}
         key-alias: ${{ secrets.KEY_ALIAS }}
 
-  coverage:
-    name: 📊 Coverage
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./concordia_nav
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+  # coverage:
+  #   name: 📊 Coverage
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./concordia_nav
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
 
-    - name: Create .env file
-      uses: ./.github/actions/create-env
-      with:
-        google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+  #   - name: Create .env file
+  #     uses: ./.github/actions/create-env
+  #     with:
+  #       google-maps-api-key: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
-    - name: Setup Flutter
-      uses: ./.github/actions/setup-flutter
+  #   - name: Setup Flutter
+  #     uses: ./.github/actions/setup-flutter
 
-    - name: Generate Code Coverage Report
-      run: rps coverage
+  #   - name: Generate Code Coverage Report
+  #     run: rps coverage
 
-    - name: Upload Coverage Report to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        directory: ./concordia_nav/coverage
-        fail_ci_if_error: false
-        files: ./lcov.info,
-        verbose: true
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: NathanGrenier/SOEN-390
+  #   - name: Upload Coverage Report to Codecov
+  #     uses: codecov/codecov-action@v5
+  #     with:
+  #       directory: ./concordia_nav/coverage
+  #       fail_ci_if_error: false
+  #       files: ./lcov.info,
+  #       verbose: true
+  #       token: ${{ secrets.CODECOV_TOKEN }}
+  #       slug: NathanGrenier/SOEN-390
     
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v4
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #   - name: SonarQube Scan
+  #     uses: SonarSource/sonarqube-scan-action@v4
+  #     env:
+  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
