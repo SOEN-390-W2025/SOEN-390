@@ -97,6 +97,7 @@ class MapViewModel extends ChangeNotifier {
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/source.png',),
           anchor: const Offset(0.5, 0.5),
+          zIndex: 2,
         ));
         addMarker( Marker(
           markerId: const MarkerId('destination'),
@@ -104,6 +105,7 @@ class MapViewModel extends ChangeNotifier {
           infoWindow: const InfoWindow(title: 'Destination'),
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/destination.png'),
+          zIndex: 2,
         ));
       }
     } catch (e) {
@@ -169,6 +171,7 @@ class MapViewModel extends ChangeNotifier {
                 _buildingService.getBuildingByAbbreviation(entry.key);
             selectBuilding(building!);
           },
+          zIndex: 1,
         ),
       );
     }
