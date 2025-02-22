@@ -28,7 +28,7 @@ runs:
       id: cache-sdk
       with:
         path: |
-          ${{ env.ANDROID_SDK_ROOT }}
+          /usr/local/lib/android/sdk
         key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
 
     - name: Set up Android SDK
@@ -43,5 +43,5 @@ runs:
       uses: actions/cache@v4
       with:
         path: |
-          ${{ env.ANDROID_SDK_ROOT }}
+          /usr/local/lib/android/sdk
         key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
