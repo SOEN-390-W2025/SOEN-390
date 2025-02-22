@@ -32,7 +32,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController(text: 'Search...');
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
   CameraPosition? _initialCameraPosition;
@@ -52,13 +52,16 @@ class CampusMapPageState extends State<CampusMapPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _currentCampus = widget.campus;
+  void getSearchList() {
+    final buildings = _buildingViewModel.getBuildingsByCampus(_currentCampus);
+    for (var building in buildings) {
+      if (!searchList.contains(building)) {
+        searchList.add(building);
+      }
+    }
+  }
 
-    _loadMapData();
-
+  void checkLocationPermission() {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
@@ -67,14 +70,19 @@ class CampusMapPageState extends State<CampusMapPage> {
         }
       });
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _currentCampus = widget.campus;
+
+    _loadMapData();
+
+    checkLocationPermission();
 
     // Populate search list with buildings
-    final buildings = _buildingViewModel.getBuildingsByCampus(_currentCampus);
-    for (var building in buildings) {
-      if (!searchList.contains(building)) {
-        searchList.add(building);
-      }
-    }
+    getSearchList();
   }
 
   @override
@@ -104,7 +112,12 @@ class CampusMapPageState extends State<CampusMapPage> {
                       : ConcordiaCampus.sgw;
                 });
                 _loadMapData();
+                _mapViewModel.switchCampus(_currentCampus);
                 _mapViewModel.unselectBuilding();
+                _searchController.text = 'Search...';
+                searchList.clear();
+                checkLocationPermission();
+                getSearchList();
               },
             ),
             body: Stack(
