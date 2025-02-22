@@ -31,30 +31,18 @@ class SearchBarWidget extends StatelessWidget {
   });
 
   Future<void> _getDirections() async {
-
-    String location1 = "Your Location";
-    String location2 = "Your Location";
-
     if (controller.text.isEmpty || (controller2?.text ?? '').isEmpty) {
-      // Handle empty input case (e.g., show an error)
+      // Handle empty input case
       return;
     }
 
-    if (controller.text != 'Your Location') {
-      location1 = "Concordia University ${controller.text}";
-    }
-
-    if (controller2?.text != null && controller2?.text != 'Your Location') {
-      location2 = "Concordia University ${controller2!.text}";
-    }
-
     String startLocation = isSource
-        ? location1
-        : location2;
+        ? controller.text
+        : controller2!.text;
 
     String endLocation = isSource
-        ? location2
-        : location1;
+        ? controller2!.text
+        : controller.text;
 
     await mapViewModel?.fetchRoute(startLocation, endLocation);
 
