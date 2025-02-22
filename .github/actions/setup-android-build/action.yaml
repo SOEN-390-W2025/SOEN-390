@@ -27,7 +27,9 @@ runs:
       uses: actions/cache@v3
       id: cache-sdk
       with:
-        path: ${{ runner.tool_cache }}/android-sdk
+        path: |
+          # ${{ runner.tool_cache }}/android-sdk
+          $ANDROID_SDK_ROOT
         key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
 
     - name: Set up Android SDK
@@ -37,24 +39,9 @@ runs:
         accept-android-sdk-licenses: true
         log-accepted-android-sdk-licenses: false
 
-    - name: HOME
-      shell: bash
-      run: |
-        cd $HOME
-        pwd
-        ls -la .
-
-    - name: ANDROID_SDK_ROOT 
-      shell: bash
-      run: |
-        cd $ANDROID_SDK_ROOT
-        pwd
-        ls -la .
-        ls -la .android
-
     - name: Save Android SDK Cache
       if: steps.cache-sdk.outputs.cache-hit != 'true'
       uses: actions/cache@v3
       with:
-        path: ${{ runner.tool_cache }}/android-sdk
+        path: $ANDROID_SDK_ROOT
         key: ${{ runner.os }}-android-sdk-${{ inputs.sdk-version }}
