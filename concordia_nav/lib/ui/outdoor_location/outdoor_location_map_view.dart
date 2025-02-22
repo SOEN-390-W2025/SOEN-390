@@ -6,7 +6,7 @@ import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
-import '../../widgets/search_bar.dart';
+import '../../widgets/source_destination_box.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -154,25 +154,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             },
           ),
           Positioned(
-            top: 10,
-            left: 15,
-            right: 15,
-            child: SearchBarWidget(
-              controller: _sourceController,
-              hintText: 'Your Location',
-              icon: Icons.location_on,
-              iconColor: Theme.of(context).primaryColor,
-            ),
-          ),
-          Positioned(
-            top: 80,
-            left: 15,
-            right: 15,
-            child: SearchBarWidget(
-              controller: _destinationController,
-              hintText: 'Enter Destination',
-              icon: Icons.location_on,
-              iconColor: const Color(0xFFDA3A16),
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SourceDestinationBox(
+              sourceController: _sourceController,
+              destinationController: _destinationController,
             ),
           ),
           if (isKeyboardVisible) // Show button only when keyboard is visible
