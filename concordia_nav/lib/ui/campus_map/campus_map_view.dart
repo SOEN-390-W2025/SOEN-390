@@ -38,6 +38,8 @@ class CampusMapPageState extends State<CampusMapPage> {
   CameraPosition? _initialCameraPosition;
   List<String> searchList = [];
 
+  MapViewModel get mapViewModel => _mapViewModel;
+
   //MapViewModel get mapViewModel => _mapViewModel;
 
   Future<void> _loadMapData() async {

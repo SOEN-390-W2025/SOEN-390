@@ -129,7 +129,7 @@ class MapService {
       }
       origin = BuildingViewModel().getBuildingLocationByName(originAddress);
       destination = currentLocation;
-    } else if (originAddress!.isEmpty || originAddress == "Your Location" && destinationAddress.isEmpty || destinationAddress == "Your Location") {
+    } else if (originAddress.isEmpty || originAddress == "Your Location" && destinationAddress.isEmpty || destinationAddress == "Your Location") {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }

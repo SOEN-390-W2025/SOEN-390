@@ -77,7 +77,7 @@ void main() async {
         .thenAnswer((_) async => true);
 
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
-    when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
+    when(mockMapViewModel.markers).thenReturn(mockMarker as List<Marker>);
     when(mockMapViewModel.polylines).thenReturn(mockPolylines);
 
     mockDirectionsService = MockDirectionsService();

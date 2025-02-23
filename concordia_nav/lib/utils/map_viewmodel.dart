@@ -1,7 +1,5 @@
 // ignore_for_file: prefer_final_fields, prefer_final_locals, use_build_context_synchronously
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/repositories/map_repository.dart';
