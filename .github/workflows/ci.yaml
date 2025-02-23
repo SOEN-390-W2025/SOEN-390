@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     name: 🧪 Run Tests
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, david_server]
     defaults:
       run:
         working-directory: ./concordia_nav
@@ -53,7 +53,7 @@ jobs:
 
   build:
     name: 📦 Build
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, david_server]
     defaults:
       run:
         working-directory: ./concordia_nav
@@ -85,7 +85,7 @@ jobs:
 
   coverage:
     name: 📊 Coverage
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, david_server]
     defaults:
       run:
         working-directory: ./concordia_nav
