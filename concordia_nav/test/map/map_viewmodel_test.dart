@@ -55,6 +55,9 @@ void main() {
       when(mockMapService.getRoutePath(originAddress, destinationAddress))
           .thenAnswer((_) async => routePoints);
 
+      // mock zoom of camera
+      when(mockMapService.adjustCameraForPath(routePoints)).thenReturn(null);
+
       // Act
       await mapViewModel.fetchRoute(originAddress, destinationAddress);
 
@@ -284,6 +287,19 @@ void main() {
       // Assert
       verify(mockMapService.moveCamera(LatLng(campus.lat, campus.lng)))
           .called(1);
+    });
+
+    test('adjustCameraForPath should be called', () {
+      // Arrange
+      const point1 = LatLng(37.7749, -122.4194);
+      const point2 = LatLng(45.49721130711485, -73.5787529114208);
+      const points = [point1, point2];
+      
+      // Act
+      mapViewModel.adjustCamera(points);
+
+      // Assert
+      verify(mockMapService.adjustCameraForPath(points)).called(1);
     });
 
     test('zoomIn should be called', () async {

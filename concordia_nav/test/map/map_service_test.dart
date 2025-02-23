@@ -126,6 +126,31 @@ Future<void> main() async {
       )).called(1);
     });
 
+    test('adjustCameraForPath should call animateCamera on the map controller', () {
+      // Arrange
+      const point1 = LatLng(37.7749, -122.4194);
+      const point2 = LatLng(45.49721130711485, -73.5787529114208);
+      const points = [point1, point2];
+
+      realMapService.setMapController(mockGoogleMapController);
+
+      // Act
+      realMapService.adjustCameraForPath(points);
+
+      // Assert
+      verify(mockGoogleMapController.animateCamera(
+        argThat(
+          isA<CameraUpdate>().having(
+            (update) => update.toString(),
+            'CameraUpdate',
+            CameraUpdate.newLatLngBounds(
+              LatLngBounds(southwest: point1, northeast: point2), 70
+            ).toString(),
+          ),
+        ),
+      )).called(1);
+    });
+
     test('zoomIn should animate camera', () async {
       // Arrange
       const currentZoom = 10.50;

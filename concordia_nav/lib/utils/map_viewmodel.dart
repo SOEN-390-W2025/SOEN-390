@@ -47,6 +47,11 @@ class MapViewModel extends ChangeNotifier {
     return _mapRepository.getCameraPosition(campus);
   }
 
+  // moves camera to view full path
+  void adjustCamera(List<LatLng> points) {
+    _mapService.adjustCameraForPath(points);
+  }
+
   /// Fetches the route and updates the polyline and destination marker.
   Future<void> fetchRoute(
       String? originAddress, String destinationAddress) async {
@@ -77,6 +82,8 @@ class MapViewModel extends ChangeNotifier {
               'assets/icons/destination.png'),
         );
       }
+      // add delay to adjust camera call to load path first
+      Future.delayed(const Duration(seconds: 1), () => adjustCamera(routePoints));
     } catch (e) {
       throw Exception("Failed to load directions: $e");
     }
