@@ -458,13 +458,13 @@ class MockODSDirectionsService extends _i1.Mock implements _i7.ODSDirectionsServ
   @override
   _i8.Future<_i7.OutdoorRouteResult> fetchRouteResult(
     {required String originAddress, required String destinationAddress, required _i10.TravelMode travelMode, 
-    String polylineId = "route", _i11.Color color = const _i3.Color(0xFF2196F3), int width = 5}) => (
+    String? polylineId = "route", _i11.Color? color = const _i3.Color(0xFF2196F3), int? width = 5}) => (
       super.noSuchMethod(
-        Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode]),
+        Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode, polylineId, color, width]),
         returnValue: _i8.Future<_i7.OutdoorRouteResult>.value(
           _FakeOutdoorRouteResult_1(
             this,
-            Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode]),
+            Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode, polylineId, color, width]),
           ),
         ),
       ) as _i8.Future<_i7.OutdoorRouteResult>

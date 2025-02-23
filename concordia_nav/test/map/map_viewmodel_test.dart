@@ -36,7 +36,9 @@ void main() {
       const originAddress = 'origin';
       const destinationAddress = '';
       
-      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving))
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving,
+        polylineId: any, color: any, width: any))
         .thenThrow(Exception('Failed to fetch route'));
 
       // Act & Assert
@@ -59,13 +61,17 @@ void main() {
       ];
 
       final polyline = Polyline(polylineId: const PolylineId('2'), points: routePoints);
-      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving))
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving, polylineId: any, color: any, width: any))
         .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
-      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.walking))
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.walking, polylineId: any, color: any, width: any))
         .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
-      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.bicycling))
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.bicycling, polylineId: any, color: any, width: any))
         .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
-      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.transit))
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.transit, polylineId: any, color: any, width: any))
         .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
 
       when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) => true);
@@ -89,7 +95,8 @@ void main() {
       const originAddress = 'origin';
       const destinationAddress = 'destination';
 
-      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving))
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving, polylineId: any, color: any, width: any))
         .thenThrow(Exception('Failed to fetch route'));
 
       // Mock getRoutePath to throw an exception
