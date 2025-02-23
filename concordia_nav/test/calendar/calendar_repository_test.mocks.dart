@@ -30,7 +30,7 @@ import 'package:mockito/mockito.dart' as _i1;
 
 class _FakeResult_0<T> extends _i1.SmartFake implements _i2.Result<T> {
   _FakeResult_0(Object parent, Invocation parentInvocation)
-      : super(parent, parentInvocation);
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [DeviceCalendarPlugin].
@@ -39,52 +39,60 @@ class _FakeResult_0<T> extends _i1.SmartFake implements _i2.Result<T> {
 class MockDeviceCalendarPlugin extends _i1.Mock
     implements _i3.DeviceCalendarPlugin {
   @override
-  _i4.Future<_i2.Result<bool>> requestPermissions() => (super.noSuchMethod(
-        Invocation.method(#requestPermissions, []),
-        returnValue: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
+  _i4.Future<_i2.Result<bool>> requestPermissions() =>
+      (super.noSuchMethod(
             Invocation.method(#requestPermissions, []),
-          ),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
-            Invocation.method(#requestPermissions, []),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<bool>>);
+            returnValue: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#requestPermissions, []),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#requestPermissions, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<bool>>);
 
   @override
-  _i4.Future<_i2.Result<bool>> hasPermissions() => (super.noSuchMethod(
-        Invocation.method(#hasPermissions, []),
-        returnValue: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(this, Invocation.method(#hasPermissions, [])),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(this, Invocation.method(#hasPermissions, [])),
-        ),
-      ) as _i4.Future<_i2.Result<bool>>);
+  _i4.Future<_i2.Result<bool>> hasPermissions() =>
+      (super.noSuchMethod(
+            Invocation.method(#hasPermissions, []),
+            returnValue: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(this, Invocation.method(#hasPermissions, [])),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(this, Invocation.method(#hasPermissions, [])),
+            ),
+          )
+          as _i4.Future<_i2.Result<bool>>);
 
   @override
   _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>>
-      retrieveCalendars() => (super.noSuchMethod(
+  retrieveCalendars() =>
+      (super.noSuchMethod(
             Invocation.method(#retrieveCalendars, []),
             returnValue: _i4.Future<
-                _i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>>.value(
+              _i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>
+            >.value(
               _FakeResult_0<_i5.UnmodifiableListView<_i6.Calendar>>(
                 this,
                 Invocation.method(#retrieveCalendars, []),
               ),
             ),
             returnValueForMissingStub: _i4.Future<
-                _i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>>.value(
+              _i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>
+            >.value(
               _FakeResult_0<_i5.UnmodifiableListView<_i6.Calendar>>(
                 this,
                 Invocation.method(#retrieveCalendars, []),
               ),
             ),
-          ) as _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>>);
+          )
+          as _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i6.Calendar>>>);
 
   @override
   _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i7.Event>>> retrieveEvents(
@@ -92,31 +100,34 @@ class MockDeviceCalendarPlugin extends _i1.Mock
     _i8.RetrieveEventsParams? retrieveEventsParams,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(#retrieveEvents, [
-          calendarId,
-          retrieveEventsParams,
-        ]),
-        returnValue:
-            _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i7.Event>>>.value(
-          _FakeResult_0<_i5.UnmodifiableListView<_i7.Event>>(
-            this,
             Invocation.method(#retrieveEvents, [
               calendarId,
               retrieveEventsParams,
             ]),
-          ),
-        ),
-        returnValueForMissingStub:
-            _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i7.Event>>>.value(
-          _FakeResult_0<_i5.UnmodifiableListView<_i7.Event>>(
-            this,
-            Invocation.method(#retrieveEvents, [
-              calendarId,
-              retrieveEventsParams,
-            ]),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i7.Event>>>);
+            returnValue: _i4.Future<
+              _i2.Result<_i5.UnmodifiableListView<_i7.Event>>
+            >.value(
+              _FakeResult_0<_i5.UnmodifiableListView<_i7.Event>>(
+                this,
+                Invocation.method(#retrieveEvents, [
+                  calendarId,
+                  retrieveEventsParams,
+                ]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<
+              _i2.Result<_i5.UnmodifiableListView<_i7.Event>>
+            >.value(
+              _FakeResult_0<_i5.UnmodifiableListView<_i7.Event>>(
+                this,
+                Invocation.method(#retrieveEvents, [
+                  calendarId,
+                  retrieveEventsParams,
+                ]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<_i5.UnmodifiableListView<_i7.Event>>>);
 
   @override
   _i4.Future<_i2.Result<bool>> deleteEvent(
@@ -124,20 +135,21 @@ class MockDeviceCalendarPlugin extends _i1.Mock
     String? eventId,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(#deleteEvent, [calendarId, eventId]),
-        returnValue: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
             Invocation.method(#deleteEvent, [calendarId, eventId]),
-          ),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
-            Invocation.method(#deleteEvent, [calendarId, eventId]),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<bool>>);
+            returnValue: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#deleteEvent, [calendarId, eventId]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#deleteEvent, [calendarId, eventId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<bool>>);
 
   @override
   _i4.Future<_i2.Result<bool>> deleteEventInstance(
@@ -148,16 +160,6 @@ class MockDeviceCalendarPlugin extends _i1.Mock
     bool? deleteFollowingInstances,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(#deleteEventInstance, [
-          calendarId,
-          eventId,
-          startDate,
-          endDate,
-          deleteFollowingInstances,
-        ]),
-        returnValue: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
             Invocation.method(#deleteEventInstance, [
               calendarId,
               eventId,
@@ -165,29 +167,41 @@ class MockDeviceCalendarPlugin extends _i1.Mock
               endDate,
               deleteFollowingInstances,
             ]),
-          ),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
-            Invocation.method(#deleteEventInstance, [
-              calendarId,
-              eventId,
-              startDate,
-              endDate,
-              deleteFollowingInstances,
-            ]),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<bool>>);
+            returnValue: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#deleteEventInstance, [
+                  calendarId,
+                  eventId,
+                  startDate,
+                  endDate,
+                  deleteFollowingInstances,
+                ]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#deleteEventInstance, [
+                  calendarId,
+                  eventId,
+                  startDate,
+                  endDate,
+                  deleteFollowingInstances,
+                ]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<bool>>);
 
   @override
   _i4.Future<_i2.Result<String>?> createOrUpdateEvent(_i7.Event? event) =>
       (super.noSuchMethod(
-        Invocation.method(#createOrUpdateEvent, [event]),
-        returnValue: _i4.Future<_i2.Result<String>?>.value(),
-        returnValueForMissingStub: _i4.Future<_i2.Result<String>?>.value(),
-      ) as _i4.Future<_i2.Result<String>?>);
+            Invocation.method(#createOrUpdateEvent, [event]),
+            returnValue: _i4.Future<_i2.Result<String>?>.value(),
+            returnValueForMissingStub: _i4.Future<_i2.Result<String>?>.value(),
+          )
+          as _i4.Future<_i2.Result<String>?>);
 
   @override
   _i4.Future<_i2.Result<String>> createCalendar(
@@ -196,17 +210,6 @@ class MockDeviceCalendarPlugin extends _i1.Mock
     String? localAccountName,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #createCalendar,
-          [calendarName],
-          {
-            #calendarColor: calendarColor,
-            #localAccountName: localAccountName,
-          },
-        ),
-        returnValue: _i4.Future<_i2.Result<String>>.value(
-          _FakeResult_0<String>(
-            this,
             Invocation.method(
               #createCalendar,
               [calendarName],
@@ -215,56 +218,70 @@ class MockDeviceCalendarPlugin extends _i1.Mock
                 #localAccountName: localAccountName,
               },
             ),
-          ),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<String>>.value(
-          _FakeResult_0<String>(
-            this,
-            Invocation.method(
-              #createCalendar,
-              [calendarName],
-              {
-                #calendarColor: calendarColor,
-                #localAccountName: localAccountName,
-              },
+            returnValue: _i4.Future<_i2.Result<String>>.value(
+              _FakeResult_0<String>(
+                this,
+                Invocation.method(
+                  #createCalendar,
+                  [calendarName],
+                  {
+                    #calendarColor: calendarColor,
+                    #localAccountName: localAccountName,
+                  },
+                ),
+              ),
             ),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<String>>);
+            returnValueForMissingStub: _i4.Future<_i2.Result<String>>.value(
+              _FakeResult_0<String>(
+                this,
+                Invocation.method(
+                  #createCalendar,
+                  [calendarName],
+                  {
+                    #calendarColor: calendarColor,
+                    #localAccountName: localAccountName,
+                  },
+                ),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<String>>);
 
   @override
   _i4.Future<_i2.Result<bool>> deleteCalendar(String? calendarId) =>
       (super.noSuchMethod(
-        Invocation.method(#deleteCalendar, [calendarId]),
-        returnValue: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
             Invocation.method(#deleteCalendar, [calendarId]),
-          ),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
-          _FakeResult_0<bool>(
-            this,
-            Invocation.method(#deleteCalendar, [calendarId]),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<bool>>);
+            returnValue: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#deleteCalendar, [calendarId]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Result<bool>>.value(
+              _FakeResult_0<bool>(
+                this,
+                Invocation.method(#deleteCalendar, [calendarId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<bool>>);
 
   @override
   _i4.Future<_i2.Result<void>> showiOSEventModal(String? eventId) =>
       (super.noSuchMethod(
-        Invocation.method(#showiOSEventModal, [eventId]),
-        returnValue: _i4.Future<_i2.Result<void>>.value(
-          _FakeResult_0<void>(
-            this,
             Invocation.method(#showiOSEventModal, [eventId]),
-          ),
-        ),
-        returnValueForMissingStub: _i4.Future<_i2.Result<void>>.value(
-          _FakeResult_0<void>(
-            this,
-            Invocation.method(#showiOSEventModal, [eventId]),
-          ),
-        ),
-      ) as _i4.Future<_i2.Result<void>>);
+            returnValue: _i4.Future<_i2.Result<void>>.value(
+              _FakeResult_0<void>(
+                this,
+                Invocation.method(#showiOSEventModal, [eventId]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Result<void>>.value(
+              _FakeResult_0<void>(
+                this,
+                Invocation.method(#showiOSEventModal, [eventId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Result<void>>);
 }

@@ -26,7 +26,7 @@ scripts:
     fix: dart format .
     check: dart format --output=none --set-exit-if-changed .
   test:
-    unit: flutter test -r expanded
+    unit: rps gen && flutter test -r expanded
     integration:
       $script: maestro test --format html --output ../pages/integration-test-report.html maestro/*.yaml
       $description: Generates a report of the integration test results in HTML format. Does not record the tests.
