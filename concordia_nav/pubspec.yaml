@@ -33,7 +33,7 @@ scripts:
     all: rps test unit && rps test integration
     record:
       $script: bash ./maestro/record.sh
-      $description: Records the integrations tests. Does not generate a html report of the tests.
+      $description: Records the integrations tests. Does not generate a html report of the tests. You can pass in a regex parameter to specify what files you want run. Example; rps test record "^1_1" (This will select all files who's names start with "1_1"). Default regex is to select all files.
   lint:
     check: flutter analyze
     fix: dart fix --apply
