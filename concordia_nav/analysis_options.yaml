@@ -2,6 +2,11 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    - '**/*.mocks.dart'
+    - 'test/**/*.mocks.dart'
+
 linter:
   # A list of all available lints and their documentation is published at https://dart.dev/lints.
 
