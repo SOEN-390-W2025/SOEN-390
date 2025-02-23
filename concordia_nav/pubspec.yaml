@@ -26,14 +26,22 @@ scripts:
     fix: dart format .
     check: dart format --output=none --set-exit-if-changed .
   test:
-    unit: flutter test -r expanded
-    integration: flutter test integration_test
+    unit: rps gen && flutter test -r expanded
+    integration:
+      $script: maestro test --format html --output ../pages/integration-test-report.html maestro/*.yaml
+      $description: Generates a report of the integration test results in HTML format. Does not record the tests.
     all: rps test unit && rps test integration
+    record:
+      $script: bash ./maestro/record.sh
+      $description: Records the integrations tests. Does not generate a html report of the tests. You can pass in a regex parameter to specify what files you want run. Example; rps test record "^1_1" (This will select all files who's names start with "1_1"). Default regex is to select all files.
   lint:
     check: flutter analyze
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
-  coverage: flutter test --coverage --branch-coverage
+  coverage: flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
+  codecov: 
+    windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
+    mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
   run: flutter run --dart-define-from-file=./.env
   clean: flutter clean
   build:
@@ -44,6 +52,9 @@ scripts:
   install:
     $script: flutter install
     $description: Install the app on the connected device. Can pass --release or --debug flags. (Default --release)
+  ci:
+    $script: rps clean && rps format check && rps lint check && rps test unit && rps build android --debug && rps coverage 
+    $description: Run all of the commands that are part of the ci pipeline
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -78,6 +89,7 @@ dev_dependencies:
   mockito: ^5.4.5
   build_runner: ^2.4.14
   mockingjay: ^0.6.0
+  test_cov_console: ^0.2.2
 
 plugin:
   platforms:

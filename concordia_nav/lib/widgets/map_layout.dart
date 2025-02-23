@@ -20,7 +20,8 @@ class MapLayout extends StatelessWidget {
   });
 
   @override
-  /// Builds the map layout with the map widget, search bar, controller buttons, 
+
+  /// Builds the map layout with the map widget, search bar, controller buttons,
   /// and an optional building info drawer.
   Widget build(BuildContext context) {
     return Stack(
@@ -55,7 +56,8 @@ class MapLayout extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return SlideTransition(
-                    position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                    position: Tween<Offset>(
+                            begin: const Offset(0, 1), end: Offset.zero)
                         .animate(animation),
                     child: child,
                   );

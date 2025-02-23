@@ -157,16 +157,16 @@ void main() {
     testWidgets('SettingsTile onPress is possible',
         (WidgetTester tester) async {
       // define routes needed for this test
-        final routes = {
-          '/': (context) => const SettingsPage(),
-          '/AccessibilityPage': (context) => const AccessibilityPage(),
-        };
+      final routes = {
+        '/': (context) => const SettingsPage(),
+        '/AccessibilityPage': (context) => const AccessibilityPage(),
+      };
 
-        // Build the SettingsPage widget
-        await tester.pumpWidget(MaterialApp(
-          initialRoute: '/',
-          routes: routes,
-        ));
+      // Build the SettingsPage widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
 
       // Tap on My Calendar SettingsTile
       await tester.tap(find.text('My calendar'));

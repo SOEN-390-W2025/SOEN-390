@@ -4,7 +4,7 @@ inputs:
   sdk-version:
     description: 'SDK Version to Install (Long version, e.g. 12266719)'
     required: true
-    default: '12266719'
+    default: '12266719 ' # v16.0
 runs:
   using: composite
   steps:
