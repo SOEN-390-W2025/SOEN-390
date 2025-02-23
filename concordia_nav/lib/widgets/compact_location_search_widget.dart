@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../utils/map_viewmodel.dart';
+
 class CompactSearchCardWidget extends StatelessWidget {
   final TextEditingController originController;
   final TextEditingController destinationController;
+  final MapViewModel mapViewModel;
 
   const CompactSearchCardWidget({
     super.key,
     required this.originController,
     required this.destinationController,
+    required this.mapViewModel,
   });
 
   @override
@@ -59,6 +63,10 @@ class CompactSearchCardWidget extends StatelessWidget {
                         isDense: true,
                         hintStyle: TextStyle(color: Colors.black),
                       ),
+                      onTap: () => {
+                        if (mapViewModel.selectedBuildingNotifier.value != null)
+                          mapViewModel.unselectBuilding()
+                      },
                     ),
                     Divider(
                       height: 1,
@@ -74,6 +82,10 @@ class CompactSearchCardWidget extends StatelessWidget {
                         isDense: true,
                         hintStyle: TextStyle(color: Colors.grey[600]),
                       ),
+                      onTap: () => {
+                        if (mapViewModel.selectedBuildingNotifier.value != null)
+                          mapViewModel.unselectBuilding()
+                      },
                     ),
                   ],
                 ),

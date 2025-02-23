@@ -159,6 +159,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             CompactSearchCardWidget(
               originController: _sourceController,
               destinationController: _destinationController,
+              mapViewModel: _mapViewModel,
             ),
             if (showModeChips)
               Container(
