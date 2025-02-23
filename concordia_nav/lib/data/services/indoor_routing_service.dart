@@ -23,9 +23,9 @@ class IndoorRoutingService {
     final MapService mapService = MapService();
 
     try {
-      
       final bool serviceEnabled = await mapService.isLocationServiceEnabled();
-      final bool hasPermission = await mapService.checkAndRequestLocationPermission();
+      final bool hasPermission =
+          await mapService.checkAndRequestLocationPermission();
       // check if location services are enabled
       if (!serviceEnabled) {
         return Future.error('Location services are disabled.');

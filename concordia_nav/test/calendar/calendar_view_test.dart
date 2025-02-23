@@ -93,7 +93,8 @@ void main() {
 
       // define routes needed for this test
       final routes = {
-        '/': (context) => CalendarLinkView(calendarRepository: calendarRepository),
+        '/': (context) =>
+            CalendarLinkView(calendarRepository: calendarRepository),
         '/CalendarView': (context) => const CalendarView(),
       };
 

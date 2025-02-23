@@ -8,6 +8,8 @@ concordia_nav/ios/Flutter/Environment.xcconfig
 .vscode/
 
 # Other
+codecov.exe
+
 pages/*
 !pages/.gitkeep
 
