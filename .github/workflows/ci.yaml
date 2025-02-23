@@ -71,8 +71,7 @@ jobs:
     - name: Build (Release or Debug)
       uses: ./.github/actions/build-android
       with:
-        # release: ${{ github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
-        release: "true"
+        release: ${{ github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         keystore-base64: ${{ secrets.KEYSTORE_BASE64 }}
         keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
         key-password: ${{ secrets.KEY_PASSWORD }}
@@ -115,13 +114,14 @@ jobs:
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
       
+    # TODO: Change the first script from integration to record when the android emulation is fixed.
     - name: Set Integration Test Script Variable
       id: set-script
       run: |
         if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
-          echo "integration-test-script=cd concordia_nav && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'" >> $GITHUB_ENV
+          echo "integration-test-script=cd concordia_nav && rps install --release && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'" >> $GITHUB_ENV
         else
-          echo "integration-test-script=cd concordia_nav && rps install --release && rps test record 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'" >> $GITHUB_ENV
+          echo "integration-test-script=cd concordia_nav && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'" >> $GITHUB_ENV
         fi
 
     - name: Run Integration Tests
@@ -132,16 +132,16 @@ jobs:
         arch: x86_64
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-        disable-animations: ${{ github.ref == 'refs/heads/main' }}
+        disable-animations: true
         script: ${{ env.integration-test-script }}
 
-    - name: Upload Test Recording Artifacts
-      uses: actions/upload-artifact@v4
-      # if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      with:
-        name: integration-test-recordings
-        path: concordia_nav/maestro/recordings/*.mp4
-        retention-days: 90
+    # - name: Upload Test Recording Artifacts
+    #   uses: actions/upload-artifact@v4
+    #   if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    #   with:
+    #     name: integration-test-recordings
+    #     path: concordia_nav/maestro/recordings/*.mp4
+    #     retention-days: 90
 
   coverage:
     name: 📊 Coverage
