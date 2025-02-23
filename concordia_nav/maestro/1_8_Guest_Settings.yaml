@@ -1,6 +1,7 @@
 appId: com.example.concordia_nav
 ---
-- tapOn: "ConU Nav"
+- launchApp:
+    clearState : true
 - assertVisible: "Concordia Campus Guide"
 - tapOn:
     point: "7%,9%"

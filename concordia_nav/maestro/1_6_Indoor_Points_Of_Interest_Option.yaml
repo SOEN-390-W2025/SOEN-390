@@ -1,6 +1,7 @@
 appId: com.example.concordia_nav
 ---
-- tapOn: "ConU Nav"
+- launchApp:
+    clearState : true
 - assertVisible: "Find nearby facilities"
 - tapOn: "Find nearby facilities"
 - assertVisible: "Nearby Facilities"
