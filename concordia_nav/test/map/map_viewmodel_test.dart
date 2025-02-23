@@ -1,10 +1,12 @@
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/helpers/icon_loader.dart';
+import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:concordia_nav/data/repositories/map_repository.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
@@ -13,17 +15,19 @@ import 'map_viewmodel_test.mocks.dart';
 
 class MockIconLoader extends Mock implements IconLoader {}
 
-@GenerateMocks([MapRepository, MapService, MapViewModel])
+@GenerateMocks([MapRepository, MapService, MapViewModel, ODSDirectionsService])
 void main() {
   late MapViewModel mapViewModel;
   late MockMapRepository mockMapRepository;
   late MockMapService mockMapService;
+  late MockODSDirectionsService mockODSDirectionsService;
 
   setUp(() {
     mockMapRepository = MockMapRepository();
     mockMapService = MockMapService();
+    mockODSDirectionsService = MockODSDirectionsService();
     mapViewModel = MapViewModel(
-        mapRepository: mockMapRepository, mapService: mockMapService);
+        mapRepository: mockMapRepository, mapService: mockMapService, odsDirectionsService: mockODSDirectionsService);
   });
 
   group('fetchRoute', () {
@@ -31,11 +35,14 @@ void main() {
       // Arrange
       const originAddress = 'origin';
       const destinationAddress = '';
+      
+      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving))
+        .thenThrow(Exception('Failed to fetch route'));
 
       // Act & Assert
       expect(
           () async =>
-              await mapViewModel.fetchRoute(originAddress, destinationAddress),
+              await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress),
           throwsException);
     });
 
@@ -51,15 +58,27 @@ void main() {
         const LatLng(45.4216, -75.6969),
       ];
 
+      final polyline = Polyline(polylineId: const PolylineId('2'), points: routePoints);
+      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.walking))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.bicycling))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.transit))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+
+      when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) => true);
+
       // Mock getRoutePath to return the routePoints
       when(mockMapService.getRoutePath(originAddress, destinationAddress))
           .thenAnswer((_) async => routePoints);
 
       // Act
-      await mapViewModel.fetchRoute(originAddress, destinationAddress);
+      await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress);
 
       // Assert
-      expect(mapViewModel.polylines.isNotEmpty, true);
+      expect(mapViewModel.activePolylines.isNotEmpty, true);
       expect(mapViewModel.destinationMarker, isNotNull);
       expect(
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
@@ -70,6 +89,9 @@ void main() {
       const originAddress = 'origin';
       const destinationAddress = 'destination';
 
+      when(mockODSDirectionsService.fetchRouteResult(originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving))
+        .thenThrow(Exception('Failed to fetch route'));
+
       // Mock getRoutePath to throw an exception
       when(mockMapService.getRoutePath(originAddress, destinationAddress))
           .thenThrow(Exception('Failed to fetch route'));
@@ -77,7 +99,7 @@ void main() {
       // Act & Assert
       expect(
         () async =>
-            await mapViewModel.fetchRoute(originAddress, destinationAddress),
+            await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress),
         throwsException,
       );
     });
@@ -272,18 +294,6 @@ void main() {
 
       // Assert
       verify(mockMapService.setMapController(mockController)).called(1);
-    });
-
-    test('switchCampus should move camera to new campus location', () {
-      // Arrange
-      const campus = ConcordiaCampus.loy;
-
-      // Act
-      mapViewModel.switchCampus(campus);
-
-      // Assert
-      verify(mockMapService.moveCamera(LatLng(campus.lat, campus.lng)))
-          .called(1);
     });
 
     test('zoomIn should be called', () async {

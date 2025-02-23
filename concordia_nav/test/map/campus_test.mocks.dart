@@ -75,12 +75,6 @@ class MockMapViewModel extends _i1.Mock implements _i3.MapViewModel {
       );
 
   @override
-  void switchCampus(_i5.ConcordiaCampus? campus) => super.noSuchMethod(
-        Invocation.method(#switchCampus, [campus]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   void selectBuilding(_i9.ConcordiaBuilding? building) => super.noSuchMethod(
         Invocation.method(#selectBuilding, [building]),
         returnValueForMissingStub: null,

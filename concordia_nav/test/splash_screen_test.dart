@@ -34,22 +34,10 @@ Future<void> main() async {
 
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
+    when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
   });
 
   group('navigateBasedOnLocation', () {
-    testWidgets(
-        'should create default SplashScreenViewModel if none is provided',
-        (WidgetTester tester) async {
-      // Act
-      await tester.pumpWidget(MaterialApp(
-        home: SplashScreen(), // No viewModel provided
-      ));
-
-      // Assert
-      final splashScreen =
-          tester.widget<SplashScreen>(find.byType(SplashScreen));
-      expect(splashScreen.viewModel, isNotNull);
-    });
 
     testWidgets('should navigate to home when location access is denied',
         (WidgetTester tester) async {

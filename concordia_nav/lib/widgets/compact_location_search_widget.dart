@@ -54,7 +54,7 @@ class CompactSearchCardWidget extends StatelessWidget {
                       controller: originController,
                       style: const TextStyle(fontSize: 16),
                       decoration: const InputDecoration(
-                        hintText: 'Your location',
+                        hintText: 'Your Location',
                         border: InputBorder.none,
                         isDense: true,
                         hintStyle: TextStyle(color: Colors.black),

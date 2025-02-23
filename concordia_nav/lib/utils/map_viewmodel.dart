@@ -52,7 +52,7 @@ class MapViewModel extends ChangeNotifier {
   final MapRepository _mapRepository;
   final MapService _mapService;
   final BuildingService _buildingService = BuildingService();
-  final ODSDirectionsService _odsDirectionsService = ODSDirectionsService();
+  final ODSDirectionsService _odsDirectionsService;
 
   // ignore: unused_field
   GoogleMapController? _mapController;
@@ -96,8 +96,10 @@ class MapViewModel extends ChangeNotifier {
     MapRepository? mapRepository,
     MapService? mapService,
     BuildingService? buildingService,
+    ODSDirectionsService? odsDirectionsService,
   })  : _mapRepository = mapRepository ?? MapRepository(),
         _mapService = mapService ?? MapService(),
+        _odsDirectionsService = odsDirectionsService ?? ODSDirectionsService(),
         super() {
     // Fetch shuttle bus data, start periodic updates, and bus stop markers.
     fetchShuttleBusData();
