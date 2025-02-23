@@ -35,6 +35,7 @@ Future<void> main() async {
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
     when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
+    when(mockMapViewModel.loadStaticBusStopMarkers()).thenAnswer((_) async => true);
   });
 
   group('navigateBasedOnLocation', () {
@@ -48,7 +49,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       when(mockMapViewModel.checkLocationAccess())
@@ -79,7 +81,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -129,7 +132,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -185,7 +189,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -221,7 +226,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -245,7 +251,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
