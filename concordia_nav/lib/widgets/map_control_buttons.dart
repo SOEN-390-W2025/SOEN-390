@@ -1,5 +1,3 @@
-// In your original file
-
 import 'package:flutter/material.dart';
 import '../../../utils/map_viewmodel.dart';
 import 'zoom_buttons.dart'; // Import the new file
@@ -25,6 +23,7 @@ class MapControllerButtons extends StatelessWidget {
           // Current location button
           InkWell(
             onTap: () {
+              mapViewModel.checkBuildingAtCurrentLocation(context);
               mapViewModel.moveToCurrentLocation(context);
             },
             child: Container(

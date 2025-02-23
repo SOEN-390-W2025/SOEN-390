@@ -6,8 +6,10 @@
 import 'dart:async' as _i5;
 import 'dart:typed_data' as _i6;
 
-import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i8;
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i9;
 import 'package:concordia_nav/data/services/map_service.dart' as _i7;
+import 'package:concordia_nav/data/services/outdoor_directions_service.dart'
+    as _i8;
 import 'package:geolocator/geolocator.dart' as _i3;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i4;
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
@@ -50,9 +52,15 @@ class _FakeCameraPosition_3 extends _i1.SmartFake
       : super(parent, parentInvocation);
 }
 
-class _FakePosition_4 extends _i1.SmartFake implements _i3.Position {
-  _FakePosition_4(Object parent, Invocation parentInvocation)
-      : super(parent, parentInvocation);
+class _FakeBitmapDescriptor_4 extends _i1.SmartFake
+    implements _i2.BitmapDescriptor {
+  _FakeBitmapDescriptor_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakePosition_5 extends _i1.SmartFake implements _i3.Position {
+  _FakePosition_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [GoogleMapController].
@@ -198,7 +206,14 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
       );
 
   @override
-  _i2.CameraPosition getInitialCameraPosition(_i8.ConcordiaCampus? campus) =>
+  void setDirectionsService(_i8.ODSDirectionsService? directionsService) =>
+      super.noSuchMethod(
+        Invocation.method(#setDirectionsService, [directionsService]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i2.CameraPosition getInitialCameraPosition(_i9.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
         Invocation.method(#getInitialCameraPosition, [campus]),
         returnValue: _FakeCameraPosition_3(
@@ -215,15 +230,17 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
       );
 
   @override
-  _i5.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-    _i8.ConcordiaCampus? campus,
-  ) =>
+  _i5.Future<_i2.BitmapDescriptor> getCustomIcon(String? name) =>
       (super.noSuchMethod(
-        Invocation.method(#getCampusPolygonsAndLabels, [campus]),
-        returnValue: _i5.Future<Map<String, dynamic>>.value(
-          <String, dynamic>{},
-        ),
-      ) as _i5.Future<Map<String, dynamic>>);
+            Invocation.method(#getCustomIcon, [name]),
+            returnValue: _i5.Future<_i2.BitmapDescriptor>.value(
+              _FakeBitmapDescriptor_4(
+                this,
+                Invocation.method(#getCustomIcon, [name]),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.BitmapDescriptor>);
 
   @override
   _i5.Future<void> zoomIn() => (super.noSuchMethod(
@@ -260,9 +277,32 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
   @override
   double calculateDistance(_i2.LatLng? point1, _i2.LatLng? point2) =>
       (super.noSuchMethod(
-        Invocation.method(#calculateDistance, [point1, point2]),
-        returnValue: 0.0,
-      ) as double);
+            Invocation.method(#calculateDistance, [point1, point2]),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  _i5.Future<List<_i2.LatLng>> getRoutePath(
+    String? originAddress,
+    String? destinationAddress,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRoutePath, [
+              originAddress,
+              destinationAddress,
+            ]),
+            returnValue: _i5.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
+          )
+          as _i5.Future<List<_i2.LatLng>>);
+
+  @override
+  Set<_i2.Polyline> getPolylines() =>
+      (super.noSuchMethod(
+            Invocation.method(#getPolylines, []),
+            returnValue: <_i2.Polyline>{},
+          )
+          as Set<_i2.Polyline>);
 }
 
 /// A class which mocks [GeolocatorPlatform].
@@ -321,15 +361,24 @@ class MockGeolocatorPlatform extends _i1.Mock
             Invocation.method(#getCurrentPosition, [], {
               #locationSettings: locationSettings,
             }),
-          ),
-        ),
-      ) as _i5.Future<_i3.Position>);
+            returnValue: _i5.Future<_i3.Position>.value(
+              _FakePosition_5(
+                this,
+                Invocation.method(#getCurrentPosition, [], {
+                  #locationSettings: locationSettings,
+                }),
+              ),
+            ),
+          )
+          as _i5.Future<_i3.Position>);
 
   @override
-  _i5.Stream<_i3.ServiceStatus> getServiceStatusStream() => (super.noSuchMethod(
-        Invocation.method(#getServiceStatusStream, []),
-        returnValue: _i5.Stream<_i3.ServiceStatus>.empty(),
-      ) as _i5.Stream<_i3.ServiceStatus>);
+  _i5.Stream<_i3.ServiceStatus> getServiceStatusStream() =>
+      (super.noSuchMethod(
+            Invocation.method(#getServiceStatusStream, []),
+            returnValue: _i5.Stream<_i3.ServiceStatus>.empty(),
+          )
+          as _i5.Stream<_i3.ServiceStatus>);
 
   @override
   _i5.Stream<_i3.Position> getPositionStream({

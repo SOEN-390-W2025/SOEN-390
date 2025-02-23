@@ -37,11 +37,11 @@ scripts:
   codecov: 
     windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
     mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
-  run: flutter run --dart-define-from-file=../.env
+  run: flutter run --dart-define-from-file=./.env
   clean: flutter clean
   build:
     android:
-      $script: flutter build apk --dart-define-from-file=../.env
+      $script: flutter build apk --dart-define-from-file=./.env
       $description: Build the android app. Can pass --debug or --release flag. (Default --release)
     ios: flutter build ipa
   install:
@@ -68,6 +68,9 @@ dependencies:
   google_maps_flutter: ^2.10.0
   flutter_env_native: ^0.1.0
   geolocator: ^13.0.2
+  google_directions_api: ^0.10.0
+  flutter_polyline_points: ^2.1.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -100,12 +103,14 @@ flutter:
   # Note: any other .env files, ex. a file named .env.prod, should be declared
   # under assets as well.
   assets:
-    - ../.env
+    - .env
     - assets/config/
     - assets/images/
+    - assets/maps/outdoor/all/polygons.json
     - assets/maps/outdoor/sgw/polygons.json
     - assets/maps/outdoor/loy/polygons.json
     - assets/icons/default.png
+    - assets/icons/destination.png
     - assets/icons/AD.png
     - assets/icons/CC.png
     - assets/icons/CJ.png

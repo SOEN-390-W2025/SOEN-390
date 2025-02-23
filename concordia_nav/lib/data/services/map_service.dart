@@ -1,16 +1,22 @@
+// ignore_for_file: prefer_final_locals
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
-import '../domain-model/concordia_campus.dart';
-import '../repositories/building_repository.dart';
-import 'helpers/icon_loader.dart';
 import 'package:geolocator/geolocator.dart';
+import '../services/outdoor_directions_service.dart';
+import '../domain-model/concordia_campus.dart';
+import 'helpers/icon_loader.dart';
 
 class MapService {
   late GoogleMapController _mapController;
+  final Set<Polyline> _polylines = {};
+  ODSDirectionsService _directionsService = ODSDirectionsService();
 
   void setMapController(GoogleMapController controller) {
     _mapController = controller;
+  }
+
+  void setDirectionsService(ODSDirectionsService directionsService) {
+    _directionsService = directionsService;
   }
 
   /// Returns the camera position for the given [campus].
@@ -29,46 +35,8 @@ class MapService {
     );
   }
 
-  /// Fetches polygons and campus markers from BuildingRepository.
-  Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-      ConcordiaCampus campus) async {
-    final String campusName = (campus.name == "Loyola Campus") ? "loy" : "sgw";
-
-    // Load polygons and label positions (markers should be placed at label positions)
-    final Map<String, dynamic> data =
-        await BuildingRepository.loadBuildingPolygonsAndLabels(campusName);
-
-    final Map<String, List<LatLng>> polygonsData = data["polygons"];
-    final Map<String, LatLng> labelPositions = data["labels"];
-
-    final Set<Polygon> polygonSet = polygonsData.entries.map((entry) {
-      return Polygon(
-        polygonId: PolygonId(entry.key),
-        points: entry.value,
-        strokeWidth: 3,
-        strokeColor: const Color(0xFFB48107),
-        fillColor: const Color(0xFFe5a712),
-      );
-    }).toSet();
-
-    // Load campus markers (placed at centroid of each building polygon)
-    final Set<Marker> labelMarkers = {};
-    for (var entry in labelPositions.entries) {
-      final BitmapDescriptor icon = await _getCustomIcon(entry.key);
-      labelMarkers.add(
-        Marker(
-          markerId: MarkerId(entry.key),
-          position: entry.value, // Use centroid as position
-          icon: icon,
-        ),
-      );
-    }
-
-    return {"polygons": polygonSet, "labels": labelMarkers};
-  }
-
   /// Loads a custom icon for each label from /assets/icons/{name}.png.
-  Future<BitmapDescriptor> _getCustomIcon(String name) async {
+  Future<BitmapDescriptor> getCustomIcon(String name) async {
     final String iconPath = 'assets/icons/$name.png';
     return IconLoader.loadBitmapDescriptor(iconPath);
   }
@@ -137,5 +105,40 @@ class MapService {
       point2.latitude,
       point2.longitude,
     );
+  }
+
+  /// Fetches route polyline using addresses or current location
+  Future<List<LatLng>> getRoutePath(
+      String? originAddress, String destinationAddress) async {
+    List<LatLng> routePoints;
+
+    if (originAddress == null || originAddress.isEmpty) {
+      final LatLng? currentLocation = await getCurrentLocation();
+      if (currentLocation == null) {
+        throw Exception("Unable to fetch current location.");
+      }
+      routePoints = await _directionsService.fetchRouteFromCoords(
+        currentLocation,
+        destinationAddress,
+      );
+    } else {
+      routePoints = await _directionsService.fetchRoute(
+          originAddress, destinationAddress);
+    }
+
+    final Polyline polyline = Polyline(
+      polylineId:
+          PolylineId('${originAddress ?? "current"}_$destinationAddress'),
+      color: const Color(0xFF2196F3),
+      width: 5,
+      points: routePoints,
+    );
+    _polylines.add(polyline);
+    return routePoints;
+  }
+
+  /// Returns all polylines
+  Set<Polyline> getPolylines() {
+    return _polylines;
   }
 }

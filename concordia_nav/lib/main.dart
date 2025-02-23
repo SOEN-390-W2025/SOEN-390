@@ -13,9 +13,11 @@ import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
 import 'ui/themes/app_theme.dart';
 import 'widgets/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
 
