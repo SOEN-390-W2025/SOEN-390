@@ -9,22 +9,25 @@ import '../../widgets/map_layout.dart';
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
   final MapViewModel? mapViewModel;
+  final MapViewModel? buildMapViewModel;
 
-  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel, this.buildMapViewModel});
 
   @override
   // ignore: no_logic_in_create_state
   State<CampusMapPage> createState() =>
       // ignore: no_logic_in_create_state
-      CampusMapPageState(mapViewModel: mapViewModel);
+      CampusMapPageState(mapViewModel: mapViewModel, buildMapViewModel: buildMapViewModel);
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
   // Modify constructor to allow dependency injection
-  CampusMapPageState({MapViewModel? mapViewModel})
-      : _mapViewModel = mapViewModel ?? MapViewModel();
+  CampusMapPageState({MapViewModel? mapViewModel, MapViewModel? buildMapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel(),
+      _buildMapViewModel = buildMapViewModel ?? MapViewModel();
 
   final MapViewModel _mapViewModel;
+  final MapViewModel _buildMapViewModel;
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
   final TextEditingController _searchController = TextEditingController();
@@ -67,7 +70,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       /// Creates a new [MapViewModel] when the widget is created.
-      create: (_) => MapViewModel(),
+      create: (_) => _buildMapViewModel,//MapViewModel(),
       child: Consumer<MapViewModel>(
         builder: (context, mapViewModel, child) {
           return Scaffold(

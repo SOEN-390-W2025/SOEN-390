@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_final_locals
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -33,6 +32,30 @@ class MapService {
         CameraPosition(target: position, zoom: zoom),
       ),
     );
+  }
+
+  void adjustCameraForPath(List<LatLng> points) {
+    double north = points[0].latitude;
+    double south = points[0].latitude;
+    double east = points[0].longitude;
+    double west = points[0].longitude;
+
+    for (LatLng point in points) {
+      if (point.latitude > north) north = point.latitude;
+      if (point.latitude < south) south = point.latitude;
+      if (point.longitude > east) east = point.longitude;
+      if (point.longitude < west) west = point.longitude;
+    }
+    LatLngBounds(
+      southwest: LatLng(south, west),
+      northeast: LatLng(north, east),
+    );
+    _mapController.animateCamera(CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(south, west),
+          northeast: LatLng(north, east),
+        ),
+        70));
   }
 
   /// Loads a custom icon for each label from /assets/icons/{name}.png.
