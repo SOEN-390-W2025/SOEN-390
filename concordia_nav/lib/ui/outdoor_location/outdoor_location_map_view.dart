@@ -108,19 +108,22 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       appBar: customAppBar(context, 'Outdoor Directions'),
       body: Stack(
         children: [
-          if (_initialCameraPosition == null) // Show loading indicator until map is ready
+           if (_initialCameraPosition == null) // Show loading indicator until map is ready
             const Center(child: CircularProgressIndicator())
           else MapLayout(
-            mapWidget: GoogleMap(
-              onMapCreated: _mapViewModel.onMapCreated,
-              initialCameraPosition: _initialCameraPosition!,
-              zoomControlsEnabled: false,
-              polylines: _mapViewModel.polylines,
-              markers: {..._mapViewModel.markers, ..._labelMarkers,},
-              polygons: _polygons,
-              myLocationButtonEnabled: false,
-              buildingsEnabled: false,
-              myLocationEnabled: _locationPermissionGranted,
+            mapWidget: Semantics(
+              label: 'Google Map',
+              child: GoogleMap(
+                onMapCreated: _mapViewModel.onMapCreated,
+                initialCameraPosition: _initialCameraPosition!,
+                zoomControlsEnabled: false,
+                polylines: _mapViewModel.polylines,
+                markers: {..._mapViewModel.markers, ..._labelMarkers,},
+                polygons: _polygons,
+                myLocationButtonEnabled: false,
+                buildingsEnabled: false,
+                myLocationEnabled: _locationPermissionGranted,
+              ),
             ),
             mapViewModel: _mapViewModel,
             style: 2,

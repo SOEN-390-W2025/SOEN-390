@@ -1,7 +1,7 @@
 appId: com.example.concordia_nav
 ---
-- tapOn: "ConU Nav"
-- assertVisible: "Concordia Campus Guide"
+- launchApp:
+    clearState : true
 - tapOn: "LOY map"
 - assertVisible: Google Map
 - swipe:

@@ -130,15 +130,18 @@ class CampusMapPageState extends State<CampusMapPage> {
                   const Center(child: CircularProgressIndicator())
                 else MapLayout(
                   searchController: _searchController,
-                  mapWidget: GoogleMap(
-                    buildingsEnabled: false,
-                    onMapCreated: _mapViewModel.onMapCreated,
-                    initialCameraPosition: _initialCameraPosition!,
-                    markers: _labelMarkers,
-                    polygons: _polygons,
-                    zoomControlsEnabled: false,
-                    myLocationButtonEnabled: false,
-                    myLocationEnabled: _locationPermissionGranted,
+                  mapWidget: Semantics(
+                    label: 'Google Map',
+                    child:GoogleMap(
+                      buildingsEnabled: false,
+                      onMapCreated: _mapViewModel.onMapCreated,
+                      initialCameraPosition: _initialCameraPosition!,
+                      markers: _labelMarkers,
+                      polygons: _polygons,
+                      zoomControlsEnabled: false,
+                      myLocationButtonEnabled: false,
+                      myLocationEnabled: _locationPermissionGranted,
+                    ),
                   ),
                   mapViewModel: _mapViewModel,
                 ),
