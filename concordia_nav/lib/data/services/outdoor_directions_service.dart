@@ -106,8 +106,9 @@ class ODSDirectionsService {
   /// Returns a [Future] that resolves to a list of [LatLng] coordinates representing the route,
   /// or an error if the route could not be fetched.
   Future<List<LatLng>> fetchRouteFromCoords(
-      LatLng origin, String destinationAddress) async {
+      LatLng origin, LatLng destination) async {
     final originString = "${origin.latitude},${origin.longitude}";
-    return fetchRoute(originString, destinationAddress);
+    final destinationString = "${destination.latitude},${destination.longitude}";
+    return fetchRoute(originString, destinationString);
   }
 }

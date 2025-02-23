@@ -40,6 +40,7 @@ class MapLayout extends StatelessWidget {
               hintText: 'Search location ...',
               icon: Icons.search,
               iconColor: Colors.black,
+              searchList: [],
             ),
           ),
 

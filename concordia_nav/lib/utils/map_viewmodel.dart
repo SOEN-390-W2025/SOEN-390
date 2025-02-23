@@ -9,11 +9,19 @@ import '../data/domain-model/concordia_building.dart';
 import '../data/repositories/building_repository.dart';
 import '../data/services/building_service.dart';
 import '../data/services/helpers/icon_loader.dart';
+import 'building_viewmodel.dart';
 
 class MapViewModel extends ChangeNotifier {
   MapRepository _mapRepository;
   MapService _mapService;
   BuildingService _buildingService = BuildingService();
+
+  List<Marker> _markers = [];
+  List<Marker> get markers => _markers;
+
+  List<ConcordiaBuilding> _filteredBuildings = [];
+
+  List<ConcordiaBuilding> get filteredBuildings => _filteredBuildings;
 
   // ignore: unused_field
   GoogleMapController? _mapController;
@@ -34,10 +42,6 @@ class MapViewModel extends ChangeNotifier {
   /// Getter for polylines
   Set<Polyline> get polylines => _polylines;
 
-  // Destination marker for the route.
-  Marker? _destinationMarker;
-  Marker? get destinationMarker => _destinationMarker;
-
   /// Exposes the MapService.
   MapService get mapService => _mapService;
 
@@ -45,6 +49,19 @@ class MapViewModel extends ChangeNotifier {
   Future<CameraPosition> getInitialCameraPosition(
       ConcordiaCampus campus) async {
     return _mapRepository.getCameraPosition(campus);
+  }
+
+  Future<Map<String, dynamic>> fetchMapData(ConcordiaCampus campus, bool? isCampus) async {
+    final cameraPosition = await getInitialCameraPosition(campus);
+    final mapData = isCampus == true
+      ? await getCampusPolygonsAndLabels(campus)
+      : await getAllCampusPolygonsAndLabels();
+
+    return {
+      'cameraPosition': cameraPosition,
+      'polygons': mapData['polygons'],
+      'labels': mapData['labels'],
+    };
   }
 
   /// Fetches the route and updates the polyline and destination marker.
@@ -69,13 +86,25 @@ class MapViewModel extends ChangeNotifier {
 
       // Create a marker for the end user to visualize the destination coords.
       if (routePoints.isNotEmpty) {
-        _destinationMarker = Marker(
+        removeMarker( const MarkerId('source'));
+        removeMarker( const MarkerId('destination'));
+        addMarker( Marker(
+          markerId: const MarkerId('source'),
+          position: routePoints.first,
+          infoWindow: const InfoWindow(title: 'Source'),
+          icon: await IconLoader.loadBitmapDescriptor(
+              'assets/icons/source.png',),
+          anchor: const Offset(0.5, 0.5),
+          zIndex: 2,
+        ));
+        addMarker( Marker(
           markerId: const MarkerId('destination'),
           position: routePoints.last,
           infoWindow: const InfoWindow(title: 'Destination'),
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/destination.png'),
-        );
+          zIndex: 2,
+        ));
       }
     } catch (e) {
       throw Exception("Failed to load directions: $e");
@@ -140,6 +169,7 @@ class MapViewModel extends ChangeNotifier {
                 _buildingService.getBuildingByAbbreviation(entry.key);
             selectBuilding(building!);
           },
+          zIndex: 1,
         ),
       );
     }
@@ -273,5 +303,36 @@ class MapViewModel extends ChangeNotifier {
   /// Calculates the distance between two points using the service.
   double getDistance(LatLng point1, LatLng point2) {
     return _mapService.calculateDistance(point1, point2);
+  }
+
+  /// Handles the search selection of a building.
+  Future<void> handleSelection(
+    String selectedBuilding,
+    LatLng? currentLocation
+  ) async {
+    final buildingViewModel = BuildingViewModel();
+
+    // If the selected building is "Your Location", wait for fetchCurrentLocation to complete
+    LatLng? location;
+
+    if (selectedBuilding == 'Your Location') {
+      location = currentLocation;
+    } else {
+      location = buildingViewModel.getBuildingLocationByName(selectedBuilding);
+    }
+
+    if (location == null) return;
+
+    moveToLocation(location);
+  }
+
+  // Add a new marker to the map
+  void addMarker(Marker marker) {
+    _markers.add(marker);
+  }
+
+  // Remove a marker from the map
+  void removeMarker(MarkerId markerId) {
+    _markers.removeWhere((marker) => marker.markerId == markerId);
   }
 }

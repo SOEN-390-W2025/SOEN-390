@@ -55,7 +55,7 @@ void main() async {
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
-    when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
+    when(mockMapViewModel.markers).thenReturn(mockMarker as List<Marker>);
     when(mockMapViewModel.polylines).thenReturn(mockPolylines);
   });
 

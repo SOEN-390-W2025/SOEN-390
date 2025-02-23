@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../utils/building_viewmodel.dart';
 import '../services/outdoor_directions_service.dart';
 import '../domain-model/concordia_campus.dart';
 import 'helpers/icon_loader.dart';
@@ -109,26 +110,42 @@ class MapService {
 
   /// Fetches route polyline using addresses or current location
   Future<List<LatLng>> getRoutePath(
-      String? originAddress, String destinationAddress) async {
-    List<LatLng> routePoints;
+    String? originAddress, String destinationAddress) async {
 
-    if (originAddress == null || originAddress.isEmpty) {
-      final LatLng? currentLocation = await getCurrentLocation();
+    List<LatLng> routePoints;
+    final LatLng? currentLocation = await getCurrentLocation();
+    final LatLng? origin;
+    final LatLng? destination;
+
+    if (originAddress!.isEmpty || originAddress == "Your Location") {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location.");
       }
-      routePoints = await _directionsService.fetchRouteFromCoords(
-        currentLocation,
-        destinationAddress,
-      );
-    } else {
-      routePoints = await _directionsService.fetchRoute(
-          originAddress, destinationAddress);
+      origin = currentLocation;
+      destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
+    } else if (destinationAddress.isEmpty || destinationAddress == "Your Location") {
+      if (currentLocation == null) {
+        throw Exception("Unable to fetch current location.");
+      }
+      origin = BuildingViewModel().getBuildingLocationByName(originAddress);
+      destination = currentLocation;
+    } else if (originAddress.isEmpty || originAddress == "Your Location" && destinationAddress.isEmpty || destinationAddress == "Your Location") {
+      if (currentLocation == null) {
+        throw Exception("Unable to fetch current location.");
+      }
+      origin = currentLocation;
+      destination = currentLocation;
     }
+    else {
+      destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
+      origin = BuildingViewModel().getBuildingLocationByName(originAddress);
+
+    }
+    routePoints = await _directionsService.fetchRouteFromCoords(origin!,destination!);
 
     final Polyline polyline = Polyline(
       polylineId:
-          PolylineId('${originAddress ?? "current"}_$destinationAddress'),
+          PolylineId('${originAddress}_$destinationAddress'),
       color: const Color(0xFF2196F3),
       width: 5,
       points: routePoints,

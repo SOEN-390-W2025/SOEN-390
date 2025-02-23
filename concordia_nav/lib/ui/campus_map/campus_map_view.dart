@@ -1,10 +1,14 @@
+// ignore_for_file: prefer_final_fields
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
+import '../../widgets/search_bar.dart';
 
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -25,19 +29,48 @@ class CampusMapPageState extends State<CampusMapPage> {
       : _mapViewModel = mapViewModel ?? MapViewModel();
 
   final MapViewModel _mapViewModel;
+  final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController(text: 'Search...');
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
+  CameraPosition? _initialCameraPosition;
+  List<String> searchList = [];
 
   MapViewModel get mapViewModel => _mapViewModel;
 
+  //MapViewModel get mapViewModel => _mapViewModel;
+
   Future<void> _loadMapData() async {
-    final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
-    setState(() {
-      _polygons = data["polygons"];
-      _labelMarkers = data["labels"];
+    final mapData = await _mapViewModel.fetchMapData(_currentCampus, true);
+
+    if (mounted) {
+      setState(() {
+        _initialCameraPosition = mapData['cameraPosition'];
+        _polygons = mapData['polygons'];
+        _labelMarkers = mapData['labels'];
+      });
+    }
+  }
+
+  void getSearchList() {
+    final buildings = _buildingViewModel.getBuildingsByCampus(_currentCampus);
+    for (var building in buildings) {
+      if (!searchList.contains(building)) {
+        searchList.add(building);
+      }
+    }
+  }
+
+  void checkLocationPermission() {
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _locationPermissionGranted = hasPermission;
+        if (_locationPermissionGranted && !searchList.contains("Your Location")) {
+          searchList.insert(0, "Your Location");
+        }
+      });
     });
   }
 
@@ -46,13 +79,14 @@ class CampusMapPageState extends State<CampusMapPage> {
     super.initState();
     _currentCampus = widget.campus;
 
+    // Fetch initial data once
     _loadMapData();
 
-    _mapViewModel.checkLocationAccess().then((hasPermission) {
-      setState(() {
-        _locationPermissionGranted = hasPermission;
-      });
-    });
+    // Check for location permission
+    checkLocationPermission();
+
+    // Populate search list with buildings
+    getSearchList();
   }
 
   @override
@@ -82,46 +116,50 @@ class CampusMapPageState extends State<CampusMapPage> {
                       : ConcordiaCampus.sgw;
                 });
                 _loadMapData();
+                _mapViewModel.switchCampus(_currentCampus);
                 _mapViewModel.unselectBuilding();
+                _searchController.text = 'Search...';
+                searchList.clear();
+                checkLocationPermission();
+                getSearchList();
               },
             ),
-            body: FutureBuilder<CameraPosition>(
-              future: _mapViewModel.getInitialCameraPosition(_currentCampus),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return const Center(child: Text('Error loading campus map'));
-                }
-
-                return FutureBuilder<Map<String, dynamic>>(
-                    future: _mapViewModel
-                        .getCampusPolygonsAndLabels(_currentCampus),
-                    builder: (context, polySnapshot) {
-                      if (polySnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      return MapLayout(
-                        searchController: _searchController,
-                        mapWidget: Semantics(
-                            label: 'Google Map',
-                            child: GoogleMap(
-                              buildingsEnabled: false,
-                              onMapCreated: _mapViewModel.onMapCreated,
-                              initialCameraPosition: snapshot.data!,
-                              markers: _labelMarkers,
-                              polygons: _polygons,
-                              zoomControlsEnabled: false,
-                              myLocationButtonEnabled: false,
-                              myLocationEnabled: _locationPermissionGranted,
-                            )),
-                        mapViewModel: _mapViewModel,
-                      );
-                    });
-              },
+            body: Stack(
+              children: [
+                if (_initialCameraPosition == null) // Show loading indicator while data is loading
+                  const Center(child: CircularProgressIndicator())
+                else MapLayout(
+                  searchController: _searchController,
+                  mapWidget: Semantics(
+                    label: 'Google Map',
+                    child:GoogleMap(
+                      buildingsEnabled: false,
+                      onMapCreated: _mapViewModel.onMapCreated,
+                      initialCameraPosition: _initialCameraPosition!,
+                      markers: _labelMarkers,
+                      polygons: _polygons,
+                      zoomControlsEnabled: false,
+                      myLocationButtonEnabled: false,
+                      myLocationEnabled: _locationPermissionGranted,
+                    ),
+                  ),
+                  mapViewModel: _mapViewModel,
+                ),
+                Positioned(
+                  top: 10,
+                  left: 15,
+                  right: 15,
+                  child: SearchBarWidget(
+                    controller: _searchController,
+                    hintText: 'Your Location',
+                    icon: Icons.location_on,
+                    iconColor: Theme.of(context).primaryColor,
+                    searchList: searchList,
+                    mapViewModel: _mapViewModel,
+                    drawer: true,
+                  ),
+                ),
+              ],
             ),
           );
         },
