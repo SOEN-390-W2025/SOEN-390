@@ -119,9 +119,9 @@ jobs:
       id: set-script
       run: |
         if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
-          echo "integration-test-script=bash -c \"set -o pipefail && cd concordia_nav && rps install --release && rps test record 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
+          echo "integration-test-script=bash -c \"set -o pipefail && rps install --release && rps test record 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
         else
-          echo "integration-test-script=bash -c \"set -o pipefail && cd concordia_nav && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
+          echo "integration-test-script=bash -c \"set -o pipefail && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
         fi
 
     - name: Run Integration Tests
