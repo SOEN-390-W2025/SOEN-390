@@ -431,7 +431,8 @@ class MapViewModel extends ChangeNotifier {
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/destination.png'),
         );
-        adjustCamera(polyline.points);
+        Future.delayed(const Duration(seconds: 1),
+          () => adjustCamera(polyline.points));
       }
     } else {
       _multiModeActivePolylines.clear();
