@@ -25,8 +25,10 @@ class ZoomButton extends StatelessWidget {
           borderRadius: BorderRadius.only(
             topLeft: isZoomInButton ? const Radius.circular(16) : Radius.zero,
             topRight: isZoomInButton ? const Radius.circular(16) : Radius.zero,
-            bottomLeft: !isZoomInButton ? const Radius.circular(16) : Radius.zero,
-            bottomRight: !isZoomInButton ? const Radius.circular(16) : Radius.zero,
+            bottomLeft:
+                !isZoomInButton ? const Radius.circular(16) : Radius.zero,
+            bottomRight:
+                !isZoomInButton ? const Radius.circular(16) : Radius.zero,
           ),
           boxShadow: const [
             BoxShadow(

@@ -10,7 +10,8 @@ void main() {
     testWidgets('renders POIChoiceView with non-constant key',
         (WidgetTester tester) async {
       // runAsync ref: https://stackoverflow.com/a/69004451
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester
             .pumpWidget(MaterialApp(home: POIChoiceView(key: UniqueKey())));
@@ -19,11 +20,11 @@ void main() {
         // Verify that the appBar exists and has the right title
         expect(find.text('Nearby Facilities'), findsOneWidget);
       });
-      
     });
 
     testWidgets('appBar has the right title', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
         await tester.pump();
@@ -32,20 +33,24 @@ void main() {
         expect(find.byType(AppBar), findsOneWidget);
         expect(find.text('Nearby Facilities'), findsOneWidget);
       });
-      
     });
   });
 
   group('poiViewModel', () {
     testWidgets('filter option works', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
         await tester.pump();
 
         // Find the SearchBarWidget
-        final searchBarWidget = find.byType(SearchBarWidget).evaluate().single.widget as SearchBarWidget;
-        
+        final searchBarWidget = find
+            .byType(SearchBarWidget)
+            .evaluate()
+            .single
+            .widget as SearchBarWidget;
+
         expect(searchBarWidget.controller.text, "");
 
         // Enter "Lost" in the searchBar
@@ -58,15 +63,21 @@ void main() {
       });
     });
 
-    testWidgets('filter invalid option removes all poiBoxes', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+    testWidgets('filter invalid option removes all poiBoxes',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
         await tester.pump();
 
         // Find the SearchBarWidget
-        final searchBarWidget = find.byType(SearchBarWidget).evaluate().single.widget as SearchBarWidget;
-        
+        final searchBarWidget = find
+            .byType(SearchBarWidget)
+            .evaluate()
+            .single
+            .widget as SearchBarWidget;
+
         expect(searchBarWidget.controller.text, "");
 
         // Enter "Lost" in the searchBar
@@ -83,7 +94,8 @@ void main() {
 
   group('poiPage', () {
     testWidgets('searchBar and title exists', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
         await tester.pump();
@@ -94,7 +106,8 @@ void main() {
     });
 
     testWidgets('list of PoiBox are present', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
         await tester.pump();
@@ -102,11 +115,11 @@ void main() {
         // Verify that exactly 8 PoiBox exist
         expect(find.byType(PoiBox), findsAtLeast(4));
       });
-      
     });
 
     testWidgets('list of PoiBox are accurate', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // Build the POI page widget
         await tester.pumpWidget(const MaterialApp(home: const POIChoiceView()));
         await tester.pump();
@@ -145,11 +158,11 @@ void main() {
         expect(find.text('Others'), findsOneWidget);
         expect(find.byIcon(Icons.more_outlined), findsOneWidget);
       });
-      
     });
 
     testWidgets('PoiBox onPress works', (WidgetTester tester) async {
-      await tester.runAsync(() async { // wait for loading JSON
+      await tester.runAsync(() async {
+        // wait for loading JSON
         // define routes needed for this test
         final routes = {
           '/': (context) => const POIChoiceView(),

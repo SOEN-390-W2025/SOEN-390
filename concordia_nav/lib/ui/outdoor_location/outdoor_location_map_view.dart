@@ -117,17 +117,19 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                   }
 
                   return MapLayout(
-                    mapWidget: GoogleMap(
-                      onMapCreated: _mapViewModel.onMapCreated,
-                      initialCameraPosition: camSnapshot.data!,
-                      zoomControlsEnabled: false,
-                      polylines: _mapViewModel.polylines,
-                      markers: labelMarkers,
-                      polygons: polygons,
-                      myLocationButtonEnabled: false,
-                      buildingsEnabled: false,
-                      myLocationEnabled: _locationPermissionGranted,
-                    ),
+                    mapWidget: Semantics(
+                        label: 'Google Map',
+                        child: GoogleMap(
+                          onMapCreated: _mapViewModel.onMapCreated,
+                          initialCameraPosition: camSnapshot.data!,
+                          zoomControlsEnabled: false,
+                          polylines: _mapViewModel.polylines,
+                          markers: labelMarkers,
+                          polygons: polygons,
+                          myLocationButtonEnabled: false,
+                          buildingsEnabled: false,
+                          myLocationEnabled: _locationPermissionGranted,
+                        )),
                     mapViewModel: _mapViewModel,
                     style: 2,
                   );

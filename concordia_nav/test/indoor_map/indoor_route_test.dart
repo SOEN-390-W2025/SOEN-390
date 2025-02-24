@@ -9,8 +9,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('concordia floors', () {
-    const testBuilding = const ConcordiaBuilding(45.495397929966266, -73.57770373158148, 
-        "EV Building", "1515 Saint-Catherine St W", "Montreal", "QC", "H3G 1S6", "EV", ConcordiaCampus.sgw);
+    const testBuilding = const ConcordiaBuilding(
+        45.495397929966266,
+        -73.57770373158148,
+        "EV Building",
+        "1515 Saint-Catherine St W",
+        "Montreal",
+        "QC",
+        "H3G 1S6",
+        "EV",
+        ConcordiaCampus.sgw);
     final floor4 = ConcordiaFloor("4", testBuilding);
     final floor5 = ConcordiaFloor("5", testBuilding);
 
@@ -49,8 +57,16 @@ void main() {
   });
 
   group('indoor route logic', () {
-    const testBuilding = const ConcordiaBuilding(45.495397929966266, -73.57770373158148, 
-        "EV Building", "1515 Saint-Catherine St W", "Montreal", "QC", "H3G 1S6", "EV", ConcordiaCampus.sgw);
+    const testBuilding = const ConcordiaBuilding(
+        45.495397929966266,
+        -73.57770373158148,
+        "EV Building",
+        "1515 Saint-Catherine St W",
+        "Montreal",
+        "QC",
+        "H3G 1S6",
+        "EV",
+        ConcordiaCampus.sgw);
     final floor6 = ConcordiaFloor("6", testBuilding);
     final testRoom = ConcordiaRoom("6.183", RoomCategory.office, floor6);
     final washroom = ConcordiaRoom("6.608", RoomCategory.washroom, floor6);
@@ -72,15 +88,24 @@ void main() {
       expect(indoorRoute.secondPortionFirstLocation(), null);
 
       final extraRoom = ConcordiaRoom("6.408", RoomCategory.washroom, floor6);
-      indoorRoute = IndoorRoute([testRoom], null, [washroom, extraRoom], null, null, null);
+      indoorRoute = IndoorRoute(
+          [testRoom], null, [washroom, extraRoom], null, null, null);
       // returns last element of the firstIndoorPortionFromConnection list
       expect(indoorRoute.firstPortionLastLocation(), extraRoom);
     });
 
     test('secondIndoorPortionToConnection with list of rooms', () {
       // create second portion (room in another  building)
-      const building2 = const ConcordiaBuilding(45.497311878717085, -73.5790341072897, 
-        "H Building", "1455 De Maisonneuve Blvd. W.", "Montreal", "QC", "H3G 1M8", "H", ConcordiaCampus.sgw);
+      const building2 = const ConcordiaBuilding(
+          45.497311878717085,
+          -73.5790341072897,
+          "H Building",
+          "1455 De Maisonneuve Blvd. W.",
+          "Montreal",
+          "QC",
+          "H3G 1M8",
+          "H",
+          ConcordiaCampus.sgw);
       final floor4 = ConcordiaFloor("4", building2);
       final classroom = ConcordiaRoom("420", RoomCategory.classroom, floor4);
       final bathroom = ConcordiaRoom("406", RoomCategory.washroom, floor4);
