@@ -109,7 +109,10 @@ void main() async {
 
     // Act
     await tester.pumpWidget(MaterialApp(
-      home: CampusMapPage(campus: campus, mapViewModel: mockMapViewModel, buildMapViewModel: mockMapViewModel),
+      home: CampusMapPage(
+          campus: campus,
+          mapViewModel: mockMapViewModel,
+          buildMapViewModel: mockMapViewModel),
     ));
 
     // Assert
@@ -170,9 +173,11 @@ void main() async {
     final routes = {
       '/HomePage': (context) => const HomePage(),
       '/CampusMapPage': (context) => CampusMapPage(
-          campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-          mapViewModel: mockMapViewModel,
-          buildMapViewModel: mockMapViewModel,),
+            campus:
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel,
+          ),
     };
 
     when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);

@@ -32,6 +32,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   late TextEditingController _sourceController = TextEditingController();
   late TextEditingController _destinationController = TextEditingController();
   bool isKeyboardVisible = false;
+  double? bottomInset = 0;
 
   @override
   void initState() {
@@ -65,11 +66,10 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   @override
   void didChangeMetrics() {
-    final bottomInset = View.of(context).viewInsets.bottom;
-    final newKeyboardVisible = bottomInset > 1;
+    bottomInset = View.of(context).viewInsets.bottom;
+    final newKeyboardVisible = bottomInset! > 1;
     if (newKeyboardVisible != isKeyboardVisible) {
       setState(() {
-        // Prevent unnecessary rebuilds
         isKeyboardVisible = newKeyboardVisible;
       });
     }

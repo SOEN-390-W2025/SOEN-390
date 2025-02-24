@@ -76,6 +76,7 @@ void main() async {
       width: 5,
     ),
   };
+  
   setUp(() {
     mockViewModel = MockBuildingInfoDrawerViewModel();
     mockOnClose = () {};
