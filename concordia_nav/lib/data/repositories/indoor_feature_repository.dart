@@ -28,6 +28,14 @@ class IndoorFeatureRepository {
     ]
   };
 
+  // FYI if you Find and Replace in this file BuildingRepository.h.abbreviation
+  // replaced with "H" (in quotes) it will make it much more readable and won't
+  // change the functionality. Hopefully that makes it easier to understand the
+  // structure for conversion into an asset file.
+  //
+  // Also not sure if another format might be more practical than JSON for the
+  // catalog, such as YAML (due to its support for references) or even SQLite.
+
   // This on the other hand, should probably come from an assets file
   static final Map<String, Map<String, List<ConcordiaRoom>>> roomsByFloor = {
     (BuildingRepository.h.abbreviation): {
@@ -79,6 +87,8 @@ class IndoorFeatureRepository {
             floorsByBuilding[BuildingRepository.h.abbreviation]![2],
             1400,
             2430),
+        ConcordiaFloorPoint(
+            floorsByBuilding[BuildingRepository.h.abbreviation]![2], 885, 2430),
       ],
       "8": [
         ConcordiaFloorPoint(
@@ -100,15 +110,11 @@ class IndoorFeatureRepository {
         ConcordiaFloorPoint(
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 210),
         ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 300),
-        ConcordiaFloorPoint(
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 400),
         ConcordiaFloorPoint(
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 600),
         ConcordiaFloorPoint(
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 790),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 700, 210),
         ConcordiaFloorPoint(
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 210),
         ConcordiaFloorPoint(
@@ -117,7 +123,50 @@ class IndoorFeatureRepository {
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 600),
         ConcordiaFloorPoint(
             floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 790),
+        ConcordiaFloorPoint(
+            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 300),
+        ConcordiaFloorPoint(
+            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 500),
+        ConcordiaFloorPoint(
+            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 700),
       ]
+    }
+  };
+
+  // For each floor of each building, this contains a list of waypoint
+  // navigability maps. This is one-way navigation from the key to the values.
+  // For each indexed waypoint above (starting from zero), the list should
+  // contain the indexes of waypoints reachable from that waypoint.
+  static Map<String, Map<String, Map<int, List<int>>>>
+      waypointNavigabilityGroupsByFloor = {
+    (BuildingRepository.h.abbreviation): {
+      "1": {
+        0: [1, 2, 3],
+        1: [0, 2, 3],
+        2: [0, 1, 3],
+        3: [0, 1, 2]
+      },
+      "8": {
+        0: [1, 4],
+        1: [0, 2, 5],
+        2: [1, 3],
+        3: [2, 6],
+        4: [0, 7],
+        5: [1, 8],
+        6: [3, 10],
+        7: [4, 11, 15],
+        8: [5, 15, 16],
+        9: [16, 17],
+        10: [6, 14, 17],
+        11: [7, 12],
+        12: [11, 13],
+        13: [12, 14],
+        14: [13, 10],
+        // These were the points added later
+        15: [7, 8],
+        16: [8, 9],
+        17: [9, 10]
+      }
     }
   };
 

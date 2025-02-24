@@ -211,61 +211,126 @@ class IndoorRoutingService {
       return returnRoute;
     }
 
-    // Points are now within the same floor - this is where we do our BFS of
-    // floor points to find a route
+    // Points are now within the same floor - this is where we will do
+    // steepest-ascent hill climbing to find a route. But first there will be
+    // some prep. We want the route to follow waypoints and permitted
+    // navigations to ensure the user doesn't walk through walls. We will start
+    // by finding the closet waypoint to the origin and to the destination.
+    //
+    // If the closest waypoint to the origin and the destination is the same
+    // waypoint, we will have a 3-stop route (origin, waypoint, destination)
+    //
+    // If these waypoints are *not* the same, we will use steepest-ascent hill
+    // climbing to find a route.
     dev.log("getIndoorRoute - finding intra-floor route");
-    final List<FloorRoutablePoint> openPoints = [destination];
-    // Shallow copy in the items so they aren't deleted from the repository
-    // TODO we need a better repository
-    for (var waypoint in IndoorFeatureRepository.waypointsByFloor[
-            origin.floor.building.abbreviation]![origin.floor.floorNumber] ??
-        []) {
-      openPoints.add(waypoint);
-    }
-    if (openPoints.length < 2) {
+    final waypointsOnFloor = IndoorFeatureRepository
+            .waypointsByFloor[origin.floor.building.abbreviation]
+        ?[origin.floor.floorNumber];
+    final waypointNavigability =
+        IndoorFeatureRepository.waypointNavigabilityGroupsByFloor[
+            origin.floor.building.abbreviation]?[origin.floor.floorNumber];
+    if (waypointsOnFloor == null || waypointNavigability == null) {
       // No floor routing data for this floor, need to return the null route
       dev.log("No indoor routing data for floor ${origin.floor.floorNumber}");
       return IndoorRoute(
           origin.floor.building, null, null, null, null, null, null, null);
     }
-    openPoints.add(destination);
 
-    final List<FloorRoutablePoint> visitedPoints = [origin];
-    final List<FloorRoutablePoint> route = [origin];
-    while (route.last != destination) {
-      final currentDistanceToDest =
-          getDistanceBetweenPoints(route.last, destination);
-      FloorRoutablePoint? bestNextPoint;
-      double? shortestDistanceFromHere;
-      dev.log("Evaluating openPoints list - " +
-          "currentDistanceToDest ${currentDistanceToDest.toString()}");
-      for (var point in openPoints) {
-        // Can't remove from openPoints - ConcurrentModificationDuringIteration
-        if (visitedPoints.contains(point)) continue;
-        final newDistanceToDest = getDistanceBetweenPoints(point, destination);
-        final distanceFromHere = getDistanceBetweenPoints(route.last, point);
-        if (newDistanceToDest > currentDistanceToDest) {
-          visitedPoints.add(point);
-        } else if (shortestDistanceFromHere == null ||
-            distanceFromHere < shortestDistanceFromHere) {
-          bestNextPoint = point;
-          shortestDistanceFromHere = distanceFromHere;
-        }
+    // Find the closest waypoint to the origin and destination
+    int? originWaypointIndex;
+    double? originWaypointDistance;
+    int? destinationWaypointIndex;
+    double? destinationWaypointDistance;
+    for (int i = 0; i < waypointsOnFloor.length; i++) {
+      var distanceFromOrigin =
+          getDistanceBetweenPoints(origin, waypointsOnFloor[i]);
+      var distanceFromDestination =
+          getDistanceBetweenPoints(destination, waypointsOnFloor[i]);
+      if (originWaypointDistance == null ||
+          distanceFromOrigin < originWaypointDistance) {
+        originWaypointIndex = i;
+        originWaypointDistance = distanceFromOrigin;
       }
-      if (bestNextPoint == null) {
-        // Couldn't find a way there
-        dev.log("Couldn't find a bestNextPoint");
-        return IndoorRoute(
-            origin.floor.building, null, null, null, null, null, null, null);
-      } else {
-        dev.log("Adding point ${shortestDistanceFromHere.toString()} away");
-        visitedPoints.add(bestNextPoint);
-        route.add(bestNextPoint);
-        openPoints.remove(bestNextPoint);
+      if (destinationWaypointDistance == null ||
+          distanceFromDestination < destinationWaypointDistance) {
+        destinationWaypointIndex = i;
+        destinationWaypointDistance = distanceFromDestination;
       }
     }
 
-    return IndoorRoute(
-        origin.floor.building, route, null, null, null, null, null, null);
+    // Special case - couldn't find waypoints
+    if (originWaypointIndex == null || destinationWaypointIndex == null) {
+      // No floor routing data for this floor, need to return the null route
+      dev.log("Waypoint setup failed");
+      return IndoorRoute(
+          origin.floor.building, null, null, null, null, null, null, null);
+    }
+    // Special case - same waypoints
+    if (originWaypointIndex == destinationWaypointIndex) {
+      return IndoorRoute(
+          origin.floor.building,
+          [origin, waypointsOnFloor[originWaypointIndex], destination],
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
+
+    // Now we do our hill-climbing - find the a navigable waypoint that
+    // takes us closest to our destination
+    final List<int> route = [originWaypointIndex];
+    final List<int> visitedWaypoints = [originWaypointIndex];
+    while (route.last != destinationWaypointIndex) {
+      var neighbours = waypointNavigability[route.last];
+      int? bestNeighbour;
+      double? bestNeighbourDistanceToDest;
+      for (int neighbourIndex in neighbours ?? []) {
+        // Found our destination?
+        if (neighbourIndex == destinationWaypointIndex) {
+          bestNeighbour = neighbourIndex;
+          bestNeighbourDistanceToDest = 0.0;
+          break;
+        }
+        // Skip if visited
+        if (route.contains(neighbourIndex)) {
+          continue;
+        }
+
+        final distanceFromDestination = getDistanceBetweenPoints(
+            waypointsOnFloor[neighbourIndex],
+            waypointsOnFloor[destinationWaypointIndex]);
+        if (bestNeighbourDistanceToDest == null ||
+            distanceFromDestination < bestNeighbourDistanceToDest) {
+          bestNeighbour = neighbourIndex;
+          bestNeighbourDistanceToDest = distanceFromDestination;
+        }
+        visitedWaypoints.add(neighbourIndex);
+      }
+
+      // Can't continue to the destination - couldn't find a bestNeighbour not
+      // already visited
+      if (bestNeighbour == null) {
+        dev.log("Hill climbing failed - couldn't find a bestNeighbour");
+        for (int i = 0; i < route.length; i++) {
+          dev.log("Climb: i=${i.toString()}, route[i]=${route[i].toString()}");
+        }
+        return IndoorRoute(
+            origin.floor.building, null, null, null, null, null, null, null);
+      }
+
+      route.add(bestNeighbour);
+    }
+
+    // Build a return list of FloorRoutablePoints, including those not part of
+    // the free space waypoints.
+    final List<FloorRoutablePoint> intrafloorRoute = [origin];
+    for (int index in route) {
+      intrafloorRoute.add(waypointsOnFloor[index]);
+    }
+    intrafloorRoute.add(destination);
+    return IndoorRoute(origin.floor.building, intrafloorRoute, null, null, null,
+        null, null, null);
   }
 }
