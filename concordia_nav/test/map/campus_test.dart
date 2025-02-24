@@ -56,6 +56,22 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
+      when(mapViewModel.fetchMapData(ConcordiaCampus.loy, true))
+          .thenAnswer((_) async => {
+              'cameraPosition': expectedCameraPosition,
+              'polygons': <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
+          });
+      when(mapViewModel.fetchMapData(ConcordiaCampus.sgw, true))
+      .thenAnswer((_) async => {
+        'cameraPosition': expectedCameraPosition,
+              'polygons': <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      });
     });
 
     testWidgets('CampusMapPage should render correctly with non-constant key',

@@ -55,7 +55,7 @@ void main() async {
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
-    when(mockMapViewModel.markers).thenReturn(mockMarker as List<Marker>);
+    when(mockMapViewModel.markers).thenReturn([mockMarker]);
     when(mockMapViewModel.polylines).thenReturn(mockPolylines);
   });
 
@@ -127,6 +127,14 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
+    when(mockMapViewModel.fetchMapData(ConcordiaCampus.sgw, true))
+      .thenAnswer((_) async => {
+        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
+              'polygons': <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      });
 
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
@@ -168,6 +176,14 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
+    when(mockMapViewModel.fetchMapData(ConcordiaCampus.loy, true))
+      .thenAnswer((_) async => {
+        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
+              'polygons': <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      });
 
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
@@ -287,6 +303,15 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
+    when(mockMapViewModel.fetchMapData(ConcordiaCampus.sgw, false))
+      .thenAnswer((_) async => {
+        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
+              'polygons': <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      });
+    
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
 

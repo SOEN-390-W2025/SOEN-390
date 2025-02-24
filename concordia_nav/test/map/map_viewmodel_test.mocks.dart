@@ -236,6 +236,13 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
           )
           as Set<_i2.Polyline>);
 
+  List<_i2.Marker> get markers =>
+      (super.noSuchMethod(
+            Invocation.getter(#markers),
+            returnValue: <_i2.Marker>[],
+          )
+          as List<_i2.Marker>);
+
   @override
   _i4.MapService get mapService =>
       (super.noSuchMethod(
@@ -278,6 +285,17 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
           as _i8.Future<void>);
+
+  @override
+  _i8.Future<Map<String, dynamic>> fetchMapData(
+    _i6.ConcordiaCampus campus,
+    bool? isCampus,) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchMapData, [campus, isCampus]),
+            returnValue: _i8.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+            returnValueForMissingStub: _i8.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+          )
+          as _i8.Future<Map<String, dynamic>>);
 
   @override
   void onMapCreated(_i2.GoogleMapController? controller) => super.noSuchMethod(

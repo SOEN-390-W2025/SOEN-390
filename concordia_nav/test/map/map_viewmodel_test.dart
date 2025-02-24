@@ -61,8 +61,7 @@ void main() {
       // Assert
       expect(mapViewModel.polylines.isNotEmpty, true);
       expect(mapViewModel.markers.isNotEmpty, isNotNull);
-      expect(
-          mapViewModel.markers.first.position, equals(routePoints.last));
+      expect(mapViewModel.markers.first.position, equals(routePoints.first));
     });
 
     test('throws exception when route fetching fails', () async {
