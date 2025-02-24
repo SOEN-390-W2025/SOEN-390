@@ -1,3 +1,4 @@
+import 'concordia_building.dart';
 import 'connection.dart';
 import 'location.dart';
 
@@ -32,27 +33,32 @@ import 'location.dart';
 /// It is also possible to have a route without any secondIndoorPortions, if the
 /// locations are in the same building.
 class IndoorRoute {
-  List<Location> firstIndoorPortionToConnection;
+  List<Location>? firstIndoorPortionToConnection;
   Connection? firstIndoorConnection;
   List<Location>? firstIndoorPortionFromConnection;
+  ConcordiaBuilding firstBuilding;
   List<Location>? secondIndoorPortionToConnection;
   Connection? secondIndoorConnection;
   List<Location>? secondIndoorPortionFromConnection;
+  ConcordiaBuilding? secondBuilding;
 
   IndoorRoute(
-      this.firstIndoorPortionToConnection,
-      this.firstIndoorConnection,
-      this.firstIndoorPortionFromConnection,
-      this.secondIndoorPortionToConnection,
-      this.secondIndoorConnection,
-      this.secondIndoorPortionFromConnection);
+    this.firstBuilding,
+    this.firstIndoorPortionToConnection,
+    this.firstIndoorConnection,
+    this.firstIndoorPortionFromConnection,
+    this.secondBuilding,
+    this.secondIndoorPortionToConnection,
+    this.secondIndoorConnection,
+    this.secondIndoorPortionFromConnection,
+  );
 
   /// Use this as the start point of outdoor routing
   Location firstPortionLastLocation() {
     if (firstIndoorPortionFromConnection?.isNotEmpty ?? false) {
       return firstIndoorPortionFromConnection!.last;
     }
-    return firstIndoorPortionToConnection.last;
+    return firstIndoorPortionToConnection?.last ?? firstBuilding;
   }
 
   Location? secondPortionFirstLocation() {
