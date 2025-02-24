@@ -283,6 +283,32 @@ void main() {
 
       verify(mockMapService.adjustCameraForPath(routePoints)).called(1);
     });
+
+    test('setActiveModeForRoute changes mode and adjusts camera', () async {
+      // Arrange
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+      when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) async => true);
+
+      // Act
+      mapViewModel.setActiveMode(CustomTravelMode.walking);
+
+      // Assert
+      expect(mapViewModel.selectedTravelModeForRoute, CustomTravelMode.walking);
+    });
+
+    test('can get mapviewmodel attributes', () {
+      expect(mapViewModel.staticBusStopMarkers, isA<Set<Marker>>());
+      expect(mapViewModel.shuttleAvailable, true);
+      expect(mapViewModel.mapService, isA<MapService>());
+      expect(mapViewModel.multiModePolylines, isA<Set<Polyline>>());
+      expect(mapViewModel.selectedTravelModeForRoute, isA<CustomTravelMode>());
+      expect(mapViewModel.travelTimes, isA<Map<CustomTravelMode, String>>());
+      expect(mapViewModel.selectedTravelMode, isA<CustomTravelMode>());
+    });
+
     test(
         'getInitialCameraPosition should return CameraPosition from repository',
         () async {
