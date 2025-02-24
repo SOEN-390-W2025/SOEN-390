@@ -281,7 +281,6 @@ class IndoorRoutingService {
     // Now we do our hill-climbing - find the a navigable waypoint that
     // takes us closest to our destination
     final List<int> route = [originWaypointIndex];
-    final List<int> visitedWaypoints = [originWaypointIndex];
     while (route.last != destinationWaypointIndex) {
       var neighbours = waypointNavigability[route.last];
       int? bestNeighbour;
@@ -306,7 +305,6 @@ class IndoorRoutingService {
           bestNeighbour = neighbourIndex;
           bestNeighbourDistanceToDest = distanceFromDestination;
         }
-        visitedWaypoints.add(neighbourIndex);
       }
 
       // Can't continue to the destination - couldn't find a bestNeighbour not
