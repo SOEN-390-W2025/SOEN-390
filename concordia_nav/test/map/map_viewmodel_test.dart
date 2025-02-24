@@ -223,10 +223,10 @@ void main() {
         .thenReturn(500);
 
       when(mockODSDirectionsService.fetchWalkingPolyline(
-        originAddress: originAddress, destinationAddress: '45.45825,-73.63914'))
+        originAddress: originAddress, destinationAddress: '45.45825,-73.63914', polylineId: "walking_leg1_LOYtoSGW", color: const Color(0xFF0c79fe), width: 5))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg1_LOYtoSGW")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
-        originAddress: '45.49713,-73.57852', destinationAddress: destinationAddress))
+        originAddress: '45.49713,-73.57852', destinationAddress: destinationAddress, polylineId: "walking_leg3_LOYtoSGW", color: const Color(0xFF0c79fe), width: 5))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_LOYtoSGW")));
       when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
 
@@ -255,10 +255,10 @@ void main() {
         .thenReturn(2000);
 
       when(mockODSDirectionsService.fetchWalkingPolyline(
-        originAddress: originAddress, destinationAddress: '45.49713,-73.57852'))
+        originAddress: originAddress, destinationAddress: '45.49713,-73.57852', polylineId: "walking_leg1_LOYtoSGW", color: const Color(0xFF0c79fe), width: 5))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg1_SGWtoLOY")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
-        originAddress: '45.45825,-73.63914', destinationAddress: destinationAddress))
+        originAddress: '45.45825,-73.63914', destinationAddress: destinationAddress, polylineId: "walking_leg1_SGWtoLOY", color: const Color(0xFF0c79fe), width: 5))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_SGWtoLOY")));
       when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
 
