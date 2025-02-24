@@ -275,13 +275,13 @@ class MapViewModel extends ChangeNotifier {
     return destinationCoords;
   }
 
-  ShuttleRouteDirection? _validShuttleRoute (bool originNearLOY, bool originNearSGW, bool destNearLOY, bool destNearSGW) {
+  bool _isValidShuttleRoute (bool originNearLOY, bool originNearSGW, bool destNearLOY, bool destNearSGW) {
     if ((!originNearLOY && !originNearSGW) || (!destNearLOY && !destNearSGW)) {
       if (kDebugMode) {
         print(
             "Shuttle route not available: One or both addresses are not within 1km of a campus shuttle stop.");
       }
-      return null;
+      return false;
     }
     // If both addresses are near the same campus, there's no shuttle route.
     if ((originNearLOY && destNearLOY) || (originNearSGW && destNearSGW)) {
@@ -289,19 +289,26 @@ class MapViewModel extends ChangeNotifier {
         print(
             "Shuttle route not available: Both addresses are near the same campus shuttle stop.");
       }
-      return null;
+      return false;
     }
-    if (originNearSGW && destNearLOY) {
-      return ShuttleRouteDirection.SGWtoLOY;
-    } else if (originNearLOY && destNearSGW) {
-      return ShuttleRouteDirection.LOYtoSGW;
-    } else {
-      if (kDebugMode) {
-        print(
-            "Shuttle route not available: Addresses do not meet valid shuttle range criteria.");
+    return true;
+  }
+
+  ShuttleRouteDirection? _validShuttleRoute (bool originNearLOY, bool originNearSGW, bool destNearLOY, bool destNearSGW) {
+    if (_isValidShuttleRoute(originNearLOY, originNearSGW, destNearLOY, destNearSGW)){
+      if (originNearSGW && destNearLOY) {
+        return ShuttleRouteDirection.SGWtoLOY;
+      } else if (originNearLOY && destNearSGW) {
+        return ShuttleRouteDirection.LOYtoSGW;
+      } else {
+        if (kDebugMode) {
+          print(
+              "Shuttle route not available: Addresses do not meet valid shuttle range criteria.");
+        }
+        return null;
       }
-      return null;
     }
+    else {return null;}
   }
 
   List<LatLng> _getCompositePoints(Polyline? leg1, Polyline leg2, Polyline? leg3) {
