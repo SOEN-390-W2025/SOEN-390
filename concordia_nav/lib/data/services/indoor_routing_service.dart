@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:developer' as dev;
+
 import 'package:geolocator/geolocator.dart';
 import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
@@ -94,25 +97,39 @@ class IndoorRoutingService {
     }
   }
 
+  /// Returns distance between points in pixels/arbitrary units based on
+  /// Pythagorean theorem
+  static double getDistanceBetweenPoints(
+      FloorRoutablePoint point1, FloorRoutablePoint point2) {
+    return sqrt(pow(point2.positionX - point1.positionX, 2) +
+        pow(point2.positionY - point1.positionY, 2));
+  }
+
   static IndoorRoute getIndoorRoute(FloorRoutablePoint origin,
       FloorRoutablePoint destination, bool isAccessible) {
     // Points are the same - return a route with no instructions
     if (origin == destination) {
+      dev.log("getIndoorRoute - origin and destination same, returning null");
       return IndoorRoute(
           origin.floor.building, null, null, null, null, null, null, null);
     }
+
     // Points are in different buildings - recurse down to two indoor routes
     // within the same building, and combine them. Other code will take care
     // of the outdoor route between.
     if (origin.floor.building.abbreviation !=
         destination.floor.building.abbreviation) {
+      dev.log("getIndoorRoute - origin and destination buildings not same");
       final IndoorRoute returnRoute = IndoorRoute(origin.floor.building, null,
           null, null, destination.floor.building, null, null, null);
-      // Inter-building route - we need to combine the route from this building
+
+      // We need to combine the route from this building
       // to its exit, to the exit of the next building to the room there
       final FloorRoutablePoint? originExitPoint = IndoorFeatureRepository
           .outdoorExitPointsByBuilding[origin.floor.building.abbreviation];
       if (originExitPoint != null) {
+        dev.log(
+            "Origin exit point not null - getting route in origin building");
         final IndoorRoute originPortion =
             getIndoorRoute(origin, originExitPoint, isAccessible);
         returnRoute.firstIndoorPortionToConnection =
@@ -121,9 +138,11 @@ class IndoorRoutingService {
         returnRoute.firstIndoorPortionFromConnection =
             originPortion.firstIndoorPortionFromConnection;
       }
+
       final FloorRoutablePoint? destinationExitPoint = IndoorFeatureRepository
           .outdoorExitPointsByBuilding[destination.floor.building.abbreviation];
       if (destinationExitPoint != null) {
+        dev.log("Dest exit point not null - getting route in dest building");
         final IndoorRoute destinationPortion =
             getIndoorRoute(destinationExitPoint, destination, isAccessible);
         returnRoute.secondIndoorPortionToConnection =
@@ -133,12 +152,15 @@ class IndoorRoutingService {
         returnRoute.secondIndoorPortionFromConnection =
             destinationPortion.secondIndoorPortionFromConnection;
       }
+
       return returnRoute;
     }
+
     // Points are now in the same building but on different floors - find the
     // best connection between these floors, then recurse down to 2 intra-floor
     // routes
     if (origin.floor.floorNumber != destination.floor.floorNumber) {
+      dev.log("Origin and destination points on different floors");
       final possibleConnections = IndoorFeatureRepository
           .connectionsByBuilding[origin.floor.building.abbreviation];
       Connection? bestConnection;
@@ -157,6 +179,8 @@ class IndoorRoutingService {
       final returnRoute = IndoorRoute(origin.floor.building, null,
           bestConnection, null, null, null, null, null);
       if (bestConnection == null) {
+        dev.log("Couldn't find connection between floor " +
+            "${origin.floor.floorNumber} and ${destination.floor.floorNumber}");
         // No known way to connect these floors - need to return an indoor route
         // with just the building
         return returnRoute;
@@ -165,14 +189,17 @@ class IndoorRoutingService {
       final originConnectionPoint =
           bestConnection.floorPoints[origin.floor.floorNumber];
       if (originConnectionPoint != null) {
+        dev.log("Origin conn point is not null - getting intra-floor route");
         final originFloorPortion =
             getIndoorRoute(origin, originConnectionPoint, isAccessible);
         returnRoute.firstIndoorPortionToConnection =
             originFloorPortion.firstIndoorPortionToConnection;
       }
+
       final destinationConnectionPoint =
           bestConnection.floorPoints[destination.floor.floorNumber];
       if (destinationConnectionPoint != null) {
+        dev.log("Dest conn point is not null - getting intra-floor route");
         final destinationFloorPortion = getIndoorRoute(
             destinationConnectionPoint, destination, isAccessible);
         // The mismatch here is deliberate - intra-floor directions always
@@ -180,9 +207,65 @@ class IndoorRoutingService {
         returnRoute.firstIndoorPortionFromConnection =
             destinationFloorPortion.firstIndoorPortionToConnection;
       }
+
+      return returnRoute;
     }
+
     // Points are now within the same floor - this is where we do our BFS of
     // floor points to find a route
-    // TODO implement this
+    dev.log("getIndoorRoute - finding intra-floor route");
+    final List<FloorRoutablePoint> openPoints = [destination];
+    // Shallow copy in the items so they aren't deleted from the repository
+    // TODO we need a better repository
+    for (var waypoint in IndoorFeatureRepository.waypointsByFloor[
+            origin.floor.building.abbreviation]![origin.floor.floorNumber] ??
+        []) {
+      openPoints.add(waypoint);
+    }
+    if (openPoints.length < 2) {
+      // No floor routing data for this floor, need to return the null route
+      dev.log("No indoor routing data for floor ${origin.floor.floorNumber}");
+      return IndoorRoute(
+          origin.floor.building, null, null, null, null, null, null, null);
+    }
+    openPoints.add(destination);
+
+    final List<FloorRoutablePoint> visitedPoints = [origin];
+    final List<FloorRoutablePoint> route = [origin];
+    while (route.last != destination) {
+      final currentDistanceToDest =
+          getDistanceBetweenPoints(route.last, destination);
+      FloorRoutablePoint? bestNextPoint;
+      double? shortestDistanceFromHere;
+      dev.log("Evaluating openPoints list - " +
+          "currentDistanceToDest ${currentDistanceToDest.toString()}");
+      for (var point in openPoints) {
+        // Can't remove from openPoints - ConcurrentModificationDuringIteration
+        if (visitedPoints.contains(point)) continue;
+        final newDistanceToDest = getDistanceBetweenPoints(point, destination);
+        final distanceFromHere = getDistanceBetweenPoints(route.last, point);
+        if (newDistanceToDest > currentDistanceToDest) {
+          visitedPoints.add(point);
+        } else if (shortestDistanceFromHere == null ||
+            distanceFromHere < shortestDistanceFromHere) {
+          bestNextPoint = point;
+          shortestDistanceFromHere = distanceFromHere;
+        }
+      }
+      if (bestNextPoint == null) {
+        // Couldn't find a way there
+        dev.log("Couldn't find a bestNextPoint");
+        return IndoorRoute(
+            origin.floor.building, null, null, null, null, null, null, null);
+      } else {
+        dev.log("Adding point ${shortestDistanceFromHere.toString()} away");
+        visitedPoints.add(bestNextPoint);
+        route.add(bestNextPoint);
+        openPoints.remove(bestNextPoint);
+      }
+    }
+
+    return IndoorRoute(
+        origin.floor.building, route, null, null, null, null, null, null);
   }
 }
