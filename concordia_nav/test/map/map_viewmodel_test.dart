@@ -87,6 +87,9 @@ void main() {
       when(mockMapService.getRoutePath(originAddress, destinationAddress))
           .thenAnswer((_) async => routePoints);
 
+      // mock zoom of camera
+      when(mockMapService.adjustCameraForPath(routePoints)).thenReturn(null);
+
       // Act
       await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress);
 
