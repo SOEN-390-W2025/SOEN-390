@@ -116,6 +116,32 @@ class MapViewModel extends ChangeNotifier {
     return _mapRepository.getCameraPosition(campus);
   }
 
+  Future<String> _getOriginAddress (String? originAddress) async {
+    if (originAddress == null) {
+      final currentLocation = await _mapService.getCurrentLocation();
+      if (currentLocation == null) {
+        throw Exception("Current location is not available.");
+      }
+      return "${currentLocation.latitude},${currentLocation.longitude}";
+    } else {
+      return originAddress;
+    }
+  }
+
+  Future<void> _scheduleIfRoute(String? origin, String destination) async {
+    // Only if at least one Google Maps route is available, check the shuttle schedule.
+    if (_multiModeRoutes.isNotEmpty) {
+      final ShuttleRouteRepository shuttleRepo = ShuttleRouteRepository();
+      _shuttleAvailable = await shuttleRepo.isShuttleAvailable();
+      if (_shuttleAvailable) {
+        await fetchShuttleRoute(origin, destination);
+      }
+    } else {
+      // No Google Maps modes available; refrain from checking shuttle.
+      _shuttleAvailable = false;
+    }
+  }
+
   /// Fetches routes for all supported travel modes from [originAddress] to [destinationAddress].
   ///
   /// Throws an exception if the current location is unavailable.
@@ -137,17 +163,7 @@ class MapViewModel extends ChangeNotifier {
     for (var mode in googleModes) {
       final gda.TravelMode? gdaMode = toGdaTravelMode(mode);
       if (gdaMode != null) {
-        String originStr;
-        if (originAddress == null) {
-          final currentLocation = await _mapService.getCurrentLocation();
-          if (currentLocation == null) {
-            throw Exception("Current location is not available.");
-          }
-          originStr =
-              "${currentLocation.latitude},${currentLocation.longitude}";
-        } else {
-          originStr = originAddress;
-        }
+        String originStr = await _getOriginAddress(originAddress);
         final result = await _odsDirectionsService.fetchRouteResult(
           originAddress: originStr,
           destinationAddress: destinationAddress,
@@ -163,17 +179,7 @@ class MapViewModel extends ChangeNotifier {
       }
     }
 
-    // Only if at least one Google Maps route is available, check the shuttle schedule.
-    if (_multiModeRoutes.isNotEmpty) {
-      final ShuttleRouteRepository shuttleRepo = ShuttleRouteRepository();
-      _shuttleAvailable = await shuttleRepo.isShuttleAvailable();
-      if (_shuttleAvailable) {
-        await fetchShuttleRoute(originAddress, destinationAddress);
-      }
-    } else {
-      // No Google Maps modes available; refrain from checking shuttle.
-      _shuttleAvailable = false;
-    }
+    await _scheduleIfRoute(originAddress, destinationAddress);
 
     if (_multiModeRoutes.containsKey(_selectedTravelModeForRoute)) {
       _multiModeActivePolylines = {
@@ -226,16 +232,12 @@ class MapViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<void> fetchShuttleRoute(
-      String? originAddress, String destinationAddress) async {
-    // Campus shuttle stops.
-    const LatLng loyolaStop = LatLng(45.45825, -73.63914);
-    const LatLng sgwStop = LatLng(45.49713, -73.57852);
-
+  // get origin coordinates for shuttle route
+  Future<LatLng?> _getOriginCoords(String? originAddress, LatLng loyolaStop, LatLng sgwStop) async {
     LatLng? originCoords;
     if (originAddress == null || originAddress.trim().isEmpty) {
       // If no origin is provided, assume the current location was used.
-      originCoords = await _mapService.getCurrentLocation();
+      return await _mapService.getCurrentLocation();
     } else {
       originCoords = _parseCoordinates(originAddress);
       // If parsing fails, try geocoding the address.
@@ -251,9 +253,12 @@ class MapViewModel extends ChangeNotifier {
           }
         }
       }
+      return originCoords;
     }
+  }
 
-    LatLng? destinationCoords = _parseCoordinates(destinationAddress);
+  Future<LatLng?> _getDestinationCoords(String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
+    var destinationCoords = _parseCoordinates(destinationAddress);
     // If that fails, try using geocoding.
     if (destinationCoords == null) {
       destinationCoords = await geocodeAddress(destinationAddress);
@@ -267,6 +272,18 @@ class MapViewModel extends ChangeNotifier {
         }
       }
     }
+    return destinationCoords;
+  }
+
+  Future<void> fetchShuttleRoute(
+      String? originAddress, String destinationAddress) async {
+    // Campus shuttle stops.
+    const LatLng loyolaStop = LatLng(45.45825, -73.63914);
+    const LatLng sgwStop = LatLng(45.49713, -73.57852);
+
+    LatLng? originCoords = await _getOriginCoords(originAddress, loyolaStop, sgwStop);
+
+    LatLng? destinationCoords = await _getDestinationCoords(destinationAddress, loyolaStop, sgwStop);
 
     if (originCoords == null || destinationCoords == null) {
       if (kDebugMode) {

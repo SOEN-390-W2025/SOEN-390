@@ -74,11 +74,12 @@ class ShuttleRouteRepository {
 
   /// Helper method to determine the range that maps to today's day of the week.
   String? getDayType(DateTime now) {
+    const weekday = 'Monday-Thursday';
     const Map<int, String> dayTypeMapping = {
-      DateTime.monday: 'Monday-Thursday',
-      DateTime.tuesday: 'Monday-Thursday',
-      DateTime.wednesday: 'Monday-Thursday',
-      DateTime.thursday: 'Monday-Thursday',
+      DateTime.monday: weekday,
+      DateTime.tuesday: weekday,
+      DateTime.wednesday: weekday,
+      DateTime.thursday: weekday,
       DateTime.friday: 'Friday',
     };
     return dayTypeMapping[now.weekday]; // Returns null for Saturday/Sunday.

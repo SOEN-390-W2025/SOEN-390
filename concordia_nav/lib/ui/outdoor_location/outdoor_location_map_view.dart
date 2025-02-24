@@ -190,6 +190,62 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     );
   }
 
+  Center? _getCamSnapshot(AsyncSnapshot<CameraPosition> camSnapshot) {
+    if (camSnapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (camSnapshot.hasError) {
+      return const Center(child: Text('Error loading campus map'));
+    }
+    return null;
+  }
+
+  Widget _visibleKeyboardWidget(){
+      return Positioned(
+        bottom: 30,
+        left: 15,
+        right: 15,
+        child: Row(
+          children: [
+            // "Get Directions" button
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _getDirections,
+                child: const Text(
+                  'Get Directions',
+                  style: TextStyle(
+                    color: Color.fromRGBO(146, 35, 56, 1),
+                  ),
+                ),
+              ),
+            ),
+            if (_mapViewModel.destinationMarker != null)
+              const SizedBox(width: 16),
+            if (_mapViewModel.destinationMarker != null)
+              Container(
+                width: 50,
+                height: 50,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color.fromRGBO(146, 35, 56, 1),
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.navigation_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    final destination =
+                        _mapViewModel.destinationMarker!.position;
+                    _launchGoogleMapsNavigation(destination);
+                  },
+                ),
+              ),
+          ],
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,12 +255,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           FutureBuilder<CameraPosition>(
             future: _initialCameraPosition,
             builder: (context, camSnapshot) {
-              if (camSnapshot.connectionState == ConnectionState.waiting) {
+              _getCamSnapshot(camSnapshot);
+              /*if (camSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (camSnapshot.hasError) {
                 return const Center(child: Text('Error loading campus map'));
-              }
+              }*/
               return FutureBuilder<Map<String, dynamic>>(
                 future: _mapViewModel.getAllCampusPolygonsAndLabels(),
                 builder: (context, polySnapshot) {
@@ -257,49 +314,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           ),
           _buildTopPanel(),
           if (isKeyboardVisible)
-            Positioned(
-              bottom: 30,
-              left: 15,
-              right: 15,
-              child: Row(
-                children: [
-                  // "Get Directions" button
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _getDirections,
-                      child: const Text(
-                        'Get Directions',
-                        style: TextStyle(
-                          color: Color.fromRGBO(146, 35, 56, 1),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_mapViewModel.destinationMarker != null)
-                    const SizedBox(width: 16),
-                  if (_mapViewModel.destinationMarker != null)
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(146, 35, 56, 1),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.navigation_outlined,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          final destination =
-                              _mapViewModel.destinationMarker!.position;
-                          _launchGoogleMapsNavigation(destination);
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
+            _visibleKeyboardWidget(),
         ],
       ),
     );
