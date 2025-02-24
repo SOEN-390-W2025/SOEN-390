@@ -232,16 +232,19 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                             child: Text('Location permission not granted'));
                       }
                       return MapLayout(
-                        mapWidget: GoogleMap(
-                          onMapCreated: _mapViewModel.onMapCreated,
-                          initialCameraPosition: camSnapshot.data!,
-                          zoomControlsEnabled: false,
-                          polylines: _mapViewModel.activePolylines,
-                          markers: allMarkers,
-                          polygons: polygons,
-                          myLocationButtonEnabled: false,
-                          buildingsEnabled: false,
-                          myLocationEnabled: _locationPermissionGranted,
+                        mapWidget: Semantics(
+                          label: 'Google Map',
+                          child: GoogleMap(
+                            onMapCreated: _mapViewModel.onMapCreated,
+                            initialCameraPosition: camSnapshot.data!,
+                            zoomControlsEnabled: false,
+                            polylines: _mapViewModel.activePolylines,
+                            markers: allMarkers,
+                            polygons: polygons,
+                            myLocationButtonEnabled: false,
+                            buildingsEnabled: false,
+                            myLocationEnabled: _locationPermissionGranted,
+                          ),
                         ),
                         mapViewModel: _mapViewModel,
                         style: 2,
