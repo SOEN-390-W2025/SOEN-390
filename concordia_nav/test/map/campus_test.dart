@@ -34,6 +34,8 @@ void main() async {
 
       when(mapViewModel.selectedBuildingNotifier)
           .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
+      when(mapViewModel.loadStaticBusStopMarkers()).thenAnswer((_) async => true);
+      when(mapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
 
       when(mapViewModel.getInitialCameraPosition(ConcordiaCampus.loy))
           .thenAnswer((_) async => expectedCameraPosition);
@@ -67,6 +69,7 @@ void main() async {
             key: UniqueKey(),
             campus: ConcordiaCampus.loy,
             mapViewModel: mapViewModel,
+            buildMapViewModel: mapViewModel,
           ),
         ),
       );
@@ -89,7 +92,7 @@ void main() async {
       // Build the CampusMapPage with the SGW campus
       await tester.pumpWidget(MaterialApp(
           home: CampusMapPage(
-              campus: ConcordiaCampus.loy, mapViewModel: mapViewModel)));
+              campus: ConcordiaCampus.loy, mapViewModel: mapViewModel, buildMapViewModel: mapViewModel)));
       await tester.pumpAndSettle();
 
       // Press the button that swaps campus views
@@ -108,7 +111,7 @@ void main() async {
       // Build the CampusMapPage with the SGW campus
       await tester.pumpWidget(MaterialApp(
           home: CampusMapPage(
-              campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel)));
+              campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel, buildMapViewModel: mapViewModel)));
       await tester.pumpAndSettle();
 
       when(mapViewModel

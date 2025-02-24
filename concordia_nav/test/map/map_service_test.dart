@@ -128,14 +128,15 @@ Future<void> main() async {
 
     test('adjustCameraForPath should call animateCamera on the map controller', () {
       // Arrange
-      const point1 = LatLng(37.7749, -122.4194);
-      const point2 = LatLng(45.49721130711485, -73.5787529114208);
-      const points = [point1, point2];
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
 
       realMapService.setMapController(mockGoogleMapController);
 
       // Act
-      realMapService.adjustCameraForPath(points);
+      realMapService.adjustCameraForPath(routePoints);
 
       // Assert
       verify(mockGoogleMapController.animateCamera(
@@ -144,7 +145,10 @@ Future<void> main() async {
             (update) => update.toString(),
             'CameraUpdate',
             CameraUpdate.newLatLngBounds(
-              LatLngBounds(southwest: point1, northeast: point2), 70
+              LatLngBounds(
+                southwest: const LatLng(45.4215, -75.6972),
+                northeast: const LatLng(45.4216, -75.6969),
+              ), 70
             ).toString(),
           ),
         ),

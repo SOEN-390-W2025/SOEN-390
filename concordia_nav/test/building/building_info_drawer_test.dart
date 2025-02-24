@@ -3,9 +3,7 @@ import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/utils/building_drawer_viewmodel.dart';
-import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/widgets/building_info_drawer.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,9 +14,6 @@ import 'building_info_drawer_test.mocks.dart';
 
 @GenerateMocks([BuildingInfoDrawerViewModel])
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
-
   late MockBuildingInfoDrawerViewModel mockViewModel;
   late VoidCallback mockOnClose;
   late MockMapViewModel mockMapViewModel;
@@ -155,8 +150,7 @@ void main() async {
       // Build the buildinginfodrawer widget
       await tester.pumpWidget(MaterialApp(
           home: BuildingInfoDrawer(
-              building: BuildingRepository.ad,
-              onClose: MapViewModel().unselectBuilding)));
+              building: BuildingRepository.ad, onClose: () {})));
 
       // finds widgets
       expect(find.byType(DraggableScrollableSheet), findsOneWidget);

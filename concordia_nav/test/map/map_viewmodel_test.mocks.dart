@@ -17,6 +17,7 @@ import 'package:concordia_nav/utils/map_viewmodel.dart' as _i9;
 import 'package:flutter/material.dart' as _i3;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:google_directions_api/google_directions_api.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -52,6 +53,12 @@ class _FakeValueNotifier_2<T> extends _i1.SmartFake
 
 class _FakeMapService_3 extends _i1.SmartFake implements _i4.MapService {
   _FakeMapService_3(Object parent, Invocation parentInvocation)
+      : super(parent, parentInvocation);
+}
+
+class _FakeOutdoorRouteResult_1 extends _i1.SmartFake
+    implements _i7.OutdoorRouteResult {
+  _FakeOutdoorRouteResult_1(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
@@ -252,7 +259,7 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
       ) as _i8.Future<_i2.CameraPosition>);
 
   @override
-  _i8.Future<void> fetchRoute(
+  _i8.Future<void> fetchRoutesForAllModes(
     String? originAddress,
     String? destinationAddress,
   ) =>
@@ -389,4 +396,102 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
         Invocation.method(#notifyListeners, []),
         returnValueForMissingStub: null,
       );
+
+  @override
+  void startShuttleBusTimer() => super.noSuchMethod(
+        Invocation.method(#startShuttleBusTimer, []),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i8.Future<void> loadStaticBusStopMarkers() => (super.noSuchMethod(
+        Invocation.method(#loadStaticBusStopMarkers, []),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  void setActiveMode(_i9.CustomTravelMode mode) => super.noSuchMethod(
+        Invocation.method(#setActiveMode, [mode]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i8.Future<void> setActiveModeForRoute(_i9.CustomTravelMode mode) =>
+      (super.noSuchMethod(
+        Invocation.method(#setActiveModeForRoute, [mode]),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+}
+
+/// A class which mocks [ODSDirectionsService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockODSDirectionsService extends _i1.Mock
+    implements _i7.ODSDirectionsService {
+  MockODSDirectionsService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i8.Future<_i7.OutdoorRouteResult> fetchRouteResult(
+          {required String originAddress,
+          required String destinationAddress,
+          required _i10.TravelMode travelMode,
+          String polylineId = "route",
+          _i11.Color color = const _i3.Color(0xFF2196F3),
+          int width = 5}) =>
+      (super.noSuchMethod(
+        Invocation.method(#fetchRouteResult, [
+          originAddress,
+          destinationAddress,
+          travelMode,
+          polylineId,
+          color,
+          width
+        ]),
+        returnValue: _i8.Future<_i7.OutdoorRouteResult>.value(
+          _FakeOutdoorRouteResult_1(
+            this,
+            Invocation.method(#fetchRouteResult, [
+              originAddress,
+              destinationAddress,
+              travelMode,
+              polylineId,
+              color,
+              width
+            ]),
+          ),
+        ),
+      ) as _i8.Future<_i7.OutdoorRouteResult>);
+
+  @override
+  _i8.Future<_i2.Polyline?> fetchWalkingPolyline(
+          {required String originAddress,
+          required String destinationAddress,
+          String polylineId = "walking_route",
+          _i11.Color color = const _i3.Color(0xFF0c79fe),
+          int width = 5}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+            #fetchWalkingPolyline, [originAddress, destinationAddress]),
+        returnValue: _i8.Future<_i2.Polyline?>.value(),
+      ) as _i8.Future<_i2.Polyline?>);
+
+  @override
+  _i8.Future<List<_i2.LatLng>> fetchRoute(
+          String originAddress, String destinationAddress) =>
+      (super.noSuchMethod(
+        Invocation.method(#fetchRoute, [originAddress, destinationAddress]),
+        returnValue: _i8.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
+      ) as _i8.Future<List<_i2.LatLng>>);
+
+  @override
+  _i8.Future<List<_i2.LatLng>> fetchRouteFromCoords(
+          _i2.LatLng origin, String destinationAddress) =>
+      (super.noSuchMethod(
+        Invocation.method(#fetchRouteFromCoords, [origin, destinationAddress]),
+        returnValue: _i8.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
+      ) as _i8.Future<List<_i2.LatLng>>);
 }
