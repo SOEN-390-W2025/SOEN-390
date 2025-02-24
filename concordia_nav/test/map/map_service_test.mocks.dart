@@ -249,6 +249,12 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
       );
 
   @override
+  void adjustCameraForPath(List<_i2.LatLng>? points) => super.noSuchMethod(
+    Invocation.method(#adjustCameraForPath, [points]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i5.Future<_i2.BitmapDescriptor> getCustomIcon(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#getCustomIcon, [name]),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../utils/map_viewmodel.dart';
+import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../widgets/compact_location_search_widget.dart';
@@ -12,10 +13,11 @@ import '../../widgets/map_layout.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
+  final ConcordiaBuilding? building;
   final MapViewModel? mapViewModel;
 
   const OutdoorLocationMapView(
-      {super.key, required this.campus, this.mapViewModel});
+      {super.key, required this.campus, this.building, this.mapViewModel});
 
   @override
   State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
@@ -28,10 +30,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   late ConcordiaCampus _currentCampus;
   late Future<CameraPosition>? _initialCameraPosition;
   bool _locationPermissionGranted = false;
-  final TextEditingController _sourceController = TextEditingController();
-  final TextEditingController _destinationController = TextEditingController();
+  late TextEditingController _sourceController;
+  late TextEditingController _destinationController;
   List<String> searchList = [];
   bool isKeyboardVisible = false;
+  double? bottomInset = 0;
+  bool first = false;
 
 
   void getSearchList() {
@@ -46,7 +50,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   final _yourLocationString = "Your Location";
 
   void checkLocationPermission() {
-    _mapViewModel.checkLocationAccess().then((hasPermission) {
+    _mapViewModel.checkLocationAccess().then((hasPermission){
       setState(() {
         _sourceController.text = _yourLocationString;
         _locationPermissionGranted = hasPermission;
@@ -57,10 +61,21 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     });
   }
 
+  Future<void> _updatePath() async {
+    if(_destinationController.text != '') {
+      await _mapViewModel.fetchRoutesForAllModes('Your Location', _destinationController.text);
+      setState(() {});
+    }
+    first = false;
+  }
+
   @override
   void initState() {
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
+    _sourceController = TextEditingController();
+    _destinationController =
+        TextEditingController(text: widget.building?.name ?? '');
     _currentCampus = widget.campus;
     
     _initialCameraPosition =
@@ -73,6 +88,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     getSearchList();
 
     WidgetsBinding.instance.addObserver(this);
+    if(_destinationController.text != '') {
+      first = true;
+    }
   }
 
   @override
@@ -82,14 +100,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-/*
-  @override
-  void didChangeMetrics() {
-    final bottomInset = View.of(context).viewInsets.bottom;
+
+  void updateBuilding(ConcordiaBuilding newBuilding) {
     setState(() {
-      isKeyboardVisible = bottomInset > 1;
+      _destinationController.text = newBuilding.name;
     });
-  }*/
+  }
 
   Future<void> _launchGoogleMapsNavigation(LatLng destination) async {
     final url =
@@ -169,6 +185,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               mapViewModel: _mapViewModel,
               searchList: searchList,
               onDirectionFetched: () {
+                first = false;
                 setState(() {}); // Refresh the page
               },
             ),
@@ -218,18 +235,18 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         right: 15,
         child: Row(
           children: [
-            // "Get Directions" button
-            /*Expanded(
-              child: ElevatedButton(
-                onPressed: _getDirections,
-                child: const Text(
-                  'Get Directions',
-                  style: TextStyle(
-                    color: Color.fromRGBO(146, 35, 56, 1),
+            if(_destinationController.text != 'null')
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _updatePath,
+                  child: const Text(
+                    'Get Directions',
+                    style: TextStyle(
+                      color: Color.fromRGBO(146, 35, 56, 1),
+                    ),
                   ),
                 ),
               ),
-            ),*/
             if (_mapViewModel.destinationMarker != null)
               const SizedBox(width: 16),
             if (_mapViewModel.destinationMarker != null)
@@ -252,15 +269,18 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                   },
                 ),
               ),
-          ],
-        ),
+            ],
+            ),
       );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Outdoor Directions'),
+      appBar: customAppBar(
+        context,
+        widget.building == null ? 'Outdoor Location' : widget.campus.name,
+      ),
       body: Stack(
         children: [
           FutureBuilder<CameraPosition>(
@@ -318,8 +338,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             },
           ),
           _buildTopPanel(),
-          if (isKeyboardVisible)
-            _visibleKeyboardWidget(),
+          if (first) _visibleKeyboardWidget(),
         ],
       ),
     );

@@ -30,11 +30,13 @@ void main() {
     mockODSDirectionsService = MockODSDirectionsService();
     shuttleRepo = ShuttleRouteRepository();
     mapViewModel = MapViewModel(
-        mapRepository: mockMapRepository, mapService: mockMapService, odsDirectionsService: mockODSDirectionsService, shuttleRepository: shuttleRepo);
+        mapRepository: mockMapRepository,
+        mapService: mockMapService,
+        odsDirectionsService: mockODSDirectionsService,
+        shuttleRepository: shuttleRepo);
   });
 
   group('fetchRoute', () {
-
     test(
         'successfully fetches route and creates polyline and destination marker',
         () async {
@@ -47,19 +49,35 @@ void main() {
         const LatLng(45.4216, -75.6969),
       ];
 
-      final polyline = Polyline(polylineId: const PolylineId('2'), points: routePoints);
+      final polyline =
+          Polyline(polylineId: const PolylineId('2'), points: routePoints);
       when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving, 
-        polylineId: "CustomTravelMode.driving", color: const Color(0xFF2196F3), width: 5))
-        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+              originAddress: originAddress,
+              destinationAddress: destinationAddress,
+              travelMode: gda.TravelMode.driving,
+              polylineId: "CustomTravelMode.driving",
+              color: const Color(0xFF2196F3),
+              width: 5))
+          .thenAnswer((_) async =>
+              OutdoorRouteResult(polyline: polyline, travelTime: '2'));
       when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.walking, 
-        polylineId: "CustomTravelMode.walking", color: const Color(0xFF2196F3), width: 5))
-        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+              originAddress: originAddress,
+              destinationAddress: destinationAddress,
+              travelMode: gda.TravelMode.walking,
+              polylineId: "CustomTravelMode.walking",
+              color: const Color(0xFF2196F3),
+              width: 5))
+          .thenAnswer((_) async =>
+              OutdoorRouteResult(polyline: polyline, travelTime: '2'));
       when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.bicycling, 
-        polylineId: "CustomTravelMode.bicycling", color: const Color(0xFF2196F3), width: 5))
-        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+              originAddress: originAddress,
+              destinationAddress: destinationAddress,
+              travelMode: gda.TravelMode.bicycling,
+              polylineId: "CustomTravelMode.bicycling",
+              color: const Color(0xFF2196F3),
+              width: 5))
+          .thenAnswer((_) async =>
+              OutdoorRouteResult(polyline: polyline, travelTime: '2'));
       when(mockODSDirectionsService.fetchRouteResult(
         originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.transit, 
         polylineId: "CustomTravelMode.transit", color: const Color(0xFF2196F3), width: 5))
@@ -105,19 +123,35 @@ void main() {
         const LatLng(45.4216, -75.6969),
       ];
 
-      final polyline = Polyline(polylineId: const PolylineId('2'), points: routePoints);
+      final polyline =
+          Polyline(polylineId: const PolylineId('2'), points: routePoints);
       when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving, 
-        polylineId: "CustomTravelMode.driving", color: const Color(0xFF2196F3), width: 5))
-        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+              originAddress: origin,
+              destinationAddress: destinationAddress,
+              travelMode: gda.TravelMode.driving,
+              polylineId: "CustomTravelMode.driving",
+              color: const Color(0xFF2196F3),
+              width: 5))
+          .thenAnswer((_) async =>
+              OutdoorRouteResult(polyline: polyline, travelTime: '2'));
       when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.walking, 
-        polylineId: "CustomTravelMode.walking", color: const Color(0xFF2196F3), width: 5))
-        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+              originAddress: origin,
+              destinationAddress: destinationAddress,
+              travelMode: gda.TravelMode.walking,
+              polylineId: "CustomTravelMode.walking",
+              color: const Color(0xFF2196F3),
+              width: 5))
+          .thenAnswer((_) async =>
+              OutdoorRouteResult(polyline: polyline, travelTime: '2'));
       when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.bicycling, 
-        polylineId: "CustomTravelMode.bicycling", color: const Color(0xFF2196F3), width: 5))
-        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+              originAddress: origin,
+              destinationAddress: destinationAddress,
+              travelMode: gda.TravelMode.bicycling,
+              polylineId: "CustomTravelMode.bicycling",
+              color: const Color(0xFF2196F3),
+              width: 5))
+          .thenAnswer((_) async =>
+              OutdoorRouteResult(polyline: polyline, travelTime: '2'));
       when(mockODSDirectionsService.fetchRouteResult(
         originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.transit, 
         polylineId: "CustomTravelMode.transit", color: const Color(0xFF2196F3), width: 5))
@@ -135,7 +169,8 @@ void main() {
 
       when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) => true);
 
-      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => currentLocation);
 
       // Mock getRoutePath to return the routePoints
       when(mockMapService.getRoutePath(origin, destinationAddress))
@@ -148,11 +183,11 @@ void main() {
       verify(mockMapService.getCurrentLocation()).called(4);
       expect(mapViewModel.activePolylines.isNotEmpty, true);
       expect(mapViewModel.destinationMarker, isNotNull);
-      expect(mapViewModel.destinationMarker?.position, equals(routePoints.last));
+      expect(
+          mapViewModel.destinationMarker?.position, equals(routePoints.last));
     });
 
-    test(
-        'throws error if searches for current location but doesnt return one',
+    test('throws error if searches for current location but doesnt return one',
         () async {
       // Arrange
       const originAddress = 'Your Location';
@@ -179,7 +214,8 @@ void main() {
       when(mockMapService.calculateDistance(const LatLng(45.49542095329432,-73.5779627198065), LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
         .thenReturn(3000);
 
-      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => currentLocation);
 
       // Act
       await mapViewModel.fetchShuttleRoute(originAddress, 'EV Building');
@@ -188,8 +224,7 @@ void main() {
       verify(mockMapService.getCurrentLocation()).called(1);
     });
 
-    test(
-        'fetchShuttleRoute stops if both points close to same campus',
+    test('fetchShuttleRoute stops if both points close to same campus',
         () async {
       // Arrange
       when(mockMapService.calculateDistance(const LatLng(45.49721130711485,-73.5787529114208), LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
@@ -205,9 +240,7 @@ void main() {
       await mapViewModel.fetchShuttleRoute('Hall Building', 'EV Building');
     });
 
-    test(
-        'fetchShuttleRoute gets shuttle time for LOYtoSGW',
-        () async {
+    test('fetchShuttleRoute gets shuttle time for LOYtoSGW', () async {
       // Arrange
       const originAddress = '45.45881661941029,-73.63891116452257';
       const destinationAddress = '45.49542095329432,-73.5779627198065';
@@ -230,20 +263,25 @@ void main() {
       when(mockODSDirectionsService.fetchWalkingPolyline(originAddress: '45.49713,-73.57852', destinationAddress: destinationAddress))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_LOYtoSGW")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
-        originAddress: '45.49713,-73.57852', destinationAddress: destinationAddress, polylineId: "walking_leg3_LOYtoSGW", color: const Color(0xFF0c79fe), width: 5))
-        .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_LOYtoSGW")));
-      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+              originAddress: '45.49713,-73.57852',
+              destinationAddress: destinationAddress,
+              polylineId: "walking_leg3_LOYtoSGW",
+              color: const Color(0xFF0c79fe),
+              width: 5))
+          .thenAnswer((_) async =>
+              const Polyline(polylineId: PolylineId("walking_leg3_LOYtoSGW")));
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => currentLocation);
 
       // Act
       await mapViewModel.fetchShuttleRoute('Vanier Library', 'EV Building');
 
       // Assert
-      expect(mapViewModel.multiModeTravelTimes[CustomTravelMode.shuttle], "30 min");
+      expect(mapViewModel.multiModeTravelTimes[CustomTravelMode.shuttle],
+          "30 min");
     });
 
-    test(
-        'fetchShuttleRoute gets shuttle time for SGWtoLOY',
-        () async {
+    test('fetchShuttleRoute gets shuttle time for SGWtoLOY', () async {
       // Arrange
       const originAddress = '45.49542095329432,-73.5779627198065';
       const destinationAddress = '45.45881661941029,-73.63891116452257';
@@ -261,8 +299,13 @@ void main() {
       when(mockODSDirectionsService.fetchWalkingPolyline(originAddress: originAddress, destinationAddress: '45.49713,-73.57852'))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg1_SGWtoLOY")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
-        originAddress: originAddress, destinationAddress: '45.49713,-73.57852', polylineId: "walking_leg1_SGWtoLOY", color: const Color(0xFF0c79fe), width: 5))
-        .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg1_SGWtoLOY")));
+              originAddress: originAddress,
+              destinationAddress: '45.49713,-73.57852',
+              polylineId: "walking_leg1_SGWtoLOY",
+              color: const Color(0xFF0c79fe),
+              width: 5))
+          .thenAnswer((_) async =>
+              const Polyline(polylineId: PolylineId("walking_leg1_SGWtoLOY")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
         originAddress: '45.45825,-73.63914', destinationAddress: destinationAddress, polylineId: "walking_leg3_SGWtoLOY", color: const Color(0xFF0c79fe), width: 5))
         .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_SGWtoLOY")));
@@ -281,7 +324,8 @@ void main() {
         const LatLng(45.4215, -75.6972),
         const LatLng(45.4216, -75.6969),
       ];
-      when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) async => true);
+      when(mockMapService.adjustCameraForPath(routePoints))
+          .thenAnswer((_) async => true);
 
       // Act
       mapViewModel.adjustCamera(routePoints);
@@ -295,7 +339,8 @@ void main() {
         const LatLng(45.4215, -75.6972),
         const LatLng(45.4216, -75.6969),
       ];
-      when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) async => true);
+      when(mockMapService.adjustCameraForPath(routePoints))
+          .thenAnswer((_) async => true);
 
       // Act
       mapViewModel.setActiveMode(CustomTravelMode.walking);

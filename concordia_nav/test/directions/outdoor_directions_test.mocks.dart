@@ -3,16 +3,14 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
-import 'dart:ui' as _i8;
+import 'dart:async' as _i4;
+import 'dart:ui' as _i5;
 
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart'
-    as _i4;
+    as _i3;
 import 'package:google_directions_api/google_directions_api.dart' as _i2;
-import 'package:google_maps_flutter/google_maps_flutter.dart' as _i5;
+import 'package:google_maps_flutter/google_maps_flutter.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:flutter/material.dart' as _i6;
-import 'package:google_directions_api/google_directions_api.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,9 +33,9 @@ class _FakeDirectionsService_0 extends _i1.SmartFake
 }
 
 class _FakeOutdoorRouteResult_1 extends _i1.SmartFake
-    implements _i4.OutdoorRouteResult {
+    implements _i3.OutdoorRouteResult {
   _FakeOutdoorRouteResult_1(Object parent, Invocation parentInvocation)
-      : super(parent, parentInvocation);
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [DirectionsService].
@@ -49,23 +47,23 @@ class MockDirectionsService extends _i1.Mock implements _i2.DirectionsService {
   }
 
   @override
-  _i3.Future<void> route(
+  _i4.Future<void> route(
     _i2.DirectionsRequest? request,
     void Function(_i2.DirectionsResult, _i2.DirectionsStatus?)? callback,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#route, [request, callback]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [ODSDirectionsService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockODSDirectionsService extends _i1.Mock
-    implements _i4.ODSDirectionsService {
+    implements _i3.ODSDirectionsService {
   MockODSDirectionsService() {
     _i1.throwOnMissingStub(this);
   }
@@ -89,52 +87,81 @@ class MockODSDirectionsService extends _i1.Mock
       );
 
   @override
-  _i3.Future<_i4.OutdoorRouteResult> fetchRouteResult(
-    {required String originAddress, required String destinationAddress, required _i7.TravelMode travelMode, 
-    String polylineId = "route", _i8.Color color = const _i6.Color(0xFF2196F3), int width = 5}) => (
-      super.noSuchMethod(
-        Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode, polylineId, color, width]),
-        returnValue: _i3.Future<_i4.OutdoorRouteResult>.value(
-          _FakeOutdoorRouteResult_1(
-            this,
-            Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode, polylineId, color, width]),
-          ),
-        ),
-      ) as _i3.Future<_i4.OutdoorRouteResult>
-    );
+  _i4.Future<_i3.OutdoorRouteResult> fetchRouteResult({
+    required String? originAddress,
+    required String? destinationAddress,
+    required _i2.TravelMode? travelMode,
+    String? polylineId = 'route',
+    _i5.Color? color = const _i5.Color(4280391411),
+    int? width = 5,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchRouteResult, [], {
+              #originAddress: originAddress,
+              #destinationAddress: destinationAddress,
+              #travelMode: travelMode,
+              #polylineId: polylineId,
+              #color: color,
+              #width: width,
+            }),
+            returnValue: _i4.Future<_i3.OutdoorRouteResult>.value(
+              _FakeOutdoorRouteResult_1(
+                this,
+                Invocation.method(#fetchRouteResult, [], {
+                  #originAddress: originAddress,
+                  #destinationAddress: destinationAddress,
+                  #travelMode: travelMode,
+                  #polylineId: polylineId,
+                  #color: color,
+                  #width: width,
+                }),
+              ),
+            ),
+          )
+          as _i4.Future<_i3.OutdoorRouteResult>);
 
   @override
-  _i3.Future<_i5.Polyline?> fetchWalkingPolyline(
-    {required String originAddress, required String destinationAddress, String polylineId = "walking_route", 
-    _i8.Color color = const _i6.Color(0xFF0c79fe), int width = 5}) => (
-      super.noSuchMethod(
-        Invocation.method(#fetchWalkingPolyline, [originAddress, destinationAddress]),
-        returnValue: _i3.Future<_i5.Polyline?>.value(),
-      ) as _i3.Future<_i5.Polyline?>
-    );
+  _i4.Future<_i6.Polyline?> fetchWalkingPolyline({
+    required String? originAddress,
+    required String? destinationAddress,
+    String? polylineId = 'walking_route',
+    _i5.Color? color = const _i5.Color(4279007742),
+    int? width = 5,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchWalkingPolyline, [], {
+              #originAddress: originAddress,
+              #destinationAddress: destinationAddress,
+              #polylineId: polylineId,
+              #color: color,
+              #width: width,
+            }),
+            returnValue: _i4.Future<_i6.Polyline?>.value(),
+          )
+          as _i4.Future<_i6.Polyline?>);
 
   @override
-  _i3.Future<List<_i5.LatLng>> fetchRoute(
+  _i4.Future<List<_i6.LatLng>> fetchRoute(
     String? originAddress,
     String? destinationAddress,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchRoute, [originAddress, destinationAddress]),
-            returnValue: _i3.Future<List<_i5.LatLng>>.value(<_i5.LatLng>[]),
+            returnValue: _i4.Future<List<_i6.LatLng>>.value(<_i6.LatLng>[]),
           )
-          as _i3.Future<List<_i5.LatLng>>);
+          as _i4.Future<List<_i6.LatLng>>);
 
   @override
-  _i3.Future<List<_i5.LatLng>> fetchRouteFromCoords(
-    _i5.LatLng? origin,
-    _i5.LatLng? destinationAddress,
+  _i4.Future<List<_i6.LatLng>> fetchRouteFromCoords(
+    _i6.LatLng? origin,
+    _i6.LatLng? destinationAddress,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchRouteFromCoords, [
               origin,
               destinationAddress,
             ]),
-            returnValue: _i3.Future<List<_i5.LatLng>>.value(<_i5.LatLng>[]),
+            returnValue: _i4.Future<List<_i6.LatLng>>.value(<_i6.LatLng>[]),
           )
-          as _i3.Future<List<_i5.LatLng>>);
+          as _i4.Future<List<_i6.LatLng>>);
 }
