@@ -10,7 +10,6 @@ import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
-import '../../widgets/source_destination_box.dart';
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
