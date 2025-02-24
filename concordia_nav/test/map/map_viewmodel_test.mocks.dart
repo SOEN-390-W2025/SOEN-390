@@ -244,12 +244,25 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
       ) as Set<_i2.Marker>);
 
   @override
+  bool get shuttleAvailable =>
+      (super.noSuchMethod(
+        Invocation.getter(#shuttleAvailable),
+        returnValue: false,
+      ) as bool);
+
+  @override
   set selectedBuildingNotifier(
     _i3.ValueNotifier<_i10.ConcordiaBuilding?>? _selectedBuildingNotifier,
   ) => super.noSuchMethod(
     Invocation.setter(#selectedBuildingNotifier, _selectedBuildingNotifier),
     returnValueForMissingStub: null,
   );
+
+  @override
+  Set<_i2.Polyline> get multiModePolylines => (super.noSuchMethod(
+        Invocation.getter(#multiModePolylines),
+        returnValue: <_i2.Polyline>{},
+      ) as Set<_i2.Polyline>);
 
   @override
   Set<_i2.Polyline> get activePolylines => (super.noSuchMethod(
@@ -265,6 +278,24 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
           Invocation.getter(#mapService),
         ),
       ) as _i4.MapService);
+
+  @override
+  _i9.CustomTravelMode get selectedTravelModeForRoute => (super.noSuchMethod(
+        Invocation.getter(#selectedTravelModeForRoute),
+        returnValue: _i9.CustomTravelMode.driving
+      ) as _i9.CustomTravelMode);
+
+  @override
+  _i9.CustomTravelMode get selectedTravelMode => (super.noSuchMethod(
+        Invocation.getter(#selectedTravelMode),
+        returnValue: _i9.CustomTravelMode.driving
+      ) as _i9.CustomTravelMode);
+
+  @override
+  Map<_i9.CustomTravelMode, String> get multiModeTravelTimes => (super.noSuchMethod(
+        Invocation.getter(#multiModeTravelTimes),
+        returnValue: <_i9.CustomTravelMode, String>{},
+      ) as Map<_i9.CustomTravelMode, String>);
 
   @override
   Map<_i9.CustomTravelMode, String> get travelTimes => (super.noSuchMethod(
@@ -441,6 +472,19 @@ class MockMapViewModel extends _i1.Mock implements _i9.MapViewModel {
   @override
   _i8.Future<void> loadStaticBusStopMarkers() => (super.noSuchMethod(
         Invocation.method(#loadStaticBusStopMarkers, []),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  void setActiveMode(_i9.CustomTravelMode mode) => super.noSuchMethod(
+        Invocation.method(#setActiveMode, [mode]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i8.Future<void> setActiveModeForRoute(_i9.CustomTravelMode mode) => (super.noSuchMethod(
+        Invocation.method(#setActiveModeForRoute, [mode]),
         returnValue: _i8.Future<void>.value(),
         returnValueForMissingStub: _i8.Future<void>.value(),
       ) as _i8.Future<void>);

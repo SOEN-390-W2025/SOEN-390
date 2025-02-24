@@ -1,7 +1,9 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/widgets/compact_location_search_widget.dart';
 import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:flutter/material.dart';
@@ -210,6 +212,88 @@ void main() async {
     expect(find.byType(GoogleMap), findsOneWidget);
   });
 
+  testWidgets('mode chip is displayed', (WidgetTester tester) async {
+    // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    final time = {CustomTravelMode.driving: "5",
+                  CustomTravelMode.walking: "20",
+                  CustomTravelMode.bicycling: "10",
+                  CustomTravelMode.transit: "10"};
+    
+    // mock travelTimes to not be null
+    when(mockMapViewModel.travelTimes).thenReturn(time);
+    when(mockMapViewModel.selectedTravelMode).thenReturn(CustomTravelMode.driving);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+
+    // Build the widget with mock MapViewModel
+    await tester.pumpWidget(MaterialApp(
+      home: OutdoorLocationMapView(
+          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
+    ));
+
+    // Wait for the FutureBuilders to resolve
+    await tester.pumpAndSettle();
+
+    // verify that the mode chip is displayed
+    expect(find.byIcon(Icons.directions_car), findsOneWidget);
+    expect(find.byIcon(Icons.directions_walk), findsOneWidget);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+  });
+
+  testWidgets('tapping a mode chip sets it as active mode', (WidgetTester tester) async {
+    // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    final time = {CustomTravelMode.driving: "5",
+                  CustomTravelMode.walking: "20",
+                  CustomTravelMode.bicycling: "10",
+                  CustomTravelMode.transit: "10"};
+    
+    // mock travelTimes to not be null
+    when(mockMapViewModel.travelTimes).thenReturn(time);
+    when(mockMapViewModel.selectedTravelMode).thenReturn(CustomTravelMode.driving);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking)).thenAnswer((_) async => true);
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+
+    // Build the widget with mock MapViewModel
+    await tester.pumpWidget(MaterialApp(
+      home: OutdoorLocationMapView(
+          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
+    ));
+
+    // Wait for the FutureBuilders to resolve
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.directions_walk));
+    await tester.pumpAndSettle();
+
+    // verify setActiveModeForRoute was called
+    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking)).called(1);
+  });
+
   group('outdoor directions appBar', () {
     testWidgets('appBar has the right title with non-constant key',
         (WidgetTester tester) async {
@@ -259,7 +343,7 @@ void main() async {
     });
   });
 
-  group('outdoor directions view page', () {
+  group('compact location search widget test', () {
     testWidgets('verify two TextFields exist',
         (WidgetTester tester) async {
       // Mocking the getCampusPolygonsAndLabels method to return fake data
@@ -339,6 +423,88 @@ void main() async {
 
       // Verify hintText for the destination TextField
       expect(destinationWidget.decoration?.hintText, 'Destination');
+    });
+
+    testWidgets('tapping the source text field closes drawer if open',
+        (WidgetTester tester) async {
+      // Mocking the getCampusPolygonsAndLabels method to return fake data
+      when(mockMapService.checkAndRequestLocationPermission())
+          .thenAnswer((_) async => true);
+      when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+          .thenAnswer((_) async => {
+                "polygons": <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+                "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+              });
+      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.h));
+
+      // Build the outdoor directions view widget
+      await tester.pumpWidget(MaterialApp(
+          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+      await tester.pump();
+
+      // Find the source Textfield
+      final destinationWidget = find.descendant(
+            of: find.byType(Column),
+            matching: find.byType(TextField).first);
+
+      await tester.tap(destinationWidget);
+      await tester.pumpAndSettle();
+
+      // check that unselectBuilding was called
+      verify(mockMapViewModel.unselectBuilding()).called(1);
+    });
+
+    testWidgets('tapping the destination text field closes drawer if open',
+        (WidgetTester tester) async {
+      // Mocking the getCampusPolygonsAndLabels method to return fake data
+      when(mockMapService.checkAndRequestLocationPermission())
+          .thenAnswer((_) async => true);
+      when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+          .thenAnswer((_) async => {
+                "polygons": <Polygon>{
+                  const Polygon(polygonId: PolygonId('polygon1'))
+                },
+                "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+              });
+      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.h));
+
+      // Build the outdoor directions view widget
+      await tester.pumpWidget(MaterialApp(
+          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+      await tester.pump();
+
+      // Find the destination Textfield
+      final destinationWidget = find.descendant(
+            of: find.byType(Column),
+            matching: find.byType(TextField).last);
+
+      await tester.tap(destinationWidget);
+      await tester.pumpAndSettle();
+
+      // check that unselectBuilding was called
+      verify(mockMapViewModel.unselectBuilding()).called(1);
+    });
+
+    test('shouldRepaint returns false', () {
+      final oldDottedLinePainter = DottedLinePainter(color: Colors.black);
+
+      // check that it returns false
+      expect(DottedLinePainter(color: Colors.cyan).shouldRepaint(oldDottedLinePainter), false);
+    });
+
+    test('Can create VerticalDottedLine', () {
+      const verticalDottedLine = VerticalDottedLine(height: 5);
+
+      // check object values are correct
+      expect(verticalDottedLine.color, Colors.grey);
+      expect(verticalDottedLine.dashSpace, 4);
+      expect(verticalDottedLine.height, 5);
     });
   });
 }

@@ -94,30 +94,130 @@ void main() {
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
     });
 
-    test('throws exception when route fetching fails', () async {
+    test(
+        'no originAddress defaults to current location and successfully fetches route',
+        () async {
       // Arrange
-      const originAddress = 'origin';
+      const originAddress = null;
+      const destinationAddress = 'destination';
+      const currentLocation = LatLng(37.7749, -122.4194);
+      final origin = "${currentLocation.latitude},${currentLocation.longitude}";
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      final polyline = Polyline(polylineId: const PolylineId('2'), points: routePoints);
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving, 
+        polylineId: "CustomTravelMode.driving", color: const Color(0xFF2196F3), width: 5))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.walking, 
+        polylineId: "CustomTravelMode.walking", color: const Color(0xFF2196F3), width: 5))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.bicycling, 
+        polylineId: "CustomTravelMode.bicycling", color: const Color(0xFF2196F3), width: 5))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+      when(mockODSDirectionsService.fetchRouteResult(
+        originAddress: origin, destinationAddress: destinationAddress, travelMode: gda.TravelMode.transit, 
+        polylineId: "CustomTravelMode.transit", color: const Color(0xFF2196F3), width: 5))
+        .thenAnswer((_) async => OutdoorRouteResult(polyline: polyline, travelTime: '2'));
+
+      when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) => true);
+
+      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+
+      // Mock getRoutePath to return the routePoints
+      when(mockMapService.getRoutePath(origin, destinationAddress))
+          .thenAnswer((_) async => routePoints);
+
+      // Act
+      await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress);
+
+      // Assert
+      verify(mockMapService.getCurrentLocation()).called(4);
+      expect(mapViewModel.activePolylines.isNotEmpty, true);
+      expect(mapViewModel.destinationMarker, isNotNull);
+      expect(mapViewModel.destinationMarker?.position, equals(routePoints.last));
+    });
+
+    test(
+        'throws error if searches for current location but doesnt return one',
+        () async {
+      // Arrange
+      const originAddress = null;
       const destinationAddress = 'destination';
 
-      when(mockODSDirectionsService.fetchRouteResult(
-        originAddress: originAddress, destinationAddress: destinationAddress, travelMode: gda.TravelMode.driving, 
-        polylineId: "CustomTravelMode.driving", color: const Color(0xFF2196F3), width: 5))
-        .thenThrow(Exception('Failed to fetch route'));
+      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => null);
 
-      // Mock getRoutePath to throw an exception
-      when(mockMapService.getRoutePath(originAddress, destinationAddress))
-          .thenThrow(Exception('Failed to fetch route'));
+      // Assert
+      expect(mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress), throwsException);
+    });
 
-      // Act & Assert
-      expect(
-        () async =>
-            await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress),
-        throwsException,
-      );
+    test(
+        'fetchShuttleRoute stops if destination too far from campuses',
+        () async {
+      // Arrange
+      const originAddress = null;
+      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const currentLocation = LatLng(37.7749, -122.4194);
+
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(500);
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(2000);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(3000);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(3000);
+
+      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+
+      // Act
+      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+
+      // Assert
+      verify(mockMapService.getCurrentLocation()).called(1);
+    });
+
+    test(
+        'fetchShuttleRoute stops if both points close to same campus',
+        () async {
+      // Arrange
+      const originAddress = '45.4215, -75.6972';
+      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const currentLocation = LatLng(45.4215, -75.6972);
+
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(500);
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(2000);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(500);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(3000);
+
+      // Act
+      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
     });
   });
 
   group('MapViewModel Tests', () {
+    test('adjustCamera calls adjustCameraForPath', () async {
+      // Arrange
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+      when(mockMapService.adjustCameraForPath(routePoints)).thenAnswer((_) async => true);
+
+      // Act
+      mapViewModel.adjustCamera(routePoints);
+
+      verify(mockMapService.adjustCameraForPath(routePoints)).called(1);
+    });
     test(
         'getInitialCameraPosition should return CameraPosition from repository',
         () async {
