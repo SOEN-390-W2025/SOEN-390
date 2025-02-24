@@ -1,0 +1,20 @@
+appId: com.example.concordia_nav
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Concordia Campus Guide"
+- tapOn: "LOY map"
+- assertVisible: "Loyola Campus"
+- assertVisible: "Google Map"
+- swipe:
+    direction: LEFT
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- swipe:
+    direction: UP
+    duration: 2000
+- swipe:
+    direction: DOWN
+    duration: 2000

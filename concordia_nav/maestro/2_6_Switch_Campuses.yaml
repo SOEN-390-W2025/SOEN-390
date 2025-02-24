@@ -1,0 +1,19 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4885
+    longitude: -73.8003
+- launchApp:
+    clearState: true
+- assertVisible: "Concordia Campus Guide"
+- tapOn: "SGW map"
+- assertVisible: "Sir George Williams Campus"
+- assertVisible: "Google Map"
+- tapOn:
+    point: "94%,9%"
+- assertVisible: "Loyola Campus"
+- assertVisible: "Google Map"
+- tapOn:
+    point: "94%,9%"
+- assertVisible: "Sir George Williams Campus"
+- assertVisible: "Google Map"
