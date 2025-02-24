@@ -3,6 +3,7 @@ import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/utils/building_drawer_viewmodel.dart';
+import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/widgets/building_info_drawer.dart';
@@ -19,6 +20,34 @@ void main() async {
   late MockMapViewModel mockMapViewModel;
   late MockMapService mockMapService;
   late OutdoorLocationMapView mockMapView;
+
+  final Map<CustomTravelMode, String> mockTravelTimes = {
+    CustomTravelMode.walking: "15 mins",
+    CustomTravelMode.shuttle: "25 mins",
+    CustomTravelMode.bicycling: "40 mins",
+  };
+
+  final Set<Marker> mockStaticBusStopMarkers = {
+    const Marker(
+      markerId: MarkerId('mock_marker'),
+      alpha: 1.0,
+      anchor: Offset(0.5, 1.0),
+      consumeTapEvents: false,
+      draggable: false,
+      flat: false,
+      icon: BitmapDescriptor.defaultMarker,
+      infoWindow: InfoWindow.noText,
+      position:
+          LatLng(37.7749, -122.4194), // Example coordinates (San Francisco)
+      rotation: 0.0,
+      visible: true,
+      zIndex: 0.0,
+    ),
+  };
+
+  // Create a mock ValueNotifier with a Set of Marker objects
+  final ValueNotifier<Set<Marker>> mockShuttleMarkersNotifier =
+      ValueNotifier<Set<Marker>>({});
 
   const Marker mockMarker = Marker(
     markerId: MarkerId('mock_marker'),
@@ -54,6 +83,18 @@ void main() async {
     mockMapViewModel = MockMapViewModel();
     mockMapService = MockMapService();
 
+    when(mockMapViewModel.travelTimes).thenReturn(mockTravelTimes);
+
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.walking);
+
+    when(mockMapViewModel.activePolylines).thenReturn(mockPolylines);
+
+    when(mockMapViewModel.shuttleAvailable).thenReturn(false);
+
+    when(mockMapViewModel.shuttleMarkersNotifier)
+        .thenReturn(mockShuttleMarkersNotifier);
+
     when(mockMapViewModel.getAllCampusPolygonsAndLabels())
         .thenAnswer((_) async => {
               "polygons": <Polygon>{
@@ -66,6 +107,9 @@ void main() async {
 
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
+
+    when(mockMapViewModel.staticBusStopMarkers)
+        .thenReturn(mockStaticBusStopMarkers);
 
     when(mockMapViewModel.getCampusPolygonsAndLabels(any))
         .thenAnswer((_) async {
@@ -84,7 +128,7 @@ void main() async {
 
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
-    when(mockMapViewModel.polylines).thenReturn(mockPolylines);
+    when(mockMapService.getPolylines()).thenReturn(mockPolylines);
 
     mockMapView = OutdoorLocationMapView(
         campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel);
