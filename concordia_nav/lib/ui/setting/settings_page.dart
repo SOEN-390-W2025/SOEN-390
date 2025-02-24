@@ -1,8 +1,4 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import '../../data/repositories/indoor_feature_repository.dart';
-import '../../data/services/indoor_routing_service.dart';
 import '../../widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
 
@@ -41,31 +37,6 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    log("hello there");
-
-    // var elevatorToHanna = IndoorRoutingService.getIndoorRoute(
-    //     IndoorFeatureRepository
-    //         .connectionsByBuilding["H"]![0].floorPoints["8"]!,
-    //     IndoorFeatureRepository.roomsByFloor["H"]!["8"]![0].entrancePoint!,
-    //     true);
-
-    var entranceToHanna = IndoorRoutingService.getIndoorRoute(
-        IndoorFeatureRepository.outdoorExitPointsByBuilding["H"]!,
-        IndoorFeatureRepository.roomsByFloor["H"]!["8"]![0].entrancePoint!,
-        false);
-
-    log(entranceToHanna.firstBuilding.abbreviation);
-    log(entranceToHanna.firstIndoorConnection?.name ?? "no connection");
-    int i = 0;
-    for (var point in entranceToHanna.firstIndoorPortionFromConnection ?? []) {
-      log(i.toString() +
-          " " +
-          point.positionX.toString() +
-          " " +
-          point.positionY.toString());
-      i += 1;
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
