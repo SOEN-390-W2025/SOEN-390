@@ -55,8 +55,8 @@ void main() async {
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
-    when(mockMapViewModel.markers).thenReturn([mockMarker]);
-    when(mockMapViewModel.polylines).thenReturn(mockPolylines);
+    when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
+    when(mockMapViewModel.activePolylines).thenReturn(mockPolylines);
   });
 
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
@@ -93,10 +93,23 @@ void main() async {
       (WidgetTester tester) async {
     // Arrange
     const campus = ConcordiaCampus.loy;
+    when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.getCampusPolygonsAndLabels(any))
+        .thenAnswer((_) async {
+      return {
+        "polygons": <Polygon>{const Polygon(polygonId: PolygonId('polygon1'))},
+        "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+      };
+    });
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
 
     // Act
-    await tester.pumpWidget(const MaterialApp(
-      home: CampusMapPage(campus: campus),
+    await tester.pumpWidget(MaterialApp(
+      home: CampusMapPage(campus: campus, mapViewModel: mockMapViewModel, buildMapViewModel: mockMapViewModel),
     ));
 
     // Assert
@@ -112,6 +125,7 @@ void main() async {
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
             mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel,
           ),
     };
 
@@ -136,6 +150,7 @@ void main() async {
               'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
       });
 
+    when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -164,9 +179,11 @@ void main() async {
       '/HomePage': (context) => const HomePage(),
       '/CampusMapPage': (context) => CampusMapPage(
           campus: ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-          mapViewModel: mockMapViewModel),
+          mapViewModel: mockMapViewModel,
+          buildMapViewModel: mockMapViewModel,),
     };
 
+    when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
     when(mockMapViewModel.getCampusPolygonsAndLabels(any))
@@ -278,6 +295,12 @@ void main() async {
 
   testWidgets('Outdoor Directions navigation should work',
       (WidgetTester tester) async {
+    // Assemble
+    when(mockMapViewModel.shuttleMarkersNotifier)
+        .thenReturn(ValueNotifier<Set<Marker>>({}));
+    when(mockMapViewModel.staticBusStopMarkers).thenReturn({});
+    when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),

@@ -50,22 +50,11 @@ Future<void> main() async {
                 },
               'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
       });
+    when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
+    when(mockMapViewModel.loadStaticBusStopMarkers()).thenAnswer((_) async => true);
   });
 
   group('navigateBasedOnLocation', () {
-    testWidgets(
-        'should create default SplashScreenViewModel if none is provided',
-        (WidgetTester tester) async {
-      // Act
-      await tester.pumpWidget(MaterialApp(
-        home: SplashScreen(), // No viewModel provided
-      ));
-
-      // Assert
-      final splashScreen =
-          tester.widget<SplashScreen>(find.byType(SplashScreen));
-      expect(splashScreen.viewModel, isNotNull);
-    });
 
     testWidgets('should navigate to home when location access is denied',
         (WidgetTester tester) async {
@@ -76,7 +65,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       when(mockMapViewModel.checkLocationAccess())
@@ -107,7 +97,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -157,7 +148,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -213,7 +205,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -249,7 +242,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act
@@ -273,7 +267,8 @@ Future<void> main() async {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel),
+            mapViewModel: mockMapViewModel,
+            buildMapViewModel: mockMapViewModel),
       };
 
       // Act

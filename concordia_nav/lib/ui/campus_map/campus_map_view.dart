@@ -13,29 +13,31 @@ import '../../widgets/search_bar.dart';
 class CampusMapPage extends StatefulWidget {
   final ConcordiaCampus campus;
   final MapViewModel? mapViewModel;
+  final MapViewModel? buildMapViewModel;
 
-  const CampusMapPage({super.key, required this.campus, this.mapViewModel});
+  const CampusMapPage({super.key, required this.campus, this.mapViewModel, this.buildMapViewModel});
 
   @override
   // ignore: no_logic_in_create_state
   State<CampusMapPage> createState() =>
       // ignore: no_logic_in_create_state
-      CampusMapPageState(mapViewModel: mapViewModel);
+      CampusMapPageState(mapViewModel: mapViewModel, buildMapViewModel: buildMapViewModel);
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
   // Modify constructor to allow dependency injection
-  CampusMapPageState({MapViewModel? mapViewModel})
-      : _mapViewModel = mapViewModel ?? MapViewModel();
+  CampusMapPageState({MapViewModel? mapViewModel, MapViewModel? buildMapViewModel})
+      : _mapViewModel = mapViewModel ?? MapViewModel(),
+      _buildMapViewModel = buildMapViewModel ?? MapViewModel();
 
   final MapViewModel _mapViewModel;
+  final MapViewModel _buildMapViewModel;
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
   final TextEditingController _searchController = TextEditingController(text: 'Search...');
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
-  CameraPosition? _initialCameraPosition;
   List<String> searchList = [];
 
   MapViewModel get mapViewModel => _mapViewModel;
@@ -43,15 +45,11 @@ class CampusMapPageState extends State<CampusMapPage> {
   //MapViewModel get mapViewModel => _mapViewModel;
 
   Future<void> _loadMapData() async {
-    final mapData = await _mapViewModel.fetchMapData(_currentCampus, true);
-
-    if (mounted) {
-      setState(() {
-        _initialCameraPosition = mapData['cameraPosition'];
-        _polygons = mapData['polygons'];
-        _labelMarkers = mapData['labels'];
-      });
-    }
+    final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
+    setState(() {
+      _polygons = data["polygons"];
+      _labelMarkers = data["labels"];
+    });
   }
 
   void getSearchList() {
@@ -103,7 +101,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       /// Creates a new [MapViewModel] when the widget is created.
-      create: (_) => MapViewModel(),
+      create: (_) => _buildMapViewModel,//MapViewModel(),
       child: Consumer<MapViewModel>(
         builder: (context, mapViewModel, child) {
           return Scaffold(
@@ -118,7 +116,6 @@ class CampusMapPageState extends State<CampusMapPage> {
                       : ConcordiaCampus.sgw;
                 });
                 _loadMapData();
-                _mapViewModel.switchCampus(_currentCampus);
                 _mapViewModel.unselectBuilding();
                 _searchController.text = 'Search...';
                 searchList.clear();
@@ -127,26 +124,43 @@ class CampusMapPageState extends State<CampusMapPage> {
               },
             ),
             body: Stack(
-              children: [
-                if (_initialCameraPosition == null) // Show loading indicator while data is loading
-                  const Center(child: CircularProgressIndicator())
-                else MapLayout(
-                  searchController: _searchController,
-                  mapWidget: Semantics(
-                    label: 'Google Map',
-                    child:GoogleMap(
-                      buildingsEnabled: false,
-                      onMapCreated: _mapViewModel.onMapCreated,
-                      initialCameraPosition: _initialCameraPosition!,
-                      markers: _labelMarkers,
-                      polygons: _polygons,
-                      zoomControlsEnabled: false,
-                      myLocationButtonEnabled: false,
-                      myLocationEnabled: _locationPermissionGranted,
-                    ),
-                  ),
-                  mapViewModel: _mapViewModel,
-                ),
+              children: [FutureBuilder<CameraPosition>(
+                future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading campus map'));
+                  }
+
+                  return FutureBuilder<Map<String, dynamic>>(
+                      future: _mapViewModel
+                          .getCampusPolygonsAndLabels(_currentCampus),
+                      builder: (context, polySnapshot) {
+                        if (polySnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        return MapLayout(
+                          searchController: _searchController,
+                          mapWidget: Semantics(
+                              label: 'Google Map',
+                              child: GoogleMap(
+                                buildingsEnabled: false,
+                                onMapCreated: _mapViewModel.onMapCreated,
+                                initialCameraPosition: snapshot.data!,
+                                markers: _labelMarkers,
+                                polygons: _polygons,
+                                zoomControlsEnabled: false,
+                                myLocationButtonEnabled: false,
+                                myLocationEnabled: _locationPermissionGranted,
+                              )),
+                          mapViewModel: _mapViewModel,
+                        );
+                      });
+                }),
                 Positioned(
                   top: 10,
                   left: 15,
@@ -161,8 +175,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                     drawer: true,
                   ),
                 ),
-              ],
-            ),
+              ]),
           );
         },
       ),

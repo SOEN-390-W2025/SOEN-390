@@ -45,7 +45,7 @@ class SearchBarWidget extends StatelessWidget {
         ? controller2!.text
         : controller.text;
 
-    await mapViewModel?.fetchRoute(startLocation, endLocation);
+    await mapViewModel?.fetchRoutesForAllModes(startLocation, endLocation);
 
     onDirectionFetched?.call();
   }

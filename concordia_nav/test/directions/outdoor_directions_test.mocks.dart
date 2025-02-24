@@ -4,12 +4,15 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
+import 'dart:ui' as _i8;
 
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart'
     as _i4;
 import 'package:google_directions_api/google_directions_api.dart' as _i2;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:flutter/material.dart' as _i6;
+import 'package:google_directions_api/google_directions_api.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -29,6 +32,12 @@ class _FakeDirectionsService_0 extends _i1.SmartFake
     implements _i2.DirectionsService {
   _FakeDirectionsService_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
+}
+
+class _FakeOutdoorRouteResult_1 extends _i1.SmartFake
+    implements _i4.OutdoorRouteResult {
+  _FakeOutdoorRouteResult_1(Object parent, Invocation parentInvocation)
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [DirectionsService].
@@ -78,6 +87,31 @@ class MockODSDirectionsService extends _i1.Mock
         Invocation.setter(#directionsService, _directionsService),
         returnValueForMissingStub: null,
       );
+
+  @override
+  _i3.Future<_i4.OutdoorRouteResult> fetchRouteResult(
+    {required String originAddress, required String destinationAddress, required _i7.TravelMode travelMode, 
+    String polylineId = "route", _i8.Color color = const _i6.Color(0xFF2196F3), int width = 5}) => (
+      super.noSuchMethod(
+        Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode, polylineId, color, width]),
+        returnValue: _i3.Future<_i4.OutdoorRouteResult>.value(
+          _FakeOutdoorRouteResult_1(
+            this,
+            Invocation.method(#fetchRouteResult, [originAddress, destinationAddress, travelMode, polylineId, color, width]),
+          ),
+        ),
+      ) as _i3.Future<_i4.OutdoorRouteResult>
+    );
+
+  @override
+  _i3.Future<_i5.Polyline?> fetchWalkingPolyline(
+    {required String originAddress, required String destinationAddress, String polylineId = "walking_route", 
+    _i8.Color color = const _i6.Color(0xFF0c79fe), int width = 5}) => (
+      super.noSuchMethod(
+        Invocation.method(#fetchWalkingPolyline, [originAddress, destinationAddress]),
+        returnValue: _i3.Future<_i5.Polyline?>.value(),
+      ) as _i3.Future<_i5.Polyline?>
+    );
 
   @override
   _i3.Future<List<_i5.LatLng>> fetchRoute(
