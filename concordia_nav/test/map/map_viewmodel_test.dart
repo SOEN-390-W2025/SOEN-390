@@ -137,7 +137,7 @@ void main() {
       await mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress);
 
       // Assert
-      verify(mockMapService.getCurrentLocation()).called(4);
+      verify(mockMapService.getCurrentLocation()).called(5);
       expect(mapViewModel.activePolylines.isNotEmpty, true);
       expect(mapViewModel.destinationMarker, isNotNull);
       expect(mapViewModel.destinationMarker?.position, equals(routePoints.last));
