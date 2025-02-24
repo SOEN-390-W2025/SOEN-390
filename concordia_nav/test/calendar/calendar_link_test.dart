@@ -6,7 +6,8 @@ void main() {
   group('calendar link page', () {
     testWidgets('all widgets are present', (WidgetTester tester) async {
       // Build CalendarLink view page
-      await tester.pumpWidget(const MaterialApp(home: const CalendarLinkView()));
+      await tester
+          .pumpWidget(const MaterialApp(home: const CalendarLinkView()));
       await tester.pump();
 
       // Verify the appBar is present and with the right title
