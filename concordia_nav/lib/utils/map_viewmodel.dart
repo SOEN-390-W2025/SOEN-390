@@ -275,6 +275,43 @@ class MapViewModel extends ChangeNotifier {
     return destinationCoords;
   }
 
+  ShuttleRouteDirection? _validShuttleRoute (bool originNearLOY, bool originNearSGW, bool destNearLOY, bool destNearSGW) {
+    if ((!originNearLOY && !originNearSGW) || (!destNearLOY && !destNearSGW)) {
+      if (kDebugMode) {
+        print(
+            "Shuttle route not available: One or both addresses are not within 1km of a campus shuttle stop.");
+      }
+      return null;
+    }
+    // If both addresses are near the same campus, there's no shuttle route.
+    if ((originNearLOY && destNearLOY) || (originNearSGW && destNearSGW)) {
+      if (kDebugMode) {
+        print(
+            "Shuttle route not available: Both addresses are near the same campus shuttle stop.");
+      }
+      return null;
+    }
+    if (originNearSGW && destNearLOY) {
+      return ShuttleRouteDirection.SGWtoLOY;
+    } else if (originNearLOY && destNearSGW) {
+      return ShuttleRouteDirection.LOYtoSGW;
+    } else {
+      if (kDebugMode) {
+        print(
+            "Shuttle route not available: Addresses do not meet valid shuttle range criteria.");
+      }
+      return null;
+    }
+  }
+
+  List<LatLng> _getCompositePoints(Polyline? leg1, Polyline leg2, Polyline? leg3) {
+    List<LatLng> compositePoints = [];
+    if (leg1 != null) compositePoints.addAll(leg1.points);
+    compositePoints.addAll(leg2.points);
+    if (leg3 != null) compositePoints.addAll(leg3.points);
+    return compositePoints;
+  }
+
   Future<void> fetchShuttleRoute(
       String? originAddress, String destinationAddress) async {
     // Campus shuttle stops.
@@ -308,36 +345,9 @@ class MapViewModel extends ChangeNotifier {
             LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)) <
         radius;
 
-    // If one or both addresses are not near any campus shuttle stop, do not provide a route.
-    if ((!originNearLOY && !originNearSGW) || (!destNearLOY && !destNearSGW)) {
-      if (kDebugMode) {
-        print(
-            "Shuttle route not available: One or both addresses are not within 1km of a campus shuttle stop.");
-      }
-      return;
-    }
-    // If both addresses are near the same campus, there's no shuttle route.
-    if ((originNearLOY && destNearLOY) || (originNearSGW && destNearSGW)) {
-      if (kDebugMode) {
-        print(
-            "Shuttle route not available: Both addresses are near the same campus shuttle stop.");
-      }
-      return;
-    }
-
     // Determine the shuttle route direction.
-    ShuttleRouteDirection computedDirection;
-    if (originNearSGW && destNearLOY) {
-      computedDirection = ShuttleRouteDirection.SGWtoLOY;
-    } else if (originNearLOY && destNearSGW) {
-      computedDirection = ShuttleRouteDirection.LOYtoSGW;
-    } else {
-      if (kDebugMode) {
-        print(
-            "Shuttle route not available: Addresses do not meet valid shuttle range criteria.");
-      }
-      return;
-    }
+    ShuttleRouteDirection? computedDirection = _validShuttleRoute(originNearLOY, originNearSGW, destNearLOY, destNearSGW);
+    if(computedDirection == null) return;
 
     // Set boarding/disembark stops based on the computed direction.
     late LatLng boardingStop;
@@ -386,10 +396,7 @@ class MapViewModel extends ChangeNotifier {
     );
 
     // Merge walking segments with the shuttle segment.
-    List<LatLng> compositePoints = [];
-    if (leg1 != null) compositePoints.addAll(leg1.points);
-    compositePoints.addAll(leg2.points);
-    if (leg3 != null) compositePoints.addAll(leg3.points);
+    List<LatLng> compositePoints = _getCompositePoints(leg1, leg2, leg3);
 
     final Polyline shuttleComposite = Polyline(
       polylineId: PolylineId("shuttleComposite_$polylineIdSuffix"),
