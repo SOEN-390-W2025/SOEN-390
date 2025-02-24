@@ -104,7 +104,8 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    when(mockMapViewModel.fetchRoutesForAllModes(any, any)).thenAnswer((_) async {});
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
 
     // Build the widget tree
     await tester.pumpWidget(MaterialApp(
@@ -137,7 +138,8 @@ void main() async {
     await tester.pump();
 
     // Verify if fetchRoute was called
-    verify(mockMapViewModel.fetchRoutesForAllModes(origin, destination)).called(1);
+    verify(mockMapViewModel.fetchRoutesForAllModes(origin, destination))
+        .called(1);
   });
 
   test('fetchWalkingPolyline returns a polyline', () async {
@@ -162,8 +164,8 @@ void main() async {
 
     // Act
     final polyline = await directionsService.fetchWalkingPolyline(
-      originAddress: origin, destinationAddress: destination);
-    
+        originAddress: origin, destinationAddress: destination);
+
     // Assert
     expect(polyline, isA<Polyline>());
   });
@@ -228,7 +230,8 @@ void main() async {
     });
 
     // Act
-    final result = await directionsService.fetchRouteFromCoords(origin, destination);
+    final result =
+        await directionsService.fetchRouteFromCoords(origin, destination);
 
     // Assert
     expect(result, isA<List<LatLng>>());
@@ -278,14 +281,17 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    final time = {CustomTravelMode.driving: "5",
-                  CustomTravelMode.walking: "20",
-                  CustomTravelMode.bicycling: "10",
-                  CustomTravelMode.transit: "10"};
-    
+    final time = {
+      CustomTravelMode.driving: "5",
+      CustomTravelMode.walking: "20",
+      CustomTravelMode.bicycling: "10",
+      CustomTravelMode.transit: "10"
+    };
+
     // mock travelTimes to not be null
     when(mockMapViewModel.travelTimes).thenReturn(time);
-    when(mockMapViewModel.selectedTravelMode).thenReturn(CustomTravelMode.driving);
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.driving);
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
@@ -307,7 +313,8 @@ void main() async {
     expect(find.byType(SingleChildScrollView), findsOneWidget);
   });
 
-  testWidgets('tapping a mode chip sets it as active mode', (WidgetTester tester) async {
+  testWidgets('tapping a mode chip sets it as active mode',
+      (WidgetTester tester) async {
     // Mocking the getCampusPolygonsAndLabels method to return fake data
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
@@ -318,17 +325,21 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    final time = {CustomTravelMode.driving: "5",
-                  CustomTravelMode.walking: "20",
-                  CustomTravelMode.bicycling: "10",
-                  CustomTravelMode.transit: "10"};
-    
+    final time = {
+      CustomTravelMode.driving: "5",
+      CustomTravelMode.walking: "20",
+      CustomTravelMode.bicycling: "10",
+      CustomTravelMode.transit: "10"
+    };
+
     // mock travelTimes to not be null
     when(mockMapViewModel.travelTimes).thenReturn(time);
-    when(mockMapViewModel.selectedTravelMode).thenReturn(CustomTravelMode.driving);
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.driving);
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
-    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking)).thenAnswer((_) async => true);
+    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking))
+        .thenAnswer((_) async => true);
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -346,7 +357,8 @@ void main() async {
     await tester.pumpAndSettle();
 
     // verify setActiveModeForRoute was called
-    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking)).called(1);
+    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking))
+        .called(1);
   });
 
   group('outdoor directions appBar', () {
@@ -362,12 +374,15 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
 
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
           home: OutdoorLocationMapView(
-              key: UniqueKey(), campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+              key: UniqueKey(),
+              campus: ConcordiaCampus.sgw,
+              mapViewModel: mockMapViewModel)));
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
@@ -386,10 +401,12 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+          home: OutdoorLocationMapView(
+              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
@@ -399,8 +416,7 @@ void main() async {
   });
 
   group('compact location search widget test', () {
-    testWidgets('verify two TextFields exist',
-        (WidgetTester tester) async {
+    testWidgets('verify two TextFields exist', (WidgetTester tester) async {
       // Mocking the getCampusPolygonsAndLabels method to return fake data
       when(mockMapService.checkAndRequestLocationPermission())
           .thenAnswer((_) async => true);
@@ -411,10 +427,12 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+          home: OutdoorLocationMapView(
+              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
       await tester.pump();
 
       // Verify that two TextFields exist
@@ -433,10 +451,14 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel,)));
+          home: OutdoorLocationMapView(
+        campus: ConcordiaCampus.sgw,
+        mapViewModel: mockMapViewModel,
+      )));
       await tester.pump();
 
       // Find the source TextField
@@ -463,21 +485,22 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+          home: OutdoorLocationMapView(
+              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
       await tester.pump();
 
       // Find the destination Textfield
       final TextField destinationWidget = tester.widget(
         find.descendant(
-            of: find.byType(Column),
-            matching: find.byType(TextField).last),
+            of: find.byType(Column), matching: find.byType(TextField).last),
       );
 
       // Verify hintText for the destination TextField
-      expect(destinationWidget.decoration?.hintText, 'Destination');
+      expect(destinationWidget.decoration?.hintText, 'Enter Destination');
     });
 
     testWidgets('tapping the source text field closes drawer if open',
@@ -492,19 +515,20 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
       when(mockMapViewModel.selectedBuildingNotifier)
-        .thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.h));
+          .thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.h));
 
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+          home: OutdoorLocationMapView(
+              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
       await tester.pump();
 
       // Find the source Textfield
       final destinationWidget = find.descendant(
-            of: find.byType(Column),
-            matching: find.byType(TextField).first);
+          of: find.byType(Column), matching: find.byType(TextField).first);
 
       await tester.tap(destinationWidget);
       await tester.pumpAndSettle();
@@ -525,19 +549,20 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+      when(mockMapViewModel.travelTimes)
+          .thenReturn(<CustomTravelMode, String>{});
       when(mockMapViewModel.selectedBuildingNotifier)
-        .thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.h));
+          .thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.h));
 
       // Build the outdoor directions view widget
       await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+          home: OutdoorLocationMapView(
+              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
       await tester.pump();
 
       // Find the destination Textfield
       final destinationWidget = find.descendant(
-            of: find.byType(Column),
-            matching: find.byType(TextField).last);
+          of: find.byType(Column), matching: find.byType(TextField).last);
 
       await tester.tap(destinationWidget);
       await tester.pumpAndSettle();
@@ -550,7 +575,10 @@ void main() async {
       final oldDottedLinePainter = DottedLinePainter(color: Colors.black);
 
       // check that it returns false
-      expect(DottedLinePainter(color: Colors.cyan).shouldRepaint(oldDottedLinePainter), false);
+      expect(
+          DottedLinePainter(color: Colors.cyan)
+              .shouldRepaint(oldDottedLinePainter),
+          false);
     });
 
     test('Can create VerticalDottedLine', () {
