@@ -116,7 +116,7 @@ class MapViewModel extends ChangeNotifier {
     return _mapRepository.getCameraPosition(campus);
   }
 
-  Future<String> _getOriginAddress (String? originAddress) async {
+  Future<String> _getOriginAddress(String? originAddress) async {
     if (originAddress == null) {
       final currentLocation = await _mapService.getCurrentLocation();
       if (currentLocation == null) {
@@ -233,7 +233,8 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // get origin coordinates for shuttle route
-  Future<LatLng?> _getOriginCoords(String? originAddress, LatLng loyolaStop, LatLng sgwStop) async {
+  Future<LatLng?> _getOriginCoords(
+      String? originAddress, LatLng loyolaStop, LatLng sgwStop) async {
     LatLng? originCoords;
     if (originAddress == null || originAddress.trim().isEmpty) {
       // If no origin is provided, assume the current location was used.
@@ -257,7 +258,8 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
-  Future<LatLng?> _getDestinationCoords(String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
+  Future<LatLng?> _getDestinationCoords(
+      String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
     var destinationCoords = _parseCoordinates(destinationAddress);
     // If that fails, try using geocoding.
     if (destinationCoords == null) {
@@ -275,7 +277,8 @@ class MapViewModel extends ChangeNotifier {
     return destinationCoords;
   }
 
-  bool _isValidShuttleRoute (bool originNearLOY, bool originNearSGW, bool destNearLOY, bool destNearSGW) {
+  bool _isValidShuttleRoute(bool originNearLOY, bool originNearSGW,
+      bool destNearLOY, bool destNearSGW) {
     if ((!originNearLOY && !originNearSGW) || (!destNearLOY && !destNearSGW)) {
       if (kDebugMode) {
         print(
@@ -294,8 +297,10 @@ class MapViewModel extends ChangeNotifier {
     return true;
   }
 
-  ShuttleRouteDirection? _validShuttleRoute (bool originNearLOY, bool originNearSGW, bool destNearLOY, bool destNearSGW) {
-    if (_isValidShuttleRoute(originNearLOY, originNearSGW, destNearLOY, destNearSGW)){
+  ShuttleRouteDirection? _validShuttleRoute(bool originNearLOY,
+      bool originNearSGW, bool destNearLOY, bool destNearSGW) {
+    if (_isValidShuttleRoute(
+        originNearLOY, originNearSGW, destNearLOY, destNearSGW)) {
       if (originNearSGW && destNearLOY) {
         return ShuttleRouteDirection.SGWtoLOY;
       } else if (originNearLOY && destNearSGW) {
@@ -307,11 +312,13 @@ class MapViewModel extends ChangeNotifier {
         }
         return null;
       }
+    } else {
+      return null;
     }
-    else {return null;}
   }
 
-  List<LatLng> _getCompositePoints(Polyline? leg1, Polyline leg2, Polyline? leg3) {
+  List<LatLng> _getCompositePoints(
+      Polyline? leg1, Polyline leg2, Polyline? leg3) {
     List<LatLng> compositePoints = [];
     if (leg1 != null) compositePoints.addAll(leg1.points);
     compositePoints.addAll(leg2.points);
@@ -325,9 +332,11 @@ class MapViewModel extends ChangeNotifier {
     const LatLng loyolaStop = LatLng(45.45825, -73.63914);
     const LatLng sgwStop = LatLng(45.49713, -73.57852);
 
-    LatLng? originCoords = await _getOriginCoords(originAddress, loyolaStop, sgwStop);
+    LatLng? originCoords =
+        await _getOriginCoords(originAddress, loyolaStop, sgwStop);
 
-    LatLng? destinationCoords = await _getDestinationCoords(destinationAddress, loyolaStop, sgwStop);
+    LatLng? destinationCoords =
+        await _getDestinationCoords(destinationAddress, loyolaStop, sgwStop);
 
     if (originCoords == null || destinationCoords == null) {
       if (kDebugMode) {
@@ -353,8 +362,9 @@ class MapViewModel extends ChangeNotifier {
         radius;
 
     // Determine the shuttle route direction.
-    ShuttleRouteDirection? computedDirection = _validShuttleRoute(originNearLOY, originNearSGW, destNearLOY, destNearSGW);
-    if(computedDirection == null) return;
+    ShuttleRouteDirection? computedDirection = _validShuttleRoute(
+        originNearLOY, originNearSGW, destNearLOY, destNearSGW);
+    if (computedDirection == null) return;
 
     // Set boarding/disembark stops based on the computed direction.
     late LatLng boardingStop;
@@ -465,8 +475,8 @@ class MapViewModel extends ChangeNotifier {
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/destination.png'),
         );
-        Future.delayed(const Duration(seconds: 1),
-          () => adjustCamera(polyline.points));
+        Future.delayed(
+            const Duration(seconds: 1), () => adjustCamera(polyline.points));
       }
     } else {
       _multiModeActivePolylines.clear();
