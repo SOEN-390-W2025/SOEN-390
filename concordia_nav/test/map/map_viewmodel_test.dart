@@ -1,4 +1,5 @@
 import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:concordia_nav/data/repositories/outdoor_directions_repository.dart';
 import 'package:concordia_nav/data/services/helpers/icon_loader.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +22,15 @@ void main() {
   late MockMapRepository mockMapRepository;
   late MockMapService mockMapService;
   late MockODSDirectionsService mockODSDirectionsService;
+  late ShuttleRouteRepository shuttleRepo;
 
   setUp(() {
     mockMapRepository = MockMapRepository();
     mockMapService = MockMapService();
     mockODSDirectionsService = MockODSDirectionsService();
+    shuttleRepo = ShuttleRouteRepository();
     mapViewModel = MapViewModel(
-        mapRepository: mockMapRepository, mapService: mockMapService, odsDirectionsService: mockODSDirectionsService);
+        mapRepository: mockMapRepository, mapService: mockMapService, odsDirectionsService: mockODSDirectionsService, shuttleRepository: shuttleRepo);
   });
 
   group('fetchRoute', () {
@@ -156,8 +159,7 @@ void main() {
       expect(mapViewModel.fetchRoutesForAllModes(originAddress, destinationAddress), throwsException);
     });
 
-    test(
-        'fetchShuttleRoute stops if destination too far from campuses',
+    test('fetchShuttleRoute stops if destination too far from campuses',
         () async {
       // Arrange
       const originAddress = null;
@@ -201,6 +203,70 @@ void main() {
 
       // Act
       await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+    });
+
+    test(
+        'fetchShuttleRoute gets shuttle time for LOYtoSGW',
+        () async {
+      // Arrange
+      const originAddress = '45.4215, -75.6972';
+      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const currentLocation = LatLng(45.4215, -75.6972);
+
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(500);
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(2000);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(3000);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(500);
+
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+        originAddress: originAddress, destinationAddress: '45.45825,-73.63914'))
+        .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg1_LOYtoSGW")));
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+        originAddress: '45.49713,-73.57852', destinationAddress: destinationAddress))
+        .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_LOYtoSGW")));
+      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+
+      // Act
+      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+
+      // Assert
+      expect(mapViewModel.multiModeTravelTimes[CustomTravelMode.shuttle], "30 min");
+    });
+
+    test(
+        'fetchShuttleRoute gets shuttle time for SGWtoLOY',
+        () async {
+      // Arrange
+      const originAddress = '45.4215, -75.6972';
+      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const currentLocation = LatLng(45.4215, -75.6972);
+
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(2000);
+      when(mockMapService.calculateDistance(currentLocation, LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(500);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
+        .thenReturn(500);
+      when(mockMapService.calculateDistance(const LatLng(45.460004562163434, -73.57412877678844), LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
+        .thenReturn(2000);
+
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+        originAddress: originAddress, destinationAddress: '45.49713,-73.57852'))
+        .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg1_SGWtoLOY")));
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+        originAddress: '45.45825,-73.63914', destinationAddress: destinationAddress))
+        .thenAnswer((_) async => const Polyline(polylineId: PolylineId("walking_leg3_SGWtoLOY")));
+      when(mockMapService.getCurrentLocation()).thenAnswer((_) async => currentLocation);
+
+      // Act
+      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+
+      // Assert
+      expect(mapViewModel.multiModeTravelTimes[CustomTravelMode.shuttle], "30 min");
     });
   });
 

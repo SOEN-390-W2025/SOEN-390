@@ -53,6 +53,7 @@ class MapViewModel extends ChangeNotifier {
   final MapService _mapService;
   final BuildingService _buildingService = BuildingService();
   final ODSDirectionsService _odsDirectionsService;
+  final ShuttleRouteRepository _shuttleRepository;
 
   // ignore: unused_field
   GoogleMapController? _mapController;
@@ -97,9 +98,11 @@ class MapViewModel extends ChangeNotifier {
     MapService? mapService,
     BuildingService? buildingService,
     ODSDirectionsService? odsDirectionsService,
+    ShuttleRouteRepository? shuttleRepository,
   })  : _mapRepository = mapRepository ?? MapRepository(),
         _mapService = mapService ?? MapService(),
         _odsDirectionsService = odsDirectionsService ?? ODSDirectionsService(),
+        _shuttleRepository = shuttleRepository ?? ShuttleRouteRepository(),
         super() {
     // Fetch shuttle bus data, start periodic updates, and bus stop markers.
     fetchShuttleBusData();
@@ -334,9 +337,9 @@ class MapViewModel extends ChangeNotifier {
     }
 
     // Load shuttle coordinates from the repository.
-    final ShuttleRouteRepository repository = ShuttleRouteRepository();
+    //final ShuttleRouteRepository repository = ShuttleRouteRepository();
     List<LatLng> shuttleCoordinates =
-        await repository.loadShuttleRoute(computedDirection);
+        await _shuttleRepository.loadShuttleRoute(computedDirection);
 
     // Get walking routes using ODSDirectionsService:
     final String boardingStr =
