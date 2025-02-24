@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../utils/map_viewmodel.dart';
-import '../../utils/serach_viewmodel.dart';
+import '../../utils/search_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 
 class SearchView extends StatefulWidget {
-  const SearchView({super.key});
+  final MapViewModel? mapViewModel;
+  const SearchView({super.key, this.mapViewModel});
 
   @override
   State<SearchView> createState() => _SearchViewState();
@@ -22,7 +23,7 @@ class _SearchViewState extends State<SearchView> {
     super.didChangeDependencies();
 
     // Initialize mapViewModel and fetch current location after the widget's dependencies are set
-    _mapViewModel = MapViewModel();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _fetchCurrentLocation();
 
   }
@@ -54,10 +55,10 @@ class _SearchViewState extends State<SearchView> {
                     labelStyle: TextStyle(
                       color: Colors.grey,
                     ),
-                    focusedBorder: const UnderlineInputBorder(
+                    focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey), // Color when focused
                     ),
-                    enabledBorder: const UnderlineInputBorder(
+                    enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey), // Color when not focused
                     ),
                   ),

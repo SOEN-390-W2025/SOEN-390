@@ -124,7 +124,7 @@ void main() async {
     await tester.pump();
 
   });
-/*
+
   test('fetchRoute returns a list of LatLng when API call is successful',
       () async {
     const origin = 'New York, NY';
@@ -163,7 +163,34 @@ void main() async {
     expect(() async => await directionsService.fetchRoute(origin, destination),
         throwsA(isA<Exception>()));
   });
-*/
+
+  test('fetchRouteFromCoords gets list of coordinates', () async {
+    // Arrange
+    const origin = LatLng(45.4215, -75.6972);
+    const destination = LatLng(45.4216, -75.6969);
+    const encodedPolyline = 'a~l~Fjk~uOwHJy@P';
+
+    const mockResult = gda.DirectionsResult(
+      routes: [
+        gda.DirectionsRoute(
+          overviewPolyline: gda.OverviewPolyline(points: encodedPolyline),
+        )
+      ],
+    );
+
+    when(mockDirectionsService.route(any, any)).thenAnswer((invocation) async {
+      final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+          invocation.positionalArguments[1];
+      callback(mockResult, gda.DirectionsStatus.ok);
+    });
+
+    // Act
+    final result = await directionsService.fetchRouteFromCoords(origin, destination);
+
+    // Assert
+    expect(result, isA<List<LatLng>>());
+  });
+
   testWidgets('OutdoorLocationMapView displays polygons and labels correctly',
       (WidgetTester tester) async {
     // Mocking the getCampusPolygonsAndLabels method to return fake data

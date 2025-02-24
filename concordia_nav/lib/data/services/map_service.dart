@@ -116,22 +116,23 @@ class MapService {
     final LatLng? currentLocation = await getCurrentLocation();
     final LatLng? origin;
     final LatLng? destination;
+    const yourLocation = "Your Location";
 
-    if (originAddress!.isEmpty || originAddress == "Your Location") {
+    if (originAddress!.isEmpty || originAddress == yourLocation) {
       if (currentLocation == null) {
-        throw Exception("Unable to fetch current location.");
+        throw Exception("Unable to fetch current location. Invalid origin");
       }
       origin = currentLocation;
       destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
-    } else if (destinationAddress.isEmpty || destinationAddress == "Your Location") {
+    } else if (destinationAddress.isEmpty || destinationAddress == yourLocation) {
       if (currentLocation == null) {
-        throw Exception("Unable to fetch current location.");
+        throw Exception("Unable to fetch current location. Invalid destination");
       }
       origin = BuildingViewModel().getBuildingLocationByName(originAddress);
       destination = currentLocation;
-    } else if (originAddress.isEmpty || originAddress == "Your Location" && destinationAddress.isEmpty || destinationAddress == "Your Location") {
+    } else if (originAddress.isEmpty || originAddress == yourLocation && destinationAddress.isEmpty || destinationAddress == yourLocation) {
       if (currentLocation == null) {
-        throw Exception("Unable to fetch current location.");
+        throw Exception("Unable to fetch current location. Invalid inputs");
       }
       origin = currentLocation;
       destination = currentLocation;

@@ -63,12 +63,14 @@ class CampusMapPageState extends State<CampusMapPage> {
     }
   }
 
+  final _yourLocationString = "Your Location";
+
   void checkLocationPermission() {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
-        if (_locationPermissionGranted && !searchList.contains("Your Location")) {
-          searchList.insert(0, "Your Location");
+        if (_locationPermissionGranted && !searchList.contains(_yourLocationString)) {
+          searchList.insert(0, _yourLocationString);
         }
       });
     });
@@ -151,7 +153,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                   right: 15,
                   child: SearchBarWidget(
                     controller: _searchController,
-                    hintText: 'Your Location',
+                    hintText: _yourLocationString,
                     icon: Icons.location_on,
                     iconColor: Theme.of(context).primaryColor,
                     searchList: searchList,

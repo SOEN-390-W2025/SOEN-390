@@ -53,13 +53,15 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     }
   }
 
+  final _yourLocationString = "Your Location";
+
   void checkLocationPermission() {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
-        _sourceController.text = "Your Location";
+        _sourceController.text = _yourLocationString;
         _locationPermissionGranted = hasPermission;
-        if (_locationPermissionGranted && !searchList.contains("Your Location")) {
-          searchList.insert(0, "Your Location");
+        if (_locationPermissionGranted && !searchList.contains(_yourLocationString)) {
+          searchList.insert(0, _yourLocationString);
         }
       });
     });
@@ -135,7 +137,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             child: SearchBarWidget(
               controller: _sourceController,
               controller2: _destinationController,
-              hintText: 'Your Location',
+              hintText: _yourLocationString,
               icon: Icons.location_on,
               iconColor: Theme.of(context).primaryColor,
               searchList: searchList,
