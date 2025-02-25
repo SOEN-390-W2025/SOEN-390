@@ -30,27 +30,23 @@ class SearchBarWidget extends StatelessWidget {
     this.onDirectionFetched,
   });
 
-  Future<void> _getDirections() async {
+  Future<void> getDirections() async {
     if (controller.text.isEmpty || (controller2?.text ?? '').isEmpty) {
       // Handle empty input case
       return;
     }
 
     // Get the start and end locations
-    String startLocation = isSource
-        ? controller.text
-        : controller2!.text;
+    String startLocation = isSource ? controller.text : controller2!.text;
 
-    String endLocation = isSource
-        ? controller2!.text
-        : controller.text;
+    String endLocation = isSource ? controller2!.text : controller.text;
 
     await mapViewModel?.fetchRoutesForAllModes(startLocation, endLocation);
 
     onDirectionFetched?.call();
   }
 
-  Future<void> _handleSelection(BuildContext context) async {
+  Future<void> handleSelection(BuildContext context) async {
     final result = await Navigator.pushNamed(
       context,
       '/SearchView',
@@ -63,12 +59,14 @@ class SearchBarWidget extends StatelessWidget {
     final currentLocation = (result)[1];
 
     controller.text = selectedBuilding;
-  
+
     if (drawer) {
       if (selectedBuilding != 'Your Location') {
-        final building = BuildingViewModel().getBuildingByName(selectedBuilding);
+        final building =
+            BuildingViewModel().getBuildingByName(selectedBuilding);
         mapViewModel?.selectBuilding(building!);
-      } else { // If the selected building is "Your Location", check for building at current location
+      } else {
+        // If the selected building is "Your Location", check for building at current location
         if (context.mounted) {
           await mapViewModel?.checkBuildingAtCurrentLocation(context);
         }
@@ -80,14 +78,14 @@ class SearchBarWidget extends StatelessWidget {
         );
       }
     } else {
-      await _getDirections();
+      await getDirections();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _handleSelection(context),
+      onTap: () => handleSelection(context),
       child: Container(
         margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.symmetric(horizontal: 10),
