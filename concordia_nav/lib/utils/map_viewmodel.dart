@@ -56,9 +56,6 @@ class MapViewModel extends ChangeNotifier {
   final ODSDirectionsService _odsDirectionsService;
   final ShuttleRouteRepository _shuttleRepository;
 
-  List<Marker> _markers = [];
-  List<Marker> get markers => _markers;
-
   List<ConcordiaBuilding> _filteredBuildings = [];
 
   List<ConcordiaBuilding> get filteredBuildings => _filteredBuildings;
@@ -781,14 +778,5 @@ class MapViewModel extends ChangeNotifier {
 
     moveToLocation(location);
   }
-
-  // Add a new marker to the map
-  void addMarker(Marker marker) {
-    _markers.add(marker);
-  }
-
-  // Remove a marker from the map
-  void removeMarker(MarkerId markerId) {
-    _markers.removeWhere((marker) => marker.markerId == markerId);
-  }
 }
+
