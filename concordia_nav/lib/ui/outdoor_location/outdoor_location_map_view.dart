@@ -306,6 +306,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                         ..._mapViewModel.staticBusStopMarkers,
                         ...shuttleMarkers,
                       };
+                      if (_mapViewModel.originMarker != null) {
+                        allMarkers.add(_mapViewModel.originMarker!);
+                      }
                       if (_mapViewModel.destinationMarker != null) {
                         allMarkers.add(_mapViewModel.destinationMarker!);
                       }

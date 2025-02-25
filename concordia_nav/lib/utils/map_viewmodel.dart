@@ -79,6 +79,9 @@ class MapViewModel extends ChangeNotifier {
   bool _shuttleAvailable = true;
   bool get shuttleAvailable => _shuttleAvailable;
 
+  Marker? _originMarker;
+  Marker? get originMarker => _originMarker;
+
   Marker? _destinationMarker;
   Marker? get destinationMarker => _destinationMarker;
 
@@ -211,6 +214,14 @@ class MapViewModel extends ChangeNotifier {
       };
       final activePolyline = _multiModeRoutes[_selectedTravelModeForRoute]!;
       if (activePolyline.points.isNotEmpty) {
+        _originMarker = Marker(
+          markerId: const MarkerId('origin'),
+          position: activePolyline.points.first,
+          infoWindow: const InfoWindow(title: 'Origin'),
+          icon: await IconLoader.loadBitmapDescriptor(
+              'assets/icons/origin.png'),
+          anchor: const Offset(0.5, 0.5),
+        );
         _destinationMarker = Marker(
           markerId: const MarkerId('destination'),
           position: activePolyline.points.last,
@@ -427,6 +438,13 @@ class MapViewModel extends ChangeNotifier {
 
     if (_selectedTravelModeForRoute == CustomTravelMode.shuttle) {
       _multiModeActivePolylines = {shuttleComposite};
+      _originMarker = Marker(
+        markerId: const MarkerId('origin'),
+        position:
+            compositePoints.isNotEmpty ? compositePoints.first : boardingStop,
+        infoWindow: const InfoWindow(title: 'origin'),
+        anchor: const Offset(0.5, 0.5),
+      );
       _destinationMarker = Marker(
         markerId: const MarkerId('destination'),
         position:
@@ -452,6 +470,15 @@ class MapViewModel extends ChangeNotifier {
       _multiModeActivePolylines = {_multiModeRoutes[mode]!};
       final polyline = _multiModeRoutes[mode]!;
       if (polyline.points.isNotEmpty) {
+        _originMarker = Marker(
+          markerId: const MarkerId('origin'),
+          position: polyline.points.first,
+          infoWindow: const InfoWindow(title: 'Your Origin'),
+          icon: await IconLoader.loadBitmapDescriptor(
+              'assets/icons/origin.png'),
+          anchor: const Offset(0.5, 0.5),
+          zIndex: 2,
+        );
         _destinationMarker = Marker(
           markerId: const MarkerId('destination'),
           position: polyline.points.last,

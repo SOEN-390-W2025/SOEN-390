@@ -122,7 +122,7 @@ flutter:
     - assets/maps/outdoor/shuttle_bus_schedules/friday.json
     - assets/icons/default.png
     - assets/icons/destination.png
-    - assets/icons/source.png
+    - assets/icons/origin.png
     - assets/icons/shuttle_bus.png
     - assets/icons/shuttle_bus_station.png
     - assets/icons/AD.png
