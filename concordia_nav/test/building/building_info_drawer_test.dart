@@ -128,6 +128,7 @@ void main() async {
         .thenAnswer((_) async => true);
 
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
+    when(mockMapViewModel.originMarker).thenReturn(mockMarker);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
     when(mockMapService.getPolylines()).thenReturn(mockPolylines);
 

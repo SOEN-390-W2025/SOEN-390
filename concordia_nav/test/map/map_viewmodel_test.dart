@@ -105,6 +105,9 @@ void main() {
 
       // Assert
       expect(mapViewModel.activePolylines.isNotEmpty, true);
+      expect(mapViewModel.originMarker, isNotNull);
+      expect(
+          mapViewModel.originMarker?.position, equals(routePoints.first));
       expect(mapViewModel.destinationMarker, isNotNull);
       expect(
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
@@ -180,8 +183,11 @@ void main() {
       await mapViewModel.fetchRoutesForAllModes(originAddress, 'EV Building');
 
       // Assert
-      verify(mockMapService.getCurrentLocation()).called(4);
+      verify(mockMapService.getCurrentLocation()).called(5);
       expect(mapViewModel.activePolylines.isNotEmpty, true);
+      expect(mapViewModel.originMarker, isNotNull);
+      expect(
+          mapViewModel.originMarker?.position, equals(routePoints.first));
       expect(mapViewModel.destinationMarker, isNotNull);
       expect(
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
