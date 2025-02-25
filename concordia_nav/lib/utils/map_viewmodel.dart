@@ -56,9 +56,7 @@ class MapViewModel extends ChangeNotifier {
   final ODSDirectionsService _odsDirectionsService;
   final ShuttleRouteRepository _shuttleRepository;
 
-  List<ConcordiaBuilding> _filteredBuildings = [];
-
-  List<ConcordiaBuilding> get filteredBuildings => _filteredBuildings;
+  List<ConcordiaBuilding> filteredBuildings = [];
 
   // ignore: unused_field
   GoogleMapController? _mapController;
@@ -124,20 +122,7 @@ class MapViewModel extends ChangeNotifier {
     return _mapRepository.getCameraPosition(campus);
   }
 
-  Future<Map<String, dynamic>> fetchMapData(ConcordiaCampus campus, bool? isCampus) async {
-    final cameraPosition = await getInitialCameraPosition(campus);
-    final mapData = isCampus == true
-      ? await getCampusPolygonsAndLabels(campus)
-      : await getAllCampusPolygonsAndLabels();
-
-    return {
-      'cameraPosition': cameraPosition,
-      'polygons': mapData['polygons'],
-      'labels': mapData['labels'],
-    };
-  }
-
-  Future<String> _getOriginAddress (String? originAddress) async {
+  Future<String> _getOriginAddress(String? originAddress) async {
     if (originAddress == null || originAddress == 'Your Location') {
       final currentLocation = await _mapService.getCurrentLocation();
       if (currentLocation == null) {
@@ -145,7 +130,8 @@ class MapViewModel extends ChangeNotifier {
       }
       return "${currentLocation.latitude},${currentLocation.longitude}";
     } else {
-      final buildingAddress = BuildingViewModel().getBuildingLocationByName(originAddress);
+      final buildingAddress =
+          BuildingViewModel().getBuildingLocationByName(originAddress);
       return "${buildingAddress?.latitude},${buildingAddress?.longitude}";
     }
   }
@@ -186,8 +172,10 @@ class MapViewModel extends ChangeNotifier {
       final gda.TravelMode? gdaMode = toGdaTravelMode(mode);
       if (gdaMode != null) {
         String originStr = await _getOriginAddress(originAddress);
-        final destinationBuilding = BuildingViewModel().getBuildingLocationByName(destinationAddress);
-        String destinationStr = "${destinationBuilding?.latitude},${destinationBuilding?.longitude}";
+        final destinationBuilding =
+            BuildingViewModel().getBuildingLocationByName(destinationAddress);
+        String destinationStr =
+            "${destinationBuilding?.latitude},${destinationBuilding?.longitude}";
         final result = await _odsDirectionsService.fetchRouteResult(
           originAddress: originStr,
           destinationAddress: destinationStr,
@@ -215,8 +203,8 @@ class MapViewModel extends ChangeNotifier {
           markerId: const MarkerId('origin'),
           position: activePolyline.points.first,
           infoWindow: const InfoWindow(title: 'Origin'),
-          icon: await IconLoader.loadBitmapDescriptor(
-              'assets/icons/origin.png'),
+          icon:
+              await IconLoader.loadBitmapDescriptor('assets/icons/origin.png'),
           anchor: const Offset(0.5, 0.5),
         );
         _destinationMarker = Marker(
@@ -250,7 +238,8 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // get origin coordinates for shuttle route
-  Future<LatLng?> _getOriginCoords(String originAddress, LatLng loyolaStop, LatLng sgwStop) async {
+  Future<LatLng?> _getOriginCoords(
+      String originAddress, LatLng loyolaStop, LatLng sgwStop) async {
     if (originAddress == 'Your Location') {
       // If no origin is provided, assume the current location was used.
       return await _mapService.getCurrentLocation();
@@ -259,10 +248,11 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
-  Future<LatLng?> _getDestinationCoords(String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
+  Future<LatLng?> _getDestinationCoords(
+      String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
     if (destinationAddress == 'Your Location') {
       return await _mapService.getCurrentLocation();
-    } 
+    }
     return BuildingViewModel().getBuildingLocationByName(destinationAddress);
   }
 
@@ -471,8 +461,8 @@ class MapViewModel extends ChangeNotifier {
           markerId: const MarkerId('origin'),
           position: polyline.points.first,
           infoWindow: const InfoWindow(title: 'Your Origin'),
-          icon: await IconLoader.loadBitmapDescriptor(
-              'assets/icons/origin.png'),
+          icon:
+              await IconLoader.loadBitmapDescriptor('assets/icons/origin.png'),
           anchor: const Offset(0.5, 0.5),
           zIndex: 2,
         );
@@ -760,9 +750,7 @@ class MapViewModel extends ChangeNotifier {
 
   /// Handles the search selection of a building.
   Future<void> handleSelection(
-    String selectedBuilding,
-    LatLng? currentLocation
-  ) async {
+      String selectedBuilding, LatLng? currentLocation) async {
     final buildingViewModel = BuildingViewModel();
 
     // If the selected building is "Your Location", wait for fetchCurrentLocation to complete
@@ -779,4 +767,3 @@ class MapViewModel extends ChangeNotifier {
     moveToLocation(location);
   }
 }
-
