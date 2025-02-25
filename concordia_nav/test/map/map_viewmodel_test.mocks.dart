@@ -267,6 +267,14 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
   );
 
   @override
+  List<_i11.ConcordiaBuilding> get filteredBuildings =>
+      (super.noSuchMethod(
+            Invocation.getter(#filteredBuildings),
+            returnValue: <_i11.ConcordiaBuilding>[],
+          )
+          as List<_i11.ConcordiaBuilding>);
+
+  @override
   Set<_i2.Marker> get staticBusStopMarkers =>
       (super.noSuchMethod(
             Invocation.getter(#staticBusStopMarkers),
@@ -282,21 +290,16 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
           )
           as bool);
 
-  List<_i2.Marker> get markers =>
-      (super.noSuchMethod(
-            Invocation.getter(#markers),
-            returnValue: <_i2.Marker>[],
-          )
-          as List<_i2.Marker>);
-
   @override
-  _i4.MapService get mapService => (super.noSuchMethod(
-        Invocation.getter(#mapService),
-        returnValue: _FakeMapService_3(
-          this,
-          Invocation.getter(#mapService),
-        ),
-      ) as _i4.MapService);
+  _i4.MapService get mapService =>
+      (super.noSuchMethod(
+            Invocation.getter(#mapService),
+            returnValue: _FakeMapService_3(
+              this,
+              Invocation.getter(#mapService),
+            ),
+          )
+          as _i4.MapService);
 
   @override
   Set<_i2.Polyline> get multiModePolylines =>
@@ -373,6 +376,19 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
           as _i9.Future<_i2.CameraPosition>);
 
   @override
+  _i9.Future<Map<String, dynamic>> fetchMapData(
+    _i8.ConcordiaCampus? campus,
+    bool? isCampus,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchMapData, [campus, isCampus]),
+            returnValue: _i9.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i9.Future<Map<String, dynamic>>);
+
+  @override
   _i9.Future<void> fetchRoutesForAllModes(
     String? originAddress,
     String? destinationAddress,
@@ -424,17 +440,6 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
     Invocation.method(#adjustCamera, [points]),
     returnValueForMissingStub: null,
   );
-
-  @override
-  _i9.Future<Map<String, dynamic>> fetchMapData(
-    _i8.ConcordiaCampus campus,
-    bool? isCampus,) =>
-      (super.noSuchMethod(
-            Invocation.method(#fetchMapData, [campus, isCampus]),
-            returnValue: _i9.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
-            returnValueForMissingStub: _i9.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
-          )
-          as _i9.Future<Map<String, dynamic>>);
 
   @override
   void onMapCreated(_i2.GoogleMapController? controller) => super.noSuchMethod(
@@ -578,6 +583,21 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
   );
 
   @override
+  _i9.Future<void> handleSelection(
+    String? selectedBuilding,
+    _i2.LatLng? currentLocation,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#handleSelection, [
+              selectedBuilding,
+              currentLocation,
+            ]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
   void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
@@ -689,8 +709,13 @@ class MockODSDirectionsService extends _i1.Mock
           as _i9.Future<List<_i2.LatLng>>);
 
   @override
-  _i9.Future<List<_i2.LatLng>> fetchRouteFromCoords(_i2.LatLng origin, _i2.LatLng destinationAddress) => (super.noSuchMethod(
-        Invocation.method(#fetchRouteFromCoords, [origin, destinationAddress]),
-        returnValue: _i9.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
-      ) as _i9.Future<List<_i2.LatLng>>);
+  _i9.Future<List<_i2.LatLng>> fetchRouteFromCoords(
+    _i2.LatLng? origin,
+    _i2.LatLng? destination,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchRouteFromCoords, [origin, destination]),
+            returnValue: _i9.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
+          )
+          as _i9.Future<List<_i2.LatLng>>);
 }

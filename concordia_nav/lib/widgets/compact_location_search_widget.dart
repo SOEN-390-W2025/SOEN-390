@@ -20,7 +20,7 @@ class CompactSearchCardWidget extends StatelessWidget {
     this.onDirectionFetched,
   });
 
-  Future<void> _getDirections() async {
+  Future<void> getDirections() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (originController.text.isEmpty || destinationController.text.isEmpty) {
       // Handle empty input case
@@ -36,7 +36,8 @@ class CompactSearchCardWidget extends StatelessWidget {
     onDirectionFetched?.call();
   }
 
-  Future<void> _handleSelection(BuildContext context, TextEditingController controller) async {
+  Future<void> handleSelection(
+      BuildContext context, TextEditingController controller) async {
     final result = await Navigator.pushNamed(
       context,
       '/SearchView',
@@ -49,12 +50,14 @@ class CompactSearchCardWidget extends StatelessWidget {
     final currentLocation = (result)[1];
 
     controller.text = selectedBuilding;
-  
+
     if (drawer) {
       if (selectedBuilding != 'Your Location') {
-        final building = BuildingViewModel().getBuildingByName(selectedBuilding);
+        final building =
+            BuildingViewModel().getBuildingByName(selectedBuilding);
         mapViewModel.selectBuilding(building!);
-      } else { // If the selected building is "Your Location", check for building at current location
+      } else {
+        // If the selected building is "Your Location", check for building at current location
         if (context.mounted) {
           await mapViewModel.checkBuildingAtCurrentLocation(context);
         }
@@ -66,7 +69,7 @@ class CompactSearchCardWidget extends StatelessWidget {
         );
       }
     } else {
-      await _getDirections();
+      await getDirections();
     }
   }
 
@@ -122,7 +125,7 @@ class CompactSearchCardWidget extends StatelessWidget {
                       onTap: () => {
                         if (mapViewModel.selectedBuildingNotifier.value != null)
                           mapViewModel.unselectBuilding(),
-                        _handleSelection(context, originController)
+                        handleSelection(context, originController)
                       },
                     ),
                     Divider(
@@ -142,7 +145,7 @@ class CompactSearchCardWidget extends StatelessWidget {
                       onTap: () => {
                         if (mapViewModel.selectedBuildingNotifier.value != null)
                           mapViewModel.unselectBuilding(),
-                        _handleSelection(context, destinationController)
+                        handleSelection(context, destinationController)
                       },
                     ),
                   ],
