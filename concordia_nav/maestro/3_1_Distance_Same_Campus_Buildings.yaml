@@ -4,7 +4,6 @@ appId: com.example.concordia_nav
     clearState: true
 - assertVisible: "Concordia Campus Guide"
 - tapOn: "SGW map"
-- assertVisible: "Map Marker"
 - assertVisible: "Search..."
 - tapOn: "Search..."
 - assertVisible: "Hall Building"

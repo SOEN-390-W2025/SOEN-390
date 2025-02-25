@@ -1,7 +1,4 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
-import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
-import 'package:concordia_nav/data/repositories/building_repository.dart';
-import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -158,42 +155,6 @@ void main() {
       when(mockMapViewModel.originMarker).thenReturn(mockMarker);
       when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
       when(mockMapService.getPolylines()).thenReturn(mockPolylines);
-    });
-
-    testWidgets('updateBuilding should update destination controller text',
-        (WidgetTester tester) async {
-      // Create a mock ConcordiaBuilding with a street address
-      const mockBuilding = BuildingRepository.h;
-
-      // Build the widget
-      await tester.pumpWidget(
-        MaterialApp(
-          home: OutdoorLocationMapView(
-            campus: ConcordiaCampus.sgw,
-            mapViewModel: mockMapViewModel,
-          ),
-        ),
-      );
-
-      // Find the destination text field
-      final destinationField = find.byType(TextField).first;
-
-      // Verify that the initial text is empty or whatever default value it should be
-      expect(tester.widget<TextField>(destinationField).controller?.text, 'Your Location');
-
-      // Get the state of the widget to call updateBuilding
-      final state = tester.state<OutdoorLocationMapViewState>(
-        find.byType(OutdoorLocationMapView),
-      );
-
-      // Act: Call updateBuilding with the mock building
-      state.updateBuilding(mockBuilding);
-
-      // Wait for any asynchronous UI updates to settle
-      await tester.pumpAndSettle();
-
-      // Assert: Verify that the destination controller's text is updated to the mock building's street address
-      expect(tester.widget<TextField>(destinationField).controller?.text, 'Your Location');
     });
 
     group('toGdaTravelMode', () {

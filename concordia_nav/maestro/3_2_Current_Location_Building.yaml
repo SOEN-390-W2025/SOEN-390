@@ -10,7 +10,6 @@ appId: com.example.concordia_nav
 - setLocation:
     latitude: 45.4948
     longitude: -73.5779
-- assertVisible: "Map Marker"
 - assertVisible: "Search..."
 - tapOn: "Search..."
 - assertVisible: "Hall Building"

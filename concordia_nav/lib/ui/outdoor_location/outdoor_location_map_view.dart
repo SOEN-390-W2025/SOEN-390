@@ -37,7 +37,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   double? bottomInset = 0;
   bool first = false;
 
-
   void getSearchList() {
     final buildings = _buildingViewModel.getBuildings();
     for (var building in buildings) {
@@ -50,11 +49,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   final _yourLocationString = "Your Location";
 
   void checkLocationPermission() {
-    _mapViewModel.checkLocationAccess().then((hasPermission){
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _sourceController.text = _yourLocationString;
         _locationPermissionGranted = hasPermission;
-        if (_locationPermissionGranted && !searchList.contains(_yourLocationString)) {
+        if (_locationPermissionGranted &&
+            !searchList.contains(_yourLocationString)) {
           searchList.insert(0, _yourLocationString);
         }
       });
@@ -62,8 +62,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   }
 
   Future<void> _updatePath() async {
-    if(_destinationController.text != '') {
-      await _mapViewModel.fetchRoutesForAllModes('Your Location', _destinationController.text);
+    if (_destinationController.text != '') {
+      await _mapViewModel.fetchRoutesForAllModes(
+          'Your Location', _destinationController.text);
       setState(() {});
     }
     first = false;
@@ -77,7 +78,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     _destinationController =
         TextEditingController(text: widget.building?.name ?? '');
     _currentCampus = widget.campus;
-    
+
     _initialCameraPosition =
         _mapViewModel.getInitialCameraPosition(_currentCampus);
 
@@ -88,7 +89,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     getSearchList();
 
     WidgetsBinding.instance.addObserver(this);
-    if(_destinationController.text != '') {
+    if (_destinationController.text != '') {
       first = true;
     }
   }
@@ -99,12 +100,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     _destinationController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  void updateBuilding(ConcordiaBuilding newBuilding) {
-    setState(() {
-      _destinationController.text = newBuilding.name;
-    });
   }
 
   Future<void> _launchGoogleMapsNavigation(LatLng destination) async {
@@ -228,50 +223,49 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     return null;
   }
 
-  Widget _visibleKeyboardWidget(){
-      return Positioned(
-        bottom: 30,
-        left: 15,
-        right: 15,
-        child: Row(
-          children: [
-            if(_destinationController.text != 'null')
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _updatePath,
-                  child: const Text(
-                    'Get Directions',
-                    style: TextStyle(
-                      color: Color.fromRGBO(146, 35, 56, 1),
-                    ),
+  Widget _visibleKeyboardWidget() {
+    return Positioned(
+      bottom: 30,
+      left: 15,
+      right: 15,
+      child: Row(
+        children: [
+          if (_destinationController.text != 'null')
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _updatePath,
+                child: const Text(
+                  'Get Directions',
+                  style: TextStyle(
+                    color: Color.fromRGBO(146, 35, 56, 1),
                   ),
                 ),
               ),
-            if (_mapViewModel.destinationMarker != null)
-              const SizedBox(width: 16),
-            if (_mapViewModel.destinationMarker != null)
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color.fromRGBO(146, 35, 56, 1),
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.navigation_outlined,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    final destination =
-                        _mapViewModel.destinationMarker!.position;
-                    _launchGoogleMapsNavigation(destination);
-                  },
-                ),
-              ),
-            ],
             ),
-      );
+          if (_mapViewModel.destinationMarker != null)
+            const SizedBox(width: 16),
+          if (_mapViewModel.destinationMarker != null)
+            Container(
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color.fromRGBO(146, 35, 56, 1),
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.navigation_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  final destination = _mapViewModel.destinationMarker!.position;
+                  _launchGoogleMapsNavigation(destination);
+                },
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
