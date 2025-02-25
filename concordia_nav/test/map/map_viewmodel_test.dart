@@ -452,7 +452,7 @@ void main() {
           CameraPosition(target: LatLng(campus.lat, campus.lng), zoom: 17.0);
 
       when(mockMapRepository.getCameraPosition(campus))
-          .thenReturn(expectedCameraPosition);
+          .thenReturn((MapRepository()).getCameraPosition(ConcordiaCampus.sgw));
 
       // Act
       final result = await mapViewModel.getInitialCameraPosition(campus);
