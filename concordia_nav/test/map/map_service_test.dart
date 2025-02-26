@@ -213,7 +213,7 @@ Future<void> main() async {
 
   group('test geolocator methods', () {
     // random position far away from campuses
-    var testPosition = Position(
+    final testPosition = Position(
         longitude: -73.5788992164221,
         latitude: 45.4952628500172,
         timestamp: DateTime.now(),
