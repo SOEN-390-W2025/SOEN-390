@@ -31,11 +31,11 @@ class BuildingDataManager {
     try {
       // Get the list of available building files using the AssetManifest API
       final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-
+      dev.log(assetManifest.listAssets().toString());
       final indoorMapPaths = assetManifest
           .listAssets()
           .where((path) =>
-              path.startsWith('assets/maps/indoor/') && path.endsWith('.yaml'))
+              path.startsWith(BuildingData.dataPath) && path.endsWith('.yaml'))
           .toList();
 
       dev.log('Found indoor YAML files: $indoorMapPaths');

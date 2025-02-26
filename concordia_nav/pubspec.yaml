@@ -120,6 +120,9 @@ flutter:
     - assets/maps/outdoor/sgw/
     - assets/maps/outdoor/shuttle_bus_routes/
     - assets/maps/outdoor/shuttle_bus_schedules/
+    - assets/maps/indoor/
+    - assets/maps/indoor/data/
+    - assets/maps/indoor/floorplans/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

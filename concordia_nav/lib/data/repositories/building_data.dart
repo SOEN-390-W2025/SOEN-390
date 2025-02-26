@@ -19,6 +19,8 @@ class BuildingData {
   final List<Connection> connections;
   final ConcordiaFloorPoint outdoorExitPoint;
 
+  static const String dataPath = 'assets/maps/indoor/data/';
+
   BuildingData({
     required this.building,
     required this.floors,
@@ -38,7 +40,7 @@ class BuildingDataLoader {
 
   Future<BuildingData> load() async {
     final String yamlString = await rootBundle
-        .loadString('assets/maps/indoor/$buildingAbbreviation.yaml');
+        .loadString('${BuildingData.dataPath}$buildingAbbreviation.yaml');
     final dynamic yamlData = loadYaml(yamlString);
 
     final building =
