@@ -179,7 +179,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                 ),
                 // Building info drawer appears when a building is selected
                 ValueListenableBuilder<ConcordiaBuilding?>(
-                  valueListenable: _mapViewModel!.selectedBuildingNotifier,
+                  valueListenable: _mapViewModel.selectedBuildingNotifier,
                   builder: (context, selectedBuilding, child) {
                     return AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
@@ -194,7 +194,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                       child: selectedBuilding != null
                           ? BuildingInfoDrawer(
                               building: selectedBuilding,
-                              onClose: _mapViewModel!.unselectBuilding,
+                              onClose: _mapViewModel.unselectBuilding,
                             )
                           : const SizedBox.shrink(),
                     );

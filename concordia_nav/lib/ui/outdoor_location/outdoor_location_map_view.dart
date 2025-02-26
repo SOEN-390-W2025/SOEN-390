@@ -339,7 +339,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           if (first) _visibleKeyboardWidget(),
           // Building info drawer appears when a building is selected
           ValueListenableBuilder<ConcordiaBuilding?>(
-            valueListenable: _mapViewModel!.selectedBuildingNotifier,
+            valueListenable: _mapViewModel.selectedBuildingNotifier,
             builder: (context, selectedBuilding, child) {
               return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
@@ -354,7 +354,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                 child: selectedBuilding != null
                     ? BuildingInfoDrawer(
                         building: selectedBuilding,
-                        onClose: _mapViewModel!.unselectBuilding,
+                        onClose: _mapViewModel.unselectBuilding,
                       )
                     : const SizedBox.shrink(),
               );

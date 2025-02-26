@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/map_viewmodel.dart';
 import './search_bar.dart';
-import 'building_info_drawer.dart';
 import 'map_control_buttons.dart';
-import '../../data/domain-model/concordia_building.dart';
 
 class MapLayout extends StatelessWidget {
   final TextEditingController? searchController;
