@@ -7,6 +7,9 @@ import '../domain-model/room_category.dart';
 import 'building_repository.dart';
 
 class IndoorFeatureRepository {
+  static final String h = BuildingRepository.h.abbreviation;
+  static final List<ConcordiaFloor> hallFloors = floorsByBuilding[h]!;
+
   // I wouldn't refactor this to come from an assets file, since we sometimes
   // need to refer to the actual floor objects and we don't neccesarily
   // want those references to change. But it could be done.
@@ -40,29 +43,19 @@ class IndoorFeatureRepository {
   static final Map<String, Map<String, List<ConcordiaRoom>>> roomsByFloor = {
     (BuildingRepository.h.abbreviation): {
       "1": [
-        ConcordiaRoom(
-            "10",
-            RoomCategory.auditorium,
-            floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-            ConcordiaFloorPoint(
-                floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-                940,
-                2210))
+        ConcordiaRoom("10", RoomCategory.auditorium, hallFloors[2],
+            ConcordiaFloorPoint(hallFloors[2], 940, 2210))
       ],
       "6": [
         // Example of a room on a floor without an indoor routing map/support
-        ConcordiaRoom("55", RoomCategory.conference,
-            floorsByBuilding[BuildingRepository.h.abbreviation]![6], null)
+        ConcordiaRoom("55", RoomCategory.conference, hallFloors[6], null)
       ],
       "8": [
         ConcordiaRoom(
             "20", // Aiman Hanna's room on 8th floor
             RoomCategory.classroom,
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8],
-            ConcordiaFloorPoint(
-                floorsByBuilding[BuildingRepository.h.abbreviation]![8],
-                775,
-                400))
+            hallFloors[8],
+            ConcordiaFloorPoint(hallFloors[8], 775, 400))
       ]
     }
   };
@@ -75,60 +68,32 @@ class IndoorFeatureRepository {
   static Map<String, Map<String, List<FloorRoutablePoint>>> waypointsByFloor = {
     (BuildingRepository.h.abbreviation): {
       "1": [
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-            1400,
-            2030),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-            1400,
-            2220),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-            1400,
-            2430),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![2], 885, 2430),
+        ConcordiaFloorPoint(hallFloors[2], 1400, 2030),
+        ConcordiaFloorPoint(hallFloors[2], 1400, 2220),
+        ConcordiaFloorPoint(hallFloors[2], 1400, 2430),
+        ConcordiaFloorPoint(hallFloors[2], 885, 2430),
       ],
       "8": [
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 175, 210),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 175, 400),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 175, 600),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 175, 790),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 340, 210),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 340, 400),
+        ConcordiaFloorPoint(hallFloors[8], 175, 210),
+        ConcordiaFloorPoint(hallFloors[8], 175, 400),
+        ConcordiaFloorPoint(hallFloors[8], 175, 600),
+        ConcordiaFloorPoint(hallFloors[8], 175, 790),
+        ConcordiaFloorPoint(hallFloors[8], 340, 210),
+        ConcordiaFloorPoint(hallFloors[8], 340, 400),
 
         /// 340, 600 is not free space
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 340, 790),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 210),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 400),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 600),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 790),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 210),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 400),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 600),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 840, 790),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 300),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 500),
-        ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 550, 700),
+        ConcordiaFloorPoint(hallFloors[8], 340, 790),
+        ConcordiaFloorPoint(hallFloors[8], 550, 210),
+        ConcordiaFloorPoint(hallFloors[8], 550, 400),
+        ConcordiaFloorPoint(hallFloors[8], 550, 600),
+        ConcordiaFloorPoint(hallFloors[8], 550, 790),
+        ConcordiaFloorPoint(hallFloors[8], 840, 210),
+        ConcordiaFloorPoint(hallFloors[8], 840, 400),
+        ConcordiaFloorPoint(hallFloors[8], 840, 600),
+        ConcordiaFloorPoint(hallFloors[8], 840, 790),
+        ConcordiaFloorPoint(hallFloors[8], 550, 300),
+        ConcordiaFloorPoint(hallFloors[8], 550, 500),
+        ConcordiaFloorPoint(hallFloors[8], 550, 700),
       ]
     }
   };
@@ -178,50 +143,30 @@ class IndoorFeatureRepository {
           // unit-tested to ensure their meaning doesn't change with future
           // updates to the list of floors
           {
-            "1": ConcordiaFloorPoint(
-                floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-                1730,
-                2111),
-            "2": ConcordiaFloorPoint(
-                floorsByBuilding[BuildingRepository.h.abbreviation]![3],
-                1565,
-                1960),
-            "8": ConcordiaFloorPoint(
-                floorsByBuilding[BuildingRepository.h.abbreviation]![8],
-                355,
-                350),
-            "9": ConcordiaFloorPoint(
-                floorsByBuilding[BuildingRepository.h.abbreviation]![9],
-                355,
-                355)
+            "1": ConcordiaFloorPoint(hallFloors[2], 1730, 2111),
+            "2": ConcordiaFloorPoint(hallFloors[3], 1565, 1960),
+            "8": ConcordiaFloorPoint(hallFloors[8], 355, 350),
+            "9": ConcordiaFloorPoint(hallFloors[9], 355, 355)
           },
           true,
           "Main Elevators",
           60,
           8),
       Connection([
-        floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![3],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![4],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![5],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![6],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![7],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![8],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![9],
-        floorsByBuilding[BuildingRepository.h.abbreviation]![10]
+        hallFloors[2],
+        hallFloors[3],
+        hallFloors[4],
+        hallFloors[5],
+        hallFloors[6],
+        hallFloors[7],
+        hallFloors[8],
+        hallFloors[9],
+        hallFloors[10]
       ], {
-        "1": ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![2],
-            1570,
-            2440),
-        "2": ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![3],
-            1235,
-            1330),
-        "8": ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![8], 480, 420),
-        "9": ConcordiaFloorPoint(
-            floorsByBuilding[BuildingRepository.h.abbreviation]![9], 460, 425)
+        "1": ConcordiaFloorPoint(hallFloors[2], 1570, 2440),
+        "2": ConcordiaFloorPoint(hallFloors[3], 1235, 1330),
+        "8": ConcordiaFloorPoint(hallFloors[8], 480, 420),
+        "9": ConcordiaFloorPoint(hallFloors[9], 460, 425)
       }, false, "Escalators", 0, 15)
     ]
   };
@@ -231,7 +176,7 @@ class IndoorFeatureRepository {
   /// corresponds to the municipal street address for the building (eg. for Hall
   /// the exit is the one on de Maisonneuve))
   static Map<String, ConcordiaFloorPoint> outdoorExitPointsByBuilding = {
-    (BuildingRepository.h.abbreviation): ConcordiaFloorPoint(
-        floorsByBuilding[BuildingRepository.h.abbreviation]![2], 850, 2640)
+    (BuildingRepository.h.abbreviation):
+        ConcordiaFloorPoint(hallFloors[2], 850, 2640)
   };
 }
