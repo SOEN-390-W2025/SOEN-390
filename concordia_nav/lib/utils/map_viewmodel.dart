@@ -411,12 +411,12 @@ class MapViewModel extends ChangeNotifier {
     int walkingTimeToShuttle = 0;
     if (leg1 != null && leg1.points.isNotEmpty) {
       walkingTimeToShuttle =
-          (_calculatePolylineDistance(leg1) / 1.4 / 60).round();
+          (calculatePolylineDistance(leg1) / 1.4 / 60).round();
     }
     int walkingTimeFromShuttle = 0;
     if (leg3 != null && leg3.points.isNotEmpty) {
       walkingTimeFromShuttle =
-          (_calculatePolylineDistance(leg3) / 1.4 / 60).round();
+          (calculatePolylineDistance(leg3) / 1.4 / 60).round();
     }
     int shuttleRideTime = 30; // Fixed shuttle ride time provided by Concordia.
     int totalShuttleTime =
@@ -442,7 +442,7 @@ class MapViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  double _calculatePolylineDistance(Polyline polyline) {
+  double calculatePolylineDistance(Polyline polyline) {
     double totalDistance = 0.0;
     for (int i = 0; i < polyline.points.length - 1; i++) {
       totalDistance += _mapService.calculateDistance(

@@ -217,6 +217,30 @@ void main() {
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
     });
 
+    test('should calculate total polyline distance', () {
+      // Arrange: Define the points of the polyline
+      const polyline = Polyline(
+        polylineId: PolylineId('test_polyline_id'), // Provide a polylineId
+        points: [
+          LatLng(0.0, 0.0), // Point 1
+          LatLng(1.0, 1.0), // Point 2
+          LatLng(2.0, 2.0), // Point 3
+        ],
+        color: Colors
+            .blue, // You can add other required parameters like color, width, etc.
+      );
+
+      // Arrange: Mock the _mapService.calculateDistance method
+      when(mockMapService.calculateDistance(any, any))
+          .thenReturn(1.0); // Simulate a distance of 1.0 between points
+
+      // Act: Call the method under test
+      final result = mapViewModel.calculatePolylineDistance(polyline);
+
+      // Assert: Check that the result matches the expected distance
+      expect(result, 2.0); // 1.0 + 1.0 (distance between 3 points)
+    });
+
     test('throws error if searches for current location but doesnt return one',
         () async {
       // Arrange
