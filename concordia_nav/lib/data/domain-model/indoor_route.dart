@@ -1,5 +1,7 @@
+import 'concordia_building.dart';
 import 'connection.dart';
-import 'location.dart';
+import 'floor_routable_point.dart';
+//import 'location.dart';
 
 /// The route should be presented to the user as follows:
 /// 1. The firstIndoorPortionToConnection will contain either a single Location
@@ -32,33 +34,23 @@ import 'location.dart';
 /// It is also possible to have a route without any secondIndoorPortions, if the
 /// locations are in the same building.
 class IndoorRoute {
-  List<Location> firstIndoorPortionToConnection;
+  List<FloorRoutablePoint>? firstIndoorPortionToConnection;
   Connection? firstIndoorConnection;
-  List<Location>? firstIndoorPortionFromConnection;
-  List<Location>? secondIndoorPortionToConnection;
+  List<FloorRoutablePoint>? firstIndoorPortionFromConnection;
+  ConcordiaBuilding firstBuilding;
+  List<FloorRoutablePoint>? secondIndoorPortionToConnection;
   Connection? secondIndoorConnection;
-  List<Location>? secondIndoorPortionFromConnection;
+  List<FloorRoutablePoint>? secondIndoorPortionFromConnection;
+  ConcordiaBuilding? secondBuilding;
 
   IndoorRoute(
-      this.firstIndoorPortionToConnection,
-      this.firstIndoorConnection,
-      this.firstIndoorPortionFromConnection,
-      this.secondIndoorPortionToConnection,
-      this.secondIndoorConnection,
-      this.secondIndoorPortionFromConnection);
-
-  /// Use this as the start point of outdoor routing
-  Location firstPortionLastLocation() {
-    if (firstIndoorPortionFromConnection?.isNotEmpty ?? false) {
-      return firstIndoorPortionFromConnection!.last;
-    }
-    return firstIndoorPortionToConnection.last;
-  }
-
-  Location? secondPortionFirstLocation() {
-    if (secondIndoorPortionToConnection?.isNotEmpty ?? false) {
-      return secondIndoorPortionToConnection?.first;
-    }
-    return null;
-  }
+    this.firstBuilding,
+    this.firstIndoorPortionToConnection,
+    this.firstIndoorConnection,
+    this.firstIndoorPortionFromConnection,
+    this.secondBuilding,
+    this.secondIndoorPortionToConnection,
+    this.secondIndoorConnection,
+    this.secondIndoorPortionFromConnection,
+  );
 }

@@ -1,14 +1,16 @@
 import 'concordia_floor.dart';
+import 'concordia_floor_point.dart';
 
 class Connection {
   final List<ConcordiaFloor> floors;
-  // Some Map of floor -> map location drawing point might be added here
+  final Map<String, ConcordiaFloorPoint> floorPoints; // Key is floor no
+
   final bool isAccessible;
   final String name;
   final double fixedWaitTimeSeconds;
   final double waitTimePerFloorSeconds;
 
-  Connection(this.floors, this.isAccessible, this.name,
+  Connection(this.floors, this.floorPoints, this.isAccessible, this.name,
       this.fixedWaitTimeSeconds, this.waitTimePerFloorSeconds);
 
   /// Returns the wait time between two floors if they are both in this
