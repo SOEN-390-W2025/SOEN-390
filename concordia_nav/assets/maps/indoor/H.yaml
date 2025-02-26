@@ -1,0 +1,100 @@
+floors:
+  - number: "1"
+    pixelsPerSecond: 1
+  - number: "2"
+    pixelsPerSecond: 1
+  - number: "8"
+    pixelsPerSecond: 1
+  - number: "9"
+    pixelsPerSecond: 1
+
+rooms:
+  "1":
+    - roomNumber: "10"
+      category: auditorium
+      floor: "1"
+      entrancePoint: { x: 940, y: 2210 }
+  "8":
+    - roomNumber: "20"
+      category: classroom
+      floor: "8"
+      entrancePoint: null
+
+waypoints:
+  "1":
+    - { x: 1400, y: 2030 }
+    - { x: 1400, y: 2220 }
+    - { x: 1400, y: 2430 }
+    - { x: 885,  y: 2430 }
+  "8":
+    - { x: 175,  y: 210 }
+    - { x: 175,  y: 400 }
+    - { x: 175,  y: 600 }
+    - { x: 175,  y: 790 }
+    - { x: 340,  y: 210 }
+    - { x: 340,  y: 400 }
+    - { x: 340,  y: 790 }
+    - { x: 550,  y: 210 }
+    - { x: 550,  y: 400 }
+    - { x: 550,  y: 600 }
+    - { x: 550,  y: 790 }
+    - { x: 840,  y: 210 }
+    - { x: 840,  y: 400 }
+    - { x: 840,  y: 600 }
+    - { x: 840,  y: 790 }
+    - { x: 550,  y: 300 }
+    - { x: 550,  y: 500 }
+    - { x: 550,  y: 700 }
+
+waypointNavigability:
+  "1":
+    "0": [1, 2, 3]
+    "1": [0, 2, 3]
+    "2": [0, 1, 3]
+    "3": [0, 1, 2]
+  "8":
+    "0": [1, 4]
+    "1": [0, 2, 5]
+    "2": [1, 3]
+    "3": [2, 6]
+    "4": [0, 7]
+    "5": [1, 8]
+    "6": [3, 10]
+    "7": [4, 11, 15]
+    "8": [5, 15, 16]
+    "9": [16, 17]
+    "10": [6, 14, 17]
+    "11": [7, 12]
+    "12": [11, 13]
+    "13": [12, 14]
+    "14": [13, 10]
+    "15": [7, 8]
+    "16": [8, 9]
+    "17": [9, 10]
+
+connections:
+  - name: "Main Elevators"
+    accessible: true
+    fixedWaitTimeSeconds: 60
+    waitTimePerFloorSeconds: 8
+    floors: ["1", "2", "8", "9"]
+    floorPoints:
+      "1": { x: 1730, y: 2111, floor: "1" }
+      "2": { x: 1565, y: 1960, floor: "2" }
+      "8": { x: 355,  y: 350,  floor: "8" }
+      "9": { x: 355, y: 355,  floor: "9" }
+  - name: "Escalators"
+    accessible: false
+    fixedWaitTimeSeconds: 0
+    waitTimePerFloorSeconds: 15
+    floors: ["1", "2", "4", "5", "6", "7", "8", "9", "10"]
+    floorPoints:
+      "1": { x: 1570, y: 2440, floor: "1" }
+      "2": { x: 1235, y: 1330, floor: "2" }
+      "8": { x: 480,  y: 420,  floor: "8" }
+      "9": { x: 460, y: 425,  floor: "9" }
+
+outdoorExitPoint:
+  floor: "1"
+  x: 850
+  y: 2640
