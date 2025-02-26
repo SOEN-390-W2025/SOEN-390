@@ -134,8 +134,9 @@ class ODSDirectionsService {
 
   /// Fetches a route using origin coordinates and a destination address.
   Future<List<LatLng>> fetchRouteFromCoords(
-      LatLng origin, String destinationAddress) async {
+      LatLng origin, LatLng destination) async {
     final originString = "${origin.latitude},${origin.longitude}";
-    return fetchRoute(originString, destinationAddress);
+    final destinationString = "${destination.latitude},${destination.longitude}";
+    return fetchRoute(originString, destinationString);
   }
 }

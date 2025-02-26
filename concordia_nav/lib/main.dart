@@ -7,6 +7,7 @@ import 'ui/indoor_map/indoor_map_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
 import 'ui/poi/poi_choice_view.dart';
 import 'ui/poi/poi_map_view.dart';
+import 'ui/search/search_view.dart';
 import 'ui/setting/accessibility/accessibility_page.dart';
 import 'ui/setting/calendar/calendar_link_view.dart';
 import 'ui/setting/calendar/calendar_view.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/CalendarLinkView': (context) => const CalendarLinkView(),
         '/CalendarView': (context) => const CalendarView(),
         '/SettingsPage': (context) => const SettingsPage(),
+        '/SearchView': (context) => const SearchView(),
       },
     );
   }

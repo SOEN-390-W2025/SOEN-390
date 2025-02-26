@@ -1,18 +1,77 @@
 import 'package:flutter/material.dart';
-
+import '../utils/building_viewmodel.dart';
 import '../utils/map_viewmodel.dart';
 
 class CompactSearchCardWidget extends StatelessWidget {
   final TextEditingController originController;
   final TextEditingController destinationController;
   final MapViewModel mapViewModel;
+  final List<String> searchList;
+  final bool drawer;
+  final VoidCallback? onDirectionFetched;
 
   const CompactSearchCardWidget({
     super.key,
     required this.originController,
     required this.destinationController,
     required this.mapViewModel,
+    required this.searchList,
+    this.drawer = false,
+    this.onDirectionFetched,
   });
+
+  Future<void> getDirections() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (originController.text.isEmpty || destinationController.text.isEmpty) {
+      // Handle empty input case
+      return;
+    }
+
+    // Get the start and end locations
+    final startLocation = originController.text;
+
+    final endLocation = destinationController.text;
+    await mapViewModel.fetchRoutesForAllModes(startLocation, endLocation);
+
+    onDirectionFetched?.call();
+  }
+
+  Future<void> handleSelection(
+      BuildContext context, TextEditingController controller) async {
+    final result = await Navigator.pushNamed(
+      context,
+      '/SearchView',
+      arguments: searchList,
+    );
+
+    if (result == null) return;
+
+    final selectedBuilding = (result as List)[0];
+    final currentLocation = (result)[1];
+
+    controller.text = selectedBuilding;
+
+    if (drawer) {
+      if (selectedBuilding != 'Your Location') {
+        final building =
+            BuildingViewModel().getBuildingByName(selectedBuilding);
+        mapViewModel.selectBuilding(building!);
+      } else {
+        // If the selected building is "Your Location", check for building at current location
+        if (context.mounted) {
+          await mapViewModel.checkBuildingAtCurrentLocation(context);
+        }
+      }
+      if (context.mounted) {
+        await mapViewModel.handleSelection(
+          selectedBuilding as String,
+          currentLocation,
+        );
+      }
+    } else {
+      await getDirections();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +124,8 @@ class CompactSearchCardWidget extends StatelessWidget {
                       ),
                       onTap: () => {
                         if (mapViewModel.selectedBuildingNotifier.value != null)
-                          mapViewModel.unselectBuilding()
+                          mapViewModel.unselectBuilding(),
+                        handleSelection(context, originController)
                       },
                     ),
                     Divider(
@@ -84,7 +144,8 @@ class CompactSearchCardWidget extends StatelessWidget {
                       ),
                       onTap: () => {
                         if (mapViewModel.selectedBuildingNotifier.value != null)
-                          mapViewModel.unselectBuilding()
+                          mapViewModel.unselectBuilding(),
+                        handleSelection(context, destinationController)
                       },
                     ),
                   ],

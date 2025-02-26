@@ -128,8 +128,8 @@ void main() async {
         .thenAnswer((_) async => true);
 
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
+    when(mockMapViewModel.originMarker).thenReturn(mockMarker);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
-    when(mockMapService.getPolylines()).thenReturn(mockPolylines);
 
     mockMapView = OutdoorLocationMapView(
         campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel);
@@ -180,7 +180,7 @@ void main() async {
     await tester.pumpAndSettle();
 
     // Simulate the button press to navigate to the mock map view
-    final directionsButton = find.byIcon(Icons.directions);
+    final directionsButton = find.byIcon(Icons.location_on);
     expect(directionsButton, findsOneWidget);
 
     await tester.tap(directionsButton);
@@ -199,7 +199,7 @@ void main() async {
 
       // finds widgets
       expect(find.byType(DraggableScrollableSheet), findsOneWidget);
-      expect(find.byIcon(Icons.directions),
+      expect(find.byIcon(Icons.location_on),
           findsOneWidget); // finds directions button
       expect(find.byIcon(Icons.map), findsOneWidget); // finds indoor map button
       expect(find.text(BuildingRepository.ad.name), findsOneWidget);

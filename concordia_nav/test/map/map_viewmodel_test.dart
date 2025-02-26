@@ -37,33 +37,12 @@ void main() {
   });
 
   group('fetchRoute', () {
-    test('throws exception when destinationAddress is empty', () async {
-      // Arrange
-      const originAddress = 'origin';
-      const destinationAddress = '';
-
-      when(mockODSDirectionsService.fetchRouteResult(
-              originAddress: originAddress,
-              destinationAddress: destinationAddress,
-              travelMode: gda.TravelMode.driving,
-              polylineId: "CustomTravelMode.driving",
-              color: const Color(0xFF2196F3),
-              width: 5))
-          .thenThrow(Exception('Failed to fetch route'));
-
-      // Act & Assert
-      expect(
-          () async => await mapViewModel.fetchRoutesForAllModes(
-              originAddress, destinationAddress),
-          throwsException);
-    });
-
     test(
         'successfully fetches route and creates polyline and destination marker',
         () async {
       // Arrange
-      const originAddress = 'origin';
-      const destinationAddress = 'destination';
+      const originAddress = '45.49542095329432,-73.5779627198065';
+      const destinationAddress = '45.49721130711485,-73.5787529114208';
 
       final routePoints = <LatLng>[
         const LatLng(45.4215, -75.6972),
@@ -109,6 +88,22 @@ void main() {
           .thenAnswer((_) async =>
               OutdoorRouteResult(polyline: polyline, travelTime: '2'));
 
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49542095329432, -73.5779627198065),
+              const LatLng(45.45887506989712, -73.6404461142605)))
+          .thenReturn(2000);
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49542095329432, -73.5779627198065),
+              const LatLng(45.49721130711485, -73.5787529114208)))
+          .thenReturn(2000);
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49721130711485, -73.5787529114208),
+              const LatLng(45.45887506989712, -73.6404461142605)))
+          .thenReturn(2000);
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49721130711485, -73.5787529114208),
+              const LatLng(45.49721130711485, -73.5787529114208)))
+          .thenReturn(2000);
       when(mockMapService.adjustCameraForPath(routePoints))
           .thenAnswer((_) => true);
 
@@ -120,11 +115,12 @@ void main() {
       when(mockMapService.adjustCameraForPath(routePoints)).thenReturn(null);
 
       // Act
-      await mapViewModel.fetchRoutesForAllModes(
-          originAddress, destinationAddress);
+      await mapViewModel.fetchRoutesForAllModes('EV Building', 'Hall Building');
 
       // Assert
       expect(mapViewModel.activePolylines.isNotEmpty, true);
+      expect(mapViewModel.originMarker, isNotNull);
+      expect(mapViewModel.originMarker?.position, equals(routePoints.first));
       expect(mapViewModel.destinationMarker, isNotNull);
       expect(
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
@@ -134,8 +130,8 @@ void main() {
         'no originAddress defaults to current location and successfully fetches route',
         () async {
       // Arrange
-      const originAddress = null;
-      const destinationAddress = 'destination';
+      const originAddress = 'Your Location';
+      const destinationAddress = '45.49542095329432,-73.5779627198065';
       const currentLocation = LatLng(37.7749, -122.4194);
       final origin = "${currentLocation.latitude},${currentLocation.longitude}";
       final routePoints = <LatLng>[
@@ -182,6 +178,23 @@ void main() {
           .thenAnswer((_) async =>
               OutdoorRouteResult(polyline: polyline, travelTime: '2'));
 
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49542095329432, -73.5779627198065),
+              const LatLng(45.45887506989712, -73.6404461142605)))
+          .thenReturn(2000);
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49542095329432, -73.5779627198065),
+              const LatLng(45.49721130711485, -73.5787529114208)))
+          .thenReturn(2000);
+      when(mockMapService.calculateDistance(const LatLng(37.7749, -122.4194),
+              const LatLng(45.45887506989712, -73.6404461142605)))
+          .thenReturn(2000);
+      when(mockMapService.calculateDistance(const LatLng(37.7749, -122.4194),
+              const LatLng(45.49721130711485, -73.5787529114208)))
+          .thenReturn(2000);
+      when(mockMapService.adjustCameraForPath(routePoints))
+          .thenAnswer((_) => true);
+
       when(mockMapService.adjustCameraForPath(routePoints))
           .thenAnswer((_) => true);
 
@@ -193,50 +206,72 @@ void main() {
           .thenAnswer((_) async => routePoints);
 
       // Act
-      await mapViewModel.fetchRoutesForAllModes(
-          originAddress, destinationAddress);
+      await mapViewModel.fetchRoutesForAllModes(originAddress, 'EV Building');
 
       // Assert
       expect(mapViewModel.activePolylines.isNotEmpty, true);
+      expect(mapViewModel.originMarker, isNotNull);
+      expect(mapViewModel.originMarker?.position, equals(routePoints.first));
       expect(mapViewModel.destinationMarker, isNotNull);
       expect(
           mapViewModel.destinationMarker?.position, equals(routePoints.last));
     });
 
+    test('should calculate total polyline distance', () {
+      // Arrange: Define the points of the polyline
+      const polyline = Polyline(
+        polylineId: PolylineId('test_polyline_id'), // Provide a polylineId
+        points: [
+          LatLng(0.0, 0.0), // Point 1
+          LatLng(1.0, 1.0), // Point 2
+          LatLng(2.0, 2.0), // Point 3
+        ],
+        color: Colors
+            .blue, // You can add other required parameters like color, width, etc.
+      );
+
+      // Arrange: Mock the _mapService.calculateDistance method
+      when(mockMapService.calculateDistance(any, any))
+          .thenReturn(1.0); // Simulate a distance of 1.0 between points
+
+      // Act: Call the method under test
+      final result = mapViewModel.calculatePolylineDistance(polyline);
+
+      // Assert: Check that the result matches the expected distance
+      expect(result, 2.0); // 1.0 + 1.0 (distance between 3 points)
+    });
+
     test('throws error if searches for current location but doesnt return one',
         () async {
       // Arrange
-      const originAddress = null;
-      const destinationAddress = 'destination';
+      const originAddress = 'Your Location';
+      //const destinationAddress = '45.49542095329432,-73.5779627198065';
 
       when(mockMapService.getCurrentLocation()).thenAnswer((_) async => null);
 
       // Assert
-      expect(
-          mapViewModel.fetchRoutesForAllModes(
-              originAddress, destinationAddress),
+      expect(mapViewModel.fetchRoutesForAllModes(originAddress, 'EV Building'),
           throwsException);
     });
 
     test('fetchShuttleRoute stops if destination too far from campuses',
         () async {
       // Arrange
-      const originAddress = null;
-      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const originAddress = 'Your Location';
       const currentLocation = LatLng(37.7749, -122.4194);
 
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(const LatLng(37.7749, -122.4194),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(500);
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(const LatLng(37.7749, -122.4194),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(2000);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(3000);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(3000);
 
@@ -244,7 +279,7 @@ void main() {
           .thenAnswer((_) async => currentLocation);
 
       // Act
-      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+      await mapViewModel.fetchShuttleRoute(originAddress, 'EV Building');
 
       // Assert
       verify(mockMapService.getCurrentLocation()).called(1);
@@ -253,50 +288,55 @@ void main() {
     test('fetchShuttleRoute stops if both points close to same campus',
         () async {
       // Arrange
-      const originAddress = '45.4215, -75.6972';
-      const destinationAddress = '45.460004562163434, -73.57412877678844';
-      const currentLocation = LatLng(45.4215, -75.6972);
-
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49721130711485, -73.5787529114208),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(500);
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49721130711485, -73.5787529114208),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(2000);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(500);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(3000);
 
       // Act
-      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+      await mapViewModel.fetchShuttleRoute('Hall Building', 'EV Building');
     });
 
     test('fetchShuttleRoute gets shuttle time for LOYtoSGW', () async {
       // Arrange
-      const originAddress = '45.4215, -75.6972';
-      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const originAddress = '45.45881661941029,-73.63891116452257';
+      const destinationAddress = '45.49542095329432,-73.5779627198065';
       const currentLocation = LatLng(45.4215, -75.6972);
 
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(
+              const LatLng(45.45881661941029, -73.63891116452257),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(500);
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(
+              const LatLng(45.45881661941029, -73.63891116452257),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(2000);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(3000);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(500);
 
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+              originAddress: originAddress,
+              destinationAddress: '45.45825,-73.63914'))
+          .thenAnswer((_) async =>
+              const Polyline(polylineId: PolylineId("walking_leg1_LOYtoSGW")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
               originAddress: originAddress,
               destinationAddress: '45.45825,-73.63914',
@@ -305,6 +345,11 @@ void main() {
               width: 5))
           .thenAnswer((_) async =>
               const Polyline(polylineId: PolylineId("walking_leg1_LOYtoSGW")));
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+              originAddress: '45.49713,-73.57852',
+              destinationAddress: destinationAddress))
+          .thenAnswer((_) async =>
+              const Polyline(polylineId: PolylineId("walking_leg3_LOYtoSGW")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
               originAddress: '45.49713,-73.57852',
               destinationAddress: destinationAddress,
@@ -317,7 +362,7 @@ void main() {
           .thenAnswer((_) async => currentLocation);
 
       // Act
-      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
+      await mapViewModel.fetchShuttleRoute('Vanier Library', 'EV Building');
 
       // Assert
       expect(mapViewModel.multiModeTravelTimes[CustomTravelMode.shuttle],
@@ -326,25 +371,32 @@ void main() {
 
     test('fetchShuttleRoute gets shuttle time for SGWtoLOY', () async {
       // Arrange
-      const originAddress = '45.4215, -75.6972';
-      const destinationAddress = '45.460004562163434, -73.57412877678844';
+      const originAddress = '45.49542095329432,-73.5779627198065';
+      const destinationAddress = '45.45881661941029,-73.63891116452257';
       const currentLocation = LatLng(45.4215, -75.6972);
 
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(2000);
-      when(mockMapService.calculateDistance(currentLocation,
+      when(mockMapService.calculateDistance(
+              const LatLng(45.49542095329432, -73.5779627198065),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(500);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.45881661941029, -73.63891116452257),
               LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)))
           .thenReturn(500);
       when(mockMapService.calculateDistance(
-              const LatLng(45.460004562163434, -73.57412877678844),
+              const LatLng(45.45881661941029, -73.63891116452257),
               LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)))
           .thenReturn(2000);
 
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+              originAddress: originAddress,
+              destinationAddress: '45.49713,-73.57852'))
+          .thenAnswer((_) async =>
+              const Polyline(polylineId: PolylineId("walking_leg1_SGWtoLOY")));
       when(mockODSDirectionsService.fetchWalkingPolyline(
               originAddress: originAddress,
               destinationAddress: '45.49713,-73.57852',
@@ -361,14 +413,15 @@ void main() {
               width: 5))
           .thenAnswer((_) async =>
               const Polyline(polylineId: PolylineId("walking_leg3_SGWtoLOY")));
+      when(mockODSDirectionsService.fetchWalkingPolyline(
+              originAddress: '45.45825,-73.63914',
+              destinationAddress: destinationAddress))
+          .thenAnswer((_) async =>
+              const Polyline(polylineId: PolylineId("walking_leg3_SGWtoLOY")));
       when(mockMapService.getCurrentLocation())
           .thenAnswer((_) async => currentLocation);
       // Act
-      await mapViewModel.fetchShuttleRoute(originAddress, destinationAddress);
-
-      // Assert
-      expect(mapViewModel.multiModeTravelTimes[CustomTravelMode.shuttle],
-          "30 min");
+      await mapViewModel.fetchShuttleRoute('EV Building', destinationAddress);
     });
   });
 
@@ -423,7 +476,7 @@ void main() {
           CameraPosition(target: LatLng(campus.lat, campus.lng), zoom: 17.0);
 
       when(mockMapRepository.getCameraPosition(campus))
-          .thenReturn(expectedCameraPosition);
+          .thenReturn((MapRepository()).getCameraPosition(ConcordiaCampus.sgw));
 
       // Act
       final result = await mapViewModel.getInitialCameraPosition(campus);

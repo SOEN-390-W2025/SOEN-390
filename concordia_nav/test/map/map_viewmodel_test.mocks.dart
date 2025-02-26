@@ -210,14 +210,6 @@ class MockMapService extends _i1.Mock implements _i4.MapService {
             returnValue: _i9.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
           )
           as _i9.Future<List<_i2.LatLng>>);
-
-  @override
-  Set<_i2.Polyline> getPolylines() =>
-      (super.noSuchMethod(
-            Invocation.method(#getPolylines, []),
-            returnValue: <_i2.Polyline>{},
-          )
-          as Set<_i2.Polyline>);
 }
 
 /// A class which mocks [MapViewModel].
@@ -227,6 +219,21 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
   MockMapViewModel() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  List<_i11.ConcordiaBuilding> get filteredBuildings =>
+      (super.noSuchMethod(
+            Invocation.getter(#filteredBuildings),
+            returnValue: <_i11.ConcordiaBuilding>[],
+          )
+          as List<_i11.ConcordiaBuilding>);
+
+  @override
+  set filteredBuildings(List<_i11.ConcordiaBuilding>? _filteredBuildings) =>
+      super.noSuchMethod(
+        Invocation.setter(#filteredBuildings, _filteredBuildings),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i3.ValueNotifier<_i11.ConcordiaBuilding?> get selectedBuildingNotifier =>
@@ -406,6 +413,14 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
           as _i9.Future<void>);
 
   @override
+  double calculatePolylineDistance(_i2.Polyline? polyline) =>
+      (super.noSuchMethod(
+            Invocation.method(#calculatePolylineDistance, [polyline]),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
   _i9.Future<void> setActiveModeForRoute(_i10.CustomTravelMode? mode) =>
       (super.noSuchMethod(
             Invocation.method(#setActiveModeForRoute, [mode]),
@@ -562,6 +577,21 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
   );
 
   @override
+  _i9.Future<void> handleSelection(
+    String? selectedBuilding,
+    _i2.LatLng? currentLocation,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#handleSelection, [
+              selectedBuilding,
+              currentLocation,
+            ]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
   void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
@@ -675,13 +705,10 @@ class MockODSDirectionsService extends _i1.Mock
   @override
   _i9.Future<List<_i2.LatLng>> fetchRouteFromCoords(
     _i2.LatLng? origin,
-    String? destinationAddress,
+    _i2.LatLng? destination,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchRouteFromCoords, [
-              origin,
-              destinationAddress,
-            ]),
+            Invocation.method(#fetchRouteFromCoords, [origin, destination]),
             returnValue: _i9.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
           )
           as _i9.Future<List<_i2.LatLng>>);

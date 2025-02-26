@@ -5,6 +5,7 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/search_bar.dart';
 import '../../widgets/poi_box.dart';
 
+
 /// View that allows users to search and select nearby facilities (POIs).
 /// Uses `POIViewModel` to fetch and filter data dynamically.
 class POIChoiceView extends StatelessWidget {
@@ -39,6 +40,7 @@ class POIChoiceView extends StatelessWidget {
                     hintText: 'Search location...',
                     icon: Icons.search,
                     iconColor: Colors.black,
+                    searchList: const [],
                   ),
                 ),
                 const SizedBox(height: 10),

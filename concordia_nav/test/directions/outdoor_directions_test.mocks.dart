@@ -154,13 +154,10 @@ class MockODSDirectionsService extends _i1.Mock
   @override
   _i4.Future<List<_i6.LatLng>> fetchRouteFromCoords(
     _i6.LatLng? origin,
-    String? destinationAddress,
+    _i6.LatLng? destination,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchRouteFromCoords, [
-              origin,
-              destinationAddress,
-            ]),
+            Invocation.method(#fetchRouteFromCoords, [origin, destination]),
             returnValue: _i4.Future<List<_i6.LatLng>>.value(<_i6.LatLng>[]),
           )
           as _i4.Future<List<_i6.LatLng>>);

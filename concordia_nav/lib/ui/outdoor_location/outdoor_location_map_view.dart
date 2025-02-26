@@ -1,12 +1,13 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import '../../utils/building_viewmodel.dart';
+import '../../widgets/building_info_drawer.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
@@ -26,13 +27,50 @@ class OutdoorLocationMapView extends StatefulWidget {
 class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     with WidgetsBindingObserver {
   late MapViewModel _mapViewModel;
+  final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
-  late Future<CameraPosition> _initialCameraPosition;
+  late Future<CameraPosition>? _initialCameraPosition;
   bool _locationPermissionGranted = false;
-  late TextEditingController _sourceController = TextEditingController();
-  late TextEditingController _destinationController = TextEditingController();
+  late TextEditingController _sourceController;
+  late TextEditingController _destinationController;
+
+  List<String> searchList = [];
   bool isKeyboardVisible = false;
   double? bottomInset = 0;
+  bool first = false;
+
+  void getSearchList() {
+    final buildings = _buildingViewModel.getBuildings();
+    for (var building in buildings) {
+      if (!searchList.contains(building)) {
+        searchList.add(building);
+      }
+    }
+  }
+
+  final _yourLocationString = "Your Location";
+
+  void checkLocationPermission() {
+    _mapViewModel.checkLocationAccess().then((hasPermission) {
+      setState(() {
+        _sourceController.text = _yourLocationString;
+        _locationPermissionGranted = hasPermission;
+        if (_locationPermissionGranted &&
+            !searchList.contains(_yourLocationString)) {
+          searchList.insert(0, _yourLocationString);
+        }
+      });
+    });
+  }
+
+  Future<void> _updatePath() async {
+    if (_destinationController.text != '') {
+      await _mapViewModel.fetchRoutesForAllModes(
+          'Your Location', _destinationController.text);
+      setState(() {});
+    }
+    first = false;
+  }
 
   @override
   void initState() {
@@ -40,20 +78,22 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _sourceController = TextEditingController();
     _destinationController =
-        TextEditingController(text: widget.building?.streetAddress ?? '');
+        TextEditingController(text: widget.building?.name ?? '');
     _currentCampus = widget.campus;
+
     _initialCameraPosition =
         _mapViewModel.getInitialCameraPosition(_currentCampus);
 
-    _mapViewModel.mapService
-        .checkAndRequestLocationPermission()
-        .then((hasPermission) {
-      setState(() {
-        _locationPermissionGranted = hasPermission;
-      });
-    });
+    // Check for location permission
+    checkLocationPermission();
+
+    // Populate search list with buildings
+    getSearchList();
 
     WidgetsBinding.instance.addObserver(this);
+    if (_destinationController.text != '') {
+      first = true;
+    }
   }
 
   @override
@@ -64,23 +104,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     super.dispose();
   }
 
-  @override
-  void didChangeMetrics() {
-    bottomInset = View.of(context).viewInsets.bottom;
-    final newKeyboardVisible = bottomInset! > 1;
-    if (newKeyboardVisible != isKeyboardVisible) {
-      setState(() {
-        isKeyboardVisible = newKeyboardVisible;
-      });
-    }
-  }
-
-  void updateBuilding(ConcordiaBuilding newBuilding) {
-    setState(() {
-      _destinationController.text = newBuilding.streetAddress!;
-    });
-  }
-
   Future<void> _launchGoogleMapsNavigation(LatLng destination) async {
     final url =
         'google.navigation:q=${destination.latitude},${destination.longitude}';
@@ -88,24 +111,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       await launch(url);
     } else {
       throw Exception('Could not launch $url');
-    }
-  }
-
-  Future<void> _getDirections() async {
-    try {
-      await SystemChannels.textInput.invokeMethod('TextInput.hide');
-      final origin =
-          _sourceController.text.isEmpty ? null : _sourceController.text;
-      await _mapViewModel.fetchRoutesForAllModes(
-          origin, _destinationController.text);
-
-      // Optionally, pick a default mode.
-      _mapViewModel.setActiveMode(CustomTravelMode.driving);
-      setState(() {});
-    } on Error catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to load directions: $e")),
-      );
     }
   }
 
@@ -175,6 +180,11 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               originController: _sourceController,
               destinationController: _destinationController,
               mapViewModel: _mapViewModel,
+              searchList: searchList,
+              onDirectionFetched: () {
+                first = false;
+                setState(() {}); // Refresh the page
+              },
             ),
             if (showModeChips)
               Container(
@@ -222,18 +232,18 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       right: 15,
       child: Row(
         children: [
-          // "Get Directions" button
-          Expanded(
-            child: ElevatedButton(
-              onPressed: _getDirections,
-              child: const Text(
-                'Get Directions',
-                style: TextStyle(
-                  color: Color.fromRGBO(146, 35, 56, 1),
+          if (_destinationController.text != 'null')
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _updatePath,
+                child: const Text(
+                  'Get Directions',
+                  style: TextStyle(
+                    color: Color.fromRGBO(146, 35, 56, 1),
+                  ),
                 ),
               ),
             ),
-          ),
           if (_mapViewModel.destinationMarker != null)
             const SizedBox(width: 16),
           if (_mapViewModel.destinationMarker != null)
@@ -273,12 +283,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             future: _initialCameraPosition,
             builder: (context, camSnapshot) {
               _getCamSnapshot(camSnapshot);
-              /*if (camSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (camSnapshot.hasError) {
-                return const Center(child: Text('Error loading campus map'));
-              }*/
               return FutureBuilder<Map<String, dynamic>>(
                 future: _mapViewModel.getAllCampusPolygonsAndLabels(),
                 builder: (context, polySnapshot) {
@@ -298,6 +302,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                         ..._mapViewModel.staticBusStopMarkers,
                         ...shuttleMarkers,
                       };
+                      if (_mapViewModel.originMarker != null) {
+                        allMarkers.add(_mapViewModel.originMarker!);
+                      }
                       if (_mapViewModel.destinationMarker != null) {
                         allMarkers.add(_mapViewModel.destinationMarker!);
                       }
@@ -330,7 +337,30 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             },
           ),
           _buildTopPanel(),
-          if (isKeyboardVisible) _visibleKeyboardWidget(),
+          if (first) _visibleKeyboardWidget(),
+          // Building info drawer appears when a building is selected
+          ValueListenableBuilder<ConcordiaBuilding?>(
+            valueListenable: _mapViewModel.selectedBuildingNotifier,
+            builder: (context, selectedBuilding, child) {
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                            begin: const Offset(0, 1), end: Offset.zero)
+                        .animate(animation),
+                    child: child,
+                  );
+                },
+                child: selectedBuilding != null
+                    ? BuildingInfoDrawer(
+                        building: selectedBuilding,
+                        onClose: _mapViewModel.unselectBuilding,
+                      )
+                    : const SizedBox.shrink(),
+              );
+            },
+          ),
         ],
       ),
     );

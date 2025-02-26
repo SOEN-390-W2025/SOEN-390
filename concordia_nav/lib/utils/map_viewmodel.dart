@@ -15,6 +15,7 @@ import '../data/repositories/outdoor_directions_repository.dart';
 import '../data/services/building_service.dart';
 import '../data/services/map_service.dart';
 import '../data/services/helpers/icon_loader.dart';
+import 'building_viewmodel.dart';
 import 'package:geocoding/geocoding.dart';
 import '../data/services/outdoor_directions_service.dart'; // New import
 
@@ -55,6 +56,8 @@ class MapViewModel extends ChangeNotifier {
   final ODSDirectionsService _odsDirectionsService;
   final ShuttleRouteRepository _shuttleRepository;
 
+  List<ConcordiaBuilding> filteredBuildings = [];
+
   // ignore: unused_field
   GoogleMapController? _mapController;
   ValueNotifier<ConcordiaBuilding?> selectedBuildingNotifier =
@@ -70,6 +73,9 @@ class MapViewModel extends ChangeNotifier {
   // Shuttle availability flag.
   bool _shuttleAvailable = true;
   bool get shuttleAvailable => _shuttleAvailable;
+
+  Marker? _originMarker;
+  Marker? get originMarker => _originMarker;
 
   Marker? _destinationMarker;
   Marker? get destinationMarker => _destinationMarker;
@@ -117,18 +123,20 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<String> _getOriginAddress(String? originAddress) async {
-    if (originAddress == null) {
+    if (originAddress == null || originAddress == 'Your Location') {
       final currentLocation = await _mapService.getCurrentLocation();
       if (currentLocation == null) {
         throw Exception("Current location is not available.");
       }
       return "${currentLocation.latitude},${currentLocation.longitude}";
     } else {
-      return originAddress;
+      final buildingAddress =
+          BuildingViewModel().getBuildingLocationByName(originAddress);
+      return "${buildingAddress?.latitude},${buildingAddress?.longitude}";
     }
   }
 
-  Future<void> _scheduleIfRoute(String? origin, String destination) async {
+  Future<void> _scheduleIfRoute(String origin, String destination) async {
     // Only if at least one Google Maps route is available, check the shuttle schedule.
     if (_multiModeRoutes.isNotEmpty) {
       final ShuttleRouteRepository shuttleRepo = ShuttleRouteRepository();
@@ -146,7 +154,7 @@ class MapViewModel extends ChangeNotifier {
   ///
   /// Throws an exception if the current location is unavailable.
   Future<void> fetchRoutesForAllModes(
-      String? originAddress, String destinationAddress) async {
+      String originAddress, String destinationAddress) async {
     _multiModeRoutes.clear();
     _multiModeTravelTimes.clear();
     _multiModeActivePolylines.clear();
@@ -164,9 +172,13 @@ class MapViewModel extends ChangeNotifier {
       final gda.TravelMode? gdaMode = toGdaTravelMode(mode);
       if (gdaMode != null) {
         String originStr = await _getOriginAddress(originAddress);
+        final destinationBuilding =
+            BuildingViewModel().getBuildingLocationByName(destinationAddress);
+        String destinationStr =
+            "${destinationBuilding?.latitude},${destinationBuilding?.longitude}";
         final result = await _odsDirectionsService.fetchRouteResult(
           originAddress: originStr,
-          destinationAddress: destinationAddress,
+          destinationAddress: destinationStr,
           travelMode: gdaMode,
           polylineId: mode.toString(),
         );
@@ -187,6 +199,14 @@ class MapViewModel extends ChangeNotifier {
       };
       final activePolyline = _multiModeRoutes[_selectedTravelModeForRoute]!;
       if (activePolyline.points.isNotEmpty) {
+        _originMarker = Marker(
+          markerId: const MarkerId('origin'),
+          position: activePolyline.points.first,
+          infoWindow: const InfoWindow(title: 'Origin'),
+          icon:
+              await IconLoader.loadBitmapDescriptor('assets/icons/origin.png'),
+          anchor: const Offset(0.5, 0.5),
+        );
         _destinationMarker = Marker(
           markerId: const MarkerId('destination'),
           position: activePolyline.points.last,
@@ -200,21 +220,6 @@ class MapViewModel extends ChangeNotifier {
     }
 
     notifyListeners();
-  }
-
-  /// Helper method to parse a "lat,lng" string into a LatLng object.
-  LatLng? _parseCoordinates(String input) {
-    if (input.contains(',')) {
-      try {
-        var parts = input.split(',');
-        double lat = double.parse(parts[0].trim());
-        double lng = double.parse(parts[1].trim());
-        return LatLng(lat, lng);
-      } on Error {
-        return null;
-      }
-    }
-    return null;
   }
 
   /// Helper method to retrieve LatLng coordinates from a given address using
@@ -234,47 +239,21 @@ class MapViewModel extends ChangeNotifier {
 
   // get origin coordinates for shuttle route
   Future<LatLng?> _getOriginCoords(
-      String? originAddress, LatLng loyolaStop, LatLng sgwStop) async {
-    LatLng? originCoords;
-    if (originAddress == null || originAddress.trim().isEmpty) {
+      String originAddress, LatLng loyolaStop, LatLng sgwStop) async {
+    if (originAddress == 'Your Location') {
       // If no origin is provided, assume the current location was used.
       return await _mapService.getCurrentLocation();
     } else {
-      originCoords = _parseCoordinates(originAddress);
-      // If parsing fails, try geocoding the address.
-      if (originCoords == null) {
-        originCoords = await geocodeAddress(originAddress);
-        // If geocoding still fails, fallback to keyword-based logic:
-        if (originCoords == null) {
-          String lower = originAddress.toLowerCase();
-          if (lower.contains("loyola") || lower.contains("loy")) {
-            originCoords = loyolaStop;
-          } else if (lower.contains("sgw") || lower.contains("sherbrooke")) {
-            originCoords = sgwStop;
-          }
-        }
-      }
-      return originCoords;
+      return BuildingViewModel().getBuildingLocationByName(originAddress);
     }
   }
 
   Future<LatLng?> _getDestinationCoords(
       String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
-    var destinationCoords = _parseCoordinates(destinationAddress);
-    // If that fails, try using geocoding.
-    if (destinationCoords == null) {
-      destinationCoords = await geocodeAddress(destinationAddress);
-      // If geocoding still fails, fallback to keyword-based logic:
-      if (destinationCoords == null) {
-        String lower = destinationAddress.toLowerCase();
-        if (lower.contains("sherbrooke") || lower.contains("sgw")) {
-          destinationCoords = sgwStop;
-        } else if (lower.contains("loyola") || lower.contains("loy")) {
-          destinationCoords = loyolaStop;
-        }
-      }
+    if (destinationAddress == 'Your Location') {
+      return await _mapService.getCurrentLocation();
     }
-    return destinationCoords;
+    return BuildingViewModel().getBuildingLocationByName(destinationAddress);
   }
 
   bool _isValidShuttleRoute(bool originNearLOY, bool originNearSGW,
@@ -327,7 +306,7 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchShuttleRoute(
-      String? originAddress, String destinationAddress) async {
+      String originAddress, String destinationAddress) async {
     // Campus shuttle stops.
     const LatLng loyolaStop = LatLng(45.45825, -73.63914);
     const LatLng sgwStop = LatLng(45.49713, -73.57852);
@@ -390,16 +369,19 @@ class MapViewModel extends ChangeNotifier {
         "${boardingStop.latitude},${boardingStop.longitude}";
     final String disembarkStr =
         "${disembarkStop.latitude},${disembarkStop.longitude}";
+    final String originStr =
+        "${originCoords.latitude},${originCoords.longitude}";
+    final String destStr =
+        "${destinationCoords.latitude},${destinationCoords.longitude}";
 
     final Polyline? leg1 = await _odsDirectionsService.fetchWalkingPolyline(
-      originAddress:
-          originAddress ?? "${originCoords.latitude},${originCoords.longitude}",
+      originAddress: originStr,
       destinationAddress: boardingStr,
       polylineId: "walking_leg1_$polylineIdSuffix",
     );
     final Polyline? leg3 = await _odsDirectionsService.fetchWalkingPolyline(
       originAddress: disembarkStr,
-      destinationAddress: destinationAddress,
+      destinationAddress: destStr,
       polylineId: "walking_leg3_$polylineIdSuffix",
     );
 
@@ -429,12 +411,12 @@ class MapViewModel extends ChangeNotifier {
     int walkingTimeToShuttle = 0;
     if (leg1 != null && leg1.points.isNotEmpty) {
       walkingTimeToShuttle =
-          (_calculatePolylineDistance(leg1) / 1.4 / 60).round();
+          (calculatePolylineDistance(leg1) / 1.4 / 60).round();
     }
     int walkingTimeFromShuttle = 0;
     if (leg3 != null && leg3.points.isNotEmpty) {
       walkingTimeFromShuttle =
-          (_calculatePolylineDistance(leg3) / 1.4 / 60).round();
+          (calculatePolylineDistance(leg3) / 1.4 / 60).round();
     }
     int shuttleRideTime = 30; // Fixed shuttle ride time provided by Concordia.
     int totalShuttleTime =
@@ -443,6 +425,13 @@ class MapViewModel extends ChangeNotifier {
 
     if (_selectedTravelModeForRoute == CustomTravelMode.shuttle) {
       _multiModeActivePolylines = {shuttleComposite};
+      _originMarker = Marker(
+        markerId: const MarkerId('origin'),
+        position:
+            compositePoints.isNotEmpty ? compositePoints.first : boardingStop,
+        infoWindow: const InfoWindow(title: 'origin'),
+        anchor: const Offset(0.5, 0.5),
+      );
       _destinationMarker = Marker(
         markerId: const MarkerId('destination'),
         position:
@@ -453,7 +442,7 @@ class MapViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  double _calculatePolylineDistance(Polyline polyline) {
+  double calculatePolylineDistance(Polyline polyline) {
     double totalDistance = 0.0;
     for (int i = 0; i < polyline.points.length - 1; i++) {
       totalDistance += _mapService.calculateDistance(
@@ -468,12 +457,22 @@ class MapViewModel extends ChangeNotifier {
       _multiModeActivePolylines = {_multiModeRoutes[mode]!};
       final polyline = _multiModeRoutes[mode]!;
       if (polyline.points.isNotEmpty) {
+        _originMarker = Marker(
+          markerId: const MarkerId('origin'),
+          position: polyline.points.first,
+          infoWindow: const InfoWindow(title: 'Your Origin'),
+          icon:
+              await IconLoader.loadBitmapDescriptor('assets/icons/origin.png'),
+          anchor: const Offset(0.5, 0.5),
+          zIndex: 2,
+        );
         _destinationMarker = Marker(
           markerId: const MarkerId('destination'),
           position: polyline.points.last,
           infoWindow: const InfoWindow(title: 'Your Destination'),
           icon: await IconLoader.loadBitmapDescriptor(
               'assets/icons/destination.png'),
+          zIndex: 2,
         );
         Future.delayed(
             const Duration(seconds: 1), () => adjustCamera(polyline.points));
@@ -535,6 +534,7 @@ class MapViewModel extends ChangeNotifier {
                 _buildingService.getBuildingByAbbreviation(entry.key);
             selectBuilding(building!);
           },
+          zIndex: 1,
         ),
       );
     }
@@ -746,5 +746,24 @@ class MapViewModel extends ChangeNotifier {
     _shuttleBusTimer?.cancel();
     shuttleMarkersNotifier.dispose();
     super.dispose();
+  }
+
+  /// Handles the search selection of a building.
+  Future<void> handleSelection(
+      String selectedBuilding, LatLng? currentLocation) async {
+    final buildingViewModel = BuildingViewModel();
+
+    // If the selected building is "Your Location", wait for fetchCurrentLocation to complete
+    LatLng? location;
+
+    if (selectedBuilding == 'Your Location') {
+      location = currentLocation;
+    } else {
+      location = buildingViewModel.getBuildingLocationByName(selectedBuilding);
+    }
+
+    if (location == null) return;
+
+    moveToLocation(location);
   }
 }

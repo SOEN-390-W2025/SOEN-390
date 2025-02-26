@@ -1,0 +1,14 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4885
+    longitude: -73.8003
+- launchApp:
+    clearState: true
+- assertVisible: "Concordia Campus Guide"
+- setLocation:
+    latitude: 45.4973
+    longitude: -73.5788
+- tapOn: "SGW map"
+- tapOn:
+    point: "90%,25%"

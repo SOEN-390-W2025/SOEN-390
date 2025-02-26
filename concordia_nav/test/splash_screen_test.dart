@@ -35,11 +35,11 @@ Future<void> main() async {
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
     when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
-    when(mockMapViewModel.loadStaticBusStopMarkers()).thenAnswer((_) async => true);
+    when(mockMapViewModel.loadStaticBusStopMarkers())
+        .thenAnswer((_) async => true);
   });
 
   group('navigateBasedOnLocation', () {
-
     testWidgets('should navigate to home when location access is denied',
         (WidgetTester tester) async {
       // Arrange
