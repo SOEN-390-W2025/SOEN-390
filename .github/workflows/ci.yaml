@@ -122,7 +122,7 @@ jobs:
         if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
           echo "integration-test-script=bash -c \"set -o pipefail && rps install --release && rps test record 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
         else
-          echo "integration-test-script=bash -c \"set -o pipefail && rps install --debug && rps test record 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
+          echo "integration-test-script=bash -c \"set -o pipefail && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
         fi
 
     - name: Run Integration Tests
@@ -138,13 +138,13 @@ jobs:
         working-directory: concordia_nav
         script: ${{ env.integration-test-script }}
 
-    - name: Upload Test Recording Artifacts
-      uses: actions/upload-artifact@v4
-      # if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      with:
-        name: integration-test-recordings
-        path: concordia_nav/maestro/recordings/*.mp4
-        retention-days: 90
+    # - name: Upload Test Recording Artifacts
+    #   uses: actions/upload-artifact@v4
+    #   if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    #   with:
+    #     name: integration-test-recordings
+    #     path: concordia_nav/maestro/recordings/*.mp4
+    #     retention-days: 90
 
   coverage:
     name: 📊 Coverage
