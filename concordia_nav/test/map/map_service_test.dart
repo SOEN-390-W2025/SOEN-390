@@ -11,6 +11,15 @@ import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import '../directions/outdoor_directions_test.mocks.dart';
 import 'map_service_test.mocks.dart';
 
+class FakeMapService extends MapService {
+  LatLng? fakeLocation;
+
+  @override
+  Future<LatLng?> getCurrentLocation() async {
+    return null;
+  }
+}
+
 // Generate mocks for GoogleMapController
 @GenerateMocks([GoogleMapController, MapService, GeolocatorPlatform])
 Future<void> main() async {
@@ -126,16 +135,18 @@ Future<void> main() async {
       )).called(1);
     });
 
-    test('adjustCameraForPath should call animateCamera on the map controller', () {
+    test('adjustCameraForPath should call animateCamera on the map controller',
+        () {
       // Arrange
-      const point1 = LatLng(37.7749, -122.4194);
-      const point2 = LatLng(45.49721130711485, -73.5787529114208);
-      const points = [point1, point2];
+      final routePoints = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
 
       realMapService.setMapController(mockGoogleMapController);
 
       // Act
-      realMapService.adjustCameraForPath(points);
+      realMapService.adjustCameraForPath(routePoints);
 
       // Assert
       verify(mockGoogleMapController.animateCamera(
@@ -144,8 +155,12 @@ Future<void> main() async {
             (update) => update.toString(),
             'CameraUpdate',
             CameraUpdate.newLatLngBounds(
-              LatLngBounds(southwest: point1, northeast: point2), 70
-            ).toString(),
+                    LatLngBounds(
+                      southwest: const LatLng(45.4215, -75.6972),
+                      northeast: const LatLng(45.4216, -75.6969),
+                    ),
+                    70)
+                .toString(),
           ),
         ),
       )).called(1);
@@ -193,55 +208,6 @@ Future<void> main() async {
           ),
         ),
       )).called(1);
-    });
-  });
-
-  group('getRoutePath', () {
-    test('returns a valid list of LatLng when route is found', () async {
-      // Arrange
-      const originAddress =
-          '1455 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M8';
-      const destinationAddress =
-          '7141 Sherbrooke St W, Montreal, Quebec H4B 1R6';
-      final expectedRoute = <LatLng>[
-        const LatLng(45.4215, -75.6972),
-        const LatLng(45.4216, -75.6969),
-      ];
-
-      // Stub the fetchRouteFromCoords method to return the expectedRoute
-      when(mockODSdirectionsService.fetchRouteFromCoords(any, any))
-          .thenAnswer((_) async => expectedRoute);
-
-      // Mock fetchRoute method to return the expected route points
-      when(mockODSdirectionsService.fetchRoute(
-              originAddress, destinationAddress))
-          .thenAnswer((_) async => expectedRoute);
-
-      // Act
-      final routePoints =
-          await realMapService.getRoutePath(originAddress, destinationAddress);
-
-      // Assert
-      expect(routePoints, isA<List<LatLng>>());
-    });
-
-    test('throws exception when route fetching fails', () async {
-      // Arrange
-      const originAddress =
-          '1455 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M8';
-      const destinationAddress =
-          '7141 Sherbrooke St W, Montreal, Quebec H4B 1R6';
-
-      // Mock the method to throw an exception
-      when(mockMapService.getRoutePath(originAddress, destinationAddress))
-          .thenThrow(Exception('Failed to fetch route'));
-
-      // Act & Assert
-      expect(
-        () async => await mockMapService.getRoutePath(
-            originAddress, destinationAddress),
-        throwsException,
-      );
     });
   });
 
@@ -319,6 +285,80 @@ Future<void> main() async {
       expect(result, false);
     });
 
+    test('getRoutePath should throw an exception when origin is invalid',
+        () async {
+      permission = 0;
+      request = 0;
+      service = true;
+
+      // Act & Assert
+      expect(
+        () => FakeMapService().getRoutePath('', 'Hall Building'),
+        throwsA(isA<Exception>().having(
+            (e) => e.toString(), 'message', contains('Invalid origin'))),
+      );
+    });
+
+    test(
+        'getRoutePath succeeds when origin is invalid but location services is on',
+        () async {
+      permission = 3;
+      request = 3;
+      service = true;
+
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      when(mockODSdirectionsService.fetchRouteFromCoords(
+              const LatLng(45.4952628500172, -73.5788992164221),
+              const LatLng(45.49721130711485, -73.5787529114208)))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Act
+      final result = await realMapService.getRoutePath('', 'Hall Building');
+
+      // Assert
+      expect(result, isA<List<LatLng>>());
+      expect(result, isNotEmpty);
+    });
+
+    test(
+        'getRoutePath succeeds when destination is invalid but location services is on',
+        () async {
+      permission = 3;
+      request = 3;
+      service = true;
+
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      when(mockODSdirectionsService.fetchRouteFromCoords(
+              const LatLng(45.49721130711485, -73.5787529114208),
+              const LatLng(45.4952628500172, -73.5788992164221)))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Act
+      final result = await realMapService.getRoutePath('Hall Building', '');
+
+      // Assert
+      expect(result, isA<List<LatLng>>());
+      expect(result, isNotEmpty);
+    });
+
+    test('getRoutePath should throw an exception when destination is invalid',
+        () async {
+      // Act & Assert
+      expect(
+        () => FakeMapService().getRoutePath('Hall Building', ''),
+        throwsA(isA<Exception>().having(
+            (e) => e.toString(), 'message', contains('Invalid destination'))),
+      );
+    });
+
     test('getCurrentLocation provides location', () async {
       permission = 3;
       service = true;
@@ -343,6 +383,52 @@ Future<void> main() async {
       // should return an error
       expect(realMapService.getCurrentLocation(),
           throwsA('Location permissions are denied.'));
+    });
+
+    test('returns a valid list of LatLng when route is found', () async {
+      permission = 3;
+      // Arrange
+      const originAddress = 'Hall Building';
+      const destinationAddress = 'EV Building';
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      // Stub the fetchRouteFromCoords method to return the expectedRoute
+      when(mockODSdirectionsService.fetchRouteFromCoords(
+              const LatLng(45.49721130711485, -73.5787529114208),
+              const LatLng(45.49542095329432, -73.5779627198065)))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Mock fetchRoute method to return the expected route points
+      when(mockODSdirectionsService.fetchRoute(
+              originAddress, destinationAddress))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Act
+      final routePoints =
+          await realMapService.getRoutePath(originAddress, destinationAddress);
+
+      // Assert
+      expect(routePoints, isA<List<LatLng>>());
+    });
+
+    test('throws exception when route fetching fails', () async {
+      // Arrange
+      const originAddress = 'Hall Building';
+      const destinationAddress = 'EV Building';
+
+      // Mock the method to throw an exception
+      when(mockMapService.getRoutePath(originAddress, destinationAddress))
+          .thenThrow(Exception('Failed to fetch route'));
+
+      // Act & Assert
+      expect(
+        () async => await mockMapService.getRoutePath(
+            originAddress, destinationAddress),
+        throwsException,
+      );
     });
   });
 }

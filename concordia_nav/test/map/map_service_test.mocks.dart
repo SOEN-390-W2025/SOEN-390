@@ -249,6 +249,12 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
       );
 
   @override
+  void adjustCameraForPath(List<_i2.LatLng>? points) => super.noSuchMethod(
+    Invocation.method(#adjustCameraForPath, [points]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i5.Future<_i2.BitmapDescriptor> getCustomIcon(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#getCustomIcon, [name]),
@@ -324,14 +330,6 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
             returnValue: _i5.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
           )
           as _i5.Future<List<_i2.LatLng>>);
-
-  @override
-  Set<_i2.Polyline> getPolylines() =>
-      (super.noSuchMethod(
-            Invocation.method(#getPolylines, []),
-            returnValue: <_i2.Polyline>{},
-          )
-          as Set<_i2.Polyline>);
 }
 
 /// A class which mocks [GeolocatorPlatform].
