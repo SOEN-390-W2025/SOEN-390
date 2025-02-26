@@ -293,17 +293,67 @@ Future<void> main() async {
 
       // Act & Assert
       expect(
-        () => (FakeMapService()).getRoutePath('', 'Hall Building'),
+        () => FakeMapService().getRoutePath('', 'Hall Building'),
         throwsA(isA<Exception>().having(
             (e) => e.toString(), 'message', contains('Invalid origin'))),
       );
+    });
+
+    test(
+        'getRoutePath succeeds when origin is invalid but location services is on',
+        () async {
+      permission = 3;
+      request = 3;
+      service = true;
+
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      when(mockODSdirectionsService.fetchRouteFromCoords(
+              const LatLng(45.4952628500172, -73.5788992164221),
+              const LatLng(45.49721130711485, -73.5787529114208)))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Act
+      final result = await realMapService.getRoutePath('', 'Hall Building');
+
+      // Assert
+      expect(result, isA<List<LatLng>>());
+      expect(result, isNotEmpty);
+    });
+
+    test(
+        'getRoutePath succeeds when destination is invalid but location services is on',
+        () async {
+      permission = 3;
+      request = 3;
+      service = true;
+
+      final expectedRoute = <LatLng>[
+        const LatLng(45.4215, -75.6972),
+        const LatLng(45.4216, -75.6969),
+      ];
+
+      when(mockODSdirectionsService.fetchRouteFromCoords(
+              const LatLng(45.49721130711485, -73.5787529114208),
+              const LatLng(45.4952628500172, -73.5788992164221)))
+          .thenAnswer((_) async => expectedRoute);
+
+      // Act
+      final result = await realMapService.getRoutePath('Hall Building', '');
+
+      // Assert
+      expect(result, isA<List<LatLng>>());
+      expect(result, isNotEmpty);
     });
 
     test('getRoutePath should throw an exception when destination is invalid',
         () async {
       // Act & Assert
       expect(
-        () => (FakeMapService()).getRoutePath('Hall Building', ''),
+        () => FakeMapService().getRoutePath('Hall Building', ''),
         throwsA(isA<Exception>().having(
             (e) => e.toString(), 'message', contains('Invalid destination'))),
       );
