@@ -1,0 +1,24 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4895
+    longitude: -73.7797
+- launchApp:
+    clearState: true
+    permissions:
+      android.permission.ACCESS_FINE_LOCATION: allow
+      android.permission.ACCESS_COARSE_LOCATION: allow
+      android.permission.ACCESS_BACKGROUND_LOCATION: allow
+- assertVisible: "Concordia Campus Guide"
+- tapOn: "SGW map"
+- assertVisible: "Search..."
+- tapOn: "Search..."
+- assertVisible: "Hall Building"
+- tapOn: "Hall Building"
+- assertVisible: "Select"
+- tapOn: "Select"
+- assertVisible: "Google Map"
+- assertVisible: "Your Location"
+- tapOn: "Your Location"
+- assertVisible: "Vanier Library"
+- tapOn: "Vanier Library"
