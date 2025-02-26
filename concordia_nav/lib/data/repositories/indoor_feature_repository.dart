@@ -8,23 +8,23 @@ import 'building_repository.dart';
 
 class IndoorFeatureRepository {
   // I wouldn't refactor this to come from an assets file, since we sometimes
-  // need to refer to the actual floor objects and we don't neccesarily
+  // need to refer to the actual floor objects and we don't necessarily
   // want those references to change. But it could be done.
   static final Map<String, List<ConcordiaFloor>> floorsByBuilding = {
     (BuildingRepository.h.abbreviation): [
-      ConcordiaFloor("00", BuildingRepository.h),
-      ConcordiaFloor("0", BuildingRepository.h),
-      ConcordiaFloor("1", BuildingRepository.h),
-      ConcordiaFloor("2", BuildingRepository.h),
-      ConcordiaFloor("4", BuildingRepository.h),
-      ConcordiaFloor("5", BuildingRepository.h),
-      ConcordiaFloor("6", BuildingRepository.h),
-      ConcordiaFloor("7", BuildingRepository.h),
-      ConcordiaFloor("8", BuildingRepository.h),
-      ConcordiaFloor("9", BuildingRepository.h),
-      ConcordiaFloor("10", BuildingRepository.h),
-      ConcordiaFloor("11", BuildingRepository.h),
-      ConcordiaFloor("12", BuildingRepository.h)
+      ConcordiaFloor("00", BuildingRepository.h, 1),
+      ConcordiaFloor("0", BuildingRepository.h, 1),
+      ConcordiaFloor("1", BuildingRepository.h, 1),
+      ConcordiaFloor("2", BuildingRepository.h, 1),
+      ConcordiaFloor("4", BuildingRepository.h, 1),
+      ConcordiaFloor("5", BuildingRepository.h, 1),
+      ConcordiaFloor("6", BuildingRepository.h, 1),
+      ConcordiaFloor("7", BuildingRepository.h, 1),
+      ConcordiaFloor("8", BuildingRepository.h, 1),
+      ConcordiaFloor("9", BuildingRepository.h, 1),
+      ConcordiaFloor("10", BuildingRepository.h, 1),
+      ConcordiaFloor("11", BuildingRepository.h, 1),
+      ConcordiaFloor("12", BuildingRepository.h, 1)
     ]
   };
 
