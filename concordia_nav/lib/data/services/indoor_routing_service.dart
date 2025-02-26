@@ -244,6 +244,14 @@ class IndoorRoutingService {
     return [originWaypointIndex, destinationWaypointIndex];
   } 
 
+  static IndoorRoute _noBestNeighbor(List<int> route, FloorRoutablePoint origin) {
+    for (int i = 0; i < route.length; i++) {
+      dev.log("Climb: i=${i.toString()}, route[i]=${route[i].toString()}");
+    }
+    return IndoorRoute(
+        origin.floor.building, null, null, null, null, null, null, null);
+  } 
+
   static Object _getClosestWaypointToDestination(int originWaypointIndex, int destinationWaypointIndex, Map<int, List<int>> waypointNavigability,
       List<FloorRoutablePoint> waypointsOnFloor, FloorRoutablePoint origin) {
     final List<int> route = [originWaypointIndex];
@@ -277,11 +285,7 @@ class IndoorRoutingService {
       // already visited
       if (bestNeighbour == null) {
         dev.log("Hill climbing failed - couldn't find a bestNeighbour");
-        for (int i = 0; i < route.length; i++) {
-          dev.log("Climb: i=${i.toString()}, route[i]=${route[i].toString()}");
-        }
-        return IndoorRoute(
-            origin.floor.building, null, null, null, null, null, null, null);
+        return _noBestNeighbor(route, origin);
       }
 
       route.add(bestNeighbour);
