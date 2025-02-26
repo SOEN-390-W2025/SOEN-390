@@ -6,7 +6,7 @@ class ConcordiaFloor extends Location {
   final ConcordiaBuilding building;
   double pixelsPerSecond;
 
-  ConcordiaFloor(this.floorNumber, this.building, this.pixelsPerSecond)
+  ConcordiaFloor(this.floorNumber, this.building, [this.pixelsPerSecond = 1.0])
       : super(building.lat, building.lng, building.name, building.streetAddress,
             building.city, building.province, building.postalCode);
 

@@ -105,138 +105,122 @@ class IndoorRoutingService {
         pow(point2.positionY - point1.positionY, 2));
   }
 
-  static IndoorRoute getIndoorRoute(FloorRoutablePoint origin,
+  static IndoorRoute _getDifferentBuildingRoute(FloorRoutablePoint origin,
       FloorRoutablePoint destination, bool isAccessible) {
-    // Points are the same - return a route with no instructions
-    if (origin == destination) {
-      dev.log("getIndoorRoute - origin and destination same, returning null");
-      return IndoorRoute(
-          origin.floor.building, null, null, null, null, null, null, null);
+    final IndoorRoute returnRoute = IndoorRoute(origin.floor.building, null,
+        null, null, destination.floor.building, null, null, null);
+
+    // We need to combine the route from this building
+    // to its exit, to the exit of the next building to the room there
+    final FloorRoutablePoint? originExitPoint = IndoorFeatureRepository
+        .outdoorExitPointsByBuilding[origin.floor.building.abbreviation];
+    if (originExitPoint != null) {
+      dev.log(
+          "Origin exit point not null - getting route in origin building");
+      final IndoorRoute originPortion =
+          getIndoorRoute(origin, originExitPoint, isAccessible);
+      returnRoute.firstIndoorPortionToConnection =
+          originPortion.firstIndoorPortionToConnection;
+      returnRoute.firstIndoorConnection = originPortion.firstIndoorConnection;
+      returnRoute.firstIndoorPortionFromConnection =
+          originPortion.firstIndoorPortionFromConnection;
     }
 
-    // Points are in different buildings - recurse down to two indoor routes
-    // within the same building, and combine them. Other code will take care
-    // of the outdoor route between.
-    if (origin.floor.building.abbreviation !=
-        destination.floor.building.abbreviation) {
-      dev.log("getIndoorRoute - origin and destination buildings not same");
-      final IndoorRoute returnRoute = IndoorRoute(origin.floor.building, null,
-          null, null, destination.floor.building, null, null, null);
+    final FloorRoutablePoint? destinationExitPoint = IndoorFeatureRepository
+        .outdoorExitPointsByBuilding[destination.floor.building.abbreviation];
+    if (destinationExitPoint != null) {
+      dev.log("Dest exit point not null - getting route in dest building");
+      final IndoorRoute destinationPortion =
+          getIndoorRoute(destinationExitPoint, destination, isAccessible);
+      returnRoute.secondIndoorPortionToConnection =
+          destinationPortion.firstIndoorPortionToConnection;
+      returnRoute.secondIndoorConnection =
+          destinationPortion.firstIndoorConnection;
+      returnRoute.secondIndoorPortionFromConnection =
+          destinationPortion.secondIndoorPortionFromConnection;
+    }
 
-      // We need to combine the route from this building
-      // to its exit, to the exit of the next building to the room there
-      final FloorRoutablePoint? originExitPoint = IndoorFeatureRepository
-          .outdoorExitPointsByBuilding[origin.floor.building.abbreviation];
-      if (originExitPoint != null) {
-        dev.log(
-            "Origin exit point not null - getting route in origin building");
-        final IndoorRoute originPortion =
-            getIndoorRoute(origin, originExitPoint, isAccessible);
-        returnRoute.firstIndoorPortionToConnection =
-            originPortion.firstIndoorPortionToConnection;
-        returnRoute.firstIndoorConnection = originPortion.firstIndoorConnection;
-        returnRoute.firstIndoorPortionFromConnection =
-            originPortion.firstIndoorPortionFromConnection;
+    return returnRoute;
+  }
+
+  static IndoorRoute _getDifferentFloorRoute(FloorRoutablePoint origin,
+      FloorRoutablePoint destination, bool isAccessible) {
+    final possibleConnections = IndoorFeatureRepository
+        .connectionsByBuilding[origin.floor.building.abbreviation];
+    Connection? bestConnection;
+    double? bestWaitTime;
+    for (var connection in (possibleConnections ?? [])) {
+      final double? waitTime =
+          connection.getWaitTime(origin.floor, destination.floor);
+      if (waitTime != null &&
+          (bestWaitTime == null || waitTime < bestWaitTime) &&
+          (!isAccessible || connection.isAccessible)) {
+        bestConnection = connection;
+        bestWaitTime = waitTime;
       }
+    }
 
-      final FloorRoutablePoint? destinationExitPoint = IndoorFeatureRepository
-          .outdoorExitPointsByBuilding[destination.floor.building.abbreviation];
-      if (destinationExitPoint != null) {
-        dev.log("Dest exit point not null - getting route in dest building");
-        final IndoorRoute destinationPortion =
-            getIndoorRoute(destinationExitPoint, destination, isAccessible);
-        returnRoute.secondIndoorPortionToConnection =
-            destinationPortion.firstIndoorPortionToConnection;
-        returnRoute.secondIndoorConnection =
-            destinationPortion.firstIndoorConnection;
-        returnRoute.secondIndoorPortionFromConnection =
-            destinationPortion.secondIndoorPortionFromConnection;
-      }
-
+    final returnRoute = IndoorRoute(origin.floor.building, null,
+        bestConnection, null, null, null, null, null);
+    if (bestConnection == null) {
+      dev.log("Couldn't find connection between floor "
+          "${origin.floor.floorNumber} and ${destination.floor.floorNumber}");
+      // No known way to connect these floors - need to return an indoor route
+      // with just the building
       return returnRoute;
     }
 
-    // Points are now in the same building but on different floors - find the
-    // best connection between these floors, then recurse down to 2 intra-floor
-    // routes
-    if (origin.floor.floorNumber != destination.floor.floorNumber) {
-      dev.log("Origin and destination points on different floors");
-      final possibleConnections = IndoorFeatureRepository
-          .connectionsByBuilding[origin.floor.building.abbreviation];
-      Connection? bestConnection;
-      double? bestWaitTime;
-      for (var connection in (possibleConnections ?? [])) {
-        final double? waitTime =
-            connection.getWaitTime(origin.floor, destination.floor);
-        if (waitTime != null &&
-            (bestWaitTime == null || waitTime < bestWaitTime) &&
-            (!isAccessible || connection.isAccessible)) {
-          bestConnection = connection;
-          bestWaitTime = waitTime;
-        }
-      }
-
-      final returnRoute = IndoorRoute(origin.floor.building, null,
-          bestConnection, null, null, null, null, null);
-      if (bestConnection == null) {
-        dev.log("Couldn't find connection between floor "
-            "${origin.floor.floorNumber} and ${destination.floor.floorNumber}");
-        // No known way to connect these floors - need to return an indoor route
-        // with just the building
-        return returnRoute;
-      }
-
-      final originConnectionPoint =
-          bestConnection.floorPoints[origin.floor.floorNumber];
-      if (originConnectionPoint != null) {
-        dev.log("Origin conn point is not null - getting intra-floor route");
-        final originFloorPortion =
-            getIndoorRoute(origin, originConnectionPoint, isAccessible);
-        returnRoute.firstIndoorPortionToConnection =
-            originFloorPortion.firstIndoorPortionToConnection;
-      }
-
-      final destinationConnectionPoint =
-          bestConnection.floorPoints[destination.floor.floorNumber];
-      if (destinationConnectionPoint != null) {
-        dev.log("Dest conn point is not null - getting intra-floor route");
-        final destinationFloorPortion = getIndoorRoute(
-            destinationConnectionPoint, destination, isAccessible);
-        // The mismatch here is deliberate - intra-floor directions always
-        // returned in firstIndoorPortionToConnection
-        returnRoute.firstIndoorPortionFromConnection =
-            destinationFloorPortion.firstIndoorPortionToConnection;
-      }
-
-      return returnRoute;
+    final originConnectionPoint =
+        bestConnection.floorPoints[origin.floor.floorNumber];
+    if (originConnectionPoint != null) {
+      dev.log("Origin conn point is not null - getting intra-floor route");
+      final originFloorPortion =
+          getIndoorRoute(origin, originConnectionPoint, isAccessible);
+      returnRoute.firstIndoorPortionToConnection =
+          originFloorPortion.firstIndoorPortionToConnection;
     }
 
-    // Points are now within the same floor - this is where we will do
-    // steepest-ascent hill climbing to find a route. But first there will be
-    // some prep. We want the route to follow waypoints and permitted
-    // navigations to ensure the user doesn't walk through walls. We will start
-    // by finding the closet waypoint to the origin and to the destination.
-    //
-    // If the closest waypoint to the origin and the destination is the same
-    // waypoint, we will have a 3-stop route (origin, waypoint, destination)
-    //
-    // If these waypoints are *not* the same, we will use steepest-ascent hill
-    // climbing to find a route.
-    dev.log("getIndoorRoute - finding intra-floor route");
-    final waypointsOnFloor = IndoorFeatureRepository
-            .waypointsByFloor[origin.floor.building.abbreviation]
-        ?[origin.floor.floorNumber];
-    final waypointNavigability =
-        IndoorFeatureRepository.waypointNavigabilityGroupsByFloor[
-            origin.floor.building.abbreviation]?[origin.floor.floorNumber];
-    if (waypointsOnFloor == null || waypointNavigability == null) {
+    final destinationConnectionPoint =
+        bestConnection.floorPoints[destination.floor.floorNumber];
+    if (destinationConnectionPoint != null) {
+      dev.log("Dest conn point is not null - getting intra-floor route");
+      final destinationFloorPortion = getIndoorRoute(
+          destinationConnectionPoint, destination, isAccessible);
+      // The mismatch here is deliberate - intra-floor directions always
+      // returned in firstIndoorPortionToConnection
+      returnRoute.firstIndoorPortionFromConnection =
+          destinationFloorPortion.firstIndoorPortionToConnection;
+    }
+
+    return returnRoute;
+  }
+
+  static IndoorRoute? _isSpecialCase(int? originWaypointIndex, int? destinationWaypointIndex,
+      FloorRoutablePoint origin, FloorRoutablePoint destination, List<FloorRoutablePoint> waypointsOnFloor) {
+    // Special case - couldn't find waypoints
+    if (originWaypointIndex == null || destinationWaypointIndex == null) {
       // No floor routing data for this floor, need to return the null route
-      dev.log("No indoor routing data for floor ${origin.floor.floorNumber}");
+      dev.log("Waypoint setup failed");
       return IndoorRoute(
           origin.floor.building, null, null, null, null, null, null, null);
     }
+    // Special case - same waypoints
+    if (originWaypointIndex == destinationWaypointIndex) {
+      return IndoorRoute(
+          origin.floor.building,
+          [origin, waypointsOnFloor[originWaypointIndex], destination],
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
+    else {return null;}
+  }
 
-    // Find the closest waypoint to the origin and destination
+  static List<int?> _getClosestWaypoint(List<FloorRoutablePoint> waypointsOnFloor, 
+      FloorRoutablePoint origin, FloorRoutablePoint destination) {
     int? originWaypointIndex;
     double? originWaypointDistance;
     int? destinationWaypointIndex;
@@ -257,29 +241,19 @@ class IndoorRoutingService {
         destinationWaypointDistance = distanceFromDestination;
       }
     }
+    return [originWaypointIndex, destinationWaypointIndex];
+  } 
 
-    // Special case - couldn't find waypoints
-    if (originWaypointIndex == null || destinationWaypointIndex == null) {
-      // No floor routing data for this floor, need to return the null route
-      dev.log("Waypoint setup failed");
-      return IndoorRoute(
-          origin.floor.building, null, null, null, null, null, null, null);
+  static IndoorRoute _noBestNeighbor(List<int> route, FloorRoutablePoint origin) {
+    for (int i = 0; i < route.length; i++) {
+      dev.log("Climb: i=${i.toString()}, route[i]=${route[i].toString()}");
     }
-    // Special case - same waypoints
-    if (originWaypointIndex == destinationWaypointIndex) {
-      return IndoorRoute(
-          origin.floor.building,
-          [origin, waypointsOnFloor[originWaypointIndex], destination],
-          null,
-          null,
-          null,
-          null,
-          null,
-          null);
-    }
+    return IndoorRoute(
+        origin.floor.building, null, null, null, null, null, null, null);
+  } 
 
-    // Now we do our hill-climbing - find the a navigable waypoint that
-    // takes us closest to our destination
+  static Object _getClosestWaypointToDestination(int originWaypointIndex, int destinationWaypointIndex, Map<int, List<int>> waypointNavigability,
+      List<FloorRoutablePoint> waypointsOnFloor, FloorRoutablePoint origin) {
     final List<int> route = [originWaypointIndex];
     while (route.last != destinationWaypointIndex) {
       final neighbours = waypointNavigability[route.last];
@@ -311,14 +285,85 @@ class IndoorRoutingService {
       // already visited
       if (bestNeighbour == null) {
         dev.log("Hill climbing failed - couldn't find a bestNeighbour");
-        for (int i = 0; i < route.length; i++) {
-          dev.log("Climb: i=${i.toString()}, route[i]=${route[i].toString()}");
-        }
-        return IndoorRoute(
-            origin.floor.building, null, null, null, null, null, null, null);
+        return _noBestNeighbor(route, origin);
       }
 
       route.add(bestNeighbour);
+    }
+    return route;
+  }
+
+  static IndoorRoute getIndoorRoute(FloorRoutablePoint origin,
+      FloorRoutablePoint destination, bool isAccessible) {
+    // Points are the same - return a route with no instructions
+    if (origin == destination) {
+      dev.log("getIndoorRoute - origin and destination same, returning null");
+      return IndoorRoute(
+          origin.floor.building, null, null, null, null, null, null, null);
+    }
+
+    // Points are in different buildings - recurse down to two indoor routes
+    // within the same building, and combine them. Other code will take care
+    // of the outdoor route between.
+    if (origin.floor.building.abbreviation !=
+        destination.floor.building.abbreviation) {
+      dev.log("getIndoorRoute - origin and destination buildings not same");
+      return _getDifferentBuildingRoute(origin, destination, isAccessible);
+    }
+
+    // Points are now in the same building but on different floors - find the
+    // best connection between these floors, then recurse down to 2 intra-floor
+    // routes
+    if (origin.floor.floorNumber != destination.floor.floorNumber) {
+      dev.log("Origin and destination points on different floors");
+      return _getDifferentFloorRoute(origin, destination, isAccessible);
+    }
+
+    // Points are now within the same floor - this is where we will do
+    // steepest-ascent hill climbing to find a route. But first there will be
+    // some prep. We want the route to follow waypoints and permitted
+    // navigations to ensure the user doesn't walk through walls. We will start
+    // by finding the closet waypoint to the origin and to the destination.
+    //
+    // If the closest waypoint to the origin and the destination is the same
+    // waypoint, we will have a 3-stop route (origin, waypoint, destination)
+    //
+    // If these waypoints are *not* the same, we will use steepest-ascent hill
+    // climbing to find a route.
+    dev.log("getIndoorRoute - finding intra-floor route");
+    final waypointsOnFloor = IndoorFeatureRepository
+            .waypointsByFloor[origin.floor.building.abbreviation]
+        ?[origin.floor.floorNumber];
+    final waypointNavigability =
+        IndoorFeatureRepository.waypointNavigabilityGroupsByFloor[
+            origin.floor.building.abbreviation]?[origin.floor.floorNumber];
+    if (waypointsOnFloor == null || waypointNavigability == null) {
+      // No floor routing data for this floor, need to return the null route
+      dev.log("No indoor routing data for floor ${origin.floor.floorNumber}");
+      return IndoorRoute(
+          origin.floor.building, null, null, null, null, null, null, null);
+    }
+
+    // Find the closest waypoint to the origin and destination
+    final closestWaypoints = _getClosestWaypoint(waypointsOnFloor, origin, destination);
+    final originWaypointIndex = closestWaypoints[0];
+    final destinationWaypointIndex = closestWaypoints[1];
+    
+    // Special cases
+    final specialCase = _isSpecialCase(originWaypointIndex, destinationWaypointIndex, origin, destination, waypointsOnFloor);
+    if (specialCase != null){
+      return specialCase;
+    }
+
+    // Now we do our hill-climbing - find a navigable waypoint that
+    // takes us closest to our destination
+    List<int> route = [originWaypointIndex!];
+    final result = _getClosestWaypointToDestination(originWaypointIndex, destinationWaypointIndex!, waypointNavigability, waypointsOnFloor, origin);
+    if(result is List<int>) {
+      route = result;
+    }
+    else {
+      return result as IndoorRoute;
     }
 
     // Build a return list of FloorRoutablePoints, including those not part of
