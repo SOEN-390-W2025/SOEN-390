@@ -130,7 +130,6 @@ void main() async {
     when(mockMapViewModel.mapService).thenReturn(mockMapService);
     when(mockMapViewModel.originMarker).thenReturn(mockMarker);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
-    when(mockMapService.getPolylines()).thenReturn(mockPolylines);
 
     mockMapView = OutdoorLocationMapView(
         campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel);

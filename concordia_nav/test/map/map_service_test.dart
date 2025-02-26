@@ -11,6 +11,15 @@ import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import '../directions/outdoor_directions_test.mocks.dart';
 import 'map_service_test.mocks.dart';
 
+class FakeMapService extends MapService {
+  LatLng? fakeLocation;
+
+  @override
+  Future<LatLng?> getCurrentLocation() async {
+    return null;
+  }
+}
+
 // Generate mocks for GoogleMapController
 @GenerateMocks([GoogleMapController, MapService, GeolocatorPlatform])
 Future<void> main() async {
@@ -126,7 +135,8 @@ Future<void> main() async {
       )).called(1);
     });
 
-    test('adjustCameraForPath should call animateCamera on the map controller', () {
+    test('adjustCameraForPath should call animateCamera on the map controller',
+        () {
       // Arrange
       final routePoints = <LatLng>[
         const LatLng(45.4215, -75.6972),
@@ -145,11 +155,12 @@ Future<void> main() async {
             (update) => update.toString(),
             'CameraUpdate',
             CameraUpdate.newLatLngBounds(
-              LatLngBounds(
-                southwest: const LatLng(45.4215, -75.6972),
-                northeast: const LatLng(45.4216, -75.6969),
-              ), 70
-            ).toString(),
+                    LatLngBounds(
+                      southwest: const LatLng(45.4215, -75.6972),
+                      northeast: const LatLng(45.4216, -75.6969),
+                    ),
+                    70)
+                .toString(),
           ),
         ),
       )).called(1);
@@ -202,7 +213,7 @@ Future<void> main() async {
 
   group('test geolocator methods', () {
     // random position far away from campuses
-    final testPosition = Position(
+    var testPosition = Position(
         longitude: -73.5788992164221,
         latitude: 45.4952628500172,
         timestamp: DateTime.now(),
@@ -274,6 +285,30 @@ Future<void> main() async {
       expect(result, false);
     });
 
+    test('getRoutePath should throw an exception when origin is invalid',
+        () async {
+      permission = 0;
+      request = 0;
+      service = true;
+
+      // Act & Assert
+      expect(
+        () => (FakeMapService()).getRoutePath('', 'Hall Building'),
+        throwsA(isA<Exception>().having(
+            (e) => e.toString(), 'message', contains('Invalid origin'))),
+      );
+    });
+
+    test('getRoutePath should throw an exception when destination is invalid',
+        () async {
+      // Act & Assert
+      expect(
+        () => (FakeMapService()).getRoutePath('Hall Building', ''),
+        throwsA(isA<Exception>().having(
+            (e) => e.toString(), 'message', contains('Invalid destination'))),
+      );
+    });
+
     test('getCurrentLocation provides location', () async {
       permission = 3;
       service = true;
@@ -303,17 +338,17 @@ Future<void> main() async {
     test('returns a valid list of LatLng when route is found', () async {
       permission = 3;
       // Arrange
-      const originAddress =
-          'Hall Building';
-      const destinationAddress =
-          'EV Building';
+      const originAddress = 'Hall Building';
+      const destinationAddress = 'EV Building';
       final expectedRoute = <LatLng>[
         const LatLng(45.4215, -75.6972),
         const LatLng(45.4216, -75.6969),
       ];
 
       // Stub the fetchRouteFromCoords method to return the expectedRoute
-      when(mockODSdirectionsService.fetchRouteFromCoords(const LatLng(45.49721130711485, -73.5787529114208), const LatLng(45.49542095329432, -73.5779627198065)))
+      when(mockODSdirectionsService.fetchRouteFromCoords(
+              const LatLng(45.49721130711485, -73.5787529114208),
+              const LatLng(45.49542095329432, -73.5779627198065)))
           .thenAnswer((_) async => expectedRoute);
 
       // Mock fetchRoute method to return the expected route points
@@ -331,10 +366,8 @@ Future<void> main() async {
 
     test('throws exception when route fetching fails', () async {
       // Arrange
-      const originAddress =
-          'Hall Building';
-      const destinationAddress =
-          'EV Building';
+      const originAddress = 'Hall Building';
+      const destinationAddress = 'EV Building';
 
       // Mock the method to throw an exception
       when(mockMapService.getRoutePath(originAddress, destinationAddress))

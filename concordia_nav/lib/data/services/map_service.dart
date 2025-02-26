@@ -53,14 +53,12 @@ class MapService {
       southwest: LatLng(south, west),
       northeast: LatLng(north, east),
     );
-    _mapController.animateCamera(
-      CameraUpdate.newLatLngBounds(
+    _mapController.animateCamera(CameraUpdate.newLatLngBounds(
         LatLngBounds(
-                  southwest: LatLng(south, west),
-                  northeast: LatLng(north, east),
-                ), 
-        70)
-      );
+          southwest: LatLng(south, west),
+          northeast: LatLng(north, east),
+        ),
+        70));
   }
 
   /// Loads a custom icon for each label from /assets/icons/{name}.png.
@@ -137,53 +135,43 @@ class MapService {
 
   /// Fetches route polyline using addresses or current location
   Future<List<LatLng>> getRoutePath(
-    String? originAddress, String destinationAddress) async {
-
+      String originAddress, String destinationAddress) async {
     List<LatLng> routePoints;
     final LatLng? currentLocation = await getCurrentLocation();
     final LatLng? origin;
     final LatLng? destination;
     const yourLocation = "Your Location";
 
-    if (originAddress!.isEmpty || originAddress == yourLocation) {
+    if (originAddress.isEmpty || originAddress == yourLocation) {
       if (currentLocation == null) {
         throw Exception("Unable to fetch current location. Invalid origin");
       }
       origin = currentLocation;
-      destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
-    } else if (destinationAddress.isEmpty || destinationAddress == yourLocation) {
+      destination =
+          BuildingViewModel().getBuildingLocationByName(destinationAddress);
+    } else if (destinationAddress.isEmpty ||
+        destinationAddress == yourLocation) {
       if (currentLocation == null) {
-        throw Exception("Unable to fetch current location. Invalid destination");
+        throw Exception(
+            "Unable to fetch current location. Invalid destination");
       }
       origin = BuildingViewModel().getBuildingLocationByName(originAddress);
       destination = currentLocation;
-    } else if (originAddress.isEmpty || originAddress == yourLocation && destinationAddress.isEmpty || destinationAddress == yourLocation) {
-      if (currentLocation == null) {
-        throw Exception("Unable to fetch current location. Invalid inputs");
-      }
-      origin = currentLocation;
-      destination = currentLocation;
-    }
-    else {
-      destination = BuildingViewModel().getBuildingLocationByName(destinationAddress);
+    } else {
+      destination =
+          BuildingViewModel().getBuildingLocationByName(destinationAddress);
       origin = BuildingViewModel().getBuildingLocationByName(originAddress);
-
     }
-    routePoints = await _directionsService.fetchRouteFromCoords(origin!,destination!);
+    routePoints =
+        await _directionsService.fetchRouteFromCoords(origin!, destination!);
 
     final Polyline polyline = Polyline(
-      polylineId:
-          PolylineId('${originAddress}_$destinationAddress'),
+      polylineId: PolylineId('${originAddress}_$destinationAddress'),
       color: const Color(0xFF2196F3),
       width: 5,
       points: routePoints,
     );
     _polylines.add(polyline);
     return routePoints;
-  }
-
-  /// Returns all polylines
-  Set<Polyline> getPolylines() {
-    return _polylines;
   }
 }

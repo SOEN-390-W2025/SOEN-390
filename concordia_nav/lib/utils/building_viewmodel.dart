@@ -9,15 +9,17 @@ class BuildingViewModel {
   BuildingService _buildingService = BuildingService();
 
   BuildingViewModel({BuildingService? buildingService})
-  : _buildingService = buildingService ?? BuildingService();
+      : _buildingService = buildingService ?? BuildingService();
 
   List<String> getBuildingsByCampus(ConcordiaCampus campus) {
     return _buildingService.getBuildingNamesForCampus(campus);
   }
 
   List<String> getBuildings() {
-    final sgwBuildings = _buildingService.getBuildingNamesForCampus(ConcordiaCampus.sgw);
-    final loyBuildings = _buildingService.getBuildingNamesForCampus(ConcordiaCampus.loy);
+    final sgwBuildings =
+        _buildingService.getBuildingNamesForCampus(ConcordiaCampus.sgw);
+    final loyBuildings =
+        _buildingService.getBuildingNamesForCampus(ConcordiaCampus.loy);
 
     final allBuildings = [...sgwBuildings, ...loyBuildings];
 
@@ -30,7 +32,6 @@ class BuildingViewModel {
     return BuildingService.getbuildingByName(name);
   }
 
-
   LatLng? getBuildingLocationByAbbreviation(String abbreviation) {
     return _buildingService.getBuildingLocationByAbbreviation(abbreviation);
   }
@@ -39,6 +40,4 @@ class BuildingViewModel {
     final building = getBuildingByName(name);
     return building != null ? LatLng(building.lat, building.lng) : null;
   }
-
-
 }
