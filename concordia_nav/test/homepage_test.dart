@@ -145,14 +145,6 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
-    when(mockMapViewModel.fetchMapData(ConcordiaCampus.sgw, true))
-      .thenAnswer((_) async => {
-        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-      });
 
     when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
@@ -199,15 +191,7 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
-    when(mockMapViewModel.fetchMapData(ConcordiaCampus.loy, true))
-      .thenAnswer((_) async => {
-        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-      });
-
+    
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -332,14 +316,6 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    when(mockMapViewModel.fetchMapData(ConcordiaCampus.sgw, false))
-      .thenAnswer((_) async => {
-        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-      });
     
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);

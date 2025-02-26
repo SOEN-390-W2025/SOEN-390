@@ -34,28 +34,12 @@ Future<void> main() async {
 
     when(mockMapViewModel.selectedBuildingNotifier)
         .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
-    when(mockMapViewModel.fetchMapData(ConcordiaCampus.loy, true))
-          .thenAnswer((_) async => {
-              'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-          });
-      when(mockMapViewModel.fetchMapData(ConcordiaCampus.sgw, true))
-      .thenAnswer((_) async => {
-        'cameraPosition': const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10),
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-      });
     when(mockMapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
-    when(mockMapViewModel.loadStaticBusStopMarkers()).thenAnswer((_) async => true);
+    when(mockMapViewModel.loadStaticBusStopMarkers())
+        .thenAnswer((_) async => true);
   });
 
   group('navigateBasedOnLocation', () {
-
     testWidgets('should navigate to home when location access is denied',
         (WidgetTester tester) async {
       // Arrange

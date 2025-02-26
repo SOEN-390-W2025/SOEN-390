@@ -210,14 +210,6 @@ class MockMapService extends _i1.Mock implements _i4.MapService {
             returnValue: _i9.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
           )
           as _i9.Future<List<_i2.LatLng>>);
-
-  @override
-  Set<_i2.Polyline> getPolylines() =>
-      (super.noSuchMethod(
-            Invocation.method(#getPolylines, []),
-            returnValue: <_i2.Polyline>{},
-          )
-          as Set<_i2.Polyline>);
 }
 
 /// A class which mocks [MapViewModel].
@@ -227,6 +219,21 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
   MockMapViewModel() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  List<_i11.ConcordiaBuilding> get filteredBuildings =>
+      (super.noSuchMethod(
+            Invocation.getter(#filteredBuildings),
+            returnValue: <_i11.ConcordiaBuilding>[],
+          )
+          as List<_i11.ConcordiaBuilding>);
+
+  @override
+  set filteredBuildings(List<_i11.ConcordiaBuilding>? _filteredBuildings) =>
+      super.noSuchMethod(
+        Invocation.setter(#filteredBuildings, _filteredBuildings),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i3.ValueNotifier<_i11.ConcordiaBuilding?> get selectedBuildingNotifier =>
@@ -265,14 +272,6 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
     Invocation.setter(#shuttleMarkersNotifier, _shuttleMarkersNotifier),
     returnValueForMissingStub: null,
   );
-
-  @override
-  List<_i11.ConcordiaBuilding> get filteredBuildings =>
-      (super.noSuchMethod(
-            Invocation.getter(#filteredBuildings),
-            returnValue: <_i11.ConcordiaBuilding>[],
-          )
-          as List<_i11.ConcordiaBuilding>);
 
   @override
   Set<_i2.Marker> get staticBusStopMarkers =>
@@ -374,19 +373,6 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
             ),
           )
           as _i9.Future<_i2.CameraPosition>);
-
-  @override
-  _i9.Future<Map<String, dynamic>> fetchMapData(
-    _i8.ConcordiaCampus? campus,
-    bool? isCampus,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#fetchMapData, [campus, isCampus]),
-            returnValue: _i9.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
-          )
-          as _i9.Future<Map<String, dynamic>>);
 
   @override
   _i9.Future<void> fetchRoutesForAllModes(

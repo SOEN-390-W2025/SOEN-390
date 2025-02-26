@@ -34,7 +34,8 @@ void main() async {
 
       when(mapViewModel.selectedBuildingNotifier)
           .thenReturn(ValueNotifier<ConcordiaBuilding?>(null));
-      when(mapViewModel.loadStaticBusStopMarkers()).thenAnswer((_) async => true);
+      when(mapViewModel.loadStaticBusStopMarkers())
+          .thenAnswer((_) async => true);
       when(mapViewModel.startShuttleBusTimer()).thenAnswer((_) async => true);
 
       when(mapViewModel.getInitialCameraPosition(ConcordiaCampus.loy))
@@ -58,22 +59,6 @@ void main() async {
                 },
                 "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
               });
-      when(mapViewModel.fetchMapData(ConcordiaCampus.loy, true))
-          .thenAnswer((_) async => {
-              'cameraPosition': expectedCameraPosition,
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-          });
-      when(mapViewModel.fetchMapData(ConcordiaCampus.sgw, true))
-      .thenAnswer((_) async => {
-        'cameraPosition': expectedCameraPosition,
-              'polygons': <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-              'labels': <Marker>{const Marker(markerId: MarkerId('marker1'))}
-      });
     });
 
     testWidgets('CampusMapPage should render correctly with non-constant key',
@@ -108,7 +93,9 @@ void main() async {
       // Build the CampusMapPage with the SGW campus
       await tester.pumpWidget(MaterialApp(
           home: CampusMapPage(
-              campus: ConcordiaCampus.loy, mapViewModel: mapViewModel, buildMapViewModel: mapViewModel)));
+              campus: ConcordiaCampus.loy,
+              mapViewModel: mapViewModel,
+              buildMapViewModel: mapViewModel)));
       await tester.pumpAndSettle();
 
       // Press the button that swaps campus views
@@ -127,7 +114,9 @@ void main() async {
       // Build the CampusMapPage with the SGW campus
       await tester.pumpWidget(MaterialApp(
           home: CampusMapPage(
-              campus: ConcordiaCampus.sgw, mapViewModel: mapViewModel, buildMapViewModel: mapViewModel)));
+              campus: ConcordiaCampus.sgw,
+              mapViewModel: mapViewModel,
+              buildMapViewModel: mapViewModel)));
       await tester.pumpAndSettle();
 
       when(mapViewModel

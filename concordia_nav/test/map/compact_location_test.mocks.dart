@@ -55,6 +55,21 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   }
 
   @override
+  List<_i6.ConcordiaBuilding> get filteredBuildings =>
+      (super.noSuchMethod(
+            Invocation.getter(#filteredBuildings),
+            returnValue: <_i6.ConcordiaBuilding>[],
+          )
+          as List<_i6.ConcordiaBuilding>);
+
+  @override
+  set filteredBuildings(List<_i6.ConcordiaBuilding>? _filteredBuildings) =>
+      super.noSuchMethod(
+        Invocation.setter(#filteredBuildings, _filteredBuildings),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i2.ValueNotifier<_i6.ConcordiaBuilding?> get selectedBuildingNotifier =>
       (super.noSuchMethod(
             Invocation.getter(#selectedBuildingNotifier),
@@ -91,14 +106,6 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
     Invocation.setter(#shuttleMarkersNotifier, _shuttleMarkersNotifier),
     returnValueForMissingStub: null,
   );
-
-  @override
-  List<_i6.ConcordiaBuilding> get filteredBuildings =>
-      (super.noSuchMethod(
-            Invocation.getter(#filteredBuildings),
-            returnValue: <_i6.ConcordiaBuilding>[],
-          )
-          as List<_i6.ConcordiaBuilding>);
 
   @override
   Set<_i4.Marker> get staticBusStopMarkers =>
@@ -200,19 +207,6 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
             ),
           )
           as _i7.Future<_i4.CameraPosition>);
-
-  @override
-  _i7.Future<Map<String, dynamic>> fetchMapData(
-    _i8.ConcordiaCampus? campus,
-    bool? isCampus,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#fetchMapData, [campus, isCampus]),
-            returnValue: _i7.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
-          )
-          as _i7.Future<Map<String, dynamic>>);
 
   @override
   _i7.Future<void> fetchRoutesForAllModes(
