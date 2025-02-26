@@ -413,6 +413,14 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
           as _i9.Future<void>);
 
   @override
+  double calculatePolylineDistance(_i2.Polyline? polyline) =>
+      (super.noSuchMethod(
+            Invocation.method(#calculatePolylineDistance, [polyline]),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
   _i9.Future<void> setActiveModeForRoute(_i10.CustomTravelMode? mode) =>
       (super.noSuchMethod(
             Invocation.method(#setActiveModeForRoute, [mode]),

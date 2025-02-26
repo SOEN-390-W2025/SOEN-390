@@ -33,6 +33,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   bool _locationPermissionGranted = false;
   late TextEditingController _sourceController;
   late TextEditingController _destinationController;
+
   List<String> searchList = [];
   bool isKeyboardVisible = false;
   double? bottomInset = 0;

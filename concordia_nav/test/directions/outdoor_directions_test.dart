@@ -1,5 +1,6 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:concordia_nav/widgets/compact_location_search_widget.dart';
@@ -72,7 +73,15 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
-    
+
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -84,14 +93,52 @@ void main() async {
     when(mockMapViewModel.originMarker).thenReturn(mockMarker);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
     when(mockMapViewModel.activePolylines).thenReturn(mockPolylines);
+    when(mockMapViewModel.shuttleMarkersNotifier)
+        .thenReturn(ValueNotifier<Set<Marker>>({}));
+    when(mockMapViewModel.staticBusStopMarkers).thenReturn({});
+    when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
 
     mockDirectionsService = MockDirectionsService();
     directionsService = ODSDirectionsService();
     directionsService.directionsService = mockDirectionsService;
   });
 
-  testWidgets('widgets are present in the page',
+  testWidgets('Button press triggers updatePath and fetches routes',
       (WidgetTester tester) async {
+    // Create a mock MapViewModel
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
+
+    // Create a ConcordiaCampus and MapViewModel for the test
+    const campus = ConcordiaCampus.sgw;
+    final mapViewModel = mockMapViewModel;
+
+    // Build the widget tree
+    await tester.pumpWidget(MaterialApp(
+      home: OutdoorLocationMapView(
+        campus: campus,
+        building: BuildingRepository.h,
+        mapViewModel: mapViewModel,
+      ),
+    ));
+
+    // Find the "Get Directions" button in the widget tree
+    final buttonFinder = find.text('Get Directions');
+
+    // Ensure the button exists
+    expect(buttonFinder, findsOneWidget);
+
+    // Tap the button to trigger updatePath
+    await tester.tap(buttonFinder);
+
+    // Rebuild the widget after the tap
+    await tester.pump();
+
+    // Verify that the fetchRoutesForAllModes method was called
+    verify(mockMapViewModel.fetchRoutesForAllModes(any, any)).called(1);
+  });
+
+  testWidgets('widgets are present in the page', (WidgetTester tester) async {
     // Arrange
     const String origin = 'Current Location';
     const String destination = 'Destination Address';
@@ -219,7 +266,8 @@ void main() async {
     });
 
     // Act
-    final result = await directionsService.fetchRouteFromCoords(origin, destination);
+    final result =
+        await directionsService.fetchRouteFromCoords(origin, destination);
 
     // Assert
     expect(result, isA<List<LatLng>>());
@@ -355,13 +403,7 @@ void main() async {
       // Mocking the getCampusPolygonsAndLabels method to return fake data
       when(mockMapService.checkAndRequestLocationPermission())
           .thenAnswer((_) async => true);
-      when(mockMapViewModel.getAllCampusPolygonsAndLabels())
-          .thenAnswer((_) async => {
-                "polygons": <Polygon>{
-                  const Polygon(polygonId: PolygonId('polygon1'))
-                },
-                "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
-              });
+
       when(mockMapViewModel.travelTimes)
           .thenReturn(<CustomTravelMode, String>{});
 
