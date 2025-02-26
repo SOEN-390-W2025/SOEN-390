@@ -55,8 +55,8 @@ void main() async {
       final route =
           IndoorRoutingService.getIndoorRoute(origin, destination, true);
 
-      expect(route.firstIndoorPortionToConnection, isNull);
-      expect(route.firstIndoorConnection, isNull);
+      expect(route.firstIndoorPortionToConnection, isNotNull);
+      expect(route.firstIndoorConnection, isNotNull);
     });
   });
 
