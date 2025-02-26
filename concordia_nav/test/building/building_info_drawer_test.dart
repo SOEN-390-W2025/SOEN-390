@@ -200,7 +200,7 @@ void main() async {
 
       // finds widgets
       expect(find.byType(DraggableScrollableSheet), findsOneWidget);
-      expect(find.byIcon(Icons.directions),
+      expect(find.byIcon(Icons.location_on),
           findsOneWidget); // finds directions button
       expect(find.byIcon(Icons.map), findsOneWidget); // finds indoor map button
       expect(find.text(BuildingRepository.ad.name), findsOneWidget);
