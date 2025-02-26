@@ -181,7 +181,7 @@ void main() async {
     await tester.pumpAndSettle();
 
     // Simulate the button press to navigate to the mock map view
-    final directionsButton = find.byIcon(Icons.directions);
+    final directionsButton = find.byIcon(Icons.location_on);
     expect(directionsButton, findsOneWidget);
 
     await tester.tap(directionsButton);
