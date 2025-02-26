@@ -179,7 +179,7 @@ class IndoorRoutingService {
       final returnRoute = IndoorRoute(origin.floor.building, null,
           bestConnection, null, null, null, null, null);
       if (bestConnection == null) {
-        dev.log("Couldn't find connection between floor " +
+        dev.log("Couldn't find connection between floor "
             "${origin.floor.floorNumber} and ${destination.floor.floorNumber}");
         // No known way to connect these floors - need to return an indoor route
         // with just the building
@@ -242,9 +242,9 @@ class IndoorRoutingService {
     int? destinationWaypointIndex;
     double? destinationWaypointDistance;
     for (int i = 0; i < waypointsOnFloor.length; i++) {
-      var distanceFromOrigin =
+      final distanceFromOrigin =
           getDistanceBetweenPoints(origin, waypointsOnFloor[i]);
-      var distanceFromDestination =
+      final distanceFromDestination =
           getDistanceBetweenPoints(destination, waypointsOnFloor[i]);
       if (originWaypointDistance == null ||
           distanceFromOrigin < originWaypointDistance) {
@@ -282,7 +282,7 @@ class IndoorRoutingService {
     // takes us closest to our destination
     final List<int> route = [originWaypointIndex];
     while (route.last != destinationWaypointIndex) {
-      var neighbours = waypointNavigability[route.last];
+      final neighbours = waypointNavigability[route.last];
       int? bestNeighbour;
       double? bestNeighbourDistanceToDest;
       for (int neighbourIndex in neighbours ?? []) {

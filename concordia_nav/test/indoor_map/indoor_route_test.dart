@@ -19,8 +19,8 @@ void main() {
         "H3G 1S6",
         "EV",
         ConcordiaCampus.sgw);
-    final floor4 = ConcordiaFloor("4", testBuilding);
-    final floor5 = ConcordiaFloor("5", testBuilding);
+    ConcordiaFloor("4", testBuilding);
+    ConcordiaFloor("5", testBuilding);
 
     test('Can create a floor object and fetch its data', () {
       final testFloor = ConcordiaFloor("2", testBuilding);

@@ -1,7 +1,7 @@
 import 'concordia_building.dart';
 import 'connection.dart';
 import 'floor_routable_point.dart';
-import 'location.dart';
+//import 'location.dart';
 
 /// The route should be presented to the user as follows:
 /// 1. The firstIndoorPortionToConnection will contain either a single Location
