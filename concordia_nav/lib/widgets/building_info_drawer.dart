@@ -107,7 +107,7 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    /// The "Directions" button is displayed on the left side of the footer.
+                    /// The "Select" button is displayed on the left side of the footer.
                     ElevatedButton.icon(
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
@@ -118,8 +118,8 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
                           (route) => route.isFirst,
                         );
                       },
-                      icon: const Icon(Icons.directions, color: Colors.white),
-                      label: Text("Directions",
+                      icon: const Icon(Icons.location_on, color: Colors.white),
+                      label: Text("Select",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: screenHeight * 0.018)),

@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
+import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../utils/building_viewmodel.dart';
+import '../../widgets/building_info_drawer.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/search_bar.dart';
@@ -175,7 +177,31 @@ class CampusMapPageState extends State<CampusMapPage> {
                     drawer: true,
                   ),
                 ),
-              ]),
+                // Building info drawer appears when a building is selected
+                ValueListenableBuilder<ConcordiaBuilding?>(
+                  valueListenable: _mapViewModel!.selectedBuildingNotifier,
+                  builder: (context, selectedBuilding, child) {
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                                  begin: const Offset(0, 1), end: Offset.zero)
+                              .animate(animation),
+                          child: child,
+                        );
+                      },
+                      child: selectedBuilding != null
+                          ? BuildingInfoDrawer(
+                              building: selectedBuilding,
+                              onClose: _mapViewModel!.unselectBuilding,
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  },
+                ),
+              ]
+            ),
           );
         },
       ),
