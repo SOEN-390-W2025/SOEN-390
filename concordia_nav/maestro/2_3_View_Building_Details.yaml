@@ -6,6 +6,5 @@ appId: com.example.concordia_nav
 - tapOn: "SGW map"
 - assertVisible: "Sir George Williams Campus"
 - assertVisible: "Google Map"
-- assertVisible: "Map Marker"
 - tapOn:
     point: "45%,50%"

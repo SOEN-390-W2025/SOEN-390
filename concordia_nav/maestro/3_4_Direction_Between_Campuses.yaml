@@ -2,6 +2,7 @@ appId: com.example.concordia_nav
 ---
 - launchApp:
     clearState: true
+    permissions: { all: deny }
 - assertVisible: "Concordia Campus Guide"
 - tapOn: "SGW map"
 - assertVisible: "Search..."

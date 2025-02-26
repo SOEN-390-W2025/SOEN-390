@@ -5,6 +5,7 @@ appId: com.example.concordia_nav
     longitude: -73.8003
 - launchApp:
     clearState: true
+    permissions: { all: deny }
 - assertVisible: "Concordia Campus Guide"
 - setLocation:
     latitude: 45.4973
