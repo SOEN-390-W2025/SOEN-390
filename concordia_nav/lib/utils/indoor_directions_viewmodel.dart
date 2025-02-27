@@ -58,61 +58,14 @@ class IndoorDirectionsViewModel extends MapViewModel {
   @override
   @override
 Future<void> fetchRoutesForAllModes(String start, String end) async {
-  final floor = floors.firstWhere(
-    (floor) => floor.floorNumber == start || floor.floorNumber == end,
-    orElse: () => floors.first,
-  );
-
-  selectedRoom = ConcordiaRoom(
-    end,
-    RoomCategory.classroom,
-    floor,
-    ConcordiaFloorPoint(
-      floor,
-      0.5,
-      0.5,
-    ),
-  );
-
-  _updateMarkers();
-  notifyListeners();
+  
 }
 
   void calculateDirections() {
-    // Mock directions logic
-    if (selectedRoom == null || selectedRoom!.entrancePoint == null) return;
+    // directions logic
 
-    final polyline = Polyline(
-      polylineId: const PolylineId('indoor_path'),
-      points: [
-        LatLng(selectedRoom!.floor.lat, selectedRoom!.floor.lng),
-        LatLng(
-          selectedRoom!.floor.lat + 0.0001,
-          selectedRoom!.floor.lng + 0.0001,
-        ),
-      ],
-      color: Colors.blue,
-      width: 5,
-    );
-    polylinesNotifier.value = {polyline};
-    notifyListeners();
   }
 
   void _updateMarkers() {
-    if (selectedRoom != null && selectedRoom!.entrancePoint != null) {
-      markersNotifier.value = {
-        Marker(
-          markerId: const MarkerId('selected_room'),
-          position: LatLng(
-            selectedRoom!.floor.lat + selectedRoom!.entrancePoint!.positionX * 0.0001,
-            selectedRoom!.floor.lng + selectedRoom!.entrancePoint!.positionY * 0.0001,
-          ),
-          infoWindow: InfoWindow(title: selectedRoom!.roomNumber),
-        ),
-      };
-    } else {
-      markersNotifier.value = {};
-    }
-    notifyListeners();
   }
 }

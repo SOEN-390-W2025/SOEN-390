@@ -23,7 +23,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white), // White back arrow
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -36,7 +36,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
       ),
       body: Column(
         children: [
-          // Top Bar: Current Location and Destination
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -57,7 +56,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // From: Your Location in a lightly outlined box
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -70,7 +68,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // To: H-120 in a lightly outlined box
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -89,7 +86,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
             ),
           ),
 
-          // Mode Selector
           Padding(
             padding: const EdgeInsets.all(16),
             child: DropdownButton<String>(
@@ -109,12 +105,10 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
             ),
           ),
 
-          // Use Expanded to push the bottom Container to the bottom
           Expanded(
-            child: Container(), // Empty container to fill the remaining space
+            child: Container(),
           ),
 
-          // Bottom Container with ETA and Start Button
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

@@ -112,9 +112,9 @@ void initState() {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1), // Shadow color
-              blurRadius: 8, // Spread of the shadow
-              offset: const Offset(0, -2), // Shadow position (top of the footer)
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
             ),
           ],
         ),
