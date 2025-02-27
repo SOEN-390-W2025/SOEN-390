@@ -2,29 +2,13 @@ import 'package:flutter/material.dart';
 
 class FloorPlanSearchWidget extends StatelessWidget {
   final TextEditingController searchController;
-  final List<String> searchList;
   final Function(String) onFloorSelected;
 
   const FloorPlanSearchWidget({
     super.key,
     required this.searchController,
-    required this.searchList,
     required this.onFloorSelected,
   });
-
-  Future<void> handleSelection(BuildContext context) async {
-    final result = await Navigator.pushNamed(
-      context,
-      '/SearchView',
-      arguments: searchList,
-    );
-
-    if (result != null) {
-      final selectedFloor = result as String;
-      searchController.text = selectedFloor;
-      onFloorSelected(selectedFloor);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +39,14 @@ class FloorPlanSearchWidget extends StatelessWidget {
                 controller: searchController,
                 style: const TextStyle(fontSize: 16),
                 decoration: const InputDecoration(
-                  hintText: 'Search for a floor plan',
+                  hintText: 'Room Number',
                   border: InputBorder.none,
                   isDense: true,
                   hintStyle: TextStyle(color: Colors.grey),
                 ),
-                onTap: () => handleSelection(context),
+                onChanged: (value) {
+                  onFloorSelected(value); // Triggers the search dynamically
+                },
               ),
             ),
           ],

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_floor.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../../data/domain-model/concordia_room.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import '../../data/domain-model/room_category.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/zoom_buttons.dart'; // Import the ZoomButton widget
+import '../../widgets/zoom_buttons.dart';
+import 'indoor_directions_view.dart';
 
 class IndoorMapView extends StatefulWidget {
   const IndoorMapView({super.key});
@@ -41,17 +44,25 @@ class _IndoorMapViewState extends State<IndoorMapView> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _indoorMapViewModel = IndoorMapViewModel();
-    _originController = TextEditingController();
-    _destinationController = TextEditingController();
-    _currentFloor = getDefaultFloor();
+@override
+void initState() {
+  super.initState();
+  _indoorMapViewModel = IndoorMapViewModel();
+  _originController = TextEditingController();
+  _destinationController = TextEditingController();
+  _currentFloor = getDefaultFloor();
 
-    // Generate search list from floors
-    _searchList.addAll(_indoorMapViewModel.floors.map((floor) => floor.floorNumber).toList());
-  }
+  // Hardcoding a default selected room for testing
+  // Will be change when backend is implemented
+  _indoorMapViewModel.selectedRoom = ConcordiaRoom(
+    'H-120',
+    RoomCategory.classroom,
+    _currentFloor!,
+    null,
+  );
+
+  _searchList.addAll(_indoorMapViewModel.floors.map((floor) => floor.floorNumber).toList());
+}
 
   @override
   void dispose() {
@@ -63,7 +74,7 @@ class _IndoorMapViewState extends State<IndoorMapView> {
   ConcordiaFloor _getFloorByName(String floorName) {
     return _indoorMapViewModel.floors.firstWhere(
       (floor) => floor.floorNumber == floorName,
-      orElse: () => getDefaultFloor(), // Fallback to default floor
+      orElse: () => getDefaultFloor(),
     );
   }
 
@@ -78,7 +89,6 @@ class _IndoorMapViewState extends State<IndoorMapView> {
           children: [
             FloorPlanSearchWidget(
               searchController: _destinationController,
-              searchList: _searchList,
               onFloorSelected: (selectedFloor) {
                 setState(() {
                   _currentFloor = _getFloorByName(selectedFloor);
@@ -92,50 +102,57 @@ class _IndoorMapViewState extends State<IndoorMapView> {
   }
 
   Widget _buildFooter() {
-  return Positioned(
-    bottom: 0,
-    left: 0,
-    right: 0,
-    child: Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1), // Shadow color
-            blurRadius: 8, // Spread of the shadow
-            offset: const Offset(0, -2), // Shadow position (top of the footer)
-          ),
-        ],
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1), // Shadow color
+              blurRadius: 8, // Spread of the shadow
+              offset: const Offset(0, -2), // Shadow position (top of the footer)
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                _indoorMapViewModel.selectedRoom?.roomNumber ?? 'Select a room',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_indoorMapViewModel.selectedRoom != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => IndoorDirectionsView(
+                        currentLocation: 'Your Location',
+                        destination: _indoorMapViewModel.selectedRoom!.roomNumber,
+                      ),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+              ),
+              child: const Text(
+                'Directions',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              _indoorMapViewModel.selectedRoom?.roomNumber ?? 'Select a room',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (_indoorMapViewModel.selectedRoom != null) {
-                _indoorMapViewModel.calculateDirections();
-                setState(() {});
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-            ),
-            child: const Text(
-              'Directions',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +164,6 @@ class _IndoorMapViewState extends State<IndoorMapView> {
       body: Stack(
         children: [
           Center(
-            // Mock image for hall floor plans
             child: Image.asset(
               'assets/maps/indoor/Hall-1.png',
               fit: BoxFit.contain,
@@ -156,7 +172,6 @@ class _IndoorMapViewState extends State<IndoorMapView> {
           _buildTopPanel(),
           _buildFooter(),
 
-          //zoom not implemented for now since map is mocked
           Positioned(
             top: 80,
             right: 16,
@@ -164,12 +179,14 @@ class _IndoorMapViewState extends State<IndoorMapView> {
               children: [
                 ZoomButton(
                   onTap: () {
+                    // Handle zoom in
                   },
                   icon: Icons.add,
                   isZoomInButton: true,
                 ),
                 ZoomButton(
                   onTap: () {
+                    // Handle zoom out
                   },
                   icon: Icons.remove,
                   isZoomInButton: false,
