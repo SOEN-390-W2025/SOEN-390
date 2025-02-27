@@ -9,5 +9,6 @@ enum RoomCategory {
   maintenance,
   office,
   restaurant,
-  washroom
+  washroom,
+  unknown
 }
