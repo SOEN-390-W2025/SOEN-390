@@ -87,19 +87,17 @@ class BuildingDataManager {
           'building': {
             'name': data.building.name,
             'abbreviation': data.building.abbreviation,
-            'latitude': data.building.lat,
-            'longitude': data.building.lng,
             'address': data.building.streetAddress,
             'city': data.building.city,
             'province': data.building.province,
             'postalCode': data.building.postalCode,
             'campus': data.building.campus.name,
+            'location': {'lat': data.building.lat, 'lng': data.building.lng}
           },
           'floors': data.floors
               .map((floor) => {
-                    'floorNumber': floor.floorNumber,
-                    'building': floor.building.abbreviation,
-                    'pixelsPerSecond': floor.pixelsPerSecond,
+                    'number': floor.floorNumber,
+                    'pixelsPerSecond': floor.pixelsPerSecond
                   })
               .toList(),
           'roomsByFloor':
@@ -110,25 +108,24 @@ class BuildingDataManager {
                             'roomNumber': room.roomNumber,
                             'category':
                                 room.category.toString().split('.').last,
-                            'floor': room.floor.floorNumber,
                             'entrancePoint': room.entrancePoint != null
                                 ? {
-                                    'floor':
-                                        room.entrancePoint!.floor.floorNumber,
                                     'x': room.entrancePoint!.positionX,
                                     'y': room.entrancePoint!.positionY,
+                                    'floor':
+                                        room.entrancePoint!.floor.floorNumber
                                   }
-                                : null,
+                                : null
                           })
                       .toList()))),
-          'waypointsByFloor': Map.fromEntries(
-              data.waypointsByFloor.entries.map((entry) => MapEntry(
+          'waypointsByFloor': Map.fromEntries(data.waypointsByFloor.entries.map(
+              (entry) => MapEntry(
                   entry.key,
                   entry.value
                       .map((point) => {
-                            'floor': point.floor.floorNumber,
                             'x': point.positionX,
                             'y': point.positionY,
+                            'floor': point.floor.floorNumber
                           })
                       .toList()))),
           'waypointNavigability': Map.fromEntries(
@@ -144,25 +141,29 @@ class BuildingDataManager {
                     'waitTimePerFloorSeconds': conn.waitTimePerFloorSeconds,
                     'floors':
                         conn.floors.map((floor) => floor.floorNumber).toList(),
-                    'floorPoints': Map.fromEntries(conn.floorPoints.entries
-                        .map((entry) => MapEntry(entry.key, {
-                              'floor': entry.value.floor.floorNumber,
-                              'x': entry.value.positionX,
-                              'y': entry.value.positionY,
-                            }))),
+                    'floorPoints': Map.fromEntries(
+                        conn.floorPoints.entries.map((entry) => MapEntry(
+                            entry.key,
+                            entry.value
+                                .map((point) => {
+                                      'floor': point.floor.floorNumber,
+                                      'x': point.positionX,
+                                      'y': point.positionY,
+                                    })
+                                .toList()))),
                   })
               .toList(),
           'outdoorExitPoint': {
             'floor': data.outdoorExitPoint.floor.floorNumber,
             'x': data.outdoorExitPoint.positionX,
-            'y': data.outdoorExitPoint.positionY,
-          },
+            'y': data.outdoorExitPoint.positionY
+          }
         };
       });
 
-      // Convert to JSON string with pretty printing
+      // Convert to JSON string (one line)
       final String jsonData =
-          const JsonEncoder.withIndent('  ').convert(serializedData);
+          const JsonEncoder.withIndent(null).convert(serializedData);
 
       // Log the JSON data
       dev.log('Building data as JSON:', error: jsonData);

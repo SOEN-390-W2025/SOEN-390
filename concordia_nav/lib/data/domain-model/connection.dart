@@ -3,7 +3,8 @@ import 'concordia_floor_point.dart';
 
 class Connection {
   final List<ConcordiaFloor> floors;
-  final Map<String, ConcordiaFloorPoint> floorPoints; // Key is floor no
+  final Map<String, List<ConcordiaFloorPoint>>
+      floorPoints; // Key is floor number, value is list of points
 
   final bool isAccessible;
   final String name;

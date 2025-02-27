@@ -191,7 +191,11 @@ void main() {
 
     final connection = Connection(
       [floor1, floor2],
-      {'1': floorPoint1, '2': floorPoint2, '3': floorPoint3},
+      {
+        '1': [floorPoint1], // Wrapped in a list
+        '2': [floorPoint2], // Wrapped in a list
+        '3': [floorPoint3] // Wrapped in a list
+      },
       true,
       'Elevator Connection',
       10.0,
@@ -243,9 +247,10 @@ void main() {
     final floor1 = ConcordiaFloor("1", BuildingRepository.h);
     final floor2 = ConcordiaFloor("2", BuildingRepository.h);
 
+// Update this map to wrap each point in a list
     final floorPoints = {
-      '1': ConcordiaFloorPoint(floor1, 10.5, 20.5),
-      '2': ConcordiaFloorPoint(floor2, 15.5, 25.5),
+      '1': [ConcordiaFloorPoint(floor1, 10.5, 20.5)], // Wrap in list []
+      '2': [ConcordiaFloorPoint(floor2, 15.5, 25.5)], // Wrap in list []
     };
 
     const bool isAccessible = true;
@@ -280,9 +285,9 @@ void main() {
     final floor4 = ConcordiaFloor("4", BuildingRepository.h);
 
     final floorPoints = {
-      '1': ConcordiaFloorPoint(floor1, 10.5, 20.5),
-      '2': ConcordiaFloorPoint(floor2, 15.5, 25.5),
-      '3': ConcordiaFloorPoint(floor3, 20.5, 30.5),
+      '1': [ConcordiaFloorPoint(floor1, 10.5, 20.5)],
+      '2': [ConcordiaFloorPoint(floor2, 15.5, 25.5)],
+      '3': [ConcordiaFloorPoint(floor3, 20.5, 30.5)],
     };
 
     const double fixedWaitTimeSeconds = 10.0;
@@ -297,8 +302,8 @@ void main() {
       waitTimePerFloorSeconds,
     );
 
-    // Act & Assert
-    // Wait time between Floor 1 and Floor 2 should be 10 + (5 * 1) = 15 seconds
+// Act & Assert
+// Wait time between Floor 1 and Floor 2 should be 10 + (5 * 1) = 15 seconds
     expect(connection.getWaitTime(floor1, floor2), equals(15.0));
 
     // Wait time between Floor 2 and Floor 3 should be 10 + (5 * 1) = 15 seconds

@@ -141,13 +141,27 @@ class BuildingDataLoader {
           }
         }
         // Convert the floorPoints mapping.
-        final Map<String, ConcordiaFloorPoint> floorPoints = {};
-        (connYaml['floorPoints'] as Map).forEach((floorKey, pointYaml) {
-          floorPoints[floorKey] = ConcordiaFloorPoint(
-            floorMap[pointYaml['floor']]!,
-            (pointYaml['x'] as num).toDouble(),
-            (pointYaml['y'] as num).toDouble(),
-          );
+        final Map<String, List<ConcordiaFloorPoint>> floorPoints = {};
+        (connYaml['floorPoints'] as Map).forEach((floorKey, pointData) {
+          if (pointData is List) {
+            // Handle list of points for this floor
+            floorPoints[floorKey] = pointData
+                .map((pointYaml) => ConcordiaFloorPoint(
+                      floorMap[pointYaml['floor']]!,
+                      (pointYaml['x'] as num).toDouble(),
+                      (pointYaml['y'] as num).toDouble(),
+                    ))
+                .toList();
+          } else {
+            // Handle single point for this floor
+            floorPoints[floorKey] = [
+              ConcordiaFloorPoint(
+                floorMap[pointData['floor']]!,
+                (pointData['x'] as num).toDouble(),
+                (pointData['y'] as num).toDouble(),
+              )
+            ];
+          }
         });
         connections.add(Connection(
           connFloors,

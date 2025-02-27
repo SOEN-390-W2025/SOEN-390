@@ -143,10 +143,10 @@ class IndoorFeatureRepository {
           // unit-tested to ensure their meaning doesn't change with future
           // updates to the list of floors
           {
-            "1": ConcordiaFloorPoint(hallFloors[2], 1730, 2111),
-            "2": ConcordiaFloorPoint(hallFloors[3], 1565, 1960),
-            "8": ConcordiaFloorPoint(hallFloors[8], 355, 350),
-            "9": ConcordiaFloorPoint(hallFloors[9], 355, 355)
+            "1": [ConcordiaFloorPoint(hallFloors[2], 1730, 2111)],
+            "2": [ConcordiaFloorPoint(hallFloors[3], 1565, 1960)],
+            "8": [ConcordiaFloorPoint(hallFloors[8], 355, 350)],
+            "9": [ConcordiaFloorPoint(hallFloors[9], 355, 355)]
           },
           true,
           "Main Elevators",
@@ -163,10 +163,10 @@ class IndoorFeatureRepository {
         hallFloors[9],
         hallFloors[10]
       ], {
-        "1": ConcordiaFloorPoint(hallFloors[2], 1570, 2440),
-        "2": ConcordiaFloorPoint(hallFloors[3], 1235, 1330),
-        "8": ConcordiaFloorPoint(hallFloors[8], 480, 420),
-        "9": ConcordiaFloorPoint(hallFloors[9], 460, 425)
+        "1": [ConcordiaFloorPoint(hallFloors[2], 1570, 2440)],
+        "2": [ConcordiaFloorPoint(hallFloors[3], 1235, 1330)],
+        "8": [ConcordiaFloorPoint(hallFloors[8], 480, 420)],
+        "9": [ConcordiaFloorPoint(hallFloors[9], 460, 425)]
       }, false, "Escalators", 0, 15)
     ]
   };
