@@ -40,4 +40,14 @@ class ConcordiaCampus extends Location {
       orElse: () => throw ArgumentError("Invalid campus abbreviation"),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ConcordiaCampus) return false;
+    return abbreviation == other.abbreviation;
+  }
+
+  @override
+  int get hashCode => abbreviation.hashCode;
 }
