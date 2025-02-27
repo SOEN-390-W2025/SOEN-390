@@ -159,7 +159,7 @@ void initState() {
     return Scaffold(
       appBar: customAppBar(
         context,
-        'Indoor Map - ${_currentFloor?.floorNumber ?? 'Default Floor'}',
+        'Indoor Map',
       ),
       body: Stack(
         children: [
