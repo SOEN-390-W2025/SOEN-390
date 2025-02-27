@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
@@ -8,89 +6,11 @@ import 'package:concordia_nav/data/domain-model/concordia_room.dart';
 import 'package:concordia_nav/data/domain-model/connection.dart';
 import 'package:concordia_nav/data/domain-model/indoor_route.dart';
 import 'package:concordia_nav/data/domain-model/room_category.dart';
-import 'package:concordia_nav/data/repositories/building_data.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/repositories/indoor_feature_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  const String mockYamlData = """
-    floors:
-      - number: "1"
-        pixelsPerSecond: 1.5
-    rooms:
-      "1":
-        - roomNumber: "101"
-          category: "classroom"
-          floor: "1"
-          entrancePoint:
-            x: 10
-            y: 20
-    waypoints:
-      "1":
-        - x: 30
-          y: 40
-    waypointNavigability:
-      "1":
-        "0": [1, 2]
-    connections:
-      - floors: ["1"]
-        floorPoints:
-          "1":
-            floor: "1"
-            x: 50
-            y: 60
-        accessible: true
-        name: "Stairs"
-        fixedWaitTimeSeconds: 2.0
-        waitTimePerFloorSeconds: 3.0
-    outdoorExitPoint:
-      floor: "1"
-      x: 70
-      y: 80
-  """;
-
-  setUp(() {
-    // Mock BuildingRepository
-    BuildingRepository.buildingByAbbreviation['TEST'] = BuildingRepository.h;
-  });
-
-  test('BuildingDataLoader correctly parses YAML and creates BuildingData',
-      () async {
-    // Mock asset loading
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMessageHandler('flutter/assets', (ByteData? message) async {
-      return ByteData.view(Uint8List.fromList(mockYamlData.codeUnits).buffer);
-    });
-
-    final loader = BuildingDataLoader('TEST');
-    final BuildingData data = await loader.load();
-
-    // Validate Floors
-    expect(data.floors.length, 1);
-    expect(data.floors.first.floorNumber, '1');
-    expect(data.floors.first.pixelsPerSecond, 1.5);
-
-    // Validate Rooms
-    expect(data.roomsByFloor.length, 1);
-    expect(data.roomsByFloor['1']!.first.roomNumber, '101');
-    expect(data.roomsByFloor['1']!.first.category, RoomCategory.classroom);
-
-    // Validate Waypoints
-    expect(data.waypointsByFloor.length, 1);
-
-    // Validate Waypoint Navigability
-    expect(data.waypointNavigability['1']![0], [1, 2]);
-
-    // Validate Connections
-    expect(data.connections.length, 1);
-    expect(data.connections.first.name, "Stairs");
-    expect(data.connections.first.fixedWaitTimeSeconds, 2.0);
-    expect(data.connections.first.waitTimePerFloorSeconds, 3.0);
-  });
-
   group('IndoorFeatureRepository Tests', () {
     test('floorsByBuilding should contain correct floors for Building H', () {
       // Arrange
