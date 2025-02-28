@@ -350,31 +350,68 @@ void main() {
     expect(connection.getWaitTime(floor1, floor4), isNull);
   });
 
-  test('ConcordiaRoom constructor initializes properties correctly', () {
-    // Arrange
-    final mockFloor = ConcordiaFloor("1", BuildingRepository.h);
+  group('ConcordiaRoom tests', () {
+    test('ConcordiaRoom constructor initializes properties correctly', () {
+      // Arrange
+      final mockFloor = ConcordiaFloor("1", BuildingRepository.h);
 
-    final entrance = ConcordiaFloorPoint(mockFloor, 10.5, 20.5);
-    const String roomNumber = 'EV9.123';
-    const RoomCategory category = RoomCategory.auditorium;
+      final entrance = ConcordiaFloorPoint(mockFloor, 10.5, 20.5);
+      const String roomNumber = 'EV9.123';
+      const RoomCategory category = RoomCategory.auditorium;
 
-    // Act
-    final room = ConcordiaRoom(roomNumber, category, mockFloor, entrance);
+      // Act
+      final room = ConcordiaRoom(roomNumber, category, mockFloor, entrance);
 
-    // Assert
-    expect(room.roomNumber, equals(roomNumber));
-    expect(room.category, equals(category));
-    expect(room.floor, equals(mockFloor));
-    expect(room.entrancePoint, equals(entrance));
+      // Assert
+      expect(room.roomNumber, equals(roomNumber));
+      expect(room.category, equals(category));
+      expect(room.floor, equals(mockFloor));
+      expect(room.entrancePoint, equals(entrance));
 
-    // Verify superclass properties
-    expect(room.lat, equals(mockFloor.lat));
-    expect(room.lng, equals(mockFloor.lng));
-    expect(room.name, equals(mockFloor.name));
-    expect(room.streetAddress, equals(mockFloor.streetAddress));
-    expect(room.city, equals(mockFloor.city));
-    expect(room.province, equals(mockFloor.province));
-    expect(room.postalCode, equals(mockFloor.postalCode));
+      // Verify superclass properties
+      expect(room.lat, equals(mockFloor.lat));
+      expect(room.lng, equals(mockFloor.lng));
+      expect(room.name, equals(mockFloor.name));
+      expect(room.streetAddress, equals(mockFloor.streetAddress));
+      expect(room.city, equals(mockFloor.city));
+      expect(room.province, equals(mockFloor.province));
+      expect(room.postalCode, equals(mockFloor.postalCode));
+    });
+
+    test('hashCode gets the hashcode of a ConcordiaRoom', () {
+      // Arrange
+      final mockFloor = ConcordiaFloor("1", BuildingRepository.h);
+
+      final entrance = ConcordiaFloorPoint(mockFloor, 10.5, 20.5);
+      const String roomNumber = 'EV9.123';
+      const RoomCategory category = RoomCategory.auditorium;
+      final room = ConcordiaRoom(roomNumber, category, mockFloor, entrance);
+
+      // Act
+      final hashCode = room.hashCode;
+
+      // Assert
+      expect(hashCode, isA<int>());
+    });
+
+    test('check override for == operator works', () {
+      // Arrange
+      final mockFloor = ConcordiaFloor("1", BuildingRepository.h);
+
+      final entrance = ConcordiaFloorPoint(mockFloor, 10.5, 20.5);
+      const String roomNumber = 'EV9.123';
+      const RoomCategory category = RoomCategory.auditorium;
+      final room = ConcordiaRoom(roomNumber, category, mockFloor, entrance);
+      final room2 = ConcordiaRoom(
+          roomNumber, RoomCategory.classroom, mockFloor, entrance);
+      final room3 = ConcordiaRoom('EV9.125', category, mockFloor, entrance);
+
+      expect(room == room, true);
+      expect(room == room2, true);
+      expect(room == room3, false);
+      // ignore: unrelated_type_equality_checks
+      expect(room == entrance, false);
+    });
   });
 
   test('ConcordiaFloorPoint constructor initializes properties correctly', () {
@@ -392,7 +429,9 @@ void main() {
     expect(point.positionY, equals(y));
   });
 
-  test('should calculate the correct distance between two points', () {
+  test(
+      'getDistanceBetweenPoints should calculate the correct distance between two points',
+      () {
     final point1 =
         ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
     final point2 =
@@ -412,6 +451,244 @@ void main() {
     final result = IndoorRoute.getDistanceBetweenPoints(point1, point2);
 
     expect(result, 0.0); // Same point, so distance is zero
+  });
+
+  test(
+      'getFloorRoutablePointListTravelTime should calculate the correct travel time between points',
+      () {
+    final point1 =
+        ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+    final point2 =
+        ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 3, 4);
+    final points = [point1, point2];
+
+    final result = IndoorRoute(
+            BuildingRepository.h, null, null, null, null, null, null, null)
+        .getFloorRoutablePointListTravelTime(points);
+
+    expect(result, 5.0);
+  });
+
+  test(
+      'getFloorRoutablePointListTravelTime should return 0 when only one point in list',
+      () {
+    final point1 =
+        ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+    final points = [point1];
+
+    final result = IndoorRoute(
+            BuildingRepository.h, null, null, null, null, null, null, null)
+        .getFloorRoutablePointListTravelTime(points);
+
+    expect(result, 0.0); // only one point so no travel time
+  });
+
+  test('getIndoorTravelTimeSeconds returns travel time sum in seconds', () {
+    // Arrange
+    final ConcordiaFloor floor1 = ConcordiaFloor("1", BuildingRepository.h, 1);
+    final ConcordiaFloor floor2 = ConcordiaFloor("2", BuildingRepository.h, 1);
+
+    final floorPoint1 = ConcordiaFloorPoint(floor1, 10.0, 20.0);
+    final floorPoint2 = ConcordiaFloorPoint(floor1, 15.0, 25.0);
+    final floorPoint3 = ConcordiaFloorPoint(floor2, 12.0, 22.0);
+
+    final connection = Connection(
+      [floor1, floor2],
+      {
+        '1': [floorPoint1], // Wrapped in a list
+        '2': [floorPoint2], // Wrapped in a list
+        '3': [floorPoint3] // Wrapped in a list
+      },
+      true,
+      'Elevator Connection',
+      10.0,
+      5.0,
+    );
+
+    // Create the IndoorRoute
+    final indoorRoute = IndoorRoute(
+      BuildingRepository.h,
+      [floorPoint1, floorPoint2],
+      connection,
+      [floorPoint2],
+      BuildingRepository.h,
+      [floorPoint3],
+      connection,
+      [floorPoint3],
+    );
+
+    // Act
+    final sum = indoorRoute.getIndoorTravelTimeSeconds();
+
+    // Assert
+    expect(sum, 7.0710678118654755);
+  });
+
+  test('getIndoorTravelTimeSeconds without secondIndoorPortionFromConnection',
+      () {
+    // Arrange
+    final ConcordiaFloor floor1 = ConcordiaFloor("1", BuildingRepository.h, 1);
+    final ConcordiaFloor floor2 = ConcordiaFloor("2", BuildingRepository.h, 1);
+
+    final floorPoint1 = ConcordiaFloorPoint(floor1, 10.0, 20.0);
+    final floorPoint2 = ConcordiaFloorPoint(floor1, 15.0, 25.0);
+    final floorPoint3 = ConcordiaFloorPoint(floor2, 12.0, 22.0);
+
+    final connection = Connection(
+      [floor1, floor2],
+      {
+        '1': [floorPoint1], // Wrapped in a list
+        '2': [floorPoint2], // Wrapped in a list
+        '3': [floorPoint3] // Wrapped in a list
+      },
+      true,
+      'Elevator Connection',
+      10.0,
+      5.0,
+    );
+
+    // Create the IndoorRoute
+    final indoorRoute = IndoorRoute(
+      BuildingRepository.h,
+      [floorPoint1, floorPoint2],
+      connection,
+      [floorPoint2],
+      BuildingRepository.h,
+      [floorPoint3],
+      connection,
+      null,
+    );
+
+    // Act
+    final sum = indoorRoute.getIndoorTravelTimeSeconds();
+
+    // Assert
+    expect(sum, 7.0710678118654755);
+  });
+
+  test('getIndoorTravelTimeSeconds without secondIndoorPortionToConnection',
+      () {
+    // Arrange
+    final ConcordiaFloor floor1 = ConcordiaFloor("1", BuildingRepository.h, 1);
+    final ConcordiaFloor floor2 = ConcordiaFloor("2", BuildingRepository.h, 1);
+
+    final floorPoint1 = ConcordiaFloorPoint(floor1, 10.0, 20.0);
+    final floorPoint2 = ConcordiaFloorPoint(floor1, 15.0, 25.0);
+    final floorPoint3 = ConcordiaFloorPoint(floor2, 12.0, 22.0);
+
+    final connection = Connection(
+      [floor1, floor2],
+      {
+        '1': [floorPoint1], // Wrapped in a list
+        '2': [floorPoint2], // Wrapped in a list
+        '3': [floorPoint3] // Wrapped in a list
+      },
+      true,
+      'Elevator Connection',
+      10.0,
+      5.0,
+    );
+
+    // Create the IndoorRoute
+    final indoorRoute = IndoorRoute(
+      BuildingRepository.h,
+      [floorPoint1, floorPoint2],
+      connection,
+      [floorPoint2, floorPoint3],
+      BuildingRepository.h,
+      null,
+      connection,
+      null,
+    );
+
+    // Act
+    final sum = indoorRoute.getIndoorTravelTimeSeconds();
+
+    // Assert
+    expect(sum, 11.31370849898476);
+  });
+
+  test('getIndoorTravelTimeSeconds without firstIndoorPortionFromConnection',
+      () {
+    // Arrange
+    final ConcordiaFloor floor1 = ConcordiaFloor("1", BuildingRepository.h, 1);
+    final ConcordiaFloor floor2 = ConcordiaFloor("2", BuildingRepository.h, 1);
+
+    final floorPoint1 = ConcordiaFloorPoint(floor1, 10.0, 20.0);
+    final floorPoint2 = ConcordiaFloorPoint(floor1, 15.0, 25.0);
+    final floorPoint3 = ConcordiaFloorPoint(floor2, 12.0, 22.0);
+
+    final connection = Connection(
+      [floor1, floor2],
+      {
+        '1': [floorPoint1], // Wrapped in a list
+        '2': [floorPoint2], // Wrapped in a list
+        '3': [floorPoint3] // Wrapped in a list
+      },
+      true,
+      'Elevator Connection',
+      10.0,
+      5.0,
+    );
+
+    // Create the IndoorRoute
+    final indoorRoute = IndoorRoute(
+      BuildingRepository.h,
+      [floorPoint1, floorPoint2],
+      connection,
+      null,
+      BuildingRepository.h,
+      [floorPoint2, floorPoint3],
+      connection,
+      [floorPoint3],
+    );
+
+    // Act
+    final sum = indoorRoute.getIndoorTravelTimeSeconds();
+
+    // Assert
+    expect(sum, 26.31370849898476);
+  });
+
+  test('getIndoorTravelTimeSeconds without firstIndoorPortionToConnection', () {
+    // Arrange
+    final ConcordiaFloor floor1 = ConcordiaFloor("1", BuildingRepository.h, 1);
+    final ConcordiaFloor floor2 = ConcordiaFloor("2", BuildingRepository.h, 1);
+
+    final floorPoint1 = ConcordiaFloorPoint(floor1, 10.0, 20.0);
+    final floorPoint2 = ConcordiaFloorPoint(floor1, 15.0, 25.0);
+    final floorPoint3 = ConcordiaFloorPoint(floor2, 12.0, 22.0);
+
+    final connection = Connection(
+      [floor1, floor2],
+      {
+        '1': [floorPoint1], // Wrapped in a list
+        '2': [floorPoint2], // Wrapped in a list
+        '3': [floorPoint3] // Wrapped in a list
+      },
+      true,
+      'Elevator Connection',
+      10.0,
+      5.0,
+    );
+
+    // Create the IndoorRoute
+    final indoorRoute = IndoorRoute(
+      BuildingRepository.h,
+      null,
+      connection,
+      [floorPoint1, floorPoint2],
+      BuildingRepository.h,
+      [floorPoint2, floorPoint3],
+      connection,
+      [floorPoint3],
+    );
+
+    // Act
+    final sum = indoorRoute.getIndoorTravelTimeSeconds();
+
+    // Assert
+    expect(sum, 19.242640687119284);
   });
 
   group('concordia floors', () {
