@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class SelectableList<T> extends StatelessWidget {
   final List<T> items;
   final String title;
-  final String hintText;
   final Function(T) onItemSelected;
   final TextEditingController searchController;
 
@@ -11,7 +10,6 @@ class SelectableList<T> extends StatelessWidget {
     super.key,
     required this.items,
     required this.title,
-    required this.hintText,
     required this.onItemSelected,
     required this.searchController,
   });

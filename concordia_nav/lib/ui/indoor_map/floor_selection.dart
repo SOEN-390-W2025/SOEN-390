@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
-import '../../data/repositories/building_repository.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/selectable_list.dart';
-import 'floor_selection.dart';
+import 'classroom_selection.dart';
 
-class IndoorMapView extends StatefulWidget {
-  const IndoorMapView({super.key});
+class FloorSelection extends StatefulWidget {
+  final String building;
+  const FloorSelection({super.key, required this.building});
 
   @override
-  IndoorMapViewState createState() => IndoorMapViewState();
+  FloorSelectionState createState() => FloorSelectionState();
 }
 
-class IndoorMapViewState extends State<IndoorMapView> {
-  late List<String> buildings;
+class FloorSelectionState extends State<FloorSelection> {
+  // Mock floor data
+  final List<String> floors = ['Floor 1', 'Floor 2', 'Floor 3'];
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    buildings = BuildingRepository.buildingByAbbreviation.values
-        .map((building) => building.name)
-        .toList();
     searchController.addListener(() {
       setState(() {});
     });
@@ -36,7 +34,7 @@ class IndoorMapViewState extends State<IndoorMapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Indoor Directions'),
+      appBar: customAppBar(context, widget.building),
       body: Column(
         children: [
           IndoorSearchBar(
@@ -46,15 +44,18 @@ class IndoorMapViewState extends State<IndoorMapView> {
             iconColor: Theme.of(context).primaryColor,
           ),
           SelectableList<String>(
-            items: buildings,
-            title: 'Select a building',
+            items: floors,
+            title: 'Select a floor',
             searchController: searchController,
-            onItemSelected: (building) {
+            onItemSelected: (floor) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  // TODO: Implement floor selection
-                  builder: (context) => FloorSelection(building: building),
+                  // TODO: Implement classroom selection
+                  builder: (context) => ClassroomSelection(
+                    building: widget.building,
+                    floor: floor,
+                  ),
                 ),
               );
             },
