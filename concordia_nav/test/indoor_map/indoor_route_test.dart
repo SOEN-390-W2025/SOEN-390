@@ -275,6 +275,30 @@ void main() {
     expect(point.positionY, equals(y));
   });
 
+  test('should calculate the correct distance between two points', () {
+      final point1 =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+      final point2 =
+          ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 3, 4);
+
+      final result =
+          IndoorRoute.getDistanceBetweenPoints(point1, point2);
+
+      expect(result, 5.0); // Pythagorean theorem (3^2 + 4^2 = 5^2)
+    });
+
+    test('should return zero distance for the same points', () {
+      final point1 =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+      final point2 =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+
+      final result =
+          IndoorRoute.getDistanceBetweenPoints(point1, point2);
+
+      expect(result, 0.0); // Same point, so distance is zero
+    });
+
   group('concordia floors', () {
     const testBuilding = const ConcordiaBuilding(
         45.495397929966266,
