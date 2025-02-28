@@ -14,6 +14,16 @@ void main() {
       expect(buildingDataCache["H"]!.building, BuildingRepository.h);
     });
 
+    test('getAllBuildingData by initializing datapaths first', () async {
+      await BuildingDataManager.initialize();
+
+      final buildingDataCache = await BuildingDataManager.getAllBuildingData();
+
+      // verify buildingDataCache type and that it contains a value
+      expect(buildingDataCache, isA<Map<String, BuildingData>>());
+      expect(buildingDataCache["H"]!.building, BuildingRepository.h);
+    });
+
     test('getBuildingData returns buildingData for specific abbreviation', () async {
       final buildingData = await BuildingDataManager.getBuildingData("H");
 
@@ -29,5 +39,9 @@ void main() {
       expect(BuildingDataManager.getBuildingData(invalidAbbreviation), throwsFlutterError);
     });
 
+    test('toJson doesnt trigger errors', () async {
+      // verify no errors are triggered when running it
+      await BuildingDataManager.toJson();
+    });
   });
 }
