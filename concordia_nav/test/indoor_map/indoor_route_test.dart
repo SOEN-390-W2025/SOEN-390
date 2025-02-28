@@ -11,7 +11,124 @@ import 'package:concordia_nav/data/repositories/indoor_feature_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('IndoorRoute Tests', () {
+    test('Distance between points should be calculated correctly', () {
+      final floor = ConcordiaFloor('1', BuildingRepository.h);
+      final point1 = ConcordiaFloorPoint(floor, 0.0, 0.0);
+      final point2 = ConcordiaFloorPoint(floor, 3.0, 4.0);
+
+      expect(IndoorRoute.getDistanceBetweenPoints(point1, point2),
+          closeTo(5.0, 0.001));
+    });
+
+    test('Travel time should be computed correctly', () {
+      final floor = ConcordiaFloor('1', BuildingRepository.h, 2.0);
+      final points = [
+        ConcordiaFloorPoint(floor, 0.0, 0.0),
+        ConcordiaFloorPoint(floor, 3.0, 4.0),
+      ];
+
+      final route = IndoorRoute(
+          floor.building, points, null, null, null, null, null, null);
+      expect(route.getFloorRoutablePointListTravelTime(points),
+          closeTo(2.5, 0.001));
+    });
+
+    test('Indoor travel time with connection should be computed correctly', () {
+      const building = BuildingRepository.h;
+      final floor1 = ConcordiaFloor('1', building, 1.0);
+      final floor2 = ConcordiaFloor('2', building, 1.0);
+      final point1 = ConcordiaFloorPoint(floor1, 0.0, 0.0);
+      final point2 = ConcordiaFloorPoint(floor1, 3.0, 4.0);
+      final point3 = ConcordiaFloorPoint(floor2, 6.0, 8.0);
+
+      final connection =
+          Connection([floor1, floor2], {}, true, 'Elevator', 5.0, 3.0);
+
+      final route = IndoorRoute(building, [point1, point2], connection,
+          [point3], null, null, null, null);
+
+      expect(route.getIndoorTravelTimeSeconds(), closeTo(12.0, 1));
+    });
+
+    test(
+        'Indoor travel time with connection and secondIndoorPortionToConnection should be computed correctly',
+        () {
+      const building = BuildingRepository.h;
+      final floor1 = ConcordiaFloor('1', building, 1.0);
+      final floor2 = ConcordiaFloor('2', building, 1.0);
+      final floor3 = ConcordiaFloor('3', building, 1.0);
+      final point1 = ConcordiaFloorPoint(floor1, 0.0, 0.0);
+      final point2 = ConcordiaFloorPoint(floor1, 3.0, 4.0);
+      final point3 = ConcordiaFloorPoint(floor2, 6.0, 8.0);
+      final point4 = ConcordiaFloorPoint(floor3, 1.0, 2.0);
+
+      final connection1 =
+          Connection([floor1, floor2], {}, true, 'Elevator', 5.0, 3.0);
+      final connection2 =
+          Connection([floor2, floor3], {}, true, 'Stairs', 4.0, 2.5);
+
+      final route = IndoorRoute(
+        building,
+        [point1, point2],
+        connection1,
+        [point3],
+        building,
+        [point4],
+        connection2,
+        null,
+      );
+
+      expect(route.getIndoorTravelTimeSeconds(), closeTo(13.0, 1));
+    });
+  });
+
   group('IndoorFeatureRepository Tests', () {
+    test('hashCode should be consistent with abbreviation', () {
+      // Create two instances with the same abbreviation
+      const building1 = ConcordiaBuilding(
+        45.4954,
+        73.5787,
+        'Building A',
+        '123 Main St',
+        'Montreal',
+        'QC',
+        'H3G 1M8',
+        'B1',
+        ConcordiaCampus.sgw,
+      );
+      const building2 = ConcordiaBuilding(
+        45.4954,
+        73.5787,
+        'Building A',
+        '123 Main St',
+        'Montreal',
+        'QC',
+        'H3G 1M8',
+        'B1',
+        ConcordiaCampus.sgw,
+      );
+
+      // Check that both buildings have the same hashCode because their abbreviation is the same
+      expect(building1.hashCode, equals(building2.hashCode));
+
+      // Create a different building with a different abbreviation
+      const building3 = ConcordiaBuilding(
+        45.4954,
+        73.5787,
+        'Building B',
+        '456 Elm St',
+        'Montreal',
+        'QC',
+        'H3G 2N1',
+        'B2',
+        ConcordiaCampus.sgw,
+      );
+
+      // Check that the hashCode is different for buildings with different abbreviations
+      expect(building1.hashCode, isNot(equals(building3.hashCode)));
+    });
+
     test('floorsByBuilding should contain correct floors for Building H', () {
       // Arrange
       final buildingAbbreviation = BuildingRepository.h.abbreviation;
@@ -276,28 +393,26 @@ void main() {
   });
 
   test('should calculate the correct distance between two points', () {
-      final point1 =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
-      final point2 =
-          ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 3, 4);
+    final point1 =
+        ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+    final point2 =
+        ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 3, 4);
 
-      final result =
-          IndoorRoute.getDistanceBetweenPoints(point1, point2);
+    final result = IndoorRoute.getDistanceBetweenPoints(point1, point2);
 
-      expect(result, 5.0); // Pythagorean theorem (3^2 + 4^2 = 5^2)
-    });
+    expect(result, 5.0); // Pythagorean theorem (3^2 + 4^2 = 5^2)
+  });
 
-    test('should return zero distance for the same points', () {
-      final point1 =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
-      final point2 =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+  test('should return zero distance for the same points', () {
+    final point1 =
+        ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+    final point2 =
+        ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
 
-      final result =
-          IndoorRoute.getDistanceBetweenPoints(point1, point2);
+    final result = IndoorRoute.getDistanceBetweenPoints(point1, point2);
 
-      expect(result, 0.0); // Same point, so distance is zero
-    });
+    expect(result, 0.0); // Same point, so distance is zero
+  });
 
   group('concordia floors', () {
     const testBuilding = const ConcordiaBuilding(
