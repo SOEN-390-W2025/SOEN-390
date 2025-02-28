@@ -1,5 +1,8 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import 'data/repositories/building_data_manager.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
@@ -19,6 +22,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  try {
+    await BuildingDataManager.initialize();
+  } on Exception catch (e, stackTrace) {
+    dev.log('Error initializing building data manager',
+        error: e, stackTrace: stackTrace);
+  }
   runApp(const MyApp());
 }
 
