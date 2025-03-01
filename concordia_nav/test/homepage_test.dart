@@ -191,7 +191,7 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
-    
+
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -230,7 +230,7 @@ void main() async {
     // Tap on the Indoor directions FeatureCard
     await tester.tap(find.text('Indoor directions'));
     await tester.pumpAndSettle(); // Wait for navigation to complete
-    expect(find.text('Indoor Map'), findsOneWidget);
+    expect(find.text('Indoor Directions'), findsOneWidget);
 
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -316,7 +316,7 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    
+
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
 
