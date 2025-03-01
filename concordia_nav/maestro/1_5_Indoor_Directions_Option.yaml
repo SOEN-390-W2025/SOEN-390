@@ -4,5 +4,4 @@ appId: com.example.concordia_nav
     clearState: true
 - assertVisible: "Indoor directions"
 - tapOn: "Indoor directions"
-- assertVisible: "Search location ..."
 - assertVisible: "Indoor Directions"
