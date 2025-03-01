@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/selectable_list.dart';
-import 'search_selectable_list.dart';
 
 class ClassroomSelection extends StatefulWidget {
   final String building;
