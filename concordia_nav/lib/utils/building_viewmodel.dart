@@ -3,6 +3,8 @@
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "../data/domain-model/concordia_building.dart";
 import "../data/domain-model/concordia_campus.dart";
+import "../data/domain-model/concordia_room.dart";
+import "../data/repositories/indoor_feature_repository.dart";
 import "../data/services/building_service.dart";
 
 class BuildingViewModel {
@@ -32,6 +34,11 @@ class BuildingViewModel {
     return BuildingService.getbuildingByName(name);
   }
 
+  String? getBuildingAbbreviation(String name) {
+    final building = getBuildingByName(name);
+    return building?.abbreviation;
+  }
+
   LatLng? getBuildingLocationByAbbreviation(String abbreviation) {
     return _buildingService.getBuildingLocationByAbbreviation(abbreviation);
   }
@@ -39,5 +46,22 @@ class BuildingViewModel {
   LatLng? getBuildingLocationByName(String name) {
     final building = getBuildingByName(name);
     return building != null ? LatLng(building.lat, building.lng) : null;
+  }
+
+  List<String> getFloorsForBuilding(String buildingName) {
+    final String? abbreviation = getBuildingAbbreviation(buildingName);
+    if (abbreviation == null) return [];
+    
+    return IndoorFeatureRepository.floorsByBuilding[abbreviation]
+            ?.map((floor) => "Floor ${floor.floorNumber}")
+            .toList() ?? [];
+  }
+
+  List<ConcordiaRoom> getRoomsForFloor(String buildingName, String floorName) {
+    final String? abbreviation = getBuildingAbbreviation(buildingName);
+    if (abbreviation == null) return [];
+    final String floorNumber = floorName.replaceFirst("Floor ", "");
+
+    return IndoorFeatureRepository.roomsByFloor[abbreviation]?[floorNumber] ?? [];
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import 'search_selectable_list.dart';
 import 'classroom_selection.dart';
+
 
 class FloorSelection extends StatefulWidget {
   final String building;
@@ -12,12 +14,13 @@ class FloorSelection extends StatefulWidget {
 }
 
 class FloorSelectionState extends State<FloorSelection> {
-  final List<String> floors = ['Floor 1', 'Floor 2', 'Floor 3'];
+  late final List<String> floors;
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    floors = BuildingViewModel().getFloorsForBuilding(widget.building);
     searchController.addListener(() {
       setState(() {});
     });
@@ -33,22 +36,24 @@ class FloorSelectionState extends State<FloorSelection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, widget.building),
-      body: SearchSelectableList<String>(
-        items: floors,
-        title: 'Select a floor',
-        searchController: searchController,
-        onItemSelected: (floor) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ClassroomSelection(
-                building: widget.building,
-                floor: floor,
+      body: floors.isEmpty
+        ? const Center(child: Text("No floors available"))
+        : SearchSelectableList<String>(
+          items: floors,
+          title: 'Select a floor',
+          searchController: searchController,
+          onItemSelected: (floor) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ClassroomSelection(
+                  building: widget.building,
+                  floor: floor,
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
     );
   }
 }
