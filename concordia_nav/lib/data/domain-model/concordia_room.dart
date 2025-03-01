@@ -12,4 +12,14 @@ class ConcordiaRoom extends Location {
   ConcordiaRoom(this.roomNumber, this.category, this.floor, this.entrancePoint)
       : super(floor.lat, floor.lng, floor.name, floor.streetAddress, floor.city,
             floor.province, floor.postalCode);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ConcordiaRoom) return false;
+    return roomNumber == other.roomNumber && floor == other.floor;
+  }
+
+  @override
+  int get hashCode => Object.hashAll([floor, roomNumber]);
 }
