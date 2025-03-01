@@ -17,7 +17,7 @@ class IndoorLocationView extends StatelessWidget {
           MapLayout(
             mapWidget: Container(),
           ),
-          Text(building + ' ' + floor + ' ' + room),
+          Text('$building $floor $room'),
         ]
       )
     );

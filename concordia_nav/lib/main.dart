@@ -55,7 +55,6 @@ class MyApp extends StatelessWidget {
             room:
                 ModalRoute.of(context)!.settings.arguments as String,
         ),
-
         '/IndoorMapView': (context) => const IndoorMapView(),
         '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
             campus:
