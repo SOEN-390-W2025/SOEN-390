@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:developer' as dev;
 
 import 'package:geolocator/geolocator.dart';
@@ -96,14 +95,6 @@ class IndoorRoutingService {
       return Location(userPosition.latitude, userPosition.longitude,
           "Current Location", null, null, null, null);
     }
-  }
-
-  /// Returns distance between points in pixels/arbitrary units based on
-  /// Pythagorean theorem
-  static double getDistanceBetweenPoints(
-      FloorRoutablePoint point1, FloorRoutablePoint point2) {
-    return sqrt(pow(point2.positionX - point1.positionX, 2) +
-        pow(point2.positionY - point1.positionY, 2));
   }
 
   static IndoorRoute _getDifferentBuildingRoute(FloorRoutablePoint origin,
@@ -245,9 +236,9 @@ class IndoorRoutingService {
     double? destinationWaypointDistance;
     for (int i = 0; i < waypointsOnFloor.length; i++) {
       final distanceFromOrigin =
-          getDistanceBetweenPoints(origin, waypointsOnFloor[i]);
-      final distanceFromDestination =
-          getDistanceBetweenPoints(destination, waypointsOnFloor[i]);
+          IndoorRoute.getDistanceBetweenPoints(origin, waypointsOnFloor[i]);
+      final distanceFromDestination = IndoorRoute.getDistanceBetweenPoints(
+          destination, waypointsOnFloor[i]);
       if (originWaypointDistance == null ||
           distanceFromOrigin < originWaypointDistance) {
         originWaypointIndex = i;
@@ -294,7 +285,7 @@ class IndoorRoutingService {
           continue;
         }
 
-        final distanceFromDestination = getDistanceBetweenPoints(
+        final distanceFromDestination = IndoorRoute.getDistanceBetweenPoints(
             waypointsOnFloor[neighbourIndex],
             waypointsOnFloor[destinationWaypointIndex]);
         if (bestNeighbourDistanceToDest == null ||
