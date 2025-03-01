@@ -1,9 +1,9 @@
-import 'dart:math';
 import 'dart:developer' as dev;
 
 import 'package:geolocator/geolocator.dart';
 import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
+import '../domain-model/concordia_floor_point.dart';
 import '../domain-model/connection.dart';
 import '../domain-model/floor_routable_point.dart';
 import '../domain-model/indoor_route.dart';
@@ -97,14 +97,6 @@ class IndoorRoutingService {
     }
   }
 
-  /// Returns distance between points in pixels/arbitrary units based on
-  /// Pythagorean theorem
-  static double getDistanceBetweenPoints(
-      FloorRoutablePoint point1, FloorRoutablePoint point2) {
-    return sqrt(pow(point2.positionX - point1.positionX, 2) +
-        pow(point2.positionY - point1.positionY, 2));
-  }
-
   static IndoorRoute _getDifferentBuildingRoute(FloorRoutablePoint origin,
       FloorRoutablePoint destination, bool isAccessible) {
     final IndoorRoute returnRoute = IndoorRoute(origin.floor.building, null,
@@ -115,8 +107,7 @@ class IndoorRoutingService {
     final FloorRoutablePoint? originExitPoint = IndoorFeatureRepository
         .outdoorExitPointsByBuilding[origin.floor.building.abbreviation];
     if (originExitPoint != null) {
-      dev.log(
-          "Origin exit point not null - getting route in origin building");
+      dev.log("Origin exit point not null - getting route in origin building");
       final IndoorRoute originPortion =
           getIndoorRoute(origin, originExitPoint, isAccessible);
       returnRoute.firstIndoorPortionToConnection =
@@ -160,8 +151,8 @@ class IndoorRoutingService {
       }
     }
 
-    final returnRoute = IndoorRoute(origin.floor.building, null,
-        bestConnection, null, null, null, null, null);
+    final returnRoute = IndoorRoute(origin.floor.building, null, bestConnection,
+        null, null, null, null, null);
     if (bestConnection == null) {
       dev.log("Couldn't find connection between floor "
           "${origin.floor.floorNumber} and ${destination.floor.floorNumber}");
@@ -170,22 +161,33 @@ class IndoorRoutingService {
       return returnRoute;
     }
 
-    final originConnectionPoint =
+    final originConnectionPoints =
         bestConnection.floorPoints[origin.floor.floorNumber];
-    if (originConnectionPoint != null) {
-      dev.log("Origin conn point is not null - getting intra-floor route");
+    if (originConnectionPoints != null && originConnectionPoints.isNotEmpty) {
+      dev.log("Origin conn points available - getting intra-floor route");
+
+      // Select the closest connection point to the origin
+      final ConcordiaFloorPoint closestOriginPoint =
+          _findClosestConnectionPoint(origin, originConnectionPoints);
+
       final originFloorPortion =
-          getIndoorRoute(origin, originConnectionPoint, isAccessible);
+          getIndoorRoute(origin, closestOriginPoint, isAccessible);
       returnRoute.firstIndoorPortionToConnection =
           originFloorPortion.firstIndoorPortionToConnection;
     }
 
-    final destinationConnectionPoint =
+    final destinationConnectionPoints =
         bestConnection.floorPoints[destination.floor.floorNumber];
-    if (destinationConnectionPoint != null) {
-      dev.log("Dest conn point is not null - getting intra-floor route");
-      final destinationFloorPortion = getIndoorRoute(
-          destinationConnectionPoint, destination, isAccessible);
+    if (destinationConnectionPoints != null &&
+        destinationConnectionPoints.isNotEmpty) {
+      dev.log("Dest conn points available - getting intra-floor route");
+
+      // Select the closest connection point to the destination
+      final ConcordiaFloorPoint closestDestPoint =
+          _findClosestConnectionPoint(destination, destinationConnectionPoints);
+
+      final destinationFloorPortion =
+          getIndoorRoute(closestDestPoint, destination, isAccessible);
       // The mismatch here is deliberate - intra-floor directions always
       // returned in firstIndoorPortionToConnection
       returnRoute.firstIndoorPortionFromConnection =
@@ -195,8 +197,12 @@ class IndoorRoutingService {
     return returnRoute;
   }
 
-  static IndoorRoute? _isSpecialCase(int? originWaypointIndex, int? destinationWaypointIndex,
-      FloorRoutablePoint origin, FloorRoutablePoint destination, List<FloorRoutablePoint> waypointsOnFloor) {
+  static IndoorRoute? _isSpecialCase(
+      int? originWaypointIndex,
+      int? destinationWaypointIndex,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      List<FloorRoutablePoint> waypointsOnFloor) {
     // Special case - couldn't find waypoints
     if (originWaypointIndex == null || destinationWaypointIndex == null) {
       // No floor routing data for this floor, need to return the null route
@@ -215,21 +221,24 @@ class IndoorRoutingService {
           null,
           null,
           null);
+    } else {
+      return null;
     }
-    else {return null;}
   }
 
-  static List<int?> _getClosestWaypoint(List<FloorRoutablePoint> waypointsOnFloor, 
-      FloorRoutablePoint origin, FloorRoutablePoint destination) {
+  static List<int?> _getClosestWaypoint(
+      List<FloorRoutablePoint> waypointsOnFloor,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination) {
     int? originWaypointIndex;
     double? originWaypointDistance;
     int? destinationWaypointIndex;
     double? destinationWaypointDistance;
     for (int i = 0; i < waypointsOnFloor.length; i++) {
       final distanceFromOrigin =
-          getDistanceBetweenPoints(origin, waypointsOnFloor[i]);
-      final distanceFromDestination =
-          getDistanceBetweenPoints(destination, waypointsOnFloor[i]);
+          IndoorRoute.getDistanceBetweenPoints(origin, waypointsOnFloor[i]);
+      final distanceFromDestination = IndoorRoute.getDistanceBetweenPoints(
+          destination, waypointsOnFloor[i]);
       if (originWaypointDistance == null ||
           distanceFromOrigin < originWaypointDistance) {
         originWaypointIndex = i;
@@ -242,18 +251,23 @@ class IndoorRoutingService {
       }
     }
     return [originWaypointIndex, destinationWaypointIndex];
-  } 
+  }
 
-  static IndoorRoute _noBestNeighbor(List<int> route, FloorRoutablePoint origin) {
+  static IndoorRoute _noBestNeighbor(
+      List<int> route, FloorRoutablePoint origin) {
     for (int i = 0; i < route.length; i++) {
       dev.log("Climb: i=${i.toString()}, route[i]=${route[i].toString()}");
     }
     return IndoorRoute(
         origin.floor.building, null, null, null, null, null, null, null);
-  } 
+  }
 
-  static Object _getClosestWaypointToDestination(int originWaypointIndex, int destinationWaypointIndex, Map<int, List<int>> waypointNavigability,
-      List<FloorRoutablePoint> waypointsOnFloor, FloorRoutablePoint origin) {
+  static Object _getClosestWaypointToDestination(
+      int originWaypointIndex,
+      int destinationWaypointIndex,
+      Map<int, List<int>> waypointNavigability,
+      List<FloorRoutablePoint> waypointsOnFloor,
+      FloorRoutablePoint origin) {
     final List<int> route = [originWaypointIndex];
     while (route.last != destinationWaypointIndex) {
       final neighbours = waypointNavigability[route.last];
@@ -271,7 +285,7 @@ class IndoorRoutingService {
           continue;
         }
 
-        final distanceFromDestination = getDistanceBetweenPoints(
+        final distanceFromDestination = IndoorRoute.getDistanceBetweenPoints(
             waypointsOnFloor[neighbourIndex],
             waypointsOnFloor[destinationWaypointIndex]);
         if (bestNeighbourDistanceToDest == null ||
@@ -345,24 +359,30 @@ class IndoorRoutingService {
     }
 
     // Find the closest waypoint to the origin and destination
-    final closestWaypoints = _getClosestWaypoint(waypointsOnFloor, origin, destination);
+    final closestWaypoints =
+        _getClosestWaypoint(waypointsOnFloor, origin, destination);
     final originWaypointIndex = closestWaypoints[0];
     final destinationWaypointIndex = closestWaypoints[1];
-    
+
     // Special cases
-    final specialCase = _isSpecialCase(originWaypointIndex, destinationWaypointIndex, origin, destination, waypointsOnFloor);
-    if (specialCase != null){
+    final specialCase = _isSpecialCase(originWaypointIndex,
+        destinationWaypointIndex, origin, destination, waypointsOnFloor);
+    if (specialCase != null) {
       return specialCase;
     }
 
     // Now we do our hill-climbing - find a navigable waypoint that
     // takes us closest to our destination
     List<int> route = [originWaypointIndex!];
-    final result = _getClosestWaypointToDestination(originWaypointIndex, destinationWaypointIndex!, waypointNavigability, waypointsOnFloor, origin);
-    if(result is List<int>) {
+    final result = _getClosestWaypointToDestination(
+        originWaypointIndex,
+        destinationWaypointIndex!,
+        waypointNavigability,
+        waypointsOnFloor,
+        origin);
+    if (result is List<int>) {
       route = result;
-    }
-    else {
+    } else {
       return result as IndoorRoute;
     }
 
@@ -375,5 +395,24 @@ class IndoorRoutingService {
     intrafloorRoute.add(destination);
     return IndoorRoute(origin.floor.building, intrafloorRoute, null, null, null,
         null, null, null);
+  }
+
+  /// Finds the closest connection point to a given position
+  static ConcordiaFloorPoint _findClosestConnectionPoint(
+      FloorRoutablePoint position, List<ConcordiaFloorPoint> connectionPoints) {
+    ConcordiaFloorPoint closest = connectionPoints.first;
+    double minDistance = double.infinity;
+
+    for (var point in connectionPoints) {
+      // Simple Manhattan distance
+      final double distance = (point.positionX - position.positionX).abs() +
+          (point.positionY - position.positionY).abs();
+      if (distance < minDistance) {
+        minDistance = distance;
+        closest = point;
+      }
+    }
+
+    return closest;
   }
 }

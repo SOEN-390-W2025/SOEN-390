@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'concordia_building.dart';
 import 'connection.dart';
 import 'floor_routable_point.dart';
@@ -53,4 +55,48 @@ class IndoorRoute {
     this.secondIndoorConnection,
     this.secondIndoorPortionFromConnection,
   );
+
+  static double getDistanceBetweenPoints(
+      FloorRoutablePoint point1, FloorRoutablePoint point2) {
+    return sqrt(pow(point2.positionX - point1.positionX, 2) +
+        pow(point2.positionY - point1.positionY, 2));
+  }
+
+  double getFloorRoutablePointListTravelTime(List<FloorRoutablePoint> points) {
+    if (points.length < 2) return 0.0;
+    double distanceSumPixels = 0.0;
+    for (int i = 1; i < points.length; i++) {
+      distanceSumPixels += getDistanceBetweenPoints(points[i], points[i - 1]);
+    }
+    return distanceSumPixels / points[0].floor.pixelsPerSecond;
+  }
+
+  double getIndoorTravelTimeSeconds() {
+    double sum = 0.0;
+    if (firstIndoorPortionToConnection != null) {
+      sum +=
+          getFloorRoutablePointListTravelTime(firstIndoorPortionToConnection!);
+      if (firstIndoorPortionFromConnection != null) {
+        sum += getFloorRoutablePointListTravelTime(
+            firstIndoorPortionFromConnection!);
+        sum += firstIndoorConnection?.getWaitTime(
+                firstIndoorPortionToConnection![0].floor,
+                firstIndoorPortionFromConnection![0].floor) ??
+            0;
+      }
+    }
+    if (secondIndoorPortionToConnection != null) {
+      sum +=
+          getFloorRoutablePointListTravelTime(secondIndoorPortionToConnection!);
+      if (secondIndoorPortionFromConnection != null) {
+        sum += getFloorRoutablePointListTravelTime(
+            secondIndoorPortionFromConnection!);
+        sum += secondIndoorConnection?.getWaitTime(
+                secondIndoorPortionToConnection![0].floor,
+                secondIndoorPortionFromConnection![0].floor) ??
+            0;
+      }
+    }
+    return sum;
+  }
 }
