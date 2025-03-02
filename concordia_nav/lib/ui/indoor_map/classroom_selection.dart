@@ -69,28 +69,26 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
               ),
             ),
           ),
-          Expanded(
-            child: filteredClassrooms.isEmpty
-                ? const Center(child: Text("No classrooms available"))
-                : SelectableList<String>(
-                    items: filteredClassrooms,
-                    title: 'Select a classroom',
-                    searchController: searchController,
-                    onItemSelected: (classroom) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => IndoorLocationView(
-                            building: widget.building,
-                            floor: widget.floor,
-                            room: classroom,
-                          ),
-                        ),
-                        (route) => route.isFirst,
-                      );
-                    },
+          filteredClassrooms.isEmpty
+            ? const Center(child: Text("No classrooms available"))
+            : SelectableList<String>(
+              items: filteredClassrooms,
+              title: 'Select a classroom',
+              searchController: searchController,
+              onItemSelected: (classroom) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => IndoorLocationView(
+                      building: widget.building,
+                      floor: widget.floor,
+                      room: classroom,
+                    ),
                   ),
-          ),
+                  (route) => route.isFirst,
+                );
+              },
+            ),
         ],
       ),
     );

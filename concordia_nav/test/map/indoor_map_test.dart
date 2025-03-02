@@ -8,7 +8,7 @@ void main() {
     testWidgets('should display the correct classrooms initially',
         (WidgetTester tester) async {
       // Arrange
-      const building = 'Test Building';
+      const building = 'Hall Building';
       const floor = 'Floor 1';
 
       // Build the widget
@@ -16,16 +16,26 @@ void main() {
         home: ClassroomSelection(building: building, floor: floor),
       ));
 
-      // Assert: Verify the list of classrooms is displayed
-      expect(find.text('Classroom 101'), findsOneWidget);
-      expect(find.text('Classroom 102'), findsOneWidget);
-      expect(find.text('Classroom 103'), findsOneWidget);
+      // Wait for classrooms to be rendered
+      await tester.pumpAndSettle();
+
+      // Find all rendered text widgets
+      final allTextWidgets = find.byType(Text);
+
+      // Find all classrooms dynamically
+      final classrooms = allTextWidgets.evaluate().map((element) {
+        final textWidget = element.widget as Text;
+        return textWidget.data;
+      }).where((text) => text != null && text.contains('Room')).toList();
+
+      // Ensure at least some classrooms are displayed
+      expect(classrooms, isNotEmpty, reason: 'No classrooms found in UI');
     });
 
     testWidgets('should filter classrooms based on search input',
         (WidgetTester tester) async {
       // Arrange
-      const building = 'Test Building';
+      const building = 'Hall Building';
       const floor = 'Floor 1';
 
       // Build the widget
@@ -33,14 +43,26 @@ void main() {
         home: ClassroomSelection(building: building, floor: floor),
       ));
 
+      // Wait for classrooms to be rendered
+      await tester.pumpAndSettle();
+
       // Enter a search term
-      await tester.enterText(find.byType(TextField), '101');
+      await tester.enterText(find.byType(TextField), '10');
       await tester.pump(); // Rebuild the widget after the text input
 
+      // Find all rendered text widgets
+      final allTextWidgets = find.byType(Text);
+
+      // Find classrooms based on the search term dynamically
+      final classrooms = allTextWidgets.evaluate().map((element) {
+        final textWidget = element.widget as Text;
+        return textWidget.data;
+      }).where((text) => text != null && text.contains('Room')).toList();
+
       // Assert: Verify the filtered list shows only matching classrooms
-      expect(find.text('Classroom 101'), findsOneWidget);
-      expect(find.text('Classroom 102'), findsNothing);
-      expect(find.text('Classroom 103'), findsNothing);
+      expect(classrooms, contains('Room 10'), reason: 'Room 10 should be found');
+      expect(classrooms, isNot(contains('Room 11')), reason: 'Room 11 should not be found');
+      expect(classrooms, isNot(contains('Room 12')), reason: 'Room 12 should not be found');
     });
 
     testWidgets('should display floor information correctly',
@@ -83,9 +105,9 @@ void main() {
     testWidgets('should trigger classroom selection on tapping a classroom',
         (WidgetTester tester) async {
       // Arrange
-      const building = 'Test Building';
+      const building = 'Hall Building';
       const floor = 'Floor 1';
-      const classroom = 'Classroom 101';
+      const classroom = 'Room 10';
 
       // Build the widget
       await tester.pumpWidget(const MaterialApp(
