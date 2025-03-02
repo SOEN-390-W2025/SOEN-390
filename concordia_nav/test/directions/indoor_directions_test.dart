@@ -76,7 +76,7 @@ void main() {
 
       // Assert: Verify that the ClassroomSelection screen is pushed
       expect(find.byType(ClassroomSelection), findsOneWidget);
-      expect(find.text(firstFloor!), findsOneWidget);
+      expect(find.text(firstFloor), findsOneWidget);
       expect(find.text(building), findsOneWidget);
     });
 
