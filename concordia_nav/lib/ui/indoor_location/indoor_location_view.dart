@@ -3,11 +3,11 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 
 class IndoorLocationView extends StatelessWidget {
-  final String building;
-  final String floor;
-  final String room;
+  final String? building;
+  final String? floor;
+  final String? room;
 
-  const IndoorLocationView({super.key, required this.building, required this.floor, required this.room});
+  const IndoorLocationView({super.key, this.building, this.floor, this.room});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

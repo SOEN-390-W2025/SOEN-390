@@ -47,14 +47,7 @@ class MyApp extends StatelessWidget {
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
-        '/IndoorLocationView': (context) => IndoorLocationView(
-            building:
-                ModalRoute.of(context)!.settings.arguments as String,
-            floor:
-                ModalRoute.of(context)!.settings.arguments as String,
-            room:
-                ModalRoute.of(context)!.settings.arguments as String,
-        ),
+        '/IndoorLocationView': (context) => const IndoorLocationView(),
         '/IndoorMapView': (context) => const IndoorMapView(),
         '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
             campus:
