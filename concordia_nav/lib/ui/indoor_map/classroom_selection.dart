@@ -15,26 +15,36 @@ class ClassroomSelection extends StatefulWidget {
 }
 
 class ClassroomSelectionState extends State<ClassroomSelection> {
-  late final List<String> classrooms;
-  late List<String> filteredClassrooms;
+  late Future<List<String>> classroomsFuture;
+  List<String> allClassrooms = [];
+  List<String> filteredClassrooms = [];
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    classrooms = BuildingViewModel()
-        .getRoomsForFloor(widget.building, widget.floor)
-        .map((room) => "Room ${room.roomNumber}")
-        .toList();
-    filteredClassrooms = List.from(classrooms);
-
+    classroomsFuture = _loadClassrooms();
     searchController.addListener(filterClassrooms);
+  }
+
+  Future<List<String>> _loadClassrooms() async {
+    final List<String> classrooms =
+        await BuildingViewModel().getRoomsForFloor(widget.building, widget.floor)
+        .then((rooms) => rooms.map((room) => room.roomNumber).toList());
+
+    setState(() {
+      allClassrooms = classrooms;
+      filteredClassrooms = List.from(classrooms);
+    });
+
+    return classrooms;
   }
 
   void filterClassrooms() {
     setState(() {
-      filteredClassrooms = classrooms
-          .where((classroom) => classroom.toLowerCase().contains(searchController.text.toLowerCase()))
+      filteredClassrooms = allClassrooms
+          .where((classroom) =>
+              classroom.toLowerCase().contains(searchController.text.toLowerCase()))
           .toList();
     });
   }
@@ -51,7 +61,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
     return Scaffold(
       appBar: customAppBar(context, widget.building),
       body: Column(
-        mainAxisSize: MainAxisSize.min, // This ensures the Column does not take up unbounded space
+        mainAxisSize: MainAxisSize.min,
         children: [
           IndoorSearchBar(
             controller: searchController,
@@ -61,7 +71,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-            child: Container(
+            child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 widget.floor,
@@ -69,26 +79,37 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
               ),
             ),
           ),
-          filteredClassrooms.isEmpty
-            ? const Center(child: Text("No classrooms available"))
-            : SelectableList<String>(
-              items: filteredClassrooms,
-              title: 'Select a classroom',
-              searchController: searchController,
-              onItemSelected: (classroom) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => IndoorLocationView(
-                      building: widget.building,
-                      floor: widget.floor,
-                      room: classroom,
-                    ),
-                  ),
-                  (route) => route.isFirst,
+          FutureBuilder<List<String>>(
+            future: classroomsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text("No classrooms available"));
+              } else {
+                return SelectableList<String>(
+                  items: filteredClassrooms,
+                  title: 'Select a classroom',
+                  searchController: searchController,
+                  onItemSelected: (classroom) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => IndoorLocationView(
+                          building: widget.building,
+                          floor: widget.floor,
+                          room: classroom,
+                        ),
+                      ),
+                      (route) => route.isFirst,
+                    );
+                  },
                 );
-              },
-            ),
+              }
+            },
+          ),
         ],
       ),
     );
