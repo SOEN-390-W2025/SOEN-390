@@ -182,6 +182,20 @@ void main() async {
       expect(testCampus.abbreviation, "CCH");
     });
 
+    test('ConcordiaCampus.hashCode gets its integer hashCode', () {
+      const testCampus = ConcordiaCampus(
+          45.52316480127478,
+          -73.56082777329514,
+          "Cafe Chat Lheureux",
+          "1374 Ontario St E",
+          "Montreal",
+          "QC",
+          "H2L 1S1",
+          "CCH");
+      expect(testCampus.hashCode, isA<int>());
+
+    });
+
     test('Can create Location', () {
       const testLocation = Location(
           45.52316480127478,
