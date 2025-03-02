@@ -85,6 +85,30 @@ class BuildingDataManager {
     }
   }
 
+  static Future<dynamic> _loadBuildingData(String abbreviation) async {
+    try {
+      final loader = BuildingDataLoader(abbreviation);
+      final buildingData = await loader.load();
+      return buildingData;
+    } on FormatException catch (e, stackTrace) {
+      dev.log('Format error in YAML for $abbreviation: $e',
+          error: e, stackTrace: stackTrace);
+      return e;
+    } on FileSystemException catch (e, stackTrace) {
+      dev.log('File system error for $abbreviation: $e',
+          error: e, stackTrace: stackTrace);
+      return e;
+    } on ArgumentError catch (e, stackTrace) {
+      dev.log('Invalid argument in building data for $abbreviation: $e',
+          error: e, stackTrace: stackTrace);
+      return e;
+    } on Exception catch (e, stackTrace) {
+      dev.log('Error loading building data for $abbreviation: $e',
+          error: e, stackTrace: stackTrace);
+      return e;
+    }
+  }
+
   /// Loads all building data from YAML files in assets/maps/indoor
   /// Skip files that are already loaded in the cache
   static Future<Map<String, BuildingData>> _loadAllBuildingData() async {
@@ -112,23 +136,12 @@ class BuildingDataManager {
           dev.log("Skipping $abbreviation, already loaded");
           continue;
         }
-
-        try {
-          final loader = BuildingDataLoader(abbreviation);
-          final buildingData = await loader.load();
+        
+        final buildingData = await _loadBuildingData(abbreviation);
+        if (buildingData is BuildingData) {
           result[abbreviation] = buildingData;
-        } on FormatException catch (e, stackTrace) {
-          dev.log('Format error in YAML for $abbreviation: $e',
-              error: e, stackTrace: stackTrace);
-        } on FileSystemException catch (e, stackTrace) {
-          dev.log('File system error for $abbreviation: $e',
-              error: e, stackTrace: stackTrace);
-        } on ArgumentError catch (e, stackTrace) {
-          dev.log('Invalid argument in building data for $abbreviation: $e',
-              error: e, stackTrace: stackTrace);
-        } on Exception catch (e, stackTrace) {
-          dev.log('Error loading building data for $abbreviation: $e',
-              error: e, stackTrace: stackTrace);
+        } else {
+          throw Exception(buildingData);
         }
       }
     } on Exception catch (e, stackTrace) {
