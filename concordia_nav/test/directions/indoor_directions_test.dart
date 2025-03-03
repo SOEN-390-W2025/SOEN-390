@@ -1,7 +1,9 @@
 import 'package:concordia_nav/ui/indoor_map/classroom_selection.dart';
 import 'package:concordia_nav/ui/indoor_map/floor_selection.dart';
+import 'package:concordia_nav/utils/building_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   group('FloorSelection', () {
@@ -122,5 +124,35 @@ void main() {
         expect(filteredFloors, isEmpty, reason: 'Floors are still visible after entering an invalid search term');
       });
     });
+  });
+
+  test('getBuildingAbbreviation returns the abbreviation from building name', () {
+    // Arrange
+    final buildingViewModel = BuildingViewModel();
+    const buildingName = 'Hall Building';
+    const buildingName2 = 'EV Building';
+
+    // should return H
+    var abbreviation = buildingViewModel.getBuildingAbbreviation(buildingName);
+    expect(abbreviation, 'H');
+
+    // should return EV
+    abbreviation = buildingViewModel.getBuildingAbbreviation(buildingName2);
+    expect(abbreviation, 'EV');
+  });
+
+  test('getBuildingLocationByAbbreviation returns the location of building', () {
+    // Arrange
+    final buildingViewModel = BuildingViewModel();
+    const abb1 = 'H';
+    const abb2 = 'EV';
+
+    // should return H
+    var location = buildingViewModel.getBuildingLocationByAbbreviation(abb1);
+    expect(location, const LatLng(45.49721130711485, -73.5787529114208));
+
+    // should return EV
+    location = buildingViewModel.getBuildingLocationByAbbreviation(abb2);
+    expect(location, const LatLng(45.49542095329432, -73.5779627198065));
   });
 }
