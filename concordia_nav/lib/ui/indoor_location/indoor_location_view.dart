@@ -3,13 +3,23 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 
 class IndoorLocationView extends StatelessWidget {
-  const IndoorLocationView({super.key});
+  final String? building;
+  final String? floor;
+  final String? room;
+
+  const IndoorLocationView({super.key, this.building, this.floor, this.room});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: customAppBar(context, 'Indoor Location'),
-        body: MapLayout(
-          mapWidget: Container(),
-        ));
+      appBar: customAppBar(context, 'Indoor Location'),
+      body: Stack (
+        children:[
+          MapLayout(
+            mapWidget: Container(),
+          ),
+          Text('$building $floor $room'),
+        ]
+      )
+    );
   }
 }
