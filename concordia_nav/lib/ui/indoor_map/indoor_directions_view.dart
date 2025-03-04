@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/zoom_buttons.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String currentLocation;
@@ -106,7 +107,40 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
           ),
 
           Expanded(
-            child: Container(),
+            child: Stack(
+              children: [
+                // Placeholder for the map or directions visualization
+                const Center(
+                  child: Text(
+                    'Directions visualization will go here',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: Column(
+                    children: [
+                      ZoomButton(
+                        onTap: () {
+                          // Handle zoom in
+                        },
+                        icon: Icons.add,
+                        isZoomInButton: true,
+                      ),
+                      ZoomButton(
+                        onTap: () {
+                          // Handle zoom out
+                        },
+                        icon: Icons.remove,
+                        isZoomInButton: false,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
 
           Container(
