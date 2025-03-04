@@ -45,7 +45,8 @@ class IndoorMapViewModel extends MapViewModel {
     ),
   ];
 
-  Future<CameraPosition> getInitialCameraPositionFloor(ConcordiaFloor floor) async {
+  Future<CameraPosition> getInitialCameraPositionFloor(
+      ConcordiaFloor floor) async {
     return CameraPosition(
       target: LatLng(floor.lat, floor.lng),
       zoom: 18.0,
@@ -53,26 +54,29 @@ class IndoorMapViewModel extends MapViewModel {
   }
 
   @override
-Future<void> fetchRoutesForAllModes(String originAddress, String destinationAddress) async {
-  final floor = floors.firstWhere(
-    (floor) => floor.floorNumber == originAddress || floor.floorNumber == destinationAddress,
-    orElse: () => floors.first,
-  );
+  Future<void> fetchRoutesForAllModes(
+      String originAddress, String destinationAddress) async {
+    final floor = floors.firstWhere(
+      (floor) =>
+          floor.floorNumber == originAddress ||
+          floor.floorNumber == destinationAddress,
+      orElse: () => floors.first,
+    );
 
-  selectedRoom = ConcordiaRoom(
-    destinationAddress,
-    RoomCategory.classroom,
-    floor,
-    ConcordiaFloorPoint(
+    selectedRoom = ConcordiaRoom(
+      destinationAddress,
+      RoomCategory.classroom,
       floor,
-      0.5,
-      0.5,
-    ),
-  );
+      ConcordiaFloorPoint(
+        floor,
+        0.5,
+        0.5,
+      ),
+    );
 
-  _updateMarkers();
-  notifyListeners();
-}
+    updateMarkers();
+    notifyListeners();
+  }
 
   void calculateDirections() {
     // Mock directions logic
@@ -94,14 +98,16 @@ Future<void> fetchRoutesForAllModes(String originAddress, String destinationAddr
     notifyListeners();
   }
 
-  void _updateMarkers() {
+  void updateMarkers() {
     if (selectedRoom != null && selectedRoom!.entrancePoint != null) {
       markersNotifier.value = {
         Marker(
           markerId: const MarkerId('selected_room'),
           position: LatLng(
-            selectedRoom!.floor.lat + selectedRoom!.entrancePoint!.positionX * 0.0001,
-            selectedRoom!.floor.lng + selectedRoom!.entrancePoint!.positionY * 0.0001,
+            selectedRoom!.floor.lat +
+                selectedRoom!.entrancePoint!.positionX * 0.0001,
+            selectedRoom!.floor.lng +
+                selectedRoom!.entrancePoint!.positionY * 0.0001,
           ),
           infoWindow: InfoWindow(title: selectedRoom!.roomNumber),
         ),

@@ -676,7 +676,9 @@ class MapViewModel extends ChangeNotifier {
     );
 
     _staticBusStopMarkers = {loyolaBusStopMarker, sgwBusStopMarker};
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   Future<void> checkBuildingAtCurrentLocation(BuildContext? context) async {

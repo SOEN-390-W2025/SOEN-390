@@ -5,6 +5,7 @@ import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart
 import 'package:concordia_nav/utils/building_drawer_viewmodel.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/widgets/building_info_drawer.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -14,6 +15,11 @@ import '../map/map_viewmodel_test.mocks.dart';
 import 'building_info_drawer_test.mocks.dart';
 
 @GenerateMocks([BuildingInfoDrawerViewModel])
+class TestTickerProvider extends TickerProvider {
+  @override
+  Ticker createTicker(onTick) => Ticker(onTick);
+}
+
 void main() async {
   late MockBuildingInfoDrawerViewModel mockViewModel;
   late VoidCallback mockOnClose;
@@ -76,7 +82,7 @@ void main() async {
       width: 5,
     ),
   };
-  
+
   setUp(() {
     mockViewModel = MockBuildingInfoDrawerViewModel();
     mockOnClose = () {};
@@ -191,6 +197,28 @@ void main() async {
   });
 
   group('test building info drawer', () {
+    test('closeDrawer calls onClose after animation', () async {
+      final testTickerProvider =
+          TestTickerProvider(); // Create a mock ticker provider
+      final viewModel = BuildingInfoDrawerViewModel();
+
+      // Initialize the animation
+      viewModel.initializeAnimation(testTickerProvider);
+
+      bool onCloseCalled = false;
+
+      // Call closeDrawer with an onClose callback
+      viewModel.closeDrawer(() {
+        onCloseCalled = true;
+      });
+
+      // Wait for the animation to complete
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      // Check if onClose was called after the animation
+      expect(onCloseCalled, isTrue);
+    });
+
     testWidgets('drawer can render', (WidgetTester tester) async {
       // Build the buildinginfodrawer widget
       await tester.pumpWidget(MaterialApp(
