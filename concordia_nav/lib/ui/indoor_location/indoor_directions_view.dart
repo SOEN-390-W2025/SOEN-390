@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD:concordia_nav/lib/ui/indoor_map/indoor_directions_view.dart
 import '../../widgets/zoom_buttons.dart';
-=======
 import '../../utils/building_viewmodel.dart';
->>>>>>> b034ba2ec43c6d0d44dccd8ead22dded01bf5229:concordia_nav/lib/ui/indoor_location/indoor_directions_view.dart
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
