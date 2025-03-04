@@ -56,6 +56,8 @@ class MapViewModel extends ChangeNotifier {
   final ODSDirectionsService _odsDirectionsService;
   final ShuttleRouteRepository _shuttleRepository;
 
+  final yourLocationString = 'Your Location';
+
   List<ConcordiaBuilding> filteredBuildings = [];
 
   // ignore: unused_field
@@ -123,7 +125,7 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<String> _getOriginAddress(String? originAddress) async {
-    if (originAddress == null || originAddress == 'Your Location') {
+    if (originAddress == null || originAddress == yourLocationString) {
       final currentLocation = await _mapService.getCurrentLocation();
       if (currentLocation == null) {
         throw Exception("Current location is not available.");
@@ -240,7 +242,7 @@ class MapViewModel extends ChangeNotifier {
   // get origin coordinates for shuttle route
   Future<LatLng?> _getOriginCoords(
       String originAddress, LatLng loyolaStop, LatLng sgwStop) async {
-    if (originAddress == 'Your Location') {
+    if (originAddress == yourLocationString) {
       // If no origin is provided, assume the current location was used.
       return await _mapService.getCurrentLocation();
     } else {
@@ -250,7 +252,7 @@ class MapViewModel extends ChangeNotifier {
 
   Future<LatLng?> _getDestinationCoords(
       String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
-    if (destinationAddress == 'Your Location') {
+    if (destinationAddress == yourLocationString) {
       return await _mapService.getCurrentLocation();
     }
     return BuildingViewModel().getBuildingLocationByName(destinationAddress);
@@ -311,9 +313,27 @@ class MapViewModel extends ChangeNotifier {
     const LatLng loyolaStop = LatLng(45.45825, -73.63914);
     const LatLng sgwStop = LatLng(45.49713, -73.57852);
 
+    // Validate and get route coordinates
+    final ShuttleRouteDetails routeDetails = await _prepareShuttleRouteDetails(
+        originAddress, destinationAddress, loyolaStop, sgwStop);
+
+    // If no valid route, exit early
+    if (routeDetails.direction == null) return;
+
+    // Prepare route segments
+    final RouteSegments routeSegments = await _prepareRouteSegments(
+        routeDetails, originAddress, destinationAddress);
+
+    // Create and process shuttle route
+    _processShuttleRoute(routeDetails, routeSegments);
+  }
+
+  Future<ShuttleRouteDetails> _prepareShuttleRouteDetails(String originAddress,
+      String destinationAddress, LatLng loyolaStop, LatLng sgwStop) async {
+    const double radius = 1000.0; // 1 km threshold
+
     LatLng? originCoords =
         await _getOriginCoords(originAddress, loyolaStop, sgwStop);
-
     LatLng? destinationCoords =
         await _getDestinationCoords(destinationAddress, loyolaStop, sgwStop);
 
@@ -321,84 +341,134 @@ class MapViewModel extends ChangeNotifier {
       if (kDebugMode) {
         print("Shuttle route not available: Cannot determine coordinates.");
       }
-      return;
+      return ShuttleRouteDetails(
+        originCoords: null,
+        destinationCoords: null,
+        originNearLOY: false,
+        originNearSGW: false,
+        destNearLOY: false,
+        destNearSGW: false,
+        direction: null,
+        boardingStop: loyolaStop,
+        disembarkStop: sgwStop,
+        polylineIdSuffix: '',
+      );
     }
 
-    const double radius = 1000.0; // 1 km threshold
-
-    // Determine which campus each coordinate is near.
+    // Determine which campus each coordinate is near
     bool originNearLOY = _mapService.calculateDistance(originCoords,
             LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)) <
         radius;
+
     bool originNearSGW = _mapService.calculateDistance(originCoords,
             LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)) <
         radius;
+
     bool destNearLOY = _mapService.calculateDistance(destinationCoords,
             LatLng(ConcordiaCampus.loy.lat, ConcordiaCampus.loy.lng)) <
         radius;
+
     bool destNearSGW = _mapService.calculateDistance(destinationCoords,
             LatLng(ConcordiaCampus.sgw.lat, ConcordiaCampus.sgw.lng)) <
         radius;
 
-    // Determine the shuttle route direction.
     ShuttleRouteDirection? computedDirection = _validShuttleRoute(
         originNearLOY, originNearSGW, destNearLOY, destNearSGW);
-    if (computedDirection == null) return;
 
-    // Set boarding/disembark stops based on the computed direction.
+    // Set boarding/disembark stops based on the computed direction
     late LatLng boardingStop;
     late LatLng disembarkStop;
     late String polylineIdSuffix;
+
     if (computedDirection == ShuttleRouteDirection.LOYtoSGW) {
       boardingStop = loyolaStop;
       disembarkStop = sgwStop;
       polylineIdSuffix = "LOYtoSGW";
-    } else {
+    } else if (computedDirection == ShuttleRouteDirection.SGWtoLOY) {
       boardingStop = sgwStop;
       disembarkStop = loyolaStop;
       polylineIdSuffix = "SGWtoLOY";
+    } else {
+      boardingStop = loyolaStop;
+      disembarkStop = sgwStop;
+      polylineIdSuffix = '';
     }
 
-    // Load shuttle coordinates from the repository.
-    //final ShuttleRouteRepository repository = ShuttleRouteRepository();
+    return ShuttleRouteDetails(
+      originCoords: originCoords,
+      destinationCoords: destinationCoords,
+      originNearLOY: originNearLOY,
+      originNearSGW: originNearSGW,
+      destNearLOY: destNearLOY,
+      destNearSGW: destNearSGW,
+      direction: computedDirection,
+      boardingStop: boardingStop,
+      disembarkStop: disembarkStop,
+      polylineIdSuffix: polylineIdSuffix,
+    );
+  }
+
+  Future<RouteSegments> _prepareRouteSegments(ShuttleRouteDetails routeDetails,
+      String originAddress, String destinationAddress) async {
+    // Early return if no valid route direction
+    if (routeDetails.direction == null) {
+      return RouteSegments(
+          leg1: null,
+          leg2: const Polyline(polylineId: PolylineId('empty')),
+          leg3: null);
+    }
+
+    // Load shuttle coordinates from the repository
     List<LatLng> shuttleCoordinates =
-        await _shuttleRepository.loadShuttleRoute(computedDirection);
+        await _shuttleRepository.loadShuttleRoute(routeDetails.direction!);
 
-    // Get walking routes using ODSDirectionsService:
+    // Prepare coordinate strings
     final String boardingStr =
-        "${boardingStop.latitude},${boardingStop.longitude}";
+        "${routeDetails.boardingStop.latitude},${routeDetails.boardingStop.longitude}";
     final String disembarkStr =
-        "${disembarkStop.latitude},${disembarkStop.longitude}";
+        "${routeDetails.disembarkStop.latitude},${routeDetails.disembarkStop.longitude}";
     final String originStr =
-        "${originCoords.latitude},${originCoords.longitude}";
+        "${routeDetails.originCoords!.latitude},${routeDetails.originCoords!.longitude}";
     final String destStr =
-        "${destinationCoords.latitude},${destinationCoords.longitude}";
+        "${routeDetails.destinationCoords!.latitude},${routeDetails.destinationCoords!.longitude}";
 
+    // Fetch walking segments
     final Polyline? leg1 = await _odsDirectionsService.fetchWalkingPolyline(
       originAddress: originStr,
       destinationAddress: boardingStr,
-      polylineId: "walking_leg1_$polylineIdSuffix",
+      polylineId: "walking_leg1_${routeDetails.polylineIdSuffix}",
     );
+
     final Polyline? leg3 = await _odsDirectionsService.fetchWalkingPolyline(
       originAddress: disembarkStr,
       destinationAddress: destStr,
-      polylineId: "walking_leg3_$polylineIdSuffix",
+      polylineId: "walking_leg3_${routeDetails.polylineIdSuffix}",
     );
 
-    // Create the shuttle segment polyline.
+    // Create the shuttle segment polyline
     final Polyline leg2 = Polyline(
-      polylineId: PolylineId("shuttleSegment_$polylineIdSuffix"),
+      polylineId: PolylineId("shuttleSegment_${routeDetails.polylineIdSuffix}"),
       points: shuttleCoordinates,
       color: const Color(0xFF2196F3),
       patterns: [PatternItem.dot, PatternItem.gap(10)],
       width: 5,
     );
 
-    // Merge walking segments with the shuttle segment.
-    List<LatLng> compositePoints = _getCompositePoints(leg1, leg2, leg3);
+    return RouteSegments(leg1: leg1, leg2: leg2, leg3: leg3);
+  }
+
+  void _processShuttleRoute(
+      ShuttleRouteDetails routeDetails, RouteSegments routeSegments) {
+    // Early return if no valid route direction
+    if (routeDetails.direction == null) return;
+
+    // Merge walking segments with the shuttle segment
+    List<LatLng> compositePoints = _getCompositePoints(
+        routeSegments.leg1, routeSegments.leg2, routeSegments.leg3);
 
     final Polyline shuttleComposite = Polyline(
-      polylineId: PolylineId("shuttleComposite_$polylineIdSuffix"),
+      polylineId:
+          PolylineId("shuttleComposite_${routeDetails.polylineIdSuffix}"),
       points: compositePoints,
       color: const Color(0xFF2196F3),
       patterns: [PatternItem.dot, PatternItem.gap(10)],
@@ -407,24 +477,34 @@ class MapViewModel extends ChangeNotifier {
 
     _multiModeRoutes[CustomTravelMode.shuttle] = shuttleComposite;
 
-    // Calculate walking durations (in minutes) based on polyline distances.
-    int walkingTimeToShuttle = 0;
-    if (leg1 != null && leg1.points.isNotEmpty) {
-      walkingTimeToShuttle =
-          (calculatePolylineDistance(leg1) / 1.4 / 60).round();
-    }
-    int walkingTimeFromShuttle = 0;
-    if (leg3 != null && leg3.points.isNotEmpty) {
-      walkingTimeFromShuttle =
-          (calculatePolylineDistance(leg3) / 1.4 / 60).round();
-    }
-    int shuttleRideTime = 30; // Fixed shuttle ride time provided by Concordia.
+    // Calculate walking and shuttle times
+    int walkingTimeToShuttle = _calculateWalkingTime(routeSegments.leg1);
+    int walkingTimeFromShuttle = _calculateWalkingTime(routeSegments.leg3);
+    int shuttleRideTime = 30; // Fixed shuttle ride time provided by Concordia
     int totalShuttleTime =
         walkingTimeToShuttle + shuttleRideTime + walkingTimeFromShuttle;
+
     _multiModeTravelTimes[CustomTravelMode.shuttle] = "$totalShuttleTime min";
 
+    // Update markers if shuttle is selected travel mode
+    _updateShuttleMarkers(
+        routeDetails, compositePoints, routeDetails.boardingStop);
+
+    notifyListeners();
+  }
+
+  int _calculateWalkingTime(Polyline? leg) {
+    if (leg != null && leg.points.isNotEmpty) {
+      return (calculatePolylineDistance(leg) / 1.4 / 60).round();
+    }
+    return 0;
+  }
+
+  void _updateShuttleMarkers(ShuttleRouteDetails routeDetails,
+      List<LatLng> compositePoints, LatLng boardingStop) {
     if (_selectedTravelModeForRoute == CustomTravelMode.shuttle) {
-      _multiModeActivePolylines = {shuttleComposite};
+      _multiModeActivePolylines = {_multiModeRoutes[CustomTravelMode.shuttle]!};
+
       _originMarker = Marker(
         markerId: const MarkerId('origin'),
         position:
@@ -432,6 +512,7 @@ class MapViewModel extends ChangeNotifier {
         infoWindow: const InfoWindow(title: 'origin'),
         anchor: const Offset(0.5, 0.5),
       );
+
       _destinationMarker = Marker(
         markerId: const MarkerId('destination'),
         position:
@@ -439,7 +520,6 @@ class MapViewModel extends ChangeNotifier {
         infoWindow: const InfoWindow(title: 'Destination'),
       );
     }
-    notifyListeners();
   }
 
   double calculatePolylineDistance(Polyline polyline) {
@@ -758,7 +838,7 @@ class MapViewModel extends ChangeNotifier {
     // If the selected building is "Your Location", wait for fetchCurrentLocation to complete
     LatLng? location;
 
-    if (selectedBuilding == 'Your Location') {
+    if (selectedBuilding == yourLocationString) {
       location = currentLocation;
     } else {
       location = buildingViewModel.getBuildingLocationByName(selectedBuilding);
@@ -768,4 +848,42 @@ class MapViewModel extends ChangeNotifier {
 
     moveToLocation(location);
   }
+}
+
+class ShuttleRouteDetails {
+  final LatLng? originCoords;
+  final LatLng? destinationCoords;
+  final bool originNearLOY;
+  final bool originNearSGW;
+  final bool destNearLOY;
+  final bool destNearSGW;
+  final ShuttleRouteDirection? direction;
+  final LatLng boardingStop;
+  final LatLng disembarkStop;
+  final String polylineIdSuffix;
+
+  ShuttleRouteDetails({
+    required this.originCoords,
+    required this.destinationCoords,
+    required this.originNearLOY,
+    required this.originNearSGW,
+    required this.destNearLOY,
+    required this.destNearSGW,
+    required this.direction,
+    required this.boardingStop,
+    required this.disembarkStop,
+    required this.polylineIdSuffix,
+  });
+}
+
+class RouteSegments {
+  final Polyline? leg1;
+  final Polyline leg2;
+  final Polyline? leg3;
+
+  RouteSegments({
+    required this.leg1,
+    required this.leg2,
+    required this.leg3,
+  });
 }
