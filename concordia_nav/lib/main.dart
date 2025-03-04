@@ -5,6 +5,7 @@ import '../../data/domain-model/concordia_campus.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
+import 'ui/indoor_location/indoor_directions_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
 import 'ui/indoor_map/building_selection.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
@@ -60,6 +61,12 @@ class MyApp extends StatelessWidget {
         '/SettingsPage': (context) => const SettingsPage(),
         '/SearchView': (context) => const SearchView(),
         '/SelectBuilding': (context) => const BuildingSelection(),
+        '/IndoorDirectionsView': (context) => const IndoorDirectionsView(
+              currentLocation: 'Your location',
+              building: 'Hall Building',
+              floor: '1',
+              room: '901',
+        ),
       },
     );
   }
