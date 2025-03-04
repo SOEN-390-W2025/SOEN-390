@@ -59,6 +59,7 @@ class MyApp extends StatelessWidget {
         '/CalendarView': (context) => const CalendarView(),
         '/SettingsPage': (context) => const SettingsPage(),
         '/SearchView': (context) => const SearchView(),
+        '/SelectBuilding': (context) => const BuildingSelection(),
       },
     );
   }

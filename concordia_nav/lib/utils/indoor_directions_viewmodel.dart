@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_room.dart';
-import '../data/domain-model/room_category.dart';
-import '../data/domain-model/concordia_floor_point.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concordia_campus.dart';
 import 'map_viewmodel.dart';
@@ -12,7 +10,6 @@ class IndoorDirectionsViewModel extends MapViewModel {
   final ValueNotifier<Set<Marker>> markersNotifier = ValueNotifier({});
   final ValueNotifier<Set<Polyline>> polylinesNotifier = ValueNotifier({});
   ConcordiaRoom? selectedRoom;
-  GoogleMapController? _mapController;
 
   //hard code floors for mock
   final List<ConcordiaFloor> floors = [
@@ -45,27 +42,25 @@ class IndoorDirectionsViewModel extends MapViewModel {
       ),
     ),
   ];
-  @override
-  void onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-  }
+
   Future<CameraPosition> getInitialCameraPositionFloor(ConcordiaFloor floor) async {
     return CameraPosition(
       target: LatLng(floor.lat, floor.lng),
       zoom: 18.0,
     );
   }
+
   @override
-  @override
-Future<void> fetchRoutesForAllModes(String start, String end) async {
-  
-}
+  Future<void> fetchRoutesForAllModes(String originAddress, String destinationAddress) async {
+    
+  }
 
   void calculateDirections() {
     // directions logic
 
   }
 
-  void _updateMarkers() {
+  void updateMarkers() {
+    // marker logic
   }
 }

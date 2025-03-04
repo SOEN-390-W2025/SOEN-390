@@ -54,7 +54,6 @@ class BuildingSelectionState extends State<BuildingSelection> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  // TODO: Implement floor selection
                   builder: (context) => FloorSelection(building: building),
                 ),
               );

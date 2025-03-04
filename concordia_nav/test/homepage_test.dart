@@ -266,7 +266,7 @@ void main() async {
     final routes = {
       '/': (context) => const HomePage(),
       '/IndoorLocationView': (context) => const IndoorLocationView(
-          building: 'building', floor: 'floor', room: 'room'),
+          building: 'building'),
     };
 
     // Build the HomePage widget

@@ -13,10 +13,8 @@ import 'indoor_directions_view.dart';
 
 class IndoorLocationView extends StatefulWidget {
   final String? building;
-  final String? floor;
-  final String? room;
 
-  const IndoorLocationView({super.key, this.building, this.floor, this.room});
+  const IndoorLocationView({super.key, this.building});
 
   @override
   State<IndoorLocationView> createState() => _IndoorLocationViewState();
@@ -55,6 +53,7 @@ void initState() {
   _indoorMapViewModel = IndoorMapViewModel();
   _originController = TextEditingController();
   _destinationController = TextEditingController();
+
   _currentFloor = getDefaultFloor();
 
   // Hardcoding a default selected room for testing
@@ -84,6 +83,8 @@ void initState() {
   }
 
   Widget _buildTopPanel() {
+    final building = widget.building;
+    final floor = _currentFloor?.floorNumber ?? '';
     return Positioned(
       top: 0,
       left: 0,
@@ -94,6 +95,8 @@ void initState() {
           children: [
             FloorPlanSearchWidget(
               searchController: _destinationController,
+              building: building,
+              floor: floor,
               onFloorSelected: (selectedFloor) {
                 setState(() {
                   _currentFloor = _getFloorByName(selectedFloor);
@@ -117,7 +120,7 @@ void initState() {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(25),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -139,7 +142,9 @@ void initState() {
                     MaterialPageRoute(
                       builder: (context) => IndoorDirectionsView(
                         currentLocation: 'Your Location',
-                        destination: _indoorMapViewModel.selectedRoom!.roomNumber,
+                        building: 'Hall Building',
+                        floor: _currentFloor!.floorNumber,
+                        room: _indoorMapViewModel.selectedRoom!.roomNumber,
                       ),
                     ),
                   );

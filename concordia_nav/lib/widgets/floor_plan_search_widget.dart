@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../ui/indoor_map/classroom_selection.dart';
+
 class FloorPlanSearchWidget extends StatelessWidget {
   final TextEditingController searchController;
   final Function(String) onFloorSelected;
+  final String? building;
+  final String? floor;
 
   const FloorPlanSearchWidget({
     super.key,
     required this.searchController,
     required this.onFloorSelected,
+    required this.building,
+    required this.floor,
   });
 
   @override
@@ -39,13 +45,18 @@ class FloorPlanSearchWidget extends StatelessWidget {
                 controller: searchController,
                 style: const TextStyle(fontSize: 16),
                 decoration: const InputDecoration(
-                  hintText: 'Room Number',
+                  hintText: 'Search Room',
                   border: InputBorder.none,
                   isDense: true,
                   hintStyle: TextStyle(color: Colors.grey),
                 ),
-                onChanged: (value) {
-                  onFloorSelected(value); // Triggers the search dynamically
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ClassroomSelection(building: building!, floor: floor!),
+                    ),
+                  );
                 },
               ),
             ),
