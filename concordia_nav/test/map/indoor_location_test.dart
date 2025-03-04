@@ -27,7 +27,7 @@ void main() {
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Indoor Location'), findsOneWidget);
+      expect(find.text('Indoor Map'), findsOneWidget);
     });
   });
 

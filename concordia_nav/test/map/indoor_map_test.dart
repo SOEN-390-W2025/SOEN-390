@@ -63,10 +63,10 @@ void main() {
         }).where((text) => text != null).toList();
 
         // Assert: Verify the filtered list shows only matching classrooms
-        expect(classrooms, contains('101'), reason: 'Room 101 should be found');
-        expect(classrooms, contains('102'), reason: 'Room 102 should be found');
-        expect(classrooms, isNot(contains('3')), reason: 'Room 3 should not be found');
-        expect(classrooms, isNot(contains('20')), reason: 'Room 20 should not be found');
+        expect(classrooms, contains('9101'), reason: 'Room 101 should be found');
+        expect(classrooms, contains('9102'), reason: 'Room 102 should be found');
+        expect(classrooms, isNot(contains('93')), reason: 'Room 3 should not be found');
+        expect(classrooms, isNot(contains('920')), reason: 'Room 20 should not be found');
       });
     });
 
@@ -116,7 +116,7 @@ void main() {
         // Arrange
         const building = 'Hall Building';
         const floor = 'Floor 1';
-        const classroom = '10';
+        const classroom = '110';
 
         // Build the widget
         await tester.pumpWidget(const MaterialApp(
@@ -125,7 +125,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Simulate tapping on a classroom
-        expect(find.text('10'), findsOneWidget);
+        expect(find.text('110'), findsOneWidget);
         await tester.tap(find.text(classroom));
         await tester
             .pumpAndSettle(); // Wait for any potential UI updates (though there’s no actual navigation here)

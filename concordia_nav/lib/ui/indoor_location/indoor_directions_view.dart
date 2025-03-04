@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
 
@@ -37,19 +38,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'Indoor Directions',
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        ),
-        backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-      ),
+      appBar: customAppBar(context, 'Indoor Directions'),
       body: Column(
         children: [
           Container(
