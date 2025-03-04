@@ -2,7 +2,6 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
-import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
