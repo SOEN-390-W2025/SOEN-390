@@ -22,6 +22,7 @@ class SelectIndoorDestination extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const BuildingSelection(),
+                  settings: const RouteSettings(name: '/BuildingSelection'),
                 ),
                 // Remove all previous routes
                 (route) => route.isFirst,
@@ -44,10 +45,11 @@ class SelectIndoorDestination extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => FloorSelection(building: building),
+                    settings: const RouteSettings(name: '/FloorSelection'),
                   ),
                   (route) {
                     // Remove all previous routes except BuildingSelection
-                    return route.settings.name == '/BuildingSelection';
+                    return route.settings.name == '/' || route.settings.name == '/BuildingSelection';
                   },
                 );
               },
