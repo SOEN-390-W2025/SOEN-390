@@ -1,7 +1,7 @@
 import 'package:concordia_nav/ui/indoor_map/classroom_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
+import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 
 void main() {
   group('ClassroomSelection', () {
@@ -143,7 +143,7 @@ void main() {
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         MaterialApp(
-          home: IndoorMapView(key: UniqueKey()),
+          home: BuildingSelection(key: UniqueKey()),
         ),
       );
 
@@ -156,7 +156,7 @@ void main() {
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         const MaterialApp(
-          home: IndoorMapView(),
+          home: BuildingSelection(),
         ),
       );
 
@@ -169,7 +169,7 @@ void main() {
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         const MaterialApp(
-          home: IndoorMapView(),
+          home: BuildingSelection(),
         ),
       );
 

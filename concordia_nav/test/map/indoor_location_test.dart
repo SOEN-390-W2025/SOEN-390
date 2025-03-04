@@ -10,8 +10,6 @@ void main() {
         MaterialApp(
           home: IndoorLocationView(
             building: "Building",
-            floor: "Floor",
-            room: "Room",
             key: UniqueKey(),
           ),
         ),
@@ -24,7 +22,7 @@ void main() {
     testWidgets('appBar has the right title', (WidgetTester tester) async {
       // Build the indoor location view widget
       await tester
-          .pumpWidget(const MaterialApp(home: const IndoorLocationView(building: 'building', floor: 'floor', room: 'room')));
+          .pumpWidget(const MaterialApp(home: const IndoorLocationView(building: 'building')));
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
@@ -37,7 +35,7 @@ void main() {
     testWidgets('mapLayout widget exists', (WidgetTester tester) async {
       // Build the indoor location view widget
       await tester
-          .pumpWidget(const MaterialApp(home: const IndoorLocationView(building: 'building', floor: 'floor', room: 'room')));
+          .pumpWidget(const MaterialApp(home: const IndoorLocationView(building: 'building')));
       await tester.pump();
 
       // Verify that MapLayout widget exists
