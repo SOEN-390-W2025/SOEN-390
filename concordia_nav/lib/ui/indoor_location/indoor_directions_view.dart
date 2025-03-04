@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../utils/building_viewmodel.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
@@ -121,7 +122,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
           ),
 
           Expanded(
-            child: Container(),
+            child: Center(
+              child: SvgPicture.asset(
+                'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg',
+                fit: BoxFit.fitHeight,
+              ),
+            ),
           ),
 
           Container(
