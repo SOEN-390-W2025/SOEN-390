@@ -122,6 +122,16 @@ flutter:
     - assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json
     - assets/maps/outdoor/shuttle_bus_schedules/monday_thursday.json
     - assets/maps/outdoor/shuttle_bus_schedules/friday.json
+    - assets/maps/indoor/floorplans/CC1_wide.svg
+    - assets/maps/indoor/floorplans/CC1.svg
+    - assets/maps/indoor/floorplans/H1.svg
+    - assets/maps/indoor/floorplans/H2.svg
+    - assets/maps/indoor/floorplans/H8.svg
+    - assets/maps/indoor/floorplans/H9.svg
+    - assets/maps/indoor/floorplans/MB1.svg
+    - assets/maps/indoor/floorplans/MBS2.svg
+    - assets/maps/indoor/floorplans/VL1.svg
+    - assets/maps/indoor/floorplans/VL2.svg
     - assets/maps/indoor/Hall-1.png
     - assets/icons/default.png
     - assets/icons/destination.png
