@@ -33,7 +33,13 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
   Future<List<String>> _loadClassrooms() async {
     final List<String> classrooms =
         await BuildingViewModel().getRoomsForFloor(widget.building, widget.floor)
-        .then((rooms) => rooms.map((room) => floorNumber + room.roomNumber).toList());
+        .then((rooms) => rooms.map((room) {
+          String roomNumber = room.roomNumber;
+          if (roomNumber.length == 1) {
+            roomNumber = '0$roomNumber';  // Add leading zero if length is 1
+          }
+          return floorNumber + roomNumber; // Combine floor number and formatted room number
+        }).toList());
 
     setState(() {
       allClassrooms = classrooms;
