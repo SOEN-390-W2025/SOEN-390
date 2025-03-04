@@ -8,7 +8,10 @@ void main() {
     testWidgets('renders correctly with a non-constant key', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: IndoorLocationView(key: UniqueKey()),
+          home: IndoorLocationView(
+            building: "Building",
+            key: UniqueKey(),
+          ),
         ),
       );
       expect(find.text('Indoor Location'), findsOneWidget);
@@ -19,7 +22,7 @@ void main() {
     testWidgets('appBar has the right title', (WidgetTester tester) async {
       // Build the indoor location view widget
       await tester
-          .pumpWidget(const MaterialApp(home: const IndoorLocationView()));
+          .pumpWidget(const MaterialApp(home: const IndoorLocationView(building: 'building')));
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
@@ -32,7 +35,7 @@ void main() {
     testWidgets('mapLayout widget exists', (WidgetTester tester) async {
       // Build the indoor location view widget
       await tester
-          .pumpWidget(const MaterialApp(home: const IndoorLocationView()));
+          .pumpWidget(const MaterialApp(home: const IndoorLocationView(building: 'building')));
       await tester.pump();
 
       // Verify that MapLayout widget exists

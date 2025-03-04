@@ -2,7 +2,7 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
-import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
+import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
@@ -191,7 +191,7 @@ void main() async {
         "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
       };
     });
-    
+
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
@@ -218,7 +218,7 @@ void main() async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/IndoorMapView': (context) => const IndoorMapView(),
+      '/IndoorMapView': (context) => const BuildingSelection(),
     };
 
     // Build the HomePage widget
@@ -230,7 +230,7 @@ void main() async {
     // Tap on the Indoor directions FeatureCard
     await tester.tap(find.text('Indoor directions'));
     await tester.pumpAndSettle(); // Wait for navigation to complete
-    expect(find.text('Indoor Map'), findsOneWidget);
+    expect(find.text('Indoor Directions'), findsOneWidget);
 
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -265,7 +265,8 @@ void main() async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/IndoorLocationView': (context) => const IndoorLocationView(),
+      '/IndoorLocationView': (context) => const IndoorLocationView(
+          building: 'building'),
     };
 
     // Build the HomePage widget
@@ -316,7 +317,7 @@ void main() async {
               },
               "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
             });
-    
+
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
 

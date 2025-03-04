@@ -15,4 +15,14 @@ class ConcordiaBuilding extends Location {
       super.postalCode,
       this.abbreviation,
       this.campus);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ConcordiaBuilding) return false;
+    return abbreviation == other.abbreviation;
+  }
+
+  @override
+  int get hashCode => abbreviation.hashCode;
 }

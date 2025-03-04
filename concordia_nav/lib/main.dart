@@ -1,9 +1,12 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import 'data/repositories/building_data_manager.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
-import 'ui/indoor_map/indoor_map_view.dart';
+import 'ui/indoor_map/building_selection.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
 import 'ui/poi/poi_choice_view.dart';
 import 'ui/poi/poi_map_view.dart';
@@ -19,6 +22,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  try {
+    await BuildingDataManager.initialize();
+  } on Exception catch (e, stackTrace) {
+    dev.log('Error initializing building data manager',
+        error: e, stackTrace: stackTrace);
+  }
   runApp(const MyApp());
 }
 
@@ -38,7 +48,7 @@ class MyApp extends StatelessWidget {
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
         '/IndoorLocationView': (context) => const IndoorLocationView(),
-        '/IndoorMapView': (context) => const IndoorMapView(),
+        '/BuildingSelection': (context) => const BuildingSelection(),
         '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
             campus:
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
@@ -49,6 +59,7 @@ class MyApp extends StatelessWidget {
         '/CalendarView': (context) => const CalendarView(),
         '/SettingsPage': (context) => const SettingsPage(),
         '/SearchView': (context) => const SearchView(),
+        '/SelectBuilding': (context) => const BuildingSelection(),
       },
     );
   }

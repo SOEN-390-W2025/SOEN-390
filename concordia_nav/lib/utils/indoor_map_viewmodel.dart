@@ -12,7 +12,6 @@ class IndoorMapViewModel extends MapViewModel {
   final ValueNotifier<Set<Marker>> markersNotifier = ValueNotifier({});
   final ValueNotifier<Set<Polyline>> polylinesNotifier = ValueNotifier({});
   ConcordiaRoom? selectedRoom;
-  GoogleMapController? _mapController;
 
   //hard code floors for mock
   final List<ConcordiaFloor> floors = [
@@ -45,26 +44,23 @@ class IndoorMapViewModel extends MapViewModel {
       ),
     ),
   ];
-  @override
-  void onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-  }
+
   Future<CameraPosition> getInitialCameraPositionFloor(ConcordiaFloor floor) async {
     return CameraPosition(
       target: LatLng(floor.lat, floor.lng),
       zoom: 18.0,
     );
   }
+
   @override
-  @override
-Future<void> fetchRoutesForAllModes(String start, String end) async {
+Future<void> fetchRoutesForAllModes(String originAddress, String destinationAddress) async {
   final floor = floors.firstWhere(
-    (floor) => floor.floorNumber == start || floor.floorNumber == end,
+    (floor) => floor.floorNumber == originAddress || floor.floorNumber == destinationAddress,
     orElse: () => floors.first,
   );
 
   selectedRoom = ConcordiaRoom(
-    end,
+    destinationAddress,
     RoomCategory.classroom,
     floor,
     ConcordiaFloorPoint(

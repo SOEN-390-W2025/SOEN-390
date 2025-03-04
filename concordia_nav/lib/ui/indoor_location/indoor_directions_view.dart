@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD:concordia_nav/lib/ui/indoor_map/indoor_directions_view.dart
 import '../../widgets/zoom_buttons.dart';
+=======
+import '../../utils/building_viewmodel.dart';
+>>>>>>> b034ba2ec43c6d0d44dccd8ead22dded01bf5229:concordia_nav/lib/ui/indoor_location/indoor_directions_view.dart
 
 class IndoorDirectionsView extends StatefulWidget {
+  final String building;
+  final String floor;
+  final String room;
   final String currentLocation;
-  final String destination;
 
   const IndoorDirectionsView({
     super.key,
     required this.currentLocation,
-    required this.destination,
+    required this.building,
+    required this.floor,
+    required this.room
   });
 
   @override
@@ -18,6 +26,16 @@ class IndoorDirectionsView extends StatefulWidget {
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
   String _selectedMode = 'Walking';
   final String _eta = '5 min';
+
+  late String buildingAbbreviation;
+  late String roomNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
+    roomNumber = widget.room.replaceFirst( widget.floor, '');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +61,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha(26),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -76,7 +94,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'To: ${widget.destination}',
+                          'To: $buildingAbbreviation ${widget.room}',
                           style: const TextStyle(fontSize: 16),
                         ),
                       ),
@@ -149,7 +167,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha(26),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
