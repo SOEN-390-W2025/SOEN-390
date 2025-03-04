@@ -1,0 +1,191 @@
+floors:
+  - number: "1"
+    pixelsPerSecond: 1
+
+rooms:
+  "1":
+    - roomNumber: "1"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 3198, y: 586 }
+    - roomNumber: "2"
+      category: unknown
+      floor: "1"
+      entrancePoint: null
+    - roomNumber: "4"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 3362, y: 483 }
+    - roomNumber: "6"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 2629, y: 158 }
+    - roomNumber: "7"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 2771, y: 586 }
+    - roomNumber: "9"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 2642, y: 586 }
+    - roomNumber: "11"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 2572, y: 586 }
+    - roomNumber: "12"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 2572, y: 483 }
+    - roomNumber: "15"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 1544, y: 586 }
+    - roomNumber: "16"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 1496, y: 483 }
+    - roomNumber: "17"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 1424, y: 586 }
+    - roomNumber: "18"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 1415, y: 196 }
+    - roomNumber: "19"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 1033, y: 586 }
+    - roomNumber: "20"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 1025, y: 474 }
+    - roomNumber: "22"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 941, y: 474 }
+    - roomNumber: "24"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 675, y: 474 }
+
+waypoints:
+  "1":
+    - { x: 366, y: 99 }
+    - { x: 581, y: 99 }
+    - { x: 796, y: 99 }
+    - { x: 1018, y: 99 }
+    - { x: 1225, y: 99 }
+    - { x: 1422, y: 99 }
+    - { x: 1652, y: 99 }
+    - { x: 1856, y: 99 }
+    - { x: 2052, y: 99 }
+    - { x: 2248, y: 99 }
+    - { x: 2423, y: 99 }
+    - { x: 2629, y: 99 }
+    - { x: 2832, y: 99 }
+    - { x: 3000, y: 99 }
+    - { x: 3181, y: 99 }
+    - { x: 3387, y: 99 }
+    - { x: 3653, y: 99 }
+    - { x: 3845, y: 99 }
+    - { x: 366, y: 290 }
+    - { x: 366, y: 503 }
+    - { x: 366, y: 768 }
+    - { x: 366, y: 967 }
+    - { x: 1044, y: 967 }
+    - { x: 1796, y: 967 }
+    - { x: 2589, y: 967 }
+    - { x: 3283, y: 967 }
+    - { x: 3652, y: 967 }
+    - { x: 3845, y: 261 }
+    - { x: 3845, y: 396 }
+    - { x: 3845, y: 608 }
+    - { x: 3845, y: 798 }
+    - { x: 3845, y: 967 }
+    - { x: 3653, y: 396 }
+    - { x: 3643, y: 540 }
+    - { x: 3432, y: 540 }
+    - { x: 3188, y: 540 }
+    - { x: 2899, y: 540 }
+    - { x: 2712, y: 540 }
+    - { x: 2498, y: 540 }
+    - { x: 2242, y: 540 }
+    - { x: 1893, y: 540 }
+    - { x: 1578, y: 540 }
+    - { x: 1422, y: 540 }
+    - { x: 1206, y: 540 }
+    - { x: 976, y: 540 }
+    - { x: 678, y: 540 }
+    - { x: 1422, y: 341 }
+    - { x: 2672, y: 329 }
+
+waypointNavigability:
+  "1":
+    "0": [18, 1]
+    "1": [0, 1]
+    "2": [1, 3]
+    "3": [2, 4]
+    "4": [3, 5]
+    "5": [4, 6, 46]
+    "6": [5, 7]
+    "7": [6, 8]
+    "8": [6, 9]
+    "9": [8, 10]
+    "10": [9, 11]
+    "11": [10, 12, 47]
+    "12": [11, 13]
+    "13": [12, 14]
+    "14": [13, 15]
+    "15": [14, 16]
+    "16": [15, 17, 32]
+    "17": [16, 27]
+    "18": [0, 19]
+    "19": [18, 20]
+    "20": [19, 21]
+    "21": [20, 22]
+    "22": [21, 23]
+    "23": [22, 24]
+    "24": [23, 25]
+    "25": [24, 26]
+    "26": [25, 31, 33]
+    "27": [17, 28]
+    "28": [27, 29, 32]
+    "29": [28, 30, 33]
+    "30": [29, 31]
+    "31": [30, 26]
+    "32": [28, 33]
+    "33": [32, 29, 26, 34]
+    "34": [33, 35]
+    "35": [34, 36]
+    "36": [35, 37]
+    "37": [36, 38, 47]
+    "38": [37, 39]
+    "39": [38, 40]
+    "40": [39, 41]
+    "41": [40, 42]
+    "42": [41, 43, 46]
+    "43": [42, 44]
+    "44": [43, 45]
+    "45": [44]
+    "46": [5, 42]
+    "47": [11, 37]
+
+connections:
+  - name: "Stairs"
+    accessible: false
+    fixedWaitTimeSeconds: 0
+    waitTimePerFloorSeconds: 25
+    floors: ["1"]
+    floorPoints:
+      "1": 
+        - { x: 365, y: 350, floor: "1" }
+        - { x: 1365, y: 340, floor: "1" }
+        - { x: 2667, y: 320, floor: "1" }
+        - { x: 3637, y: 704, floor: "1" }
+        # - { x: 106, y: 970, floor: "1" }  # Not sure if this staircase is reachable
+
+outdoorExitPoint:
+  floor: "1"
+  x: 365
+  y: 350
