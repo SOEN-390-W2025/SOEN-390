@@ -88,7 +88,7 @@ class HomePage extends StatelessWidget {
                     title: 'Indoor directions',
                     icon: const Icon(Icons.meeting_room),
                     onPress: () =>
-                        Navigator.pushNamed(context, '/IndoorMapView'),
+                        Navigator.pushNamed(context, '/BuildingSelection'),
                   ),
                   const SizedBox(width: 20),
                   FeatureCard(
