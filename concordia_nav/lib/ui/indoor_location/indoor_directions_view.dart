@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/custom_appbar.dart';
+import '../../widgets/indoor_direction/bottom_info_widget.dart';
+import '../../widgets/indoor_direction/indoor_path.dart';
+import '../../widgets/indoor_direction/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
 
@@ -8,13 +12,17 @@ class IndoorDirectionsView extends StatefulWidget {
   final String floor;
   final String room;
   final String currentLocation;
+  final Offset startLocation;
+  final Offset endLocation;
 
   const IndoorDirectionsView({
     super.key,
     required this.currentLocation,
     required this.building,
     required this.floor,
-    required this.room
+    required this.room,
+    this.startLocation = const Offset(614, 232),
+    this.endLocation = const Offset(636, 240),
   });
 
   @override
@@ -27,6 +35,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
 
   late String buildingAbbreviation;
   late String roomNumber;
+  double _scale = 1.0;  // Initial scale for zooming
+  final double _maxScale = 3.0; // Maximum zoom
+  final double _minScale = 0.5; // Minimum zoom
+
+  final TransformationController _transformationController = TransformationController();
+
 
   @override
   void initState() {
@@ -36,107 +50,85 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
   }
 
   @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _updateTransformation() {
+    _transformationController.value = Matrix4.identity()..scale(_scale);
+  }
+
+  void _zoomIn() {
+    setState(() {
+      _scale = (_scale * 1.1).clamp(_minScale, _maxScale); // Adjust zoom factor
+      _updateTransformation();
+    });
+  }
+
+  void _zoomOut() {
+    setState(() {
+      _scale = (_scale / 1.1).clamp(_minScale, _maxScale); // Adjust zoom factor
+      _updateTransformation();
+    });
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, 'Indoor Directions'),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.location_on, color: Colors.red),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'From: ${widget.currentLocation}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'To: $buildingAbbreviation ${widget.room}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          LocationInfoWidget(
+            from: widget.currentLocation,
+            to: '$buildingAbbreviation ${widget.room}',
           ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: DropdownButton<String>(
-              value: _selectedMode,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedMode = newValue!;
-                });
-              },
-              items: <String>['Walking', 'Accessibility', 'X']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
+          _buildDropdown(),
 
           Expanded(
-            child: Stack(
+            child: Stack(  // Add Stack to allow positioning of zoom buttons
               children: [
-                // Placeholder for the map or directions visualization
-                const Center(
-                  child: Text(
-                    'Directions visualization will go here',
-                    style: TextStyle(color: Colors.grey),
+                InteractiveViewer(
+                  constrained: false, // Important!  Allows panning beyond the widget's initial size.
+                  scaleEnabled: false, // Disable built-in scaling - using our buttons
+                  panEnabled: true, // Enable panning
+                  minScale: _minScale,
+                  maxScale: _maxScale,
+                  transformationController: _transformationController,
+                  child: SizedBox(
+                    width: 1024,
+                    height: 1024,
+                    child: Stack(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg',
+                          fit: BoxFit.contain,
+                        ),
+                        CustomPaint(
+                          painter: IndoorMapPainter(
+                            startLocation: widget.startLocation,
+                            endLocation: widget.endLocation,
+                          ),
+                          size: Size.infinite, // Important!  Take up all available space.
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
-                Positioned(
+                Positioned(  // Position zoom buttons
                   top: 16,
                   right: 16,
                   child: Column(
                     children: [
                       ZoomButton(
-                        onTap: () {
-                          // Handle zoom in
-                        },
+                        onTap: _zoomIn,
                         icon: Icons.add,
                         isZoomInButton: true,
                       ),
                       ZoomButton(
-                        onTap: () {
-                          // Handle zoom out
-                        },
+                        onTap: _zoomOut,
                         icon: Icons.remove,
                         isZoomInButton: false,
                       ),
@@ -146,47 +138,30 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               ],
             ),
           ),
-
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Text(
-                      'ETA: $_eta',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
-                  ),
-                  child: const Text(
-                    'Start',
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          BottomInfoWidget(eta: _eta),
         ],
+
+      ),
+    );
+  }
+
+  Widget _buildDropdown() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: DropdownButton<String>(
+        value: _selectedMode,
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedMode = newValue!;
+          });
+        },
+        items: <String>['Walking', 'Accessibility', 'X']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
       ),
     );
   }
