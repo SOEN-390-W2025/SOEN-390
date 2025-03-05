@@ -20,11 +20,11 @@ rooms:
       floor: "8"
       entrancePoint: null
   "9":
-    - roomNumber: "101"   # Rooms that don't have a number start from 101
+    - roomNumber: "1001"   # Rooms that don't have a number start from 1001
       category: washroom
       floor: "9"
       entrancePoint: { x: 593, y: 778 }
-    - roomNumber: "102"
+    - roomNumber: "1002"
       category: washroom
       floor: "9"
       entrancePoint: { x: 378, y: 805 }
