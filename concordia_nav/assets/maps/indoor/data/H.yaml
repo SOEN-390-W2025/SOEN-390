@@ -574,7 +574,7 @@ connections:
     floorPoints:
       "1": { x: 1730, y: 2111, floor: "1" }
       "2": { x: 1565, y: 1960, floor: "2" }
-      "8": { x: 355,  y: 350,  floor: "8" }
+      "8": { x: 663,  y: 670,  floor: "8" }
       "9": { x: 669, y: 656,  floor: "9" }
   - name: "Escalators"
     accessible: false

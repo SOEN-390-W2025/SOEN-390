@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_floor_point.dart';
+import '../../data/domain-model/concordia_floor.dart';
+import '../../data/domain-model/indoor_route.dart';
+import '../../data/services/indoor_routing_service.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_direction/bottom_info_widget.dart';
 import '../../widgets/indoor_direction/indoor_path.dart';
 import '../../widgets/indoor_direction/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
-import '../../utils/building_viewmodel.dart';
+
+import 'dart:developer' as dev;
+
+// Assuming you have this implementation
+import '../../data/domain-model/concrete_floor_routable_point.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
   final String room;
   final String currentLocation;
-
 
   const IndoorDirectionsView({
     super.key,
@@ -29,7 +37,6 @@ class IndoorDirectionsView extends StatefulWidget {
 }
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
-  
   String _selectedMode = 'Walking';
   final String _eta = '5 min';
 
@@ -39,52 +46,86 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
   late Offset startLocation = Offset.zero;
   late Offset endLocation = Offset.zero;
 
-  double _scale = 1.0;  // Initial scale for zooming
-  final double _maxScale = 3.0; // Maximum zoom
-  final double _minScale = 0.5; // Minimum zoom
+  IndoorRoute? _calculatedRoute;
+
+  double _scale = 1.0;
+  final double _maxScale = 3.0;
+  final double _minScale = 0.55;
 
   final TransformationController _transformationController = TransformationController();
-
 
   @override
   void initState() {
     super.initState();
     buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
-    roomNumber = widget.room.replaceFirst( widget.floor, '');
+    roomNumber = widget.room.replaceFirst(widget.floor, '');
 
-    _getStartLocation();
-    _getEndLocation();
+    _initializeRouting();
   }
 
-  Future<void> _getStartLocation() async {
-    final ConcordiaFloorPoint? startPositionPoint = await IndoorDirectionsViewModel().getElevatorPoint(
-      widget.building,
-      widget.floor,
-    );
-    
-    if (startPositionPoint != null) {
-      // If position point is not null, update the end location
-      setState(() {
-        startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY); // Assuming ConcordiaFloorPoint has x and y
-      });
+  Future<void> _initializeRouting() async {
+    try {
+
+      final dynamic yamlData = await BuildingViewModel().getYamlDataForBuilding(buildingAbbreviation);
+      // Get start location (elevator point)
+      final ConcordiaFloorPoint? startPositionPoint = await IndoorDirectionsViewModel()
+          .getElevatorPoint(widget.building, widget.floor);
+      
+      // Get end location (room point)
+      final ConcordiaFloorPoint? endPositionPoint = await IndoorDirectionsViewModel()
+          .getPositionPoint(widget.building, widget.floor, widget.room);
+
+      if (startPositionPoint != null && endPositionPoint != null) {
+        setState(() {
+          // Update location points
+          startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
+          endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
+
+          final ConcordiaBuilding buildingData = BuildingViewModel().getBuildingByName(widget.building)!;
+          // Create ConcordiaFloor for the current floor
+          final currentFloor = ConcordiaFloor(
+            widget.floor,
+            buildingData
+          );
+
+          // Create FloorRoutablePoint for start and end
+          final startRoutablePoint = ConcreteFloorRoutablePoint(
+            floor: currentFloor,
+            positionX: startPositionPoint.positionX,
+            positionY: startPositionPoint.positionY,
+          );
+
+          final endRoutablePoint = ConcreteFloorRoutablePoint(
+            floor: currentFloor,
+            positionX: endPositionPoint.positionX,
+            positionY: endPositionPoint.positionY,
+          );
+
+          // Calculate route based on accessibility mode
+          final isAccessible = _selectedMode == 'Accessibility';
+          _calculatedRoute = IndoorRoutingService.getIndoorRoute(
+            yamlData,
+            startRoutablePoint, 
+            endRoutablePoint, 
+            isAccessible
+          );
+        });
+      } else {
+        _showErrorMessage('Could not find start or end location');
+      }
+    } on Exception catch (e) {
+      _showErrorMessage('Error calculating route: $e');
     }
   }
 
-  Future<void> _getEndLocation() async {
-    final ConcordiaFloorPoint? endPositionPoint = await IndoorDirectionsViewModel().getPositionPoint(
-      widget.building,
-      widget.floor,
-      widget.room,
-    );
-
-    if (endPositionPoint != null) {
-      // If position point is not null, update the end location
-      setState(() {
-        endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY); // Assuming ConcordiaFloorPoint has x and y
-      });
+  void _showErrorMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     }
   }
-  
+
   @override
   void dispose() {
     _transformationController.dispose();
@@ -122,7 +163,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
           _buildDropdown(),
 
           Expanded(
-            child: Stack(  // Add Stack to allow positioning of zoom buttons
+            child: Stack(
               children: [
                 InteractiveViewer(
                   constrained: false, // Important!  Allows panning beyond the widget's initial size.
@@ -142,16 +183,16 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                         ),
                         CustomPaint(
                           painter: IndoorMapPainter(
+                            route: _calculatedRoute,
                             startLocation: startLocation,
                             endLocation: endLocation,
                           ),
-                          size: Size.infinite, // Important!  Take up all available space.
+                          size: Size.infinite,
                         ),
                       ],
                     ),
                   ),
                 ),
-
                 Positioned(  // Position zoom buttons
                   top: 16,
                   right: 16,
@@ -175,7 +216,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
           ),
           BottomInfoWidget(eta: _eta),
         ],
-
       ),
     );
   }
@@ -188,6 +228,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
         onChanged: (String? newValue) {
           setState(() {
             _selectedMode = newValue!;
+            // Recalculate route when mode changes
+            _initializeRouting();
           });
         },
         items: <String>['Walking', 'Accessibility', 'X']
