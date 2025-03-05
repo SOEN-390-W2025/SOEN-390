@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../../data/repositories/building_repository.dart';
 import '../../widgets/custom_appbar.dart';
@@ -5,14 +6,14 @@ import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/selectable_list.dart';
 import 'floor_selection.dart';
 
-class IndoorMapView extends StatefulWidget {
-  const IndoorMapView({super.key});
+class BuildingSelection extends StatefulWidget {
+  const BuildingSelection({super.key});
 
   @override
-  IndoorMapViewState createState() => IndoorMapViewState();
+  BuildingSelectionState createState() => BuildingSelectionState();
 }
 
-class IndoorMapViewState extends State<IndoorMapView> {
+class BuildingSelectionState extends State<BuildingSelection> {
   late List<String> buildings;
   final TextEditingController searchController = TextEditingController();
 
@@ -53,7 +54,6 @@ class IndoorMapViewState extends State<IndoorMapView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  // TODO: Implement floor selection
                   builder: (context) => FloorSelection(building: building),
                 ),
               );
