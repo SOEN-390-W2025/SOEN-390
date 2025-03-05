@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../data/domain-model/concordia_floor_point.dart';
+import '../../utils/indoor_directions_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_direction/bottom_info_widget.dart';
 import '../../widgets/indoor_direction/indoor_path.dart';
@@ -13,7 +15,7 @@ class IndoorDirectionsView extends StatefulWidget {
   final String room;
   final String currentLocation;
   final Offset startLocation;
-  final Offset endLocation;
+
 
   const IndoorDirectionsView({
     super.key,
@@ -22,7 +24,6 @@ class IndoorDirectionsView extends StatefulWidget {
     required this.floor,
     required this.room,
     this.startLocation = const Offset(614, 232),
-    this.endLocation = const Offset(636, 240),
   });
 
   @override
@@ -30,11 +31,14 @@ class IndoorDirectionsView extends StatefulWidget {
 }
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
+  
   String _selectedMode = 'Walking';
   final String _eta = '5 min';
 
   late String buildingAbbreviation;
   late String roomNumber;
+  late Offset endLocation = Offset.zero;
+
   double _scale = 1.0;  // Initial scale for zooming
   final double _maxScale = 3.0; // Maximum zoom
   final double _minScale = 0.5; // Minimum zoom
@@ -47,8 +51,28 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
     super.initState();
     buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
     roomNumber = widget.room.replaceFirst( widget.floor, '');
+
+    _getEndLocation();
   }
 
+  Future<void> _getEndLocation() async {
+    final ConcordiaFloorPoint? positionPoint = await IndoorDirectionsViewModel().getPositionPoint(
+      widget.building,
+      widget.floor,
+      widget.room,
+    );
+
+    if (positionPoint != null) {
+      // If position point is not null, update the end location
+      setState(() {
+        endLocation = Offset(positionPoint.positionX, positionPoint.positionY); // Assuming ConcordiaFloorPoint has x and y
+      });
+    } else {
+      // Handle the case where positionPoint is null
+      print('Position point is null');
+    }
+  }
+  
   @override
   void dispose() {
     _transformationController.dispose();
@@ -72,7 +96,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
       _updateTransformation();
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +131,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                         CustomPaint(
                           painter: IndoorMapPainter(
                             startLocation: widget.startLocation,
-                            endLocation: widget.endLocation,
+                            endLocation: endLocation,
                           ),
                           size: Size.infinite, // Important!  Take up all available space.
                         ),
