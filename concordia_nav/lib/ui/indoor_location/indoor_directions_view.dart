@@ -12,10 +12,6 @@ import '../../widgets/indoor_direction/bottom_info_widget.dart';
 import '../../widgets/indoor_direction/indoor_path.dart';
 import '../../widgets/indoor_direction/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
-
-import 'dart:developer' as dev;
-
-// Assuming you have this implementation
 import '../../data/domain-model/concrete_floor_routable_point.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
