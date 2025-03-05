@@ -82,3 +82,8 @@ connections:
         - { x: 816, y: 675, floor: "2" }
         - { x: 353, y: 788, floor: "2" }
         - { x: 728, y: 256, floor: "2" }
+
+outdoorExitPoint:
+  floor: "2"
+  x: -1
+  y: -1
