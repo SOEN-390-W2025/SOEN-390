@@ -64,6 +64,7 @@ class FloorSelectionState extends State<FloorSelection> {
             return SearchSelectableList<String>(
               items: filteredFloors,
               title: 'Select a floor',
+              building: widget.building,
               searchController: searchController,
               onItemSelected: (floor) {
                 Navigator.push(

@@ -279,90 +279,107 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       ),
       body: Stack(
         children: [
-          FutureBuilder<CameraPosition>(
-            future: _initialCameraPosition,
-            builder: (context, camSnapshot) {
-              _getCamSnapshot(camSnapshot);
-              return FutureBuilder<Map<String, dynamic>>(
-                future: _mapViewModel.getAllCampusPolygonsAndLabels(),
-                builder: (context, polySnapshot) {
-                  if (polySnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final Set<Polygon> polygons =
-                      polySnapshot.data?["polygons"] ?? {};
-                  final Set<Marker> labelMarkers =
-                      polySnapshot.data?["labels"] ?? {};
-
-                  return ValueListenableBuilder<Set<Marker>>(
-                    valueListenable: _mapViewModel.shuttleMarkersNotifier,
-                    builder: (context, shuttleMarkers, _) {
-                      final allMarkers = {
-                        ...labelMarkers,
-                        ..._mapViewModel.staticBusStopMarkers,
-                        ...shuttleMarkers,
-                      };
-                      if (_mapViewModel.originMarker != null) {
-                        allMarkers.add(_mapViewModel.originMarker!);
-                      }
-                      if (_mapViewModel.destinationMarker != null) {
-                        allMarkers.add(_mapViewModel.destinationMarker!);
-                      }
-                      if (!_locationPermissionGranted) {
-                        return const Center(
-                            child: Text('Location permission not granted'));
-                      }
-                      return MapLayout(
-                        mapWidget: Semantics(
-                          label: 'Google Map',
-                          child: GoogleMap(
-                            onMapCreated: _mapViewModel.onMapCreated,
-                            initialCameraPosition: camSnapshot.data!,
-                            zoomControlsEnabled: false,
-                            polylines: _mapViewModel.activePolylines,
-                            markers: allMarkers,
-                            polygons: polygons,
-                            myLocationButtonEnabled: false,
-                            buildingsEnabled: false,
-                            myLocationEnabled: _locationPermissionGranted,
-                          ),
-                        ),
-                        mapViewModel: _mapViewModel,
-                        style: 2,
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
+          _buildMap(),
           _buildTopPanel(),
           if (first) _visibleKeyboardWidget(),
-          // Building info drawer appears when a building is selected
-          ValueListenableBuilder<ConcordiaBuilding?>(
-            valueListenable: _mapViewModel.selectedBuildingNotifier,
-            builder: (context, selectedBuilding, child) {
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                            begin: const Offset(0, 1), end: Offset.zero)
-                        .animate(animation),
-                    child: child,
-                  );
-                },
-                child: selectedBuilding != null
-                    ? BuildingInfoDrawer(
-                        building: selectedBuilding,
-                        onClose: _mapViewModel.unselectBuilding,
-                      )
-                    : const SizedBox.shrink(),
-              );
-            },
-          ),
+          _buildBuildingInfoDrawer(),
         ],
       ),
+    );
+  }
+
+  Widget _buildMap() {
+    return FutureBuilder<CameraPosition>(
+      future: _initialCameraPosition,
+      builder: (context, camSnapshot) {
+        _getCamSnapshot(camSnapshot);
+        return FutureBuilder<Map<String, dynamic>>(
+          future: _mapViewModel.getAllCampusPolygonsAndLabels(),
+          builder: (context, polySnapshot) {
+            if (polySnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final Set<Polygon> polygons = polySnapshot.data?["polygons"] ?? {};
+            final Set<Marker> labelMarkers = polySnapshot.data?["labels"] ?? {};
+
+            return ValueListenableBuilder<Set<Marker>>(
+              valueListenable: _mapViewModel.shuttleMarkersNotifier,
+              builder: (context, shuttleMarkers, _) {
+                final allMarkers =
+                    _buildAllMarkers(labelMarkers, shuttleMarkers);
+                if (!_locationPermissionGranted) {
+                  return const Center(
+                      child: Text('Location permission not granted'));
+                }
+                return _buildGoogleMap(camSnapshot, polygons, allMarkers);
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Set<Marker> _buildAllMarkers(
+      Set<Marker> labelMarkers, Set<Marker> shuttleMarkers) {
+    final allMarkers = {
+      ...labelMarkers,
+      ..._mapViewModel.staticBusStopMarkers,
+      ...shuttleMarkers,
+    };
+    if (_mapViewModel.originMarker != null) {
+      allMarkers.add(_mapViewModel.originMarker!);
+    }
+    if (_mapViewModel.destinationMarker != null) {
+      allMarkers.add(_mapViewModel.destinationMarker!);
+    }
+    return allMarkers;
+  }
+
+  Widget _buildGoogleMap(AsyncSnapshot<CameraPosition> camSnapshot,
+      Set<Polygon> polygons, Set<Marker> allMarkers) {
+    return MapLayout(
+      mapWidget: Semantics(
+        label: 'Google Map',
+        child: GoogleMap(
+          onMapCreated: _mapViewModel.onMapCreated,
+          initialCameraPosition: camSnapshot.data!,
+          zoomControlsEnabled: false,
+          polylines: _mapViewModel.activePolylines,
+          markers: allMarkers,
+          polygons: polygons,
+          myLocationButtonEnabled: false,
+          buildingsEnabled: false,
+          myLocationEnabled: _locationPermissionGranted,
+        ),
+      ),
+      mapViewModel: _mapViewModel,
+      style: 2,
+    );
+  }
+
+  Widget _buildBuildingInfoDrawer() {
+    return ValueListenableBuilder<ConcordiaBuilding?>(
+      valueListenable: _mapViewModel.selectedBuildingNotifier,
+      builder: (context, selectedBuilding, child) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return SlideTransition(
+              position:
+                  Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                      .animate(animation),
+              child: child,
+            );
+          },
+          child: selectedBuilding != null
+              ? BuildingInfoDrawer(
+                  building: selectedBuilding,
+                  onClose: _mapViewModel.unselectBuilding,
+                )
+              : const SizedBox.shrink(),
+        );
+      },
     );
   }
 }
