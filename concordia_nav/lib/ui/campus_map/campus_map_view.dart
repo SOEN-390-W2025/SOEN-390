@@ -17,27 +17,34 @@ class CampusMapPage extends StatefulWidget {
   final MapViewModel? mapViewModel;
   final MapViewModel? buildMapViewModel;
 
-  const CampusMapPage({super.key, required this.campus, this.mapViewModel, this.buildMapViewModel});
+  const CampusMapPage(
+      {super.key,
+      required this.campus,
+      this.mapViewModel,
+      this.buildMapViewModel});
 
   @override
   // ignore: no_logic_in_create_state
   State<CampusMapPage> createState() =>
       // ignore: no_logic_in_create_state
-      CampusMapPageState(mapViewModel: mapViewModel, buildMapViewModel: buildMapViewModel);
+      CampusMapPageState(
+          mapViewModel: mapViewModel, buildMapViewModel: buildMapViewModel);
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
   // Modify constructor to allow dependency injection
-  CampusMapPageState({MapViewModel? mapViewModel, MapViewModel? buildMapViewModel})
+  CampusMapPageState(
+      {MapViewModel? mapViewModel, MapViewModel? buildMapViewModel})
       : _mapViewModel = mapViewModel ?? MapViewModel(),
-      _buildMapViewModel = buildMapViewModel ?? MapViewModel();
+        _buildMapViewModel = buildMapViewModel ?? MapViewModel();
 
   final MapViewModel _mapViewModel;
   final MapViewModel _buildMapViewModel;
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
-  final TextEditingController _searchController = TextEditingController(text: 'Search...');
+  final TextEditingController _searchController =
+      TextEditingController(text: 'Search...');
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
   List<String> searchList = [];
@@ -69,7 +76,8 @@ class CampusMapPageState extends State<CampusMapPage> {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
-        if (_locationPermissionGranted && !searchList.contains(_yourLocationString)) {
+        if (_locationPermissionGranted &&
+            !searchList.contains(_yourLocationString)) {
           searchList.insert(0, _yourLocationString);
         }
       });
@@ -102,109 +110,136 @@ class CampusMapPageState extends State<CampusMapPage> {
   /// information about the building.
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      /// Creates a new [MapViewModel] when the widget is created.
-      create: (_) => _buildMapViewModel,//MapViewModel(),
+      create: (_) => _buildMapViewModel,
       child: Consumer<MapViewModel>(
         builder: (context, mapViewModel, child) {
           return Scaffold(
-            appBar: customAppBar(
-              context,
-              _currentCampus.name,
-              actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
-              onActionPressed: () {
-                setState(() {
-                  _currentCampus = _currentCampus == ConcordiaCampus.sgw
-                      ? ConcordiaCampus.loy
-                      : ConcordiaCampus.sgw;
-                });
-                _loadMapData();
-                _mapViewModel.unselectBuilding();
-                _searchController.text = 'Search...';
-                searchList.clear();
-                checkLocationPermission();
-                getSearchList();
-              },
-            ),
+            appBar: _buildAppBar(context),
             body: Stack(
-              children: [FutureBuilder<CameraPosition>(
-                future: _mapViewModel.getInitialCameraPosition(_currentCampus),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return const Center(child: Text('Error loading campus map'));
-                  }
-
-                  return FutureBuilder<Map<String, dynamic>>(
-                      future: _mapViewModel
-                          .getCampusPolygonsAndLabels(_currentCampus),
-                      builder: (context, polySnapshot) {
-                        if (polySnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-
-                        return MapLayout(
-                          searchController: _searchController,
-                          mapWidget: Semantics(
-                              label: 'Google Map',
-                              child: GoogleMap(
-                                buildingsEnabled: false,
-                                onMapCreated: _mapViewModel.onMapCreated,
-                                initialCameraPosition: snapshot.data!,
-                                markers: _labelMarkers,
-                                polygons: _polygons,
-                                zoomControlsEnabled: false,
-                                myLocationButtonEnabled: false,
-                                myLocationEnabled: _locationPermissionGranted,
-                              )),
-                          mapViewModel: _mapViewModel,
-                        );
-                      });
-                }),
-                Positioned(
-                  top: 10,
-                  left: 15,
-                  right: 15,
-                  child: SearchBarWidget(
-                    controller: _searchController,
-                    hintText: _yourLocationString,
-                    icon: Icons.location_on,
-                    iconColor: Theme.of(context).primaryColor,
-                    searchList: searchList,
-                    mapViewModel: _mapViewModel,
-                    drawer: true,
-                  ),
-                ),
-                // Building info drawer appears when a building is selected
-                ValueListenableBuilder<ConcordiaBuilding?>(
-                  valueListenable: _mapViewModel.selectedBuildingNotifier,
-                  builder: (context, selectedBuilding, child) {
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                                  begin: const Offset(0, 1), end: Offset.zero)
-                              .animate(animation),
-                          child: child,
-                        );
-                      },
-                      child: selectedBuilding != null
-                          ? BuildingInfoDrawer(
-                              building: selectedBuilding,
-                              onClose: _mapViewModel.unselectBuilding,
-                            )
-                          : const SizedBox.shrink(),
-                    );
-                  },
-                ),
-              ]
+              children: [
+                _buildMapFutureBuilder(context),
+                _buildSearchBar(context),
+                _buildBuildingInfoDrawer(),
+              ],
             ),
           );
         },
       ),
     );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return customAppBar(
+      context,
+      _currentCampus.name,
+      actionIcon: const Icon(Icons.swap_horiz, color: Colors.white),
+      onActionPressed: () {
+        _onCampusSwitch();
+      },
+    );
+  }
+
+  FutureBuilder<CameraPosition> _buildMapFutureBuilder(BuildContext context) {
+    return FutureBuilder<CameraPosition>(
+      future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading campus map'));
+        }
+        return _buildCampusPolygonsFutureBuilder(snapshot);
+      },
+    );
+  }
+
+  FutureBuilder<Map<String, dynamic>> _buildCampusPolygonsFutureBuilder(
+      AsyncSnapshot<CameraPosition> snapshot) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+      builder: (context, polySnapshot) {
+        if (polySnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return MapLayout(
+          searchController: _searchController,
+          mapWidget: _buildGoogleMap(snapshot.data!),
+          mapViewModel: _mapViewModel,
+        );
+      },
+    );
+  }
+
+  Semantics _buildGoogleMap(CameraPosition initialCameraPosition) {
+    return Semantics(
+      label: 'Google Map',
+      child: GoogleMap(
+        buildingsEnabled: false,
+        onMapCreated: _mapViewModel.onMapCreated,
+        initialCameraPosition: initialCameraPosition,
+        markers: _labelMarkers,
+        polygons: _polygons,
+        zoomControlsEnabled: false,
+        myLocationButtonEnabled: false,
+        myLocationEnabled: _locationPermissionGranted,
+      ),
+    );
+  }
+
+  Positioned _buildSearchBar(BuildContext context) {
+    return Positioned(
+      top: 10,
+      left: 15,
+      right: 15,
+      child: SearchBarWidget(
+        controller: _searchController,
+        hintText: _yourLocationString,
+        icon: Icons.location_on,
+        iconColor: Theme.of(context).primaryColor,
+        searchList: searchList,
+        mapViewModel: _mapViewModel,
+        drawer: true,
+      ),
+    );
+  }
+
+  Widget _buildBuildingInfoDrawer() {
+    return ValueListenableBuilder<ConcordiaBuilding?>(
+      valueListenable: _mapViewModel.selectedBuildingNotifier,
+      builder: (context, selectedBuilding, child) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return SlideTransition(
+              position:
+                  Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                      .animate(animation),
+              child: child,
+            );
+          },
+          child: selectedBuilding != null
+              ? BuildingInfoDrawer(
+                  building: selectedBuilding,
+                  onClose: _mapViewModel.unselectBuilding,
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
+  }
+
+  void _onCampusSwitch() {
+    setState(() {
+      _currentCampus = _currentCampus == ConcordiaCampus.sgw
+          ? ConcordiaCampus.loy
+          : ConcordiaCampus.sgw;
+    });
+    _loadMapData();
+    _mapViewModel.unselectBuilding();
+    _searchController.text = 'Search...';
+    searchList.clear();
+    checkLocationPermission();
+    getSearchList();
   }
 }

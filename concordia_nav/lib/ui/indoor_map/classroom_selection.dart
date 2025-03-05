@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_search_bar.dart';
+import '../../widgets/select_indoor_destination.dart';
 import '../../widgets/selectable_list.dart';
-import '../indoor_location/indoor_location_view.dart';
+import '../indoor_location/indoor_directions_view.dart';
 
 class ClassroomSelection extends StatefulWidget {
   final String building;
@@ -16,6 +17,7 @@ class ClassroomSelection extends StatefulWidget {
 
 class ClassroomSelectionState extends State<ClassroomSelection> {
   late Future<List<String>> classroomsFuture;
+  late String floorNumber;
   List<String> allClassrooms = [];
   List<String> filteredClassrooms = [];
   final TextEditingController searchController = TextEditingController();
@@ -25,12 +27,13 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
     super.initState();
     classroomsFuture = _loadClassrooms();
     searchController.addListener(filterClassrooms);
+    floorNumber = widget.floor.replaceAll('Floor ', '');
   }
 
   Future<List<String>> _loadClassrooms() async {
     final List<String> classrooms =
         await BuildingViewModel().getRoomsForFloor(widget.building, widget.floor)
-        .then((rooms) => rooms.map((room) => room.roomNumber).toList());
+        .then((rooms) => rooms.map((room) => floorNumber + room.roomNumber).toList());
 
     setState(() {
       allClassrooms = classrooms;
@@ -58,6 +61,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: customAppBar(context, widget.building),
       body: Column(
@@ -69,6 +73,8 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
             icon: Icons.location_on,
             iconColor: Theme.of(context).primaryColor,
           ),
+          // Buttons for selecting building and floor
+          SelectIndoorDestination(building: widget.building, floor: widget.floor),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0),
             child: Align(
@@ -97,9 +103,10 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => IndoorLocationView(
+                        builder: (context) => IndoorDirectionsView(
+                          currentLocation: 'Your Location',
                           building: widget.building,
-                          floor: widget.floor,
+                          floor: floorNumber,
                           room: classroom,
                         ),
                       ),

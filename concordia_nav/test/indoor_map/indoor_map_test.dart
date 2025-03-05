@@ -1,9 +1,12 @@
 import 'package:concordia_nav/ui/indoor_map/classroom_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
+import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  dotenv.load(fileName: '.env');
   group('ClassroomSelection', () {
     testWidgets('should display the correct classrooms initially',
         (WidgetTester tester) async {
@@ -24,10 +27,14 @@ void main() {
         final allTextWidgets = find.byType(Text);
 
         // Find all classrooms dynamically
-        final classrooms = allTextWidgets.evaluate().map((element) {
-          final textWidget = element.widget as Text;
-          return textWidget.data;
-        }).where((text) => text != null).toList();
+        final classrooms = allTextWidgets
+            .evaluate()
+            .map((element) {
+              final textWidget = element.widget as Text;
+              return textWidget.data;
+            })
+            .where((text) => text != null)
+            .toList();
 
         // Ensure at least some classrooms are displayed
         expect(classrooms, isNotEmpty, reason: 'No classrooms found in UI');
@@ -57,16 +64,24 @@ void main() {
         final allTextWidgets = find.byType(Text);
 
         // Find classrooms based on the search term dynamically
-        final classrooms = allTextWidgets.evaluate().map((element) {
-          final textWidget = element.widget as Text;
-          return textWidget.data;
-        }).where((text) => text != null).toList();
+        final classrooms = allTextWidgets
+            .evaluate()
+            .map((element) {
+              final textWidget = element.widget as Text;
+              return textWidget.data;
+            })
+            .where((text) => text != null)
+            .toList();
 
         // Assert: Verify the filtered list shows only matching classrooms
-        expect(classrooms, contains('101'), reason: 'Room 101 should be found');
-        expect(classrooms, contains('102'), reason: 'Room 102 should be found');
-        expect(classrooms, isNot(contains('3')), reason: 'Room 3 should not be found');
-        expect(classrooms, isNot(contains('20')), reason: 'Room 20 should not be found');
+        expect(classrooms, contains('9101'),
+            reason: 'Room 101 should be found');
+        expect(classrooms, contains('9102'),
+            reason: 'Room 102 should be found');
+        expect(classrooms, isNot(contains('93')),
+            reason: 'Room 3 should not be found');
+        expect(classrooms, isNot(contains('920')),
+            reason: 'Room 20 should not be found');
       });
     });
 
@@ -87,7 +102,8 @@ void main() {
       });
     });
 
-    testWidgets('should show no classrooms when search term does not match any classroom',
+    testWidgets(
+        'should show no classrooms when search term does not match any classroom',
         (WidgetTester tester) async {
       await tester.runAsync(() async {
         // Arrange
@@ -116,7 +132,7 @@ void main() {
         // Arrange
         const building = 'Hall Building';
         const floor = 'Floor 1';
-        const classroom = '10';
+        const classroom = '110';
 
         // Build the widget
         await tester.pumpWidget(const MaterialApp(
@@ -125,7 +141,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Simulate tapping on a classroom
-        expect(find.text('10'), findsOneWidget);
+        expect(find.text('110'), findsOneWidget);
         await tester.tap(find.text(classroom));
         await tester
             .pumpAndSettle(); // Wait for any potential UI updates (though there’s no actual navigation here)
@@ -143,7 +159,7 @@ void main() {
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         MaterialApp(
-          home: IndoorMapView(key: UniqueKey()),
+          home: BuildingSelection(key: UniqueKey()),
         ),
       );
 
@@ -156,7 +172,7 @@ void main() {
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         const MaterialApp(
-          home: IndoorMapView(),
+          home: BuildingSelection(),
         ),
       );
 
@@ -169,7 +185,7 @@ void main() {
       // Build the IndoorMapView widget
       await tester.pumpWidget(
         const MaterialApp(
-          home: IndoorMapView(),
+          home: BuildingSelection(),
         ),
       );
 

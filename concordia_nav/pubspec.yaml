@@ -115,6 +115,48 @@ flutter:
     - assets/config/
     - assets/icons/
     - assets/images/
+    - assets/maps/outdoor/all/polygons.json
+    - assets/maps/outdoor/sgw/polygons.json
+    - assets/maps/outdoor/loy/polygons.json
+    - assets/maps/outdoor/shuttle_bus_routes/loy_to_sgw.json
+    - assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json
+    - assets/maps/outdoor/shuttle_bus_schedules/monday_thursday.json
+    - assets/maps/outdoor/shuttle_bus_schedules/friday.json
+    - assets/maps/indoor/Hall-1.png
+    - assets/icons/default.png
+    - assets/icons/destination.png
+    - assets/icons/origin.png
+    - assets/icons/shuttle_bus.png
+    - assets/icons/shuttle_bus_station.png
+    - assets/icons/AD.png
+    - assets/icons/CC.png
+    - assets/icons/CJ.png
+    - assets/icons/CL.png
+    - assets/icons/EV.png
+    - assets/icons/ER.png
+    - assets/icons/FB.png
+    - assets/icons/FC.png
+    - assets/icons/FG.png
+    - assets/icons/GE.png
+    - assets/icons/GM.png
+    - assets/icons/HA.png
+    - assets/icons/H.png
+    - assets/icons/HU.png
+    - assets/icons/LB.png
+    - assets/icons/LS.png
+    - assets/icons/MB.png
+    - assets/icons/PC.png
+    - assets/icons/PS.png
+    - assets/icons/PT.png
+    - assets/icons/PY.png
+    - assets/icons/RA.png
+    - assets/icons/RF.png
+    - assets/icons/SC.png
+    - assets/icons/SP.png
+    - assets/icons/TD.png
+    - assets/icons/VA.png
+    - assets/icons/VE.png
+    - assets/icons/VL.png
     - assets/maps/outdoor/all/
     - assets/maps/outdoor/loy/
     - assets/maps/outdoor/sgw/
@@ -123,6 +165,7 @@ flutter:
     - assets/maps/indoor/
     - assets/maps/indoor/data/
     - assets/maps/indoor/floorplans/
+
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
