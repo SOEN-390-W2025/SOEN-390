@@ -109,7 +109,7 @@ Map<String, Map<int, List<int>>> _loadWaypointNavigability(dynamic yamlData) {
   return waypointNavigability;
 }
 
-List<Connection> _loadConnections(
+List<Connection> loadConnections(
       dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final List<Connection> connections = [];
   for (var connYaml in yamlData['connections']) {
@@ -206,7 +206,7 @@ class BuildingDataLoader {
     // -------------------
     List<Connection> connections = [];
     if (yamlData['connections'] != null) {
-      connections = _loadConnections(yamlData, floorMap);
+      connections = loadConnections(yamlData, floorMap);
     }
 
     // ------------------------------

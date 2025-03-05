@@ -14,7 +14,6 @@ class IndoorDirectionsView extends StatefulWidget {
   final String floor;
   final String room;
   final String currentLocation;
-  final Offset startLocation;
 
 
   const IndoorDirectionsView({
@@ -23,7 +22,6 @@ class IndoorDirectionsView extends StatefulWidget {
     required this.building,
     required this.floor,
     required this.room,
-    this.startLocation = const Offset(614, 232),
   });
 
   @override
@@ -37,6 +35,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
 
   late String buildingAbbreviation;
   late String roomNumber;
+
+  late Offset startLocation = Offset.zero;
   late Offset endLocation = Offset.zero;
 
   double _scale = 1.0;  // Initial scale for zooming
@@ -52,24 +52,36 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
     buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
     roomNumber = widget.room.replaceFirst( widget.floor, '');
 
+    _getStartLocation();
     _getEndLocation();
   }
 
+  Future<void> _getStartLocation() async {
+    final ConcordiaFloorPoint? startPositionPoint = await IndoorDirectionsViewModel().getElevatorPoint(
+      widget.building,
+      widget.floor,
+    );
+    
+    if (startPositionPoint != null) {
+      // If position point is not null, update the end location
+      setState(() {
+        startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY); // Assuming ConcordiaFloorPoint has x and y
+      });
+    }
+  }
+
   Future<void> _getEndLocation() async {
-    final ConcordiaFloorPoint? positionPoint = await IndoorDirectionsViewModel().getPositionPoint(
+    final ConcordiaFloorPoint? endPositionPoint = await IndoorDirectionsViewModel().getPositionPoint(
       widget.building,
       widget.floor,
       widget.room,
     );
 
-    if (positionPoint != null) {
+    if (endPositionPoint != null) {
       // If position point is not null, update the end location
       setState(() {
-        endLocation = Offset(positionPoint.positionX, positionPoint.positionY); // Assuming ConcordiaFloorPoint has x and y
+        endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY); // Assuming ConcordiaFloorPoint has x and y
       });
-    } else {
-      // Handle the case where positionPoint is null
-      print('Position point is null');
     }
   }
   
@@ -130,7 +142,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                         ),
                         CustomPaint(
                           painter: IndoorMapPainter(
-                            startLocation: widget.startLocation,
+                            startLocation: startLocation,
                             endLocation: endLocation,
                           ),
                           size: Size.infinite, // Important!  Take up all available space.

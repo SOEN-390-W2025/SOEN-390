@@ -4,6 +4,7 @@ import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_floor_point.dart';
 import '../data/domain-model/concordia_room.dart';
 import '../data/domain-model/concordia_building.dart';
+import '../data/domain-model/connection.dart';
 import '../data/repositories/building_data.dart';
 import 'map_viewmodel.dart';
 import 'building_viewmodel.dart';
@@ -60,8 +61,6 @@ class IndoorDirectionsViewModel extends MapViewModel {
       roomNumber = roomNumber.substring(1);
     }
 
-    print(roomNumber);  // For debugging, you can print the room number
-
     if (rooms != null) {
       // Find the room by its number
       final roomFound = rooms.firstWhere(
@@ -75,4 +74,35 @@ class IndoorDirectionsViewModel extends MapViewModel {
     // Return null if the floor or room wasn't found
     return null;
   }
+
+  Future<ConcordiaFloorPoint?> getElevatorPoint(
+    String buildingName, String floor) async {
+
+  // Get the building by name
+  final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
+
+  // Load YAML data for the building
+  final dynamic yamlData = await BuildingViewModel().getYamlDataForBuilding(building.abbreviation.toUpperCase());
+
+  // Load floors and rooms from the YAML data
+  final loadedFloors = loadFloors(yamlData, building);
+  final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
+  final List<Connection> connections = loadConnections(yamlData, floorMap);
+
+  // Search through connections to find the elevator for the given floor
+  for (var connection in connections) {
+    
+    if (connection.name.toLowerCase().contains("main elevators")) {  // Check if the connection is an elevator
+      final floorPoints = connection.floorPoints[floor];
+      if (floorPoints != null && floorPoints.isNotEmpty) {
+        // Return the first point for the given floor
+        return floorPoints.first;
+      }
+    }
+  }
+
+  // Return null if no elevator is found for the floor
+  return null;
+}
+
 }
