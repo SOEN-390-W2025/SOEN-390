@@ -25,7 +25,9 @@ class SelectIndoorDestination extends StatelessWidget {
                   settings: const RouteSettings(name: '/BuildingSelection'),
                 ),
                 // Remove all previous routes
-                (route) => route.isFirst,
+                (route) {
+                  return route.settings.name == '/' || route.settings.name == '/IndoorLocationView';
+                },
               );
             },
             style: ElevatedButton.styleFrom(
@@ -49,7 +51,7 @@ class SelectIndoorDestination extends StatelessWidget {
                   ),
                   (route) {
                     // Remove all previous routes except BuildingSelection
-                    return route.settings.name == '/' || route.settings.name == '/BuildingSelection';
+                    return route.settings.name == '/' || route.settings.name == '/BuildingSelection' || route.settings.name == '/IndoorLocationView';
                   },
                 );
               },

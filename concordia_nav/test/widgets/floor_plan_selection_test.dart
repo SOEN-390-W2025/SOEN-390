@@ -14,7 +14,6 @@ void main() {
           home: Scaffold(
             body: FloorPlanSearchWidget(
               searchController: searchController,
-              onFloorSelected: (_) {},
               building: 'Hall Building',
               floor: '2',
             ),

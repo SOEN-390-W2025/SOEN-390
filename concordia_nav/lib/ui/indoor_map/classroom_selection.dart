@@ -91,9 +91,17 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
+                return const Expanded(
+                  child: Center(
+                    child: Text('Not available')
+                  )
+                );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text("No classrooms available"));
+                return const Expanded(
+                  child: Center(
+                    child: Text("No classrooms available")
+                  )
+                );
               } else {
                 return SelectableList<String>(
                   items: filteredClassrooms,
