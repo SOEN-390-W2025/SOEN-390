@@ -136,7 +136,7 @@ class BuildingDataManager {
           dev.log("Skipping $abbreviation, already loaded");
           continue;
         }
-        
+
         final buildingData = await _loadBuildingData(abbreviation);
         if (buildingData is BuildingData) {
           result[abbreviation] = buildingData;
