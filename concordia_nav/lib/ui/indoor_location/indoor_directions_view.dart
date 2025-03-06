@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
@@ -22,7 +23,7 @@ class IndoorDirectionsView extends StatefulWidget {
 }
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
-  String _selectedMode = 'Walking';
+  bool disability = false;
   final String _eta = '5 min';
 
   late String buildingAbbreviation;
@@ -90,26 +91,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               ],
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: DropdownButton<String>(
-              value: _selectedMode,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedMode = newValue!;
-                });
-              },
-              items: <String>['Walking', 'Accessibility', 'X']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
-
           Expanded(
             child: Stack(
               children: [
@@ -120,9 +101,21 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                     style: TextStyle(color: Colors.grey),
                   ),
                 ),
-
                 Positioned(
                   top: 16,
+                  right: 16,
+                  child: AccessibilityButton(
+                    disability: disability,
+                    onDisabilityChanged: (value) {
+                      setState(() {
+                        disability = value;
+                      });
+                    },
+                  ),
+                ),
+
+                Positioned(
+                  top: 76,
                   right: 16,
                   child: Column(
                     children: [
