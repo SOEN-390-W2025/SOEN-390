@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../utils/building_viewmodel.dart';
 import '../compact_location_search_widget.dart';
-import 'dart:developer' as dev;
 
 class LocationInfoWidget extends StatelessWidget {
   final String from;
@@ -92,8 +91,6 @@ class LocationInfoWidget extends StatelessWidget {
         : cleanedFrom[0];
     }
 
-    dev.log('toBuilding: $toBuildingAbbrev, fromBuilding: $fromBuildingAbbrev');
-    dev.log('toFloor: $toFloor, fromFloor: $fromFloor');
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
