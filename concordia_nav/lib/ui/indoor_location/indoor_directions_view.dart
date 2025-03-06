@@ -6,10 +6,11 @@ import '../../data/domain-model/concordia_floor.dart';
 import '../../data/domain-model/indoor_route.dart';
 import '../../data/services/indoor_routing_service.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
+import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/indoor_direction/bottom_info_widget.dart';
-import '../../widgets/indoor_direction/indoor_path.dart';
-import '../../widgets/indoor_direction/location_info_widget.dart';
+import '../../widgets/indoor/indoor_path.dart';
+import '../../widgets/indoor/bottom_info_widget.dart';
+import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
@@ -18,15 +19,15 @@ import '../../data/domain-model/concrete_floor_routable_point.dart';
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
-  final String room;
-  final String currentLocation;
+  final String endRoom;
+  final String sourceRoom;
 
   const IndoorDirectionsView({
     super.key,
-    required this.currentLocation,
+    required this.sourceRoom,
     required this.building,
     required this.floor,
-    required this.room,
+    required this.endRoom
   });
 
   @override
@@ -35,9 +36,10 @@ class IndoorDirectionsView extends StatefulWidget {
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
-  String _selectedMode = 'Walking';
+  bool disability = false;
   final String _eta = '5 min';
-
+  late String from;
+  late String to;
   late String buildingAbbreviation;
   late String roomNumber;
 
@@ -56,9 +58,9 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   @override
   void initState() {
     super.initState();
-    buildingAbbreviation =
-        BuildingViewModel().getBuildingAbbreviation(widget.building)!;
-    roomNumber = widget.room.replaceFirst(widget.floor, '');
+    buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
+    roomNumber = widget.endRoom.replaceFirst( widget.floor, '');
+
     floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
@@ -134,11 +136,17 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       );
     }
   }
-
+  
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
     super.dispose();
+  }
+
+  static const yourLocation = 'Your Location';
+
+  static bool hasFullRoomName(String room){
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
   }
 
   @override
@@ -148,10 +156,19 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       body: Column(
         children: [
           LocationInfoWidget(
-            from: widget.currentLocation,
-            to: '$buildingAbbreviation ${widget.room}',
+            from: widget.sourceRoom == yourLocation
+              ? yourLocation
+              : (hasFullRoomName(widget.sourceRoom)
+                ? widget.sourceRoom
+                : '$buildingAbbreviation ${widget.sourceRoom}'),
+            to: widget.endRoom == yourLocation
+              ? yourLocation
+              : (hasFullRoomName(widget.endRoom)
+                ? widget.endRoom
+                : '$buildingAbbreviation ${widget.endRoom}'),
+            building: widget.building,
+            floor: widget.floor
           ),
-
           Expanded(
             child: Stack(
               children: [
@@ -208,6 +225,21 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                 ),
                 Positioned(
                   top: 16,
+                  right: 16,
+                  child: AccessibilityButton(
+                    sourceRoom: widget.sourceRoom,
+                    endRoom: widget.endRoom,
+                    disability: disability,
+                    onDisabilityChanged: (value) {
+                      setState(() {
+                        disability = value;
+                      });
+                    },
+                  ),
+                ),
+
+                Positioned(
+                  top: 76,
                   right: 16,
                   child: Column(
                     children: [

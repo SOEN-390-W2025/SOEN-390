@@ -52,4 +52,15 @@ class BuildingService {
     return null; // Return null if no building matches the name
   }
 
+  // Retrieve a building by its abbreviation
+  static ConcordiaBuilding? getbuildingByAbbreviation(String abbreviation) {
+    // Iterates through all buildings and finds the one with the matching abbreviation
+    for (var building in BuildingRepository.buildingByAbbreviation.values) {
+      if (building.abbreviation == abbreviation) {
+        return building;
+      }
+    }
+    return null; // Return null if no building matches the abbreviation
+  }
+
 }

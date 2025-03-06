@@ -42,6 +42,10 @@ class BuildingViewModel {
     return building?.abbreviation;
   }
 
+  ConcordiaBuilding? getBuildingByAbbreviation(String abbreviation) {
+    return _buildingService.getBuildingByAbbreviation(abbreviation);
+  }
+
   LatLng? getBuildingLocationByAbbreviation(String abbreviation) {
     return _buildingService.getBuildingLocationByAbbreviation(abbreviation);
   }

@@ -5,8 +5,10 @@ import '../ui/indoor_map/floor_selection.dart';
 class SelectIndoorDestination extends StatelessWidget {
   final String building;
   final String? floor;
+  final String? endRoom;
+  final bool isSource;
 
-  const SelectIndoorDestination({super.key, required this.building, this.floor});
+  const SelectIndoorDestination({super.key, required this.building, this.floor, this.endRoom, this.isSource = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +23,16 @@ class SelectIndoorDestination extends StatelessWidget {
               await Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const BuildingSelection(),
+                  builder: (context) => BuildingSelection(
+                    isSource: isSource,
+                    endRoom: endRoom,
+                  ),
                   settings: const RouteSettings(name: '/BuildingSelection'),
                 ),
                 // Remove all previous routes
-                (route) => route.isFirst,
+                (route) {
+                  return route.settings.name == '/HomePage' || route.settings.name == '/IndoorLocationView';
+                },
               );
             },
             style: ElevatedButton.styleFrom(
@@ -44,12 +51,16 @@ class SelectIndoorDestination extends StatelessWidget {
                 await Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FloorSelection(building: building),
+                    builder: (context) => FloorSelection(
+                      building: building,
+                      endRoom: endRoom,
+                      isSource: isSource,
+                    ),
                     settings: const RouteSettings(name: '/FloorSelection'),
                   ),
                   (route) {
                     // Remove all previous routes except BuildingSelection
-                    return route.settings.name == '/' || route.settings.name == '/BuildingSelection';
+                    return route.settings.name == '/HomePage' || route.settings.name == '/BuildingSelection' || route.settings.name == '/IndoorLocationView';
                   },
                 );
               },

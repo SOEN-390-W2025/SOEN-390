@@ -2,12 +2,14 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import 'data/domain-model/concordia_building.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
 import 'ui/indoor_location/indoor_directions_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
 import 'ui/indoor_map/building_selection.dart';
+import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
 import 'ui/poi/poi_choice_view.dart';
 import 'ui/poi/poi_map_view.dart';
@@ -47,8 +49,11 @@ class MyApp extends StatelessWidget {
         '/HomePage': (context) => const HomePage(),
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
-                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
-        '/IndoorLocationView': (context) => const IndoorLocationView(),
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus
+        ),
+        '/IndoorLocationView': (context) => IndoorLocationView(
+            building: ModalRoute.of(context)!.settings.arguments as ConcordiaBuilding,
+        ),
         '/BuildingSelection': (context) => const BuildingSelection(),
         '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
             campus:
@@ -61,12 +66,27 @@ class MyApp extends StatelessWidget {
         '/SettingsPage': (context) => const SettingsPage(),
         '/SearchView': (context) => const SearchView(),
         '/SelectBuilding': (context) => const BuildingSelection(),
-        '/IndoorDirectionsView': (context) => const IndoorDirectionsView(
-              currentLocation: 'Your location',
-              building: 'Hall Building',
-              floor: '1',
-              room: '901',
-        ),
+        '/IndoorDirectionsView': (context) {
+
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return IndoorDirectionsView(
+              sourceRoom: args['sourceRoom'] as String,
+              building:args['building'] as String,
+              floor: args['floor'] as String,
+              endRoom: args['endRoom'] as String,
+          );
+        },
+        '/ClassroomSelection': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+          return ClassroomSelection(
+            building: args['building'] as String,
+            floor: args['floor'] as String,
+            currentRoom: args['currentRoom'] as String,
+            isSource: args['isSource'] as bool? ?? false,
+            isSearch: args['isSearch'] as bool? ?? false,
+          );
+        },
       },
     );
   }

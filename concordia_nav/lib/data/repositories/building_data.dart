@@ -48,8 +48,8 @@ List<dynamic> loadFloors(dynamic yamlData, ConcordiaBuilding building) {
   return [floors, floorMap];
 }
 
-Map<String, List<ConcordiaRoom>> loadRooms(dynamic yamlData, 
-    Map<String, ConcordiaFloor> floorMap) {
+Map<String, List<ConcordiaRoom>> loadRooms(
+    dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaRoom>> roomsByFloor = {};
   final roomsYaml = yamlData['rooms'] as Map;
   roomsYaml.forEach((floorStr, roomList) {

@@ -126,7 +126,7 @@ void main() {
       });
     });
 
-    testWidgets('should trigger classroom selection on tapping a classroom',
+    testWidgets('should display IndoorDirectionsView on tapping a classroom',
         (WidgetTester tester) async {
       await tester.runAsync(() async {
         // Arrange
@@ -147,12 +147,67 @@ void main() {
         // Simulate tapping on a classroom
         expect(find.text('110'), findsOneWidget);
         await tester.tap(find.text(classroom));
-        await tester
-            .pumpAndSettle(); // Wait for any potential UI updates (though there’s no actual navigation here)
+        await tester.pumpAndSettle(); 
 
-        // Assert: Verify that the classroom was selected (you may want to handle selection logic)
-        // For now, we expect no action since the classroom selection logic is not implemented.
-        // You can later add a callback or test the side effects of classroom selection.
+        expect(find.text('From: Your Location'), findsOneWidget);
+        expect(find.text('To: H 110'), findsOneWidget);
+      });
+    });
+
+    testWidgets('should display IndoorLocationView on tapping a classroom with isSearch on',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // Arrange
+        const building = 'Hall Building';
+        const floor = 'Floor 1';
+        const classroom = '110';
+
+        // Build the widget
+        await tester.pumpWidget(const MaterialApp(
+          home: ClassroomSelection(building: building, floor: floor, isSearch: true,),
+        ));
+        await tester.pumpAndSettle();
+
+        // Make sure the element is visible before tapping
+        await tester.ensureVisible(find.text(classroom));
+        await tester.pumpAndSettle();
+
+        // Simulate tapping on a classroom
+        expect(find.text('110'), findsOneWidget);
+        await tester.tap(find.text(classroom));
+        await tester.pumpAndSettle(); 
+
+        expect(find.text('H 110'), findsOneWidget);
+        expect(find.text('Hall Building'), findsOneWidget);
+      });
+    });
+  });
+
+  group('BuildingSelection Test', () {
+    testWidgets('should trigger floor selection on tapping a building',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // Arrange
+        const building = 'Hall Building';
+
+        // Build the widget
+        await tester.pumpWidget(const MaterialApp(
+          home: BuildingSelection(),
+        ));
+        await tester.pumpAndSettle();
+
+        // Make sure the element is visible before tapping
+        await tester.ensureVisible(find.text(building));
+        await tester.pumpAndSettle();
+
+        // Simulate tapping on a building
+        expect(find.text(building), findsOneWidget);
+        await tester.tap(find.text(building));
+        await tester.pumpAndSettle(); 
+
+        // Assert
+        expect(find.text('Select Building'), findsOneWidget);
+        expect(find.text('Floor 1'), findsOneWidget);
       });
     });
   });

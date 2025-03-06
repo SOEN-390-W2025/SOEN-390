@@ -134,7 +134,11 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
                     /// The "Indoor Map" button is displayed on the right side of the footer.
                     ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: Implement navigation to indoor maps feature
+                        Navigator.pushNamed(
+                          context,
+                          '/IndoorLocationView',
+                          arguments: widget.building,
+                        );
                       },
                       icon: const Icon(Icons.map, color: Colors.white),
                       label: Text("Indoor Map",

@@ -7,7 +7,10 @@ import '../../widgets/selectable_list.dart';
 import 'floor_selection.dart';
 
 class BuildingSelection extends StatefulWidget {
-  const BuildingSelection({super.key});
+  final String? endRoom;
+  final bool isSource;
+  
+  const BuildingSelection({super.key, this.endRoom, this.isSource = false});
 
   @override
   BuildingSelectionState createState() => BuildingSelectionState();
@@ -54,7 +57,11 @@ class BuildingSelectionState extends State<BuildingSelection> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => FloorSelection(building: building),
+                  builder: (context) => FloorSelection(
+                    building: building,
+                    endRoom: widget.endRoom,
+                    isSource: widget.isSource,
+                  ),
                 ),
               );
             },

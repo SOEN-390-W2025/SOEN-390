@@ -1,5 +1,3 @@
-// map_controller_button.dart
-
 import 'package:flutter/material.dart';
 
 class ZoomButton extends StatelessWidget {
@@ -16,29 +14,31 @@ class ZoomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: isZoomInButton ? const Radius.circular(16) : Radius.zero,
-            topRight: isZoomInButton ? const Radius.circular(16) : Radius.zero,
-            bottomLeft:
-                !isZoomInButton ? const Radius.circular(16) : Radius.zero,
-            bottomRight:
-                !isZoomInButton ? const Radius.circular(16) : Radius.zero,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 3,
-              offset: Offset(0, 1), // Shadow position
-            ),
-          ],
+    return Material(
+      color: Colors.white, // Ensures it looks the same
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: isZoomInButton ? const Radius.circular(16) : Radius.zero,
+          topRight: isZoomInButton ? const Radius.circular(16) : Radius.zero,
+          bottomLeft: !isZoomInButton ? const Radius.circular(16) : Radius.zero,
+          bottomRight:
+              !isZoomInButton ? const Radius.circular(16) : Radius.zero,
         ),
-        child: Icon(icon, color: Colors.black),
+      ),
+      elevation: 3, // Matches the shadow effect
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.only(
+          topLeft: isZoomInButton ? const Radius.circular(16) : Radius.zero,
+          topRight: isZoomInButton ? const Radius.circular(16) : Radius.zero,
+          bottomLeft: !isZoomInButton ? const Radius.circular(16) : Radius.zero,
+          bottomRight:
+              !isZoomInButton ? const Radius.circular(16) : Radius.zero,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          child: Icon(icon, color: Colors.black),
+        ),
       ),
     );
   }

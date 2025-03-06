@@ -1,4 +1,7 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_room.dart';
@@ -167,6 +170,15 @@ class IndoorMapViewModel extends MapViewModel {
       ..scale(currentScale)
       ..translate(offsetX, offsetY);
     animateTo(targetMatrix);
+  }
+
+  Future<bool> doesAssetExist(String assetPath) async {
+    try {
+      await rootBundle.load(assetPath);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
