@@ -1,8 +1,8 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
-import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
-import 'package:concordia_nav/ui/indoor_map/indoor_map_view.dart';
+import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
+import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
@@ -218,7 +218,7 @@ void main() async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/IndoorMapView': (context) => const IndoorMapView(),
+      '/BuildingSelection': (context) => const BuildingSelection(),
     };
 
     // Build the HomePage widget
@@ -265,7 +265,12 @@ void main() async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/IndoorLocationView': (context) => const IndoorLocationView(),
+      '/IndoorDirectionsView': (context) => const IndoorDirectionsView(
+          currentLocation: 'Your location',
+          building: 'Hall Building',
+          floor: '1',
+          room: '901'
+        ),
     };
 
     // Build the HomePage widget

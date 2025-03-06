@@ -32,7 +32,7 @@ class BuildingData {
   });
 }
 
-List<dynamic> _loadFloors(dynamic yamlData, ConcordiaBuilding building) {
+List<dynamic> loadFloors(dynamic yamlData, ConcordiaBuilding building) {
   final List<ConcordiaFloor> floors = [];
   for (var floorYaml in yamlData['floors']) {
     floors.add(ConcordiaFloor(
@@ -48,7 +48,7 @@ List<dynamic> _loadFloors(dynamic yamlData, ConcordiaBuilding building) {
   return [floors, floorMap];
 }
 
-Map<String, List<ConcordiaRoom>> _loadRooms(dynamic yamlData, 
+Map<String, List<ConcordiaRoom>> loadRooms(dynamic yamlData, 
     Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaRoom>> roomsByFloor = {};
   final roomsYaml = yamlData['rooms'] as Map;
@@ -172,7 +172,7 @@ class BuildingDataLoader {
     // -------------------
     // 1. Load Floors
     // -------------------
-    final loadedFloors = _loadFloors(yamlData, building);
+    final loadedFloors = loadFloors(yamlData, building);
     final List<ConcordiaFloor> floors = loadedFloors[0];
 
     final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
@@ -182,7 +182,7 @@ class BuildingDataLoader {
     // -------------------
     Map<String, List<ConcordiaRoom>> roomsByFloor = {};
     if (yamlData['rooms'] != null) {
-      roomsByFloor = _loadRooms(yamlData, floorMap);
+      roomsByFloor = loadRooms(yamlData, floorMap);
     }
 
     // -------------------
