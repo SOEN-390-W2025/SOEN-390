@@ -34,6 +34,11 @@ void main() {
         mapService: mockMapService,
         odsDirectionsService: mockODSDirectionsService,
         shuttleRepository: shuttleRepo);
+
+    when(mockMapService.calculateDistance(
+      any,
+      any,
+    )).thenReturn(400.0);
   });
 
   group('fetchRoute', () {

@@ -101,8 +101,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
           final isAccessible = _selectedMode == 'Accessibility';
           _calculatedRoute = IndoorRoutingService.getIndoorRoute(
             yamlData,
-            startRoutablePoint, 
-            endRoutablePoint, 
+            startRoutablePoint,
+            endRoutablePoint,
             isAccessible
           );
         });

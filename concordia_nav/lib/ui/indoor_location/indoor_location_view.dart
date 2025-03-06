@@ -72,6 +72,7 @@ void initState() {
   void dispose() {
     _originController.dispose();
     _destinationController.dispose();
+    _indoorMapViewModel.dispose();
     super.dispose();
   }
 

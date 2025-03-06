@@ -1,7 +1,6 @@
 import 'dart:developer' as dev;
 
 import 'package:geolocator/geolocator.dart';
-import '../../utils/building_viewmodel.dart';
 import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
 import '../domain-model/concordia_floor.dart';

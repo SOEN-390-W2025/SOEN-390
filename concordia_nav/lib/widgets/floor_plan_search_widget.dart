@@ -54,7 +54,7 @@ class FloorPlanSearchWidget extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ClassroomSelection(building: building!, floor: floor!),
+                      builder: (context) => const ClassroomSelection(building: 'Hall Building', floor: '1'),
                     ),
                   );
                 },
