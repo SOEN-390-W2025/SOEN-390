@@ -44,13 +44,18 @@ Future<void> main() async {
         (WidgetTester tester) async {
       // Arrange
       final routes = {
-        '/': (context) => SplashScreen(viewModel: splashScreenViewModel),
+        '/': (context) {
+          SplashScreen splashScreen = SplashScreen();
+          splashScreen = SplashScreen(viewModel: splashScreenViewModel);
+          return splashScreen;
+        },
         '/HomePage': (context) => const HomePage(),
         '/CampusMapPage': (context) => CampusMapPage(
-            campus:
-                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel,
-            buildMapViewModel: mockMapViewModel),
+              campus:
+                  ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
+              mapViewModel: mockMapViewModel,
+              buildMapViewModel: mockMapViewModel,
+            ),
       };
 
       when(mockMapViewModel.checkLocationAccess())

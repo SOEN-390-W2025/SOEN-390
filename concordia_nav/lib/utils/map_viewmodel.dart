@@ -667,11 +667,14 @@ class MapViewModel extends ChangeNotifier {
   }
 
   void startShuttleBusTimer() {
+    // Prevent starting the timer in test mode
+    if (!kReleaseMode) {
+      return;
+    }
+
     _shuttleBusTimer?.cancel();
     _shuttleBusTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (!_isDisposed) {
-        fetchShuttleBusData();
-      }
+      fetchShuttleBusData();
     });
   }
 

@@ -10,11 +10,11 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
 import 'indoor_directions_view.dart';
 
-
 class IndoorLocationView extends StatefulWidget {
   final String? building;
+  final IndoorMapViewModel? viewModel;
 
-  const IndoorLocationView({super.key, this.building});
+  const IndoorLocationView({super.key, this.building, this.viewModel});
 
   @override
   State<IndoorLocationView> createState() => _IndoorLocationViewState();
@@ -51,7 +51,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   @override
   void initState() {
     super.initState();
-    _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+    _indoorMapViewModel = widget.viewModel ?? IndoorMapViewModel(vsync: this);
     _originController = TextEditingController();
     _destinationController = TextEditingController();
 
@@ -167,7 +167,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,7 +185,6 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
           ),
           _buildTopPanel(),
           _buildFooter(),
-
           Positioned(
             top: 80,
             right: 16,
