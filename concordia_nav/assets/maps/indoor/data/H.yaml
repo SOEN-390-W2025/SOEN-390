@@ -8,7 +8,7 @@ floors:
   - number: "9"
     pixelsPerSecond: 650
 
-# Rooms that don't have a number start from 1001
+# Rooms that don't have a number start from 0001
 rooms:
   "1":
     - roomNumber: "2-3"
@@ -369,11 +369,11 @@ rooms:
       floor: "8"
       entrancePoint: { x: 579, y: 672 }
   "9":
-    - roomNumber: "1001"
+    - roomNumber: "0001"
       category: washroom
       floor: "9"
       entrancePoint: { x: 593, y: 778 }
-    - roomNumber: "1002"
+    - roomNumber: "0002"
       category: washroom
       floor: "9"
       entrancePoint: { x: 378, y: 805 }
