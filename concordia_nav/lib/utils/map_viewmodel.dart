@@ -69,7 +69,7 @@ class MapViewModel extends ChangeNotifier {
   Set<Marker> _staticBusStopMarkers = {};
   Set<Marker> get staticBusStopMarkers => _staticBusStopMarkers;
 
-  Timer? _shuttleBusTimer;
+  Timer? shuttleBusTimer;
   bool _isDisposed = false;
 
   // Shuttle availability flag.
@@ -84,7 +84,7 @@ class MapViewModel extends ChangeNotifier {
 
   MapService get mapService => _mapService;
 
-  final Map<CustomTravelMode, Polyline> _multiModeRoutes = {};
+  final Map<CustomTravelMode, Polyline> multiModeRoutes = {};
   final Map<CustomTravelMode, String> _multiModeTravelTimes = {};
   Set<Polyline> _multiModeActivePolylines = {};
   CustomTravelMode _selectedTravelModeForRoute = CustomTravelMode.driving;
@@ -140,7 +140,7 @@ class MapViewModel extends ChangeNotifier {
 
   Future<void> _scheduleIfRoute(String origin, String destination) async {
     // Only if at least one Google Maps route is available, check the shuttle schedule.
-    if (_multiModeRoutes.isNotEmpty) {
+    if (multiModeRoutes.isNotEmpty) {
       final ShuttleRouteRepository shuttleRepo = ShuttleRouteRepository();
       _shuttleAvailable = await shuttleRepo.isShuttleAvailable();
       if (_shuttleAvailable) {
@@ -157,7 +157,7 @@ class MapViewModel extends ChangeNotifier {
   /// Throws an exception if the current location is unavailable.
   Future<void> fetchRoutesForAllModes(
       String originAddress, String destinationAddress) async {
-    _multiModeRoutes.clear();
+    multiModeRoutes.clear();
     _multiModeTravelTimes.clear();
     _multiModeActivePolylines.clear();
 
@@ -185,7 +185,7 @@ class MapViewModel extends ChangeNotifier {
           polylineId: mode.toString(),
         );
         if (result.polyline != null) {
-          _multiModeRoutes[mode] = result.polyline!;
+          multiModeRoutes[mode] = result.polyline!;
           _multiModeTravelTimes[mode] = result.travelTime;
         } else {
           _multiModeTravelTimes[mode] = "--";
@@ -195,11 +195,11 @@ class MapViewModel extends ChangeNotifier {
 
     await _scheduleIfRoute(originAddress, destinationAddress);
 
-    if (_multiModeRoutes.containsKey(_selectedTravelModeForRoute)) {
+    if (multiModeRoutes.containsKey(_selectedTravelModeForRoute)) {
       _multiModeActivePolylines = {
-        _multiModeRoutes[_selectedTravelModeForRoute]!
+        multiModeRoutes[_selectedTravelModeForRoute]!
       };
-      final activePolyline = _multiModeRoutes[_selectedTravelModeForRoute]!;
+      final activePolyline = multiModeRoutes[_selectedTravelModeForRoute]!;
       if (activePolyline.points.isNotEmpty) {
         _originMarker = Marker(
           markerId: const MarkerId('origin'),
@@ -475,7 +475,7 @@ class MapViewModel extends ChangeNotifier {
       width: 5,
     );
 
-    _multiModeRoutes[CustomTravelMode.shuttle] = shuttleComposite;
+    multiModeRoutes[CustomTravelMode.shuttle] = shuttleComposite;
 
     // Calculate walking and shuttle times
     int walkingTimeToShuttle = _calculateWalkingTime(routeSegments.leg1);
@@ -503,7 +503,7 @@ class MapViewModel extends ChangeNotifier {
   void _updateShuttleMarkers(ShuttleRouteDetails routeDetails,
       List<LatLng> compositePoints, LatLng boardingStop) {
     if (_selectedTravelModeForRoute == CustomTravelMode.shuttle) {
-      _multiModeActivePolylines = {_multiModeRoutes[CustomTravelMode.shuttle]!};
+      _multiModeActivePolylines = {multiModeRoutes[CustomTravelMode.shuttle]!};
 
       _originMarker = Marker(
         markerId: const MarkerId('origin'),
@@ -533,9 +533,9 @@ class MapViewModel extends ChangeNotifier {
 
   Future<void> setActiveModeForRoute(CustomTravelMode mode) async {
     _selectedTravelModeForRoute = mode;
-    if (_multiModeRoutes.containsKey(mode)) {
-      _multiModeActivePolylines = {_multiModeRoutes[mode]!};
-      final polyline = _multiModeRoutes[mode]!;
+    if (multiModeRoutes.containsKey(mode)) {
+      _multiModeActivePolylines = {multiModeRoutes[mode]!};
+      final polyline = multiModeRoutes[mode]!;
       if (polyline.points.isNotEmpty) {
         _originMarker = Marker(
           markerId: const MarkerId('origin'),
@@ -667,30 +667,31 @@ class MapViewModel extends ChangeNotifier {
   }
 
   void startShuttleBusTimer() {
-    // Prevent starting the timer in test mode
-    if (!kReleaseMode) {
-      return;
-    }
+    shuttleBusTimer?.cancel();
 
-    _shuttleBusTimer?.cancel();
-    _shuttleBusTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      fetchShuttleBusData();
-    });
+    if (kDebugMode) {
+      shuttleBusTimer = Timer(Duration.zero, () => fetchShuttleBusData());
+    } else {
+      shuttleBusTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+        fetchShuttleBusData();
+      });
+    }
   }
 
   void stopShuttleBusTimer() {
-    _shuttleBusTimer?.cancel();
+    shuttleBusTimer?.cancel();
   }
 
-  Future<void> fetchShuttleBusData() async {
+  Future<void> fetchShuttleBusData({http.Client? client}) async {
+    final httpClient = client ?? http.Client();
     try {
-      final getResponse = await http.get(
+      final getResponse = await httpClient.get(
         Uri.parse('https://shuttle.concordia.ca/concordiabusmap/Map.aspx'),
         headers: {'Host': 'shuttle.concordia.ca'},
       );
       String? cookies = getResponse.headers['set-cookie'];
 
-      final postResponse = await http.post(
+      final postResponse = await httpClient.post(
         Uri.parse(
             'https://shuttle.concordia.ca/concordiabusmap/WebService/GService.asmx/GetGoogleObject'),
         headers: {
@@ -828,7 +829,7 @@ class MapViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
-    _shuttleBusTimer?.cancel();
+    shuttleBusTimer?.cancel();
     shuttleMarkersNotifier.dispose();
     super.dispose();
   }

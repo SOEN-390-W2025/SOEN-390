@@ -4,15 +4,16 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i8;
-import 'dart:ui' as _i11;
+import 'dart:ui' as _i12;
 
 import 'package:concordia_nav/data/domain-model/concordia_building.dart' as _i7;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i9;
 import 'package:concordia_nav/data/services/map_service.dart' as _i3;
 import 'package:concordia_nav/utils/map_viewmodel.dart' as _i5;
 import 'package:flutter/foundation.dart' as _i2;
-import 'package:flutter/material.dart' as _i10;
+import 'package:flutter/material.dart' as _i11;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i4;
+import 'package:http/http.dart' as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 
@@ -118,6 +119,20 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
     Invocation.setter(#shuttleMarkersNotifier, _shuttleMarkersNotifier),
     returnValueForMissingStub: null,
   );
+
+  @override
+  set shuttleBusTimer(_i8.Timer? _shuttleBusTimer) => super.noSuchMethod(
+    Invocation.setter(#shuttleBusTimer, _shuttleBusTimer),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  Map<_i5.CustomTravelMode, _i4.Polyline> get multiModeRoutes =>
+      (super.noSuchMethod(
+            Invocation.getter(#multiModeRoutes),
+            returnValue: <_i5.CustomTravelMode, _i4.Polyline>{},
+          )
+          as Map<_i5.CustomTravelMode, _i4.Polyline>);
 
   @override
   Set<_i4.Marker> get staticBusStopMarkers =>
@@ -382,9 +397,9 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   );
 
   @override
-  _i8.Future<void> fetchShuttleBusData() =>
+  _i8.Future<void> fetchShuttleBusData({_i10.Client? client}) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchShuttleBusData, []),
+            Invocation.method(#fetchShuttleBusData, [], {#client: client}),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
@@ -400,7 +415,7 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> checkBuildingAtCurrentLocation(_i10.BuildContext? context) =>
+  _i8.Future<void> checkBuildingAtCurrentLocation(_i11.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#checkBuildingAtCurrentLocation, [context]),
             returnValue: _i8.Future<void>.value(),
@@ -409,7 +424,7 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<bool> moveToCurrentLocation(_i10.BuildContext? context) =>
+  _i8.Future<bool> moveToCurrentLocation(_i11.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#moveToCurrentLocation, [context]),
             returnValue: _i8.Future<bool>.value(false),
@@ -438,13 +453,13 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as _i8.Future<void>);
 
   @override
-  void addListener(_i11.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i11.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
