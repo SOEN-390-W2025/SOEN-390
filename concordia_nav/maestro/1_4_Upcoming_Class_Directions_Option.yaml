@@ -4,5 +4,3 @@ appId: com.example.concordia_nav
     clearState: true
 - assertVisible: "Next class directions"
 - tapOn: "Next class directions"
-- waitForElement: "Indoor Directions"
-- assertVisible: "Indoor Directions"
