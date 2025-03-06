@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import 'data/domain-model/concordia_building.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
@@ -47,8 +48,11 @@ class MyApp extends StatelessWidget {
         '/HomePage': (context) => const HomePage(),
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
-                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
-        '/IndoorLocationView': (context) => const IndoorLocationView(),
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus
+        ),
+        '/IndoorLocationView': (context) => IndoorLocationView(
+            building: ModalRoute.of(context)!.settings.arguments as ConcordiaBuilding,
+        ),
         '/BuildingSelection': (context) => const BuildingSelection(),
         '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
             campus:
@@ -61,11 +65,11 @@ class MyApp extends StatelessWidget {
         '/SettingsPage': (context) => const SettingsPage(),
         '/SearchView': (context) => const SearchView(),
         '/SelectBuilding': (context) => const BuildingSelection(),
-        '/IndoorDirectionsView': (context) => const IndoorDirectionsView(
-              currentLocation: 'Your location',
-              building: 'Hall Building',
-              floor: '1',
-              room: '901',
+        '/IndoorDirectionsView': (context) => IndoorDirectionsView(
+              currentLocation: ModalRoute.of(context)!.settings.arguments as String,
+              building: ModalRoute.of(context)!.settings.arguments as String,
+              floor: ModalRoute.of(context)!.settings.arguments as String,
+              room: ModalRoute.of(context)!.settings.arguments as String,
         ),
       },
     );

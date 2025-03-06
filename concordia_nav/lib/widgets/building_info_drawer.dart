@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../utils/building_drawer_viewmodel.dart';
 import '../ui/outdoor_location/outdoor_location_map_view.dart';
+import '../ui/indoor_location/indoor_location_view.dart';
 
 class BuildingInfoDrawer extends StatefulWidget {
   final ConcordiaBuilding building;
@@ -134,7 +135,11 @@ class _BuildingInfoDrawerState extends State<BuildingInfoDrawer>
                     /// The "Indoor Map" button is displayed on the right side of the footer.
                     ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: Implement navigation to indoor maps feature
+                        Navigator.pushNamed(
+                          context,
+                          '/IndoorLocationView',
+                          arguments: widget.building,
+                        );
                       },
                       icon: const Icon(Icons.map, color: Colors.white),
                       label: Text("Indoor Map",
