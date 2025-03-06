@@ -51,7 +51,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   IndoorRoute? _calculatedRoute;
 
   final double _maxScale = 3.0;
-  final double _minScale = 0.55;
+  final double _minScale = 0.6;
 
   @override
   void initState() {
@@ -168,8 +168,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                     scaleEnabled: false,
                     panEnabled: true,
                     boundaryMargin: const EdgeInsets.all(50.0),
-                    minScale: _minScale,
-                    maxScale: _maxScale,
                     transformationController:
                         _indoorMapViewModel.transformationController,
                     child: SizedBox(
@@ -218,9 +216,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                           final Matrix4 currentMatrix = _indoorMapViewModel
                               .transformationController.value
                               .clone();
-                          final Matrix4 zoomedInMatrix = currentMatrix
-                            ..scale(1.2);
-                          _indoorMapViewModel.animateTo(zoomedInMatrix);
+                          final double currentScale = currentMatrix.getMaxScaleOnAxis();
+                          if (currentScale < _maxScale) {
+                            final Matrix4 zoomedInMatrix = currentMatrix
+                              ..scale(1.2);
+                            _indoorMapViewModel.animateTo(zoomedInMatrix);
+                          }
                         },
                         icon: Icons.add,
                         isZoomInButton: true,
@@ -230,9 +231,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                           final Matrix4 currentMatrix = _indoorMapViewModel
                               .transformationController.value
                               .clone();
-                          final Matrix4 zoomedOutMatrix = currentMatrix
-                            ..scale(0.8);
-                          _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                          final double currentScale = currentMatrix.getMaxScaleOnAxis();
+                          if (currentScale > _minScale) {
+                            final Matrix4 zoomedOutMatrix = currentMatrix
+                              ..scale(0.8);
+                            _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                          }
                         },
                         icon: Icons.remove,
                         isZoomInButton: false,
