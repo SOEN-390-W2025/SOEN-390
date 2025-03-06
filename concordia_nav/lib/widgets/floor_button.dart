@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/domain-model/concordia_building.dart';
+import '../ui/indoor_map/floor_selection.dart';
 
 class FloorButton extends StatelessWidget {
   final String floor;
@@ -21,10 +22,14 @@ class FloorButton extends StatelessWidget {
       elevation: 3, // Match the shadow
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(
+          Navigator.push(
             context,
-            '/FloorChange',
-            arguments: building
+            MaterialPageRoute(
+              builder: (context) => FloorSelection(
+                building: building.name,
+                isSearch: true,
+              ),
+            )
           );
         },
         borderRadius: BorderRadius.circular(16),

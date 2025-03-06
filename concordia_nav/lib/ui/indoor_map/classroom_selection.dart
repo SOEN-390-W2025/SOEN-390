@@ -5,13 +5,15 @@ import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/select_indoor_destination.dart';
 import '../../widgets/selectable_list.dart';
 import '../indoor_location/indoor_directions_view.dart';
+import '../indoor_location/indoor_location_view.dart';
 
 class ClassroomSelection extends StatefulWidget {
   final String building;
   final String floor;
   final String? currentRoom;
   final bool isSource;
-  const ClassroomSelection({super.key, required this.building, required this.floor, this.currentRoom, this.isSource = false});
+  final bool isSearch;
+  const ClassroomSelection({super.key, required this.building, required this.floor, this.currentRoom, this.isSource = false, this.isSearch = false});
 
   @override
   ClassroomSelectionState createState() => ClassroomSelectionState();
@@ -93,7 +95,8 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
             iconColor: Theme.of(context).primaryColor,
           ),
           // Buttons for selecting building and floor
-          SelectIndoorDestination(building: widget.building, floor: widget.floor),
+          if (!widget.isSearch)
+            SelectIndoorDestination(building: widget.building, floor: widget.floor),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0),
             child: Align(
@@ -127,19 +130,32 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
                   title: 'Select a classroom',
                   searchController: searchController,
                   onItemSelected: (classroom) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => IndoorDirectionsView(
-                          sourceRoom: widget.isSource ? classroom : currentRoom,
-                          building: widget.building,
-                          floor: floorNumber,
-                          endRoom: widget.isSource ? currentRoom : classroom,
+                    if (widget.isSearch) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IndoorLocationView(
+                            building: BuildingViewModel().getBuildingByName(widget.building)!,
+                            floor: floorNumber,
+                            room: classroom,
+                          ),
                         ),
-                        settings: const RouteSettings(name: '/IndoorDirectionsView'),
-                      ),
-                      (route) => route.isFirst,
-                    );
+                        (route) => route.isFirst,
+                      );
+                    } else {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IndoorDirectionsView(
+                            sourceRoom: widget.isSource ? classroom : currentRoom,
+                            building: widget.building,
+                            floor: floorNumber,
+                            endRoom: widget.isSource ? currentRoom : classroom,
+                          ),
+                        ),
+                        (route) => route.isFirst,
+                      );
+                    }
                   },
                 );
               }

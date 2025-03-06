@@ -1,5 +1,6 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,30 @@ void main() {
   );
 
   group('IndoorLocationView', () {
+
+    testWidgets('Directions button is not present in IndoorLocationView if room is null',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorLocationView(building: building,),
+        ),
+      );
+
+      expect(find.text('Directions'), findsNothing);
+    });
+
+    testWidgets('Tapping Directions button navigates to IndoorDirectionsView',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorLocationView(building: building, room: 'H 101'),
+        ),
+      );
+
+      await tester.tap(find.text('Directions'));
+      await tester.pumpAndSettle();
+      expect(find.byType(IndoorDirectionsView), findsOneWidget);
+    });
 
     testWidgets('renders correctly with a non-constant key', (tester) async {
       await tester.pumpWidget(

@@ -4,14 +4,16 @@ import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
+import 'indoor_directions_view.dart';
 
 
 
 class IndoorLocationView extends StatefulWidget {
   final ConcordiaBuilding building;
   final String? floor;
+  final String? room;
 
-  const IndoorLocationView({super.key, required this.building, this.floor = '1'});
+  const IndoorLocationView({super.key, required this.building, this.floor = '1', this.room});
 
   @override
   State<IndoorLocationView> createState() => _IndoorLocationViewState();
@@ -58,7 +60,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
                 children: [
                   FloorPlanSearchWidget(
                     searchController: _destinationController,
-                    building: widget.building.name,
+                    building: widget.building,
                     floor: 'Floor ${widget.floor}',
                     disabled: true,
                   ),
@@ -93,12 +95,65 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
                   icon: Icons.remove,
                   isZoomInButton: false,
                 ),
-
               ],
             ),
           ),
-          
+          if (widget.room != null)
+            _buildFooter(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(25),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                "${widget.building.abbreviation} ${widget.room!}",
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => IndoorDirectionsView(
+                      sourceRoom: 'Your Location',
+                      building: widget.building.name,
+                      floor: widget.floor!,
+                      endRoom: widget.room!,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+              ),
+              child: const Text(
+                'Directions',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

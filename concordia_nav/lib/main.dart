@@ -6,7 +6,6 @@ import 'data/domain-model/concordia_building.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
-import 'ui/indoor_location/floor_change_view_.dart';
 import 'ui/indoor_location/indoor_directions_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
 import 'ui/indoor_map/building_selection.dart';
@@ -81,11 +80,9 @@ class MyApp extends StatelessWidget {
             floor: args['floor'] as String,
             currentRoom: args['currentRoom'] as String,
             isSource: args['isSource'] as bool? ?? false,
+            isSearch: args['isSource'] as bool? ?? false,
           );
         },
-        '/FloorChange': (context) => FloorChange(
-              building: ModalRoute.of(context)!.settings.arguments as ConcordiaBuilding
-        ),
       },
     );
   }

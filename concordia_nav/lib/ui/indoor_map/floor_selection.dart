@@ -4,11 +4,13 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/select_indoor_destination.dart';
 import '../../widgets/selectable_list.dart';
+import '../indoor_location/indoor_location_view.dart';
 import 'classroom_selection.dart';
 
 class FloorSelection extends StatefulWidget {
   final String building;
-  const FloorSelection({super.key, required this.building});
+  final bool isSearch;
+  const FloorSelection({super.key, required this.building, this.isSearch = false});
 
   @override
   FloorSelectionState createState() => FloorSelectionState();
@@ -55,7 +57,8 @@ class FloorSelectionState extends State<FloorSelection> {
             icon: Icons.location_on,
             iconColor: Theme.of(context).primaryColor,
           ),
-          SelectIndoorDestination(building: widget.building),
+          if (!widget.isSearch)
+            SelectIndoorDestination(building: widget.building),
           FutureBuilder<List<String>>(
             future: floorsFuture,
             builder: (context, snapshot) {
@@ -85,15 +88,28 @@ class FloorSelectionState extends State<FloorSelection> {
                   title: 'Select a floor',
                   searchController: searchController,
                   onItemSelected: (floor) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ClassroomSelection(
-                          building: widget.building,
-                          floor: floor.toString(),
+                     if (widget.isSearch) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IndoorLocationView(
+                            building: BuildingViewModel().getBuildingByName(widget.building)!,
+                            floor: floor.replaceAll('Floor ', ''),
+                          ),
                         ),
-                      ),
-                    );
+                        (route) => route.isFirst,
+                      );
+                     } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ClassroomSelection(
+                            building: widget.building,
+                            floor: floor.toString(),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 );
               }

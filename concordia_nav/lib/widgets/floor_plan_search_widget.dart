@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../data/domain-model/concordia_building.dart';
 import '../ui/indoor_map/classroom_selection.dart';
 
 class FloorPlanSearchWidget extends StatelessWidget {
   final TextEditingController searchController;
-  final String building;
+  final ConcordiaBuilding building;
   final String floor;
   final bool disabled;
 
@@ -55,7 +56,7 @@ class FloorPlanSearchWidget extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ClassroomSelection(building: building, floor: floor),
+                      builder: (context) => ClassroomSelection(building: building.name, floor: floor, isSearch: true),
                     ),
                   );
                 },
