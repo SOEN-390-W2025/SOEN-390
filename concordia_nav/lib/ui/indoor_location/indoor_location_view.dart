@@ -10,17 +10,18 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
 import 'indoor_directions_view.dart';
 
-
 class IndoorLocationView extends StatefulWidget {
   final String? building;
+  final IndoorMapViewModel? viewModel;
 
-  const IndoorLocationView({super.key, this.building});
+  const IndoorLocationView({super.key, this.building, this.viewModel});
 
   @override
   State<IndoorLocationView> createState() => _IndoorLocationViewState();
 }
 
-class _IndoorLocationViewState extends State<IndoorLocationView> {
+class _IndoorLocationViewState extends State<IndoorLocationView>
+    with SingleTickerProviderStateMixin {
   late IndoorMapViewModel _indoorMapViewModel;
   late TextEditingController _originController;
   late TextEditingController _destinationController;
@@ -47,26 +48,28 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
     );
   }
 
-@override
-void initState() {
-  super.initState();
-  _indoorMapViewModel = IndoorMapViewModel();
-  _originController = TextEditingController();
-  _destinationController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _indoorMapViewModel = widget.viewModel ?? IndoorMapViewModel(vsync: this);
+    _originController = TextEditingController();
+    _destinationController = TextEditingController();
 
-  _currentFloor = getDefaultFloor();
+    _currentFloor = getDefaultFloor();
 
-  // Hardcoding a default selected room for testing
-  // Will be change when backend is implemented
-  _indoorMapViewModel.selectedRoom = ConcordiaRoom(
-    'H-120',
-    RoomCategory.classroom,
-    _currentFloor!,
-    null,
-  );
+    // Hardcoding a default selected room for testing
+    // Will be change when backend is implemented
+    _indoorMapViewModel.selectedRoom = ConcordiaRoom(
+      'H-120',
+      RoomCategory.classroom,
+      _currentFloor!,
+      null,
+    );
 
-  _searchList.addAll(_indoorMapViewModel.floors.map((floor) => floor.floorNumber).toList());
-}
+    _searchList.addAll(
+      _indoorMapViewModel.floors.map((floor) => floor.floorNumber).toList(),
+    );
+  }
 
   @override
   void dispose() {
@@ -164,7 +167,7 @@ void initState() {
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,7 +185,6 @@ void initState() {
           ),
           _buildTopPanel(),
           _buildFooter(),
-
           Positioned(
             top: 80,
             right: 16,
@@ -190,14 +192,20 @@ void initState() {
               children: [
                 ZoomButton(
                   onTap: () {
-                    // Handle zoom in
+                    _indoorMapViewModel.panToRegion(
+                      offsetX: -50.0,
+                      offsetY: -50.0,
+                    );
                   },
                   icon: Icons.add,
                   isZoomInButton: true,
                 ),
                 ZoomButton(
                   onTap: () {
-                    // Handle zoom out
+                    _indoorMapViewModel.panToRegion(
+                      offsetX: 50.0,
+                      offsetY: 50.0,
+                    );
                   },
                   icon: Icons.remove,
                   isZoomInButton: false,
