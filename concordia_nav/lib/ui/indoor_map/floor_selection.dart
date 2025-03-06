@@ -4,7 +4,6 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/select_indoor_destination.dart';
 import '../../widgets/selectable_list.dart';
-import 'search_selectable_list.dart';
 import 'classroom_selection.dart';
 
 class FloorSelection extends StatefulWidget {

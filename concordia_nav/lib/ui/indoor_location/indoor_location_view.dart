@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
@@ -68,35 +69,10 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
           Positioned(
             top: 80,
             right: 16,
-            child: InkWell(
-              onTap: () {
-                // Handle current location
-              },
-              child: Container(
-                width: 45,
-                height: 45,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 3,
-                      offset: Offset(0, 1), // Shadow position
-                    ),
-                  ],
-                ),
-                child: Text(
-                  widget.floor!,
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+            child: FloorButton(
+              floor: widget.floor!,
+              building: widget.building,
+            )
           ),
           Positioned(
             top: 140,
