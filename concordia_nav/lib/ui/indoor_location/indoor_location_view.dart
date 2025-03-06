@@ -20,7 +20,8 @@ class IndoorLocationView extends StatefulWidget {
   State<IndoorLocationView> createState() => _IndoorLocationViewState();
 }
 
-class _IndoorLocationViewState extends State<IndoorLocationView> {
+class _IndoorLocationViewState extends State<IndoorLocationView>
+    with SingleTickerProviderStateMixin {
   late IndoorMapViewModel _indoorMapViewModel;
   late TextEditingController _originController;
   late TextEditingController _destinationController;
@@ -47,26 +48,28 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
     );
   }
 
-@override
-void initState() {
-  super.initState();
-  _indoorMapViewModel = IndoorMapViewModel();
-  _originController = TextEditingController();
-  _destinationController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+    _originController = TextEditingController();
+    _destinationController = TextEditingController();
 
-  _currentFloor = getDefaultFloor();
+    _currentFloor = getDefaultFloor();
 
-  // Hardcoding a default selected room for testing
-  // Will be change when backend is implemented
-  _indoorMapViewModel.selectedRoom = ConcordiaRoom(
-    'H-120',
-    RoomCategory.classroom,
-    _currentFloor!,
-    null,
-  );
+    // Hardcoding a default selected room for testing
+    // Will be change when backend is implemented
+    _indoorMapViewModel.selectedRoom = ConcordiaRoom(
+      'H-120',
+      RoomCategory.classroom,
+      _currentFloor!,
+      null,
+    );
 
-  _searchList.addAll(_indoorMapViewModel.floors.map((floor) => floor.floorNumber).toList());
-}
+    _searchList.addAll(
+      _indoorMapViewModel.floors.map((floor) => floor.floorNumber).toList(),
+    );
+  }
 
   @override
   void dispose() {
@@ -190,14 +193,20 @@ void initState() {
               children: [
                 ZoomButton(
                   onTap: () {
-                    // Handle zoom in
+                    _indoorMapViewModel.panToRegion(
+                      offsetX: -50.0,
+                      offsetY: -50.0,
+                    );
                   },
                   icon: Icons.add,
                   isZoomInButton: true,
                 ),
                 ZoomButton(
                   onTap: () {
-                    // Handle zoom out
+                    _indoorMapViewModel.panToRegion(
+                      offsetX: 50.0,
+                      offsetY: 50.0,
+                    );
                   },
                   icon: Icons.remove,
                   isZoomInButton: false,
