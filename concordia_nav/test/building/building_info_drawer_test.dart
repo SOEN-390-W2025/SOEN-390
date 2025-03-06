@@ -25,7 +25,7 @@ class TestTickerProvider extends TickerProvider {
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-  dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env');
   late MockBuildingInfoDrawerViewModel mockViewModel;
   late VoidCallback mockOnClose;
   late MockMapViewModel mockMapViewModel;

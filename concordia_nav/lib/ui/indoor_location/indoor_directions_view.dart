@@ -62,6 +62,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     super.dispose();
   }
 
+  static const yourLocation = 'Your Location';
+
+  static bool hasFullRoomName(String room){
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,14 +75,14 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       body: Column(
         children: [
           LocationInfoWidget(
-            from: widget.sourceRoom == 'Your Location'
-              ? 'Your Location'
-              : (RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(widget.sourceRoom)
+            from: widget.sourceRoom == yourLocation
+              ? yourLocation
+              : (hasFullRoomName(widget.sourceRoom)
                 ? widget.sourceRoom
                 : '$buildingAbbreviation ${widget.sourceRoom}'),
-            to: widget.endRoom == 'Your Location'
-              ? 'Your Location'
-              : (RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(widget.endRoom)
+            to: widget.endRoom == yourLocation
+              ? yourLocation
+              : (hasFullRoomName(widget.endRoom)
                 ? widget.endRoom
                 : '$buildingAbbreviation ${widget.endRoom}'),
             building: widget.building,
