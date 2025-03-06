@@ -39,7 +39,7 @@ scripts:
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
   coverage: flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
-  codecov: 
+  codecov:
     windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
     mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
   run: flutter run --dart-define-from-file=./.env
@@ -53,7 +53,7 @@ scripts:
     $script: flutter install
     $description: Install the app on the connected device. Can pass --release or --debug flags. (Default --release)
   ci:
-    $script: rps clean && rps format check && rps lint check && rps test unit && rps build android --debug && rps coverage 
+    $script: rps clean && rps format check && rps lint check && rps test unit && rps build android --debug && rps coverage
     $description: Run all of the commands that are part of the ci pipeline
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -162,10 +162,11 @@ flutter:
     - assets/maps/outdoor/sgw/
     - assets/maps/outdoor/shuttle_bus_routes/
     - assets/maps/outdoor/shuttle_bus_schedules/
-    - assets/maps/indoor/
-    - assets/maps/indoor/data/
+    - assets/maps/indoor/data/CC.yaml
+    - assets/maps/indoor/data/H.yaml
+    - assets/maps/indoor/data/VL.yaml
+    - assets/maps/indoor/data/MB.yaml
     - assets/maps/indoor/floorplans/
-
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

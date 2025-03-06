@@ -1,0 +1,89 @@
+floors:
+  - number: "2"
+    pixelsPerSecond: 1
+
+rooms:
+  "2":
+    - roomNumber: "03"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 631, y: 654 }
+    - roomNumber: "101" # Rooms that don't have a number start from 101
+      category: washroom
+      floor: "2"
+      entrancePoint: { x: 754, y: 780 }
+    - roomNumber: "102"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 353, y: 788 }
+    - roomNumber: "103"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 409, y: 745 }
+    - roomNumber: "104"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 712, y: 292 }
+
+waypoints:
+  "2":
+    - { x: 375, y: 745 }
+    - { x: 375, y: 788 }
+    - { x: 375, y: 654 }
+    - { x: 511, y: 654 }
+    - { x: 728, y: 654 }
+    - { x: 728, y: 675 }
+    - { x: 728, y: 780 }
+    - { x: 375, y: 446 }
+    - { x: 511, y: 446 }
+    - { x: 728, y: 446 }
+    - { x: 375, y: 301 }
+    - { x: 511, y: 301 }
+    - { x: 594, y: 301 }
+    - { x: 728, y: 292 }
+    - { x: 170, y: 292 }
+    - { x: 170, y: 108 }
+
+waypointNavigability:
+  "2":
+    "0": [1]
+    "1": [0, 2]
+    "2": [1, 3, 7]
+    "3": [2, 4, 8]
+    "4": [3, 5, 9]
+    "5": [4, 6]
+    "6": [5]
+    "7": [2, 8, 10]
+    "8": [3, 7, 11, 9]
+    "9": [4, 8, 13]
+    "10": [7, 11, 14]
+    "11": [8, 10, 12]
+    "12": [11]
+    "13": [9]
+    "14": [10, 15]
+    "15": [14]
+
+connections:
+  - name: "Main Elevators"
+    accessible: true
+    fixedWaitTimeSeconds: 60
+    waitTimePerFloorSeconds: 8
+    floors: ["2"]
+    floorPoints:
+      "2": { x: 594, y: 255, floor: "2" }
+  - name: "Stairs"
+    accessible: false
+    fixedWaitTimeSeconds: 0
+    waitTimePerFloorSeconds: 25
+    floors: ["2"]
+    floorPoints:
+      "2":
+        - { x: 159, y: 63, floor: "2" }
+        - { x: 816, y: 675, floor: "2" }
+        - { x: 353, y: 788, floor: "2" }
+        - { x: 728, y: 256, floor: "2" }
+
+outdoorExitPoint:
+  floor: "2"
+  x: 519
+  y: 908
