@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class AccessibilityButton extends StatefulWidget {
+  final String sourceRoom;
+  final String endRoom;
   final bool disability;
   final Function(bool) onDisabilityChanged;
 
   const AccessibilityButton({
     super.key,
+    required this.sourceRoom,
+    required this.endRoom,
     required this.disability,
     required this.onDisabilityChanged,
   });
@@ -18,7 +22,7 @@ class _AccessibilityButtonState extends State<AccessibilityButton> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white, 
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),

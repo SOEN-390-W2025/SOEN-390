@@ -26,7 +26,7 @@ class SelectIndoorDestination extends StatelessWidget {
                 ),
                 // Remove all previous routes
                 (route) {
-                  return route.settings.name == '/' || route.settings.name == '/IndoorLocationView';
+                  return route.settings.name == '/HomePage' || route.settings.name == '/IndoorLocationView';
                 },
               );
             },
@@ -51,7 +51,7 @@ class SelectIndoorDestination extends StatelessWidget {
                   ),
                   (route) {
                     // Remove all previous routes except BuildingSelection
-                    return route.settings.name == '/' || route.settings.name == '/BuildingSelection' || route.settings.name == '/IndoorLocationView';
+                    return route.settings.name == '/HomePage' || route.settings.name == '/BuildingSelection' || route.settings.name == '/IndoorLocationView';
                   },
                 );
               },

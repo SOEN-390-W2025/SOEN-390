@@ -9,7 +9,9 @@ import '../indoor_location/indoor_directions_view.dart';
 class ClassroomSelection extends StatefulWidget {
   final String building;
   final String floor;
-  const ClassroomSelection({super.key, required this.building, required this.floor});
+  final String? currentRoom;
+  final bool isSource;
+  const ClassroomSelection({super.key, required this.building, required this.floor, this.currentRoom, this.isSource = false});
 
   @override
   ClassroomSelectionState createState() => ClassroomSelectionState();
@@ -18,6 +20,7 @@ class ClassroomSelection extends StatefulWidget {
 class ClassroomSelectionState extends State<ClassroomSelection> {
   late Future<List<String>> classroomsFuture;
   late String floorNumber;
+  late String currentRoom;
   List<String> allClassrooms = [];
   List<String> filteredClassrooms = [];
   final TextEditingController searchController = TextEditingController();
@@ -25,6 +28,11 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
   @override
   void initState() {
     super.initState();
+    if (widget.currentRoom != null && widget.currentRoom != 'Your Location') {
+      currentRoom = widget.currentRoom!;
+    } else {
+      currentRoom = 'Your Location';
+    }
     classroomsFuture = _loadClassrooms();
     searchController.addListener(filterClassrooms);
     floorNumber = widget.floor.replaceAll('Floor ', '');
@@ -33,8 +41,19 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
   Future<List<String>> _loadClassrooms() async {
     final List<String> classrooms =
         await BuildingViewModel().getRoomsForFloor(widget.building, widget.floor)
-        .then((rooms) => rooms.map((room) => floorNumber + room.roomNumber).toList());
-
+        .then((rooms) {
+          return rooms.map((room) {
+            // Check if room number is a single digit and add leading zero if true
+            final String hyphen = room.roomNumber.split('-').first;
+            String roomNumber = room.roomNumber;
+            if (hyphen.length == 1) {
+              roomNumber = '0$roomNumber';  // Add leading zero to single digit room
+            }
+            
+            // Combine room number with floor number
+            return '$floorNumber$roomNumber ';
+          }).toList();
+        });
     setState(() {
       allClassrooms = classrooms;
       filteredClassrooms = List.from(classrooms);
@@ -112,11 +131,12 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => IndoorDirectionsView(
-                          currentLocation: 'Your Location',
+                          sourceRoom: widget.isSource ? classroom : currentRoom,
                           building: widget.building,
                           floor: floorNumber,
-                          room: classroom,
+                          endRoom: widget.isSource ? currentRoom : classroom,
                         ),
+                        settings: const RouteSettings(name: '/IndoorDirectionsView'),
                       ),
                       (route) => route.isFirst,
                     );

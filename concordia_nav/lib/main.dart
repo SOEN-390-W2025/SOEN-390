@@ -10,6 +10,7 @@ import 'ui/indoor_location/floor_change_view_.dart';
 import 'ui/indoor_location/indoor_directions_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
 import 'ui/indoor_map/building_selection.dart';
+import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
 import 'ui/poi/poi_choice_view.dart';
 import 'ui/poi/poi_map_view.dart';
@@ -67,11 +68,21 @@ class MyApp extends StatelessWidget {
         '/SearchView': (context) => const SearchView(),
         '/SelectBuilding': (context) => const BuildingSelection(),
         '/IndoorDirectionsView': (context) => IndoorDirectionsView(
-              currentLocation: ModalRoute.of(context)!.settings.arguments as String,
+              sourceRoom: ModalRoute.of(context)!.settings.arguments as String,
               building: ModalRoute.of(context)!.settings.arguments as String,
               floor: ModalRoute.of(context)!.settings.arguments as String,
-              room: ModalRoute.of(context)!.settings.arguments as String,
+              endRoom: ModalRoute.of(context)!.settings.arguments as String,
         ),
+        '/ClassroomSelection': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+          return ClassroomSelection(
+            building: args['building'] as String,
+            floor: args['floor'] as String,
+            currentRoom: args['currentRoom'] as String,
+            isSource: args['isSource'] as bool? ?? false,
+          );
+        },
         '/FloorChange': (context) => FloorChange(
               building: ModalRoute.of(context)!.settings.arguments as ConcordiaBuilding
         ),

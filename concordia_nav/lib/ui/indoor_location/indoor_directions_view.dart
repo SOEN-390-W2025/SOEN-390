@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
+import '../../widgets/indoor/bottom_info_widget.dart';
+import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
+
+import 'dart:developer' as dev;
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
-  final String room;
-  final String currentLocation;
+  final String endRoom;
+  final String sourceRoom;
 
   const IndoorDirectionsView({
     super.key,
-    required this.currentLocation,
+    required this.sourceRoom,
     required this.building,
     required this.floor,
-    required this.room
+    required this.endRoom
   });
 
   @override
@@ -25,7 +29,8 @@ class IndoorDirectionsView extends StatefulWidget {
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
   bool disability = false;
   final String _eta = '5 min';
-
+  late String from;
+  late String to;
   late String buildingAbbreviation;
   late String roomNumber;
 
@@ -33,7 +38,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
   void initState() {
     super.initState();
     buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
-    roomNumber = widget.room.replaceFirst( widget.floor, '');
+    roomNumber = widget.endRoom.replaceFirst( widget.floor, '');
   }
 
   @override
@@ -42,54 +47,11 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
       appBar: customAppBar(context, 'Indoor Directions'),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.location_on, color: Colors.red),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'From: ${widget.currentLocation}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'To: $buildingAbbreviation ${widget.room}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          LocationInfoWidget(
+            from: widget.sourceRoom == 'Your Location' ? 'Your Location' : '$buildingAbbreviation ${widget.sourceRoom}',
+            to: '$buildingAbbreviation ${widget.endRoom}',
+            building: widget.building,
+            floor: widget.floor
           ),
           Expanded(
             child: Stack(
@@ -105,6 +67,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                   top: 16,
                   right: 16,
                   child: AccessibilityButton(
+                    sourceRoom: widget.sourceRoom,
+                    endRoom: widget.endRoom,
                     disability: disability,
                     onDisabilityChanged: (value) {
                       setState(() {
@@ -140,45 +104,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
             ),
           ),
 
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Text(
-                      'ETA: $_eta',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
-                  ),
-                  child: const Text(
-                    'Start',
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          BottomInfoWidget(eta: _eta),
         ],
       ),
     );
