@@ -50,9 +50,10 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: IndoorLocationView(building: building, room: 'H 101'),
+          home: IndoorLocationView(building: building, room: 'H 110'),
         ),
       );
+      await tester.pump();
 
       await tester.tap(find.text('Directions'));
       await tester.pumpAndSettle();

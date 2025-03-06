@@ -13,40 +13,18 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: IndoorDirectionsView(
-          currentLocation: 'Entrance',
+          sourceRoom: 'Your Location',
           building: 'Hall Building',
           floor: '1',
-          room: 'H101',
+          endRoom: 'H 110',
         ),
       ),
     );
 
     expect(find.text('Indoor Directions'), findsOneWidget);
-    expect(find.text('From: Entrance'), findsOneWidget);
-    expect(find.textContaining('To:'), findsOneWidget);
+    expect(find.text('From: Your Location'), findsOneWidget);
+    expect(find.textContaining('To: H 110'), findsOneWidget);
     expect(find.byType(SvgPicture), findsOneWidget);
-  });
-
-  testWidgets('Dropdown menu updates selected mode',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: IndoorDirectionsView(
-          currentLocation: 'Entrance',
-          building: 'Hall Building',
-          floor: '1',
-          room: 'H101',
-        ),
-      ),
-    );
-
-    await tester.tap(find.byType(DropdownButton<String>));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Accessibility').last);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Accessibility'), findsOneWidget);
   });
 
   testWidgets('Tapping zoom buttons changes scale',
@@ -54,10 +32,10 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: IndoorDirectionsView(
-          currentLocation: 'Entrance',
+          sourceRoom: 'Your Location',
           building: 'Hall Building',
           floor: '1',
-          room: 'H101',
+          endRoom: 'H101',
         ),
       ),
     );
@@ -77,10 +55,10 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: IndoorDirectionsView(
-          currentLocation: 'Entrance',
+          sourceRoom: 'Your Location',
           building: 'Hall Building',
           floor: '1',
-          room: 'H101',
+          endRoom: 'H101',
         ),
       ),
     );

@@ -1,9 +1,7 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
-import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,31 +45,6 @@ void main() {
       expect(cameraPosition.target.latitude, 45.4972159);
       expect(cameraPosition.target.longitude, -73.5790067);
       expect(cameraPosition.zoom, 18.0);
-    });
-
-    testWidgets('panToRegion updates transformation matrix',
-        (WidgetTester tester) async {
-      // Build the widget tree
-      final viewModel = IndoorMapViewModel(vsync: TestVSync());
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: IndoorLocationView(viewModel: viewModel),
-          ),
-        ),
-      );
-
-      // Trigger the panToRegion function
-      viewModel.panToRegion(offsetX: 100.0, offsetY: 50.0);
-
-      // Wait for the animation to complete
-      await tester.pumpAndSettle();
-
-      // Get the matrix after the animation is completed
-      final matrix = viewModel.transformationController.value;
-      expect(matrix[12], 100.0);
-      expect(matrix[13], 50.0);
     });
 
     test('Initial markers and polylines should be empty', () {

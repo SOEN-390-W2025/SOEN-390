@@ -15,6 +15,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import '../map/map_viewmodel_test.mocks.dart';
 import 'building_info_drawer_test.mocks.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 @GenerateMocks([BuildingInfoDrawerViewModel])
 class TestTickerProvider extends TickerProvider {
@@ -23,6 +24,8 @@ class TestTickerProvider extends TickerProvider {
 }
 
 void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  dotenv.load(fileName: '.env');
   late MockBuildingInfoDrawerViewModel mockViewModel;
   late VoidCallback mockOnClose;
   late MockMapViewModel mockMapViewModel;
