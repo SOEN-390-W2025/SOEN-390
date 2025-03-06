@@ -4,6 +4,7 @@ floors:
   - number: "2"
     pixelsPerSecond: 1
 
+# Rooms that don't have a number start from 000. Ex: "0001", "0002", etc.
 rooms:
   "1":
     - roomNumber: "0001"
@@ -19,26 +20,26 @@ rooms:
       floor: "1"
       entrancePoint: { x: 613, y: 540 }
   "2":
+    - roomNumber: "0001" 
+      category: washroom
+      floor: "2"
+      entrancePoint: { x: 754, y: 780 }
+    - roomNumber: "0002"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 353, y: 788 }
+    - roomNumber: "0003"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 409, y: 745 }
+    - roomNumber: "0004"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 712, y: 292 }
     - roomNumber: "03"
       category: unknown
       floor: "2"
       entrancePoint: { x: 631, y: 654 }
-    - roomNumber: "101" # Rooms that don't have a number start from 101
-      category: washroom
-      floor: "2"
-      entrancePoint: { x: 754, y: 780 }
-    - roomNumber: "102"
-      category: unknown
-      floor: "2"
-      entrancePoint: { x: 353, y: 788 }
-    - roomNumber: "103"
-      category: unknown
-      floor: "2"
-      entrancePoint: { x: 409, y: 745 }
-    - roomNumber: "104"
-      category: unknown
-      floor: "2"
-      entrancePoint: { x: 712, y: 292 }
 
 waypoints:
   "1":
