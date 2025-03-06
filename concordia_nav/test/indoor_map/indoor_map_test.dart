@@ -74,9 +74,9 @@ void main() {
             .toList();
 
         // Assert: Verify the filtered list shows only matching classrooms
-        expect(classrooms, contains('9101'),
+        expect(classrooms, contains('91001'),
             reason: 'Room 101 should be found');
-        expect(classrooms, contains('9102'),
+        expect(classrooms, contains('91002'),
             reason: 'Room 102 should be found');
         expect(classrooms, isNot(contains('93')),
             reason: 'Room 3 should not be found');
