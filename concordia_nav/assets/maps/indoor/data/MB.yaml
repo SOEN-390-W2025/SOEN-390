@@ -1,13 +1,24 @@
 floors:
   - number: "S2"
     pixelsPerSecond: 1
+  - number: "1"
+    pixelsPerSecond: 1
 
+# Rooms that don't have a number start from 000. Ex: "0001", "0002", etc.
 rooms:
-  # In other files it's been documented that rooms that don't have a number
-  # start from 101. However, this doesn't work here since there's floors that
-  # actually have 1xx as their room number.
-  # For this file, no-number rooms look like: "00000x".
   "S2":
+    - roomNumber: "0001"
+      category: washroom
+      floor: "S2"
+      entrancePoint: { x: 635, y: 826 }
+    - roomNumber: "0002"
+      category: water_fountain
+      floor: "S2"
+      entrancePoint: { x: 677, y: 826 }
+    - roomNumber: "0003"
+      category: washroom
+      floor: "S2"
+      entrancePoint: { x: 720, y: 826 }
     - roomNumber: "105"
       category: unknown
       floor: "S2"
