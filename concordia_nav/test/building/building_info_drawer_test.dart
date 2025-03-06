@@ -1,9 +1,11 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/utils/building_drawer_viewmodel.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/widgets/floor_plan_search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -194,6 +196,43 @@ void main() async {
 
     // Verify that the mock map view was used
     expect(find.byType(OutdoorLocationMapView), findsOneWidget);
+  });
+
+  testWidgets('Indoor Map button opens IndoorLocationView',
+      (WidgetTester tester) async {
+    // define routes needed for this test
+    final routes = {
+      '/CampusMapPage': (context) => Scaffold(
+              body: BuildingInfoDrawer(
+                building: BuildingRepository.h,
+                onClose: () => true,
+              ),
+            ),
+      '/IndoorLocationView': (context) => IndoorLocationView(
+            building: ModalRoute.of(context)!.settings.arguments as ConcordiaBuilding
+          ),
+    };
+
+    // Build the widget
+    await tester.pumpWidget(
+      MaterialApp(
+        initialRoute: '/CampusMapPage',
+        routes: routes,
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Simulate the button press to navigate to indoor map
+    final indoorMapButton = find.byIcon(Icons.map);
+    expect(indoorMapButton, findsOneWidget);
+
+    await tester.tap(indoorMapButton);
+    await tester.pumpAndSettle();
+
+    // Verify that the IndoorLocationView is displayed
+    expect(find.byType(FloorPlanSearchWidget), findsOneWidget);
+    expect(find.text("1"), findsOneWidget);
   });
 
   group('test building info drawer', () {

@@ -106,7 +106,23 @@ void main () {
 
       // check that we got the right building
       expect(result, isA<ConcordiaBuilding>());
-      expect(result,BuildingRepository.gm);
+      expect(result, BuildingRepository.gm);
+    });
+
+    test('getbuildingByAbbreviation returns a building by its abbreviation', () {
+      // get VL building by its abbreviation
+      var result = BuildingService.getbuildingByAbbreviation('VL');
+
+      // check that we got the right building
+      expect(result, isA<ConcordiaBuilding>());
+      expect(result, BuildingRepository.vl);
+
+      // get H builing by its abbreviation
+      result = BuildingService.getbuildingByAbbreviation('H');
+
+      // check that we got the right building
+      expect(result, isA<ConcordiaBuilding>());
+      expect(result, BuildingRepository.h);
     });
   });
 }
