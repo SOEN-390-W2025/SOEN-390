@@ -1,6 +1,12 @@
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class TestVSync implements TickerProvider {
+  @override
+  Ticker createTicker(TickerCallback onTick) => Ticker(onTick);
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -8,8 +14,9 @@ void main() {
   late IndoorMapViewModel viewModel;
 
   setUp(() {
-    viewModel = IndoorMapViewModel();
+    viewModel = IndoorMapViewModel(vsync: TestVSync());
   });
+
   group('IndoorMapViewModel', () {
     test('Initial markers and polylines should be empty', () {
       expect(viewModel.markersNotifier.value, isEmpty);
