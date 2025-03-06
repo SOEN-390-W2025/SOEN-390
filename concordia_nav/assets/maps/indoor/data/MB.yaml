@@ -95,18 +95,31 @@ rooms:
       category: unknown
       floor: "S2"
       entrancePoint: { x: 753, y: 853 }
-    - roomNumber: "000001"
+  "1":
+    - roomNumber: "0001"
       category: washroom
-      floor: "S2"
-      entrancePoint: { x: 635, y: 826 }
-    - roomNumber: "000002"
-      category: water_fountain
-      floor: "S2"
-      entrancePoint: { x: 677, y: 826 }
-    - roomNumber: "000003"
+      floor: "1"
+      entrancePoint: { x: 717, y: 835 }
+    - roomNumber: "0002"
       category: washroom
-      floor: "S2"
-      entrancePoint: { x: 720, y: 826 }
+      floor: "1"
+      entrancePoint: { x: 782, y: 835 }
+    - roomNumber: "0003"
+      category: unknown # Water Fountain
+      floor: "1"
+      entrancePoint: { x: 751, y: 835 }
+    - roomNumber: "210"
+      category: auditorium
+      floor: "1"
+      entrancePoint: { x: 575, y: 534 }
+    - roomNumber: "301"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 749, y: 664 }
+    - roomNumber: "437"
+      category: classroom
+      floor: "1"
+      entrancePoint: { x: 867, y: 835 }
 
 waypoints:
   "S2":
@@ -140,6 +153,24 @@ waypoints:
     - { x: 642, y: 179 }
     - { x: 681, y: 179 }
     - { x: 719, y: 179 }
+  "1":
+    - { x: 515, y: 947 }
+    - { x: 572, y: 947 }
+    - { x: 572, y: 872 }
+    - { x: 669, y: 872 }
+    - { x: 747, y: 849 }
+    - { x: 868, y: 849 }
+    - { x: 572, y: 811 }
+    - { x: 480, y: 811 }
+    - { x: 572, y: 607 }
+    - { x: 676, y: 607 }
+    - { x: 572, y: 557 }
+    - { x: 526, y: 557 }
+    - { x: 477, y: 557 }
+    - { x: 477, y: 224 }
+    - { x: 577, y: 224 }
+    - { x: 477, y: 163 }
+    - { x: 387, y: 163 }
 
 waypointNavigability:
   "S2":
@@ -173,27 +204,49 @@ waypointNavigability:
     "27": [26, 28]
     "28": [25, 27, 29]
     "29": [24, 28]
+  "1":
+    "0": [1]
+    "1": [0, 2]
+    "2": [1, 3, 6]
+    "3": [2, 4]
+    "4": [3, 5]
+    "5": [4]
+    "6": [2, 8, 7]
+    "7": [6]
+    "8": [6, 10, 9]
+    "9": [8]
+    "10": [8, 11]
+    "11": [10, 12]
+    "12": [11, 13]
+    "13": [12, 15, 14]
+    "14": [13]
+    "15": [13, 16]
+    "16": [15]
 
 connections:
   - name: "Main Elevators"
     accessible: true
     fixedWaitTimeSeconds: 60
     waitTimePerFloorSeconds: 8
-    floors: ["S2"]
+    floors: ["S2", "1"]
     floorPoints:
       "S2": { x: 675, y: 600, floor: "S2" }
+      "1": { x: 675, y: 600, floor: "1" }
   - name: "Escalators"
     accessible: false
     fixedWaitTimeSeconds: 0
     waitTimePerFloorSeconds: 15
-    floors: ["S2"]
+    floors: ["S2", "1"]
     floorPoints:
       "S2": { x: 484, y: 526, floor: "S2" }
+      "1": 
+        - { x: 491, y: 795, floor: "1" }
+        - { x: 457, y: 795, floor: "1" }
   - name: "Stairs"
     accessible: false
     fixedWaitTimeSeconds: 0
     waitTimePerFloorSeconds: 25
-    floors: ["S2"]
+    floors: ["S2", "1"]
     floorPoints:
       "S2":
         - { x: 418, y: 432, floor: "S2" }
@@ -201,8 +254,13 @@ connections:
         - { x: 625, y: 209, floor: "S2" }
         - { x: 762, y: 629, floor: "S2" }
         - { x: 826, y: 853, floor: "S2" }
+      "1": 
+        - { x: 773, y: 860, floor: "1" }
+        - { x: 528, y: 509, floor: "1" }
+        - { x: 396, y: 236, floor: "1" }
+        - { x: 532, y: 171, floor: "1" }
 
 outdoorExitPoint:
-  floor: "S2"
+  floor: "1"
   x: 491
   y: 947
