@@ -10,6 +10,7 @@ import '../indoor_location/indoor_location_view.dart';
 class ClassroomSelection extends StatefulWidget {
   final String building;
   final String floor;
+
   final String? currentRoom;
   final bool isSource;
   final bool isSearch;
@@ -96,7 +97,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
           ),
           // Buttons for selecting building and floor
           if (!widget.isSearch)
-            SelectIndoorDestination(building: widget.building, floor: widget.floor),
+            SelectIndoorDestination(building: widget.building, floor: widget.floor, endRoom: currentRoom, isSource: widget.isSource),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0),
             child: Align(

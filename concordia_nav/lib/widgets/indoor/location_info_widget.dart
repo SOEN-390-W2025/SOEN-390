@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../data/domain-model/concordia_building.dart';
 import '../../utils/building_viewmodel.dart';
 import '../compact_location_search_widget.dart';
+import 'dart:developer' as dev;
 
 class LocationInfoWidget extends StatelessWidget {
   final String from;
@@ -70,18 +72,43 @@ class LocationInfoWidget extends StatelessWidget {
   }
 
   Widget _buildLocationBox(BuildContext context, String text, bool isSource) {
-    final buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(building)!;
+
+    final toBuildingAbbrev = to.split(' ')[0];
+    final ConcordiaBuilding? toBuilding = BuildingViewModel().getBuildingByAbbreviation(toBuildingAbbrev);
+    final cleanedTo = to.replaceAll('$toBuildingAbbrev ', '').trim();
+    final toFloor = cleanedTo.startsWith(RegExp(r'^[a-zA-Z]'))
+    ? cleanedTo.substring(0, 2)
+    : cleanedTo[0];
+
+    String fromBuildingAbbrev = toBuildingAbbrev;
+    ConcordiaBuilding? fromBuilding = toBuilding;
+    String fromFloor = toFloor;
+    if (from != 'Your Location') {
+      fromBuildingAbbrev = from.split(' ')[0];
+      fromBuilding = BuildingViewModel().getBuildingByAbbreviation(fromBuildingAbbrev);
+      final cleanedFrom = from.replaceAll('$fromBuildingAbbrev ', '').trim();
+      fromFloor = cleanedFrom.startsWith(RegExp(r'^[a-zA-Z]'))
+        ? cleanedFrom.substring(0, 2)
+        : cleanedFrom[0];
+    }
+
+    dev.log('toBuilding: $toBuildingAbbrev, fromBuilding: $fromBuildingAbbrev');
+    dev.log('toFloor: $toFloor, fromFloor: $fromFloor');
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
           context,
           '/ClassroomSelection',
           arguments: {
-            'building': building,
-            'floor': 'Floor $floor',
+            'building': isSource
+                ? fromBuilding!.name
+                : toBuilding!.name,
+            'floor': (isSource || from == 'Your Location')
+                ? 'Floor $fromFloor'
+                : 'Floor $toFloor',
             'currentRoom': isSource
-                ? to.replaceAll('$buildingAbbreviation ', '')
-                : from.replaceAll('$buildingAbbreviation ', ''),
+                ? to
+                : from,
             'isSource': isSource,
           },
         );

@@ -46,8 +46,16 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
       body: Column(
         children: [
           LocationInfoWidget(
-            from: widget.sourceRoom == 'Your Location' ? 'Your Location' : '$buildingAbbreviation ${widget.sourceRoom}',
-            to: '$buildingAbbreviation ${widget.endRoom}',
+            from: widget.sourceRoom == 'Your Location'
+              ? 'Your Location'
+              : (RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(widget.sourceRoom)
+                ? widget.sourceRoom
+                : '$buildingAbbreviation ${widget.sourceRoom}'),
+            to: widget.endRoom == 'Your Location'
+              ? 'Your Location'
+              : (RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(widget.endRoom)
+                ? widget.endRoom
+                : '$buildingAbbreviation ${widget.endRoom}'),
             building: widget.building,
             floor: widget.floor
           ),

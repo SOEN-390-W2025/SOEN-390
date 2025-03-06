@@ -9,8 +9,10 @@ import 'classroom_selection.dart';
 
 class FloorSelection extends StatefulWidget {
   final String building;
+  final String? endRoom;
+  final bool isSource;
   final bool isSearch;
-  const FloorSelection({super.key, required this.building, this.isSearch = false});
+  const FloorSelection({super.key, required this.building, this.endRoom,  this.isSource = false, this.isSearch = false});
 
   @override
   FloorSelectionState createState() => FloorSelectionState();
@@ -106,6 +108,8 @@ class FloorSelectionState extends State<FloorSelection> {
                           builder: (context) => ClassroomSelection(
                             building: widget.building,
                             floor: floor.toString(),
+                            currentRoom: widget.endRoom,
+                            isSource: widget.isSource,
                           ),
                         ),
                       );
