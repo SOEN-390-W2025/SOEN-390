@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../utils/building_drawer_viewmodel.dart';
 import '../ui/outdoor_location/outdoor_location_map_view.dart';
-import '../ui/indoor_location/indoor_location_view.dart';
 
 class BuildingInfoDrawer extends StatefulWidget {
   final ConcordiaBuilding building;
