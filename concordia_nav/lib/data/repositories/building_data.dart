@@ -48,8 +48,8 @@ List<dynamic> loadFloors(dynamic yamlData, ConcordiaBuilding building) {
   return [floors, floorMap];
 }
 
-Map<String, List<ConcordiaRoom>> loadRooms(dynamic yamlData, 
-    Map<String, ConcordiaFloor> floorMap) {
+Map<String, List<ConcordiaRoom>> loadRooms(
+    dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaRoom>> roomsByFloor = {};
   final roomsYaml = yamlData['rooms'] as Map;
   roomsYaml.forEach((floorStr, roomList) {
@@ -79,7 +79,7 @@ Map<String, List<ConcordiaRoom>> loadRooms(dynamic yamlData,
 }
 
 Map<String, List<ConcordiaFloorPoint>> _loadWaypoints(
-      dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
+    dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaFloorPoint>> waypointsByFloor = {};
   final wpYaml = yamlData['waypoints'] as Map;
   wpYaml.forEach((floorStr, points) {
@@ -110,7 +110,7 @@ Map<String, Map<int, List<int>>> _loadWaypointNavigability(dynamic yamlData) {
 }
 
 List<Connection> _loadConnections(
-      dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
+    dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final List<Connection> connections = [];
   for (var connYaml in yamlData['connections']) {
     // Convert floor numbers to actual floor objects.
