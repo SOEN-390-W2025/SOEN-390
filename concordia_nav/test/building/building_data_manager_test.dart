@@ -24,7 +24,8 @@ void main() {
       expect(buildingDataCache["H"]!.building, BuildingRepository.h);
     });
 
-    test('getBuildingData returns buildingData for specific abbreviation', () async {
+    test('getBuildingData returns buildingData for specific abbreviation',
+        () async {
       final buildingData = await BuildingDataManager.getBuildingData("H");
 
       // verify return value has right type and value
@@ -34,9 +35,10 @@ void main() {
 
     test('getBuildingData throws flutterError with invalid abbrebiation', () {
       const invalidAbbreviation = "WAA";
-      
+
       // verify method throws flutterError when given a non existant abbreviation
-      expect(BuildingDataManager.getBuildingData(invalidAbbreviation), throwsFlutterError);
+      expect(BuildingDataManager.getBuildingData(invalidAbbreviation),
+          throwsFlutterError);
     });
 
     test('toJson doesnt trigger errors', () async {

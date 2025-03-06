@@ -3,7 +3,9 @@ import 'package:concordia_nav/data/repositories/outdoor_directions_repository.da
 import 'package:concordia_nav/data/services/helpers/icon_loader.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,19 +16,20 @@ import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'map_viewmodel_test.mocks.dart';
 
-class MockIconLoader extends Mock implements IconLoader {}
-
-@GenerateMocks([MapRepository, MapService, MapViewModel, ODSDirectionsService])
+@GenerateMocks(
+    [MapRepository, MapService, MapViewModel, ODSDirectionsService, Client])
 void main() {
   late MapViewModel mapViewModel;
   late MockMapRepository mockMapRepository;
   late MockMapService mockMapService;
   late MockODSDirectionsService mockODSDirectionsService;
   late ShuttleRouteRepository shuttleRepo;
+  late MockClient mockHttpClient;
 
   setUp(() {
     mockMapRepository = MockMapRepository();
     mockMapService = MockMapService();
+    mockHttpClient = MockClient();
     mockODSDirectionsService = MockODSDirectionsService();
     shuttleRepo = ShuttleRouteRepository();
     mapViewModel = MapViewModel(
@@ -39,6 +42,151 @@ void main() {
       any,
       any,
     )).thenReturn(400.0);
+  });
+
+  group('MapViewModel Tests', () {
+    late MapViewModel mapViewModel;
+    late MockMapService mockMapService;
+    late ShuttleRouteRepository mockShuttleRouteRepository;
+    late MockODSDirectionsService mockODSDirectionsService;
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    const MethodChannel geocodingChannel =
+        MethodChannel('flutter.baseflow.com/geocoding');
+
+    Future geocodingHandler(MethodCall methodCall) async {
+      if (methodCall.method == 'locationFromAddress') {
+        final String address = methodCall.arguments;
+        if (address ==
+            '1455 De Maisonneuve Blvd W, Montreal, QC H3G 1M8, Canada') {
+          return [
+            {'latitude': 45.4971, 'longitude': -73.5788}
+          ];
+        } else {
+          throw PlatformException(code: 'ERROR', message: 'Address not found');
+        }
+      }
+      return null;
+    }
+
+    setUpAll(() {
+      // Initialize the mock handler for geocoding
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(geocodingChannel, geocodingHandler);
+    });
+
+    setUp(() {
+      // Initialize mock objects
+      mockMapService = MockMapService();
+      mockShuttleRouteRepository = ShuttleRouteRepository();
+      mockODSDirectionsService = MockODSDirectionsService();
+      mapViewModel = MapViewModel(
+        mapService: mockMapService,
+        shuttleRepository: mockShuttleRouteRepository,
+        odsDirectionsService: mockODSDirectionsService,
+      );
+    });
+
+    test('geocodeAddress should return null for an invalid address', () async {
+      // Arrange
+      const address = 'Invalid Address';
+
+      // Act
+      final result = await mapViewModel.geocodeAddress(address);
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('setActiveModeForRoute should update active mode and polylines',
+        () async {
+      // Arrange
+      const mode = CustomTravelMode.walking;
+      const polyline = Polyline(polylineId: PolylineId('walking'));
+      mapViewModel.multiModeRoutes[mode] = polyline;
+
+      // Act
+      await mapViewModel.setActiveModeForRoute(mode);
+
+      // Assert
+      expect(mapViewModel.selectedTravelModeForRoute, mode);
+      expect(mapViewModel.multiModePolylines, {polyline});
+    });
+
+    test('startShuttleBusTimer should start a periodic timer', () {
+      // Act
+      mapViewModel.startShuttleBusTimer();
+
+      // Assert
+      expect(mapViewModel.shuttleBusTimer, isNotNull);
+      expect(mapViewModel.shuttleBusTimer!.isActive, isTrue);
+
+      mapViewModel.stopShuttleBusTimer();
+    });
+
+    test('fetchShuttleBusData should update shuttle markers', () async {
+      // Arrange
+      when(mockHttpClient.get(any, headers: anyNamed('headers'))).thenAnswer(
+          (_) async => Response('OK', 200, headers: {'set-cookie': 'cookie'}));
+
+      when(mockHttpClient.post(any,
+              headers: anyNamed('headers'), body: anyNamed('body')))
+          .thenAnswer((_) async => Response(
+                '{"d": {"Points": [{"ID": "BUS1", "Latitude": 45.4971, "Longitude": -73.5788}]} }',
+                200,
+              ));
+
+      when(mockMapService.getCustomIcon(any))
+          .thenAnswer((_) async => BitmapDescriptor.defaultMarker);
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => const LatLng(45.4971, -73.5788));
+      when(mockMapService.calculateDistance(any, any)).thenReturn(1000.0);
+
+      // Act
+      await mapViewModel.fetchShuttleBusData(client: mockHttpClient);
+
+      // Assert
+      expect(mapViewModel.shuttleMarkersNotifier.value.length, 1);
+    });
+
+    test('handleSelection should move to the selected building location',
+        () async {
+      // Arrange
+      const selectedBuilding = 'Hall Building';
+      const buildingLocation = LatLng(45.4971, -73.5788);
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => buildingLocation);
+      when(mockMapService.moveCamera(any)).thenReturn(null);
+
+      // Act
+      await mapViewModel.handleSelection(selectedBuilding, buildingLocation);
+
+      // Assert
+      verify(mockMapService.moveCamera(argThat(isA<LatLng>()
+              .having((latlng) => latlng.latitude, 'latitude',
+                  closeTo(45.4971, 0.01))
+              .having((latlng) => latlng.longitude, 'longitude',
+                  closeTo(-73.5788, 0.01)))))
+          .called(1);
+    });
+
+    test(
+        'handleSelection should move to the current location if selected building is "Your Location"',
+        () async {
+      // Arrange
+      const selectedBuilding = 'Your Location';
+      const currentLocation = LatLng(45.4971, -73.5788);
+      when(mockMapService.getCurrentLocation())
+          .thenAnswer((_) async => currentLocation);
+      when(mockMapService.moveCamera(any)).thenReturn(null);
+
+      // Act
+      await mapViewModel.handleSelection(selectedBuilding, currentLocation);
+
+      // Assert
+      verify(mockMapService.moveCamera(currentLocation)).called(1);
+    });
   });
 
   group('fetchRoute', () {

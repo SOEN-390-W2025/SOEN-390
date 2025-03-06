@@ -6,8 +6,6 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
 import 'indoor_directions_view.dart';
 
-
-
 class IndoorLocationView extends StatefulWidget {
   final ConcordiaBuilding building;
   final String? floor;
@@ -19,15 +17,16 @@ class IndoorLocationView extends StatefulWidget {
   State<IndoorLocationView> createState() => _IndoorLocationViewState();
 }
 
-class _IndoorLocationViewState extends State<IndoorLocationView> {
+class _IndoorLocationViewState extends State<IndoorLocationView>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _destinationController;
 
 
-  @override
-  void initState() {
-    super.initState();
-    _destinationController = TextEditingController();
-  }
+@override
+void initState() {
+  super.initState();
+  _destinationController = TextEditingController();
+}
 
   @override
   void dispose() {
