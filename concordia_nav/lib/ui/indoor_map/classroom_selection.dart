@@ -51,7 +51,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
             }
             
             // Combine room number with floor number
-            return '$floorNumber$roomNumber ';
+            return '$floorNumber$roomNumber';
           }).toList();
         });
     setState(() {

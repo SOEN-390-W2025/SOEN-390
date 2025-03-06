@@ -6,8 +6,6 @@ import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
 
-import 'dart:developer' as dev;
-
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
