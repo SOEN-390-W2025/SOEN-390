@@ -79,6 +79,7 @@ dependencies:
   url_launcher: ^6.3.1
   geocoding: ^3.0.0
   yaml: ^3.1.3
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -122,7 +123,15 @@ flutter:
     - assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json
     - assets/maps/outdoor/shuttle_bus_schedules/monday_thursday.json
     - assets/maps/outdoor/shuttle_bus_schedules/friday.json
-    - assets/maps/indoor/Hall-1.png
+    - assets/maps/indoor/floorplans/CC1.svg
+    - assets/maps/indoor/floorplans/H1.svg
+    - assets/maps/indoor/floorplans/H2.svg
+    - assets/maps/indoor/floorplans/H8.svg
+    - assets/maps/indoor/floorplans/H9.svg
+    - assets/maps/indoor/floorplans/MB1.svg
+    - assets/maps/indoor/floorplans/MBS2.svg
+    - assets/maps/indoor/floorplans/VL1.svg
+    - assets/maps/indoor/floorplans/VL2.svg
     - assets/icons/default.png
     - assets/icons/destination.png
     - assets/icons/origin.png
