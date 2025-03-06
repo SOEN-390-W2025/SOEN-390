@@ -66,12 +66,16 @@ class MyApp extends StatelessWidget {
         '/SettingsPage': (context) => const SettingsPage(),
         '/SearchView': (context) => const SearchView(),
         '/SelectBuilding': (context) => const BuildingSelection(),
-        '/IndoorDirectionsView': (context) => IndoorDirectionsView(
-              sourceRoom: ModalRoute.of(context)!.settings.arguments as String,
-              building: ModalRoute.of(context)!.settings.arguments as String,
-              floor: ModalRoute.of(context)!.settings.arguments as String,
-              endRoom: ModalRoute.of(context)!.settings.arguments as String,
-        ),
+        '/IndoorDirectionsView': (context) {
+
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return IndoorDirectionsView(
+              sourceRoom: args['sourceRoom'] as String,
+              building:args['building'] as String,
+              floor: args['floor'] as String,
+              endRoom: args['endRoom'] as String,
+          );
+        },
         '/ClassroomSelection': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
