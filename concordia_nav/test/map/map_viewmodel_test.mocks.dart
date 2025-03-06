@@ -4,10 +4,10 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i9;
-import 'dart:ui' as _i12;
+import 'dart:ui' as _i13;
 
 import 'package:concordia_nav/data/domain-model/concordia_building.dart'
-    as _i11;
+    as _i12;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i8;
 import 'package:concordia_nav/data/repositories/map_repository.dart' as _i7;
 import 'package:concordia_nav/data/services/map_service.dart' as _i4;
@@ -18,6 +18,7 @@ import 'package:flutter/material.dart' as _i3;
 import 'package:google_directions_api/google_directions_api.dart' as _i5;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i11;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -221,34 +222,45 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
   }
 
   @override
-  List<_i11.ConcordiaBuilding> get filteredBuildings =>
+  String get yourLocationString =>
       (super.noSuchMethod(
-            Invocation.getter(#filteredBuildings),
-            returnValue: <_i11.ConcordiaBuilding>[],
+            Invocation.getter(#yourLocationString),
+            returnValue: _i11.dummyValue<String>(
+              this,
+              Invocation.getter(#yourLocationString),
+            ),
           )
-          as List<_i11.ConcordiaBuilding>);
+          as String);
 
   @override
-  set filteredBuildings(List<_i11.ConcordiaBuilding>? _filteredBuildings) =>
+  List<_i12.ConcordiaBuilding> get filteredBuildings =>
+      (super.noSuchMethod(
+            Invocation.getter(#filteredBuildings),
+            returnValue: <_i12.ConcordiaBuilding>[],
+          )
+          as List<_i12.ConcordiaBuilding>);
+
+  @override
+  set filteredBuildings(List<_i12.ConcordiaBuilding>? _filteredBuildings) =>
       super.noSuchMethod(
         Invocation.setter(#filteredBuildings, _filteredBuildings),
         returnValueForMissingStub: null,
       );
 
   @override
-  _i3.ValueNotifier<_i11.ConcordiaBuilding?> get selectedBuildingNotifier =>
+  _i3.ValueNotifier<_i12.ConcordiaBuilding?> get selectedBuildingNotifier =>
       (super.noSuchMethod(
             Invocation.getter(#selectedBuildingNotifier),
-            returnValue: _FakeValueNotifier_2<_i11.ConcordiaBuilding?>(
+            returnValue: _FakeValueNotifier_2<_i12.ConcordiaBuilding?>(
               this,
               Invocation.getter(#selectedBuildingNotifier),
             ),
           )
-          as _i3.ValueNotifier<_i11.ConcordiaBuilding?>);
+          as _i3.ValueNotifier<_i12.ConcordiaBuilding?>);
 
   @override
   set selectedBuildingNotifier(
-    _i3.ValueNotifier<_i11.ConcordiaBuilding?>? _selectedBuildingNotifier,
+    _i3.ValueNotifier<_i12.ConcordiaBuilding?>? _selectedBuildingNotifier,
   ) => super.noSuchMethod(
     Invocation.setter(#selectedBuildingNotifier, _selectedBuildingNotifier),
     returnValueForMissingStub: null,
@@ -470,7 +482,7 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
           as _i9.Future<Map<String, dynamic>>);
 
   @override
-  void selectBuilding(_i11.ConcordiaBuilding? building) => super.noSuchMethod(
+  void selectBuilding(_i12.ConcordiaBuilding? building) => super.noSuchMethod(
     Invocation.method(#selectBuilding, [building]),
     returnValueForMissingStub: null,
   );
@@ -592,13 +604,13 @@ class MockMapViewModel extends _i1.Mock implements _i10.MapViewModel {
           as _i9.Future<void>);
 
   @override
-  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -643,7 +655,7 @@ class MockODSDirectionsService extends _i1.Mock
     required String? destinationAddress,
     required _i5.TravelMode? travelMode,
     String? polylineId = 'route',
-    _i12.Color? color = const _i12.Color(4280391411),
+    _i13.Color? color = const _i13.Color(4280391411),
     int? width = 5,
   }) =>
       (super.noSuchMethod(
@@ -676,7 +688,7 @@ class MockODSDirectionsService extends _i1.Mock
     required String? originAddress,
     required String? destinationAddress,
     String? polylineId = 'walking_route',
-    _i12.Color? color = const _i12.Color(4279007742),
+    _i13.Color? color = const _i13.Color(4279007742),
     int? width = 5,
   }) =>
       (super.noSuchMethod(
