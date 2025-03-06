@@ -1,12 +1,12 @@
 floors:
   - number: "1"
-    pixelsPerSecond: 1
+    pixelsPerSecond: 65
   - number: "2"
-    pixelsPerSecond: 1
+    pixelsPerSecond: 65
   - number: "8"
-    pixelsPerSecond: 650
+    pixelsPerSecond: 65
   - number: "9"
-    pixelsPerSecond: 650
+    pixelsPerSecond: 65
 
 rooms:
   "1":
@@ -14,6 +14,27 @@ rooms:
       category: auditorium
       floor: "1"
       entrancePoint: { x: 940, y: 2210 }
+  "2":
+    - roomNumber: "22"
+      category: office
+      floor: "2"
+      entrancePoint: { x: 815, y: 427}
+    - roomNumber: "31"
+      category: restaurant
+      floor: "2"
+      entrancePoint: { x: 242, y: 359 }
+    - roomNumber: "39"
+      category: restaurant
+      floor: "2"
+      entrancePoint: { x: 402, y: 359}
+    - roomNumber: "44"
+      category: office
+      floor: "2"
+      entrancePoint: { x: 488, y: 548 }
+    - roomNumber: "60"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 880, y: 595}
   "8":
     - roomNumber: "01"
       category: classroom
@@ -559,6 +580,15 @@ waypoints:
     - { x: 1400, y: 2220 }
     - { x: 1400, y: 2430 }
     - { x: 885, y: 2430 }
+  "2":
+    - { x: 310, y: 400 }
+    - { x: 460, y: 400 }
+    - { x: 612, y: 435 }
+    - { x: 680, y: 435 }
+    - { x: 680, y: 595 }
+    - { x: 680, y: 715 }
+    - { x: 567, y: 784 }
+    - { x: 784, y: 784 }
   "8":
     - { x: 169, y: 194 }
     - { x: 295, y: 194 }
@@ -661,6 +691,15 @@ waypointNavigability:
     "1": [0, 2, 3]
     "2": [0, 1, 3]
     "3": [0, 1, 2]
+  "2":
+    "0": [1]
+    "1": [0, 2]
+    "2": [1, 3]
+    "3": [2, 4]
+    "4": [3, 5]
+    "5": [4, 6, 7]
+    "6": [5]
+    "7": [7]
   "8":
     "0": [1, 16]
     "1": [0, 2]
@@ -764,7 +803,7 @@ connections:
     floors: ["1", "2", "8", "9"]
     floorPoints:
       "1": { x: 1730, y: 2111, floor: "1" }
-      "2": { x: 1565, y: 1960, floor: "2" }
+      "2": { x: 680, y: 786, floor: "2" }
       "8": { x: 665, y: 667, floor: "8" }
       "9": { x: 669, y: 656, floor: "9" }
   - name: "Escalators"
@@ -774,7 +813,7 @@ connections:
     floors: ["1", "2", "4", "5", "6", "7", "8", "9", "10"]
     floorPoints:
       "1": { x: 1570, y: 2440, floor: "1" }
-      "2": { x: 1235, y: 1330, floor: "2" }
+      "2": { x: 537, y: 449, floor: "2" }
       "8": { x: 520, y: 602, floor: "8" }
       "9": { x: 544, y: 524, floor: "9" }
   # Removed stairs - the algo will never choose them
