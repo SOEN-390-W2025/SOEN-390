@@ -57,25 +57,9 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     });
   }
 
-  @override
-  void dispose() {
-    _indoorMapViewModel.dispose();
-    _destinationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    dev.log(_floorPlanExists.toString());
-    return Scaffold(
-      appBar: customAppBar(
-        context,
-        widget.building.name,
-      ),
-      body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : _floorPlanExists
-        ? Stack(
+  Widget bodyWidget() {
+    if (_floorPlanExists){
+      return Stack(
           children: [
             GestureDetector(
               onDoubleTapDown: (details) {
@@ -182,16 +166,39 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
             if (widget.room != null)
               _buildFooter(),
           ],
-        )
-      : const Center(
+        );
+    }
+    else {
+      return const Center(
         child: Text(
           'No floor plans exist at this time.',
           style: TextStyle(
             fontSize: 18,
           ),
         ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _indoorMapViewModel.dispose();
+    _destinationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    dev.log(_floorPlanExists.toString());
+    return Scaffold(
+      appBar: customAppBar(
+        context,
+        widget.building.name,
       ),
-    );
+      body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : bodyWidget()
+      );
   }
 
   Widget _buildFooter() {

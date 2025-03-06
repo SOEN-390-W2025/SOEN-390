@@ -63,9 +63,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   }
 
   static const yourLocation = 'Your Location';
-
-  static bool hasFullRoomName(String room){
-    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
+  
+  String roomName(String room){
+    if (RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)){
+      return room;
+    }
+    else {return '$buildingAbbreviation $room';}
   }
 
   @override
@@ -77,14 +80,10 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
           LocationInfoWidget(
             from: widget.sourceRoom == yourLocation
               ? yourLocation
-              : (hasFullRoomName(widget.sourceRoom)
-                ? widget.sourceRoom
-                : '$buildingAbbreviation ${widget.sourceRoom}'),
+              : roomName(widget.sourceRoom),
             to: widget.endRoom == yourLocation
               ? yourLocation
-              : (hasFullRoomName(widget.endRoom)
-                ? widget.endRoom
-                : '$buildingAbbreviation ${widget.endRoom}'),
+              : roomName(widget.endRoom),
             building: widget.building,
             floor: widget.floor
           ),
