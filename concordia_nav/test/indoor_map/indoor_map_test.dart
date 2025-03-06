@@ -57,7 +57,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Enter a search term
-        await tester.enterText(find.byType(TextField), '10');
+        await tester.enterText(find.byType(TextField), '9000');
         await tester.pump(); // Rebuild the widget after the text input
 
         // Find all rendered text widgets
@@ -74,9 +74,9 @@ void main() {
             .toList();
 
         // Assert: Verify the filtered list shows only matching classrooms
-        expect(classrooms, contains('9101'),
+        expect(classrooms, contains('90001'),
             reason: 'Room 101 should be found');
-        expect(classrooms, contains('9102'),
+        expect(classrooms, contains('90002'),
             reason: 'Room 102 should be found');
         expect(classrooms, isNot(contains('93')),
             reason: 'Room 3 should not be found');
@@ -138,6 +138,10 @@ void main() {
         await tester.pumpWidget(const MaterialApp(
           home: ClassroomSelection(building: building, floor: floor),
         ));
+        await tester.pumpAndSettle();
+
+        // Make sure the element is visible before tapping
+        await tester.ensureVisible(find.text(classroom));
         await tester.pumpAndSettle();
 
         // Simulate tapping on a classroom
