@@ -57,7 +57,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Enter a search term
-        await tester.enterText(find.byType(TextField), '10');
+        await tester.enterText(find.byType(TextField), '9000');
         await tester.pump(); // Rebuild the widget after the text input
 
         // Find all rendered text widgets
