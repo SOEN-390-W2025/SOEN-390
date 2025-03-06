@@ -60,7 +60,7 @@ class FloorSelectionState extends State<FloorSelection> {
             iconColor: Theme.of(context).primaryColor,
           ),
           if (!widget.isSearch)
-            SelectIndoorDestination(building: widget.building, endRoom: widget.endRoom),
+            SelectIndoorDestination(building: widget.building, isSource: widget.isSource, endRoom: widget.endRoom),
           FutureBuilder<List<String>>(
             future: floorsFuture,
             builder: (context, snapshot) {
