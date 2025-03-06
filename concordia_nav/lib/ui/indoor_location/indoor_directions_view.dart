@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
+import '../../utils/indoor_map_viewmodel.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
@@ -9,30 +11,52 @@ class IndoorDirectionsView extends StatefulWidget {
   final String room;
   final String currentLocation;
 
-  const IndoorDirectionsView({
-    super.key,
-    required this.currentLocation,
-    required this.building,
-    required this.floor,
-    required this.room
-  });
+  const IndoorDirectionsView(
+      {super.key,
+      required this.currentLocation,
+      required this.building,
+      required this.floor,
+      required this.room});
 
   @override
   State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
 }
 
-class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
+class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
+    with SingleTickerProviderStateMixin {
   String _selectedMode = 'Walking';
   final String _eta = '5 min';
 
   late String buildingAbbreviation;
   late String roomNumber;
 
+  late IndoorMapViewModel _indoorMapViewModel;
+
+  late String floorPlanPath;
+
   @override
   void initState() {
     super.initState();
-    buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
-    roomNumber = widget.room.replaceFirst( widget.floor, '');
+    buildingAbbreviation =
+        BuildingViewModel().getBuildingAbbreviation(widget.building)!;
+    roomNumber = widget.room.replaceFirst(widget.floor, '');
+    // floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+    // Hardcoding a default selected floor for testing
+    floorPlanPath = 'assets/maps/indoor/floorplans/hall1.svg';
+
+    _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+
+    _indoorMapViewModel.setInitialCameraPosition(
+      scale: 1.0,
+      offsetX: -50.0,
+      offsetY: -50.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _indoorMapViewModel.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,7 +86,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(4),
@@ -74,7 +99,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(4),
@@ -90,7 +116,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: DropdownButton<String>(
@@ -109,18 +134,52 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               }).toList(),
             ),
           ),
-
           Expanded(
             child: Stack(
               children: [
-                // Placeholder for the map or directions visualization
-                const Center(
-                  child: Text(
-                    'Directions visualization will go here',
-                    style: TextStyle(color: Colors.grey),
+                GestureDetector(
+                  onDoubleTapDown: (details) {
+                    final tapPosition = details.localPosition;
+                    _indoorMapViewModel.panToRegion(
+                      offsetX: -tapPosition.dx,
+                      offsetY: -tapPosition.dy,
+                    );
+                  },
+                  child: InteractiveViewer(
+                    constrained: false,
+                    scaleEnabled: false,
+                    panEnabled: true,
+                    boundaryMargin: const EdgeInsets.all(50.0),
+                    transformationController:
+                        _indoorMapViewModel.transformationController,
+                    child: SizedBox(
+                      width: 1024,
+                      height: 1024,
+                      child: Stack(
+                        children: [
+                          SvgPicture.asset(
+                            floorPlanPath,
+                            fit: BoxFit.contain,
+                            semanticsLabel:
+                                'Floor plan of $buildingAbbreviation-${widget.floor}',
+                            placeholderBuilder: (context) => const Center(
+                                child: CircularProgressIndicator()),
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Center(
+                              child: Text(
+                                'No floor plans exist at this time.',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-
                 Positioned(
                   top: 16,
                   right: 16,
@@ -128,14 +187,24 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                     children: [
                       ZoomButton(
                         onTap: () {
-                          // Handle zoom in
+                          final Matrix4 currentMatrix = _indoorMapViewModel
+                              .transformationController.value
+                              .clone();
+                          final Matrix4 zoomedInMatrix = currentMatrix
+                            ..scale(1.2);
+                          _indoorMapViewModel.animateTo(zoomedInMatrix);
                         },
                         icon: Icons.add,
                         isZoomInButton: true,
                       ),
                       ZoomButton(
                         onTap: () {
-                          // Handle zoom out
+                          final Matrix4 currentMatrix = _indoorMapViewModel
+                              .transformationController.value
+                              .clone();
+                          final Matrix4 zoomedOutMatrix = currentMatrix
+                            ..scale(0.8);
+                          _indoorMapViewModel.animateTo(zoomedOutMatrix);
                         },
                         icon: Icons.remove,
                         isZoomInButton: false,
@@ -146,7 +215,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
               ],
             ),
           ),
-
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -173,10 +241,13 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView> {
                   ],
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // TODO: incorporate "start navigation" functionality
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 10),
                   ),
                   child: const Text(
                     'Start',
