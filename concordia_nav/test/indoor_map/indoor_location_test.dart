@@ -2,6 +2,7 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
+import 'package:concordia_nav/widgets/floor_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -44,6 +45,32 @@ void main() {
       );
 
       expect(find.text('Directions'), findsNothing);
+    });
+
+    testWidgets('FloorButton exists', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorLocationView(building: building, floor: '1'),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(FloorButton), findsOneWidget);
+    });
+
+    testWidgets('Tapping FloorButton triggers floor selection', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorLocationView(building: building, floor: '1'),
+        ),
+      );
+      await tester.pump();
+
+      // tap the floorbutton
+      await tester.tap(find.byType(FloorButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select a floor'), findsOneWidget);
     });
 
     testWidgets('Tapping Directions button navigates to IndoorDirectionsView',
