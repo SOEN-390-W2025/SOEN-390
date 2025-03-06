@@ -132,7 +132,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                     builder: (context) => IndoorDirectionsView(
@@ -142,6 +142,9 @@ class _IndoorLocationViewState extends State<IndoorLocationView> {
                       endRoom: widget.room!,
                     ),
                   ),
+                  (route) {
+                    return route.settings.name == '/HomePage' || route.settings.name == '/CampusMapPage';
+                  }
                 );
               },
               style: ElevatedButton.styleFrom(

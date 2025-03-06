@@ -80,7 +80,7 @@ class MyApp extends StatelessWidget {
             floor: args['floor'] as String,
             currentRoom: args['currentRoom'] as String,
             isSource: args['isSource'] as bool? ?? false,
-            isSearch: args['isSource'] as bool? ?? false,
+            isSearch: args['isSearch'] as bool? ?? false,
           );
         },
       },

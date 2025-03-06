@@ -140,7 +140,10 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
                             room: classroom,
                           ),
                         ),
-                        (route) => route.isFirst,
+                        (route) {
+                          // Remove all previous routes except CampusMapPage
+                          return route.settings.name == '/HomePage' || route.settings.name == '/CampusMapPage';
+                        },
                       );
                     } else {
                       Navigator.pushAndRemoveUntil(
