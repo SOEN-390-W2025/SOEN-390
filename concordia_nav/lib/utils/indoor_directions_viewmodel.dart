@@ -59,7 +59,19 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     // Remove the leading '0' if it exists
     if (roomNumber.startsWith('0')) {
-      roomNumber = roomNumber.substring(1);
+      int leadingZerosCount = 0;
+      for (int i = 0; i < roomNumber.length; i++) {
+        if (roomNumber[i] == '0') {
+          leadingZerosCount++;
+        } else {
+          break;
+        }
+      }
+    
+      // If there's more than one leading zero, remove the first one
+      if (leadingZerosCount == 1) {
+        roomNumber = roomNumber.substring(1);
+      }
     }
 
     if (rooms != null) {
@@ -155,6 +167,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
       final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
       final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+
       final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
       final dynamic yamlData = await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
 
