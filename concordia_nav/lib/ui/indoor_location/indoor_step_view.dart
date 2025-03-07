@@ -71,7 +71,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                 children: [
                   _buildGuidanceBox(viewModel),
                   _buildFloorPlanView(viewModel),
-                  _buildNavigationControls(viewModel),
+                  _buildTravelInfoBox(viewModel),
                 ],
               ),
           );
@@ -156,13 +156,49 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Step ${viewModel.currentStepIndex + 1} of ${viewModel.navigationSteps.length}',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+          const SizedBox(height: 16),
+          // Navigation controls moved here
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                onPressed: viewModel.currentStepIndex > 0 
+                    ? () => viewModel.previousStep(context) 
+                    : null,
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                label: const Text('Back'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.black,
+                ),
+              ),
+              Text(
+                '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
+                    ? () => viewModel.nextStep(context) 
+                    : () {
+                        Navigator.pop(context);
+                      },
+                icon: Icon(viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
+                    ? Icons.arrow_forward
+                    : Icons.check,
+                    color: Colors.white
+                ),
+                label: Text(viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
+                    ? 'Next' 
+                    : 'Finish'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -191,9 +227,12 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     );
   }
 
-  Widget _buildNavigationControls(VirtualStepGuideViewModel viewModel) {
+  Widget _buildTravelInfoBox(VirtualStepGuideViewModel viewModel) {
+    // Calculate estimated remaining time (this assumes your viewModel has this data)
+    final int estimatedRemainingMinutes = 20;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -207,40 +246,35 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton.icon(
-            onPressed: viewModel.currentStepIndex > 0 
-                ? () => viewModel.previousStep(context) 
-                : null,
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            label: const Text('Back'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Time to destination',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$estimatedRemainingMinutes min',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          Text(
-            '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
           ElevatedButton.icon(
-            onPressed: viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
-                ? () => viewModel.nextStep(context) 
-                : () {
-                    Navigator.pop(context);
-                  },
-            icon: Icon(viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
-                ? Icons.arrow_forward
-                : Icons.check,
-                color: Colors.white
-            ),
-            label: Text(viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
-                ? 'Next' 
-                : 'Finish'),
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.exit_to_app, color: Colors.white),
+            label: const Text('Exit'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
             ),
           ),
