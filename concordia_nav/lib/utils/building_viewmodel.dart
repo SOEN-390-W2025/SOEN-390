@@ -1,11 +1,8 @@
 // ignore_for_file: prefer_final_fields
 
-import "package:flutter/services.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
-import "package:yaml/yaml.dart";
 import "../data/domain-model/concordia_building.dart";
 import "../data/domain-model/concordia_campus.dart";
-import "../data/domain-model/concordia_floor.dart";
 import "../data/domain-model/concordia_room.dart";
 import "../data/repositories/building_data.dart";
 import "../data/repositories/building_data_manager.dart";

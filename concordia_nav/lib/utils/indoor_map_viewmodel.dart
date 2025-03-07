@@ -12,6 +12,7 @@ class IndoorMapViewModel extends MapViewModel {
   final TransformationController transformationController;
   final AnimationController animationController;
   Animation<Matrix4>? _animation;
+  bool _disposed = false;
 
   IndoorMapViewModel({required TickerProvider vsync})
       : transformationController = TransformationController(),
@@ -32,13 +33,14 @@ class IndoorMapViewModel extends MapViewModel {
     double offsetY = 0.0,
   }) {
     final matrix = Matrix4.identity()
-      ..scale(scale)
-      ..translate(offsetX, offsetY);
+      ..translate(offsetX, offsetY)
+      ..scale(scale);
     transformationController.value = matrix;
   }
 
   /// Animates the camera transformation to the provided target matrix.
   void animateTo(Matrix4 targetMatrix) {
+    if (_disposed) return;
     _animation = Matrix4Tween(
       begin: transformationController.value,
       end: targetMatrix,
@@ -48,8 +50,10 @@ class IndoorMapViewModel extends MapViewModel {
         curve: Curves.easeInOut,
       ),
     )..addListener(() {
+      if (!_disposed) {
         transformationController.value = _animation!.value;
-      });
+      }
+    });
     animationController.forward(from: 0);
   }
 
@@ -150,6 +154,8 @@ class IndoorMapViewModel extends MapViewModel {
 
   @override
   void dispose() {
+    _disposed = true;
+    animationController.stop();
     animationController.dispose();
     transformationController.dispose();
     super.dispose();

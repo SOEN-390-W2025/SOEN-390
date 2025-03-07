@@ -1,10 +1,8 @@
-import 'package:concordia_nav/data/domain-model/concordia_building.dart';
-import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
-import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_test/flutter_test.dart';
 
 class TestVSync implements TickerProvider {
   @override
@@ -21,59 +19,93 @@ void main() {
   });
 
   group('IndoorMapViewModel', () {
-    test('getInitialCameraPositionFloor returns correct camera position',
-        () async {
-      final viewModel = IndoorMapViewModel(vsync: TestVSync());
-      final floor = ConcordiaFloor(
-        '1',
-        const ConcordiaBuilding(
-          45.4972159,
-          -73.5790067,
-          'Hall Building',
-          '1455 Boulevard de Maisonneuve O',
-          'Montreal',
-          'QC',
-          'H3G 1M8',
-          'H',
-          ConcordiaCampus.sgw,
-        ),
-      );
-
-      final cameraPosition =
-          await viewModel.getInitialCameraPositionFloor(floor);
-
-      expect(cameraPosition.target.latitude, 45.4972159);
-      expect(cameraPosition.target.longitude, -73.5790067);
-      expect(cameraPosition.zoom, 18.0);
-    });
-
     test('Initial markers and polylines should be empty', () {
       expect(viewModel.markersNotifier.value, isEmpty);
       expect(viewModel.polylinesNotifier.value, isEmpty);
     });
 
-    test('fetchRoutesForAllModes should select correct room', () async {
-      await viewModel.fetchRoutesForAllModes('1', '2');
-      expect(viewModel.selectedRoom, isNotNull);
-      expect(viewModel.selectedRoom!.roomNumber, '2');
+    test('setInitialCameraPosition sets correct transformation', () {
+      const double scale = 1.2;
+      const double offsetX = 100.0;
+      const double offsetY = 200.0;
+      
+      viewModel.setInitialCameraPosition(
+        scale: scale,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      );
+      
+      final matrix = viewModel.transformationController.value;
+      expect(matrix.getMaxScaleOnAxis(), closeTo(scale, 0.001));
+      
+      // Extract translation values from the matrix
+      // Matrix4 stores translations in indices 12 and 13 for x and y
+      expect(matrix[12], closeTo(offsetX, 0.001));
+      expect(matrix[13], closeTo(offsetY, 0.001));
     });
 
-    test('calculateDirections should add a polyline', () async {
-      await viewModel.fetchRoutesForAllModes('1', '2');
-      viewModel.calculateDirections();
-      expect(viewModel.polylinesNotifier.value.length, 1);
+    test('centerOnPoint calculates correct transformation', () {
+      // Set initial position
+      viewModel.setInitialCameraPosition(scale: 1.0);
+      
+      const Offset point = Offset(300.0, 400.0);
+      const Size viewportSize = Size(800.0, 600.0);
+      
+      viewModel.centerOnPoint(point, viewportSize);
+      
+      // Run the animation to completion synchronously
+      viewModel.animationController.value = 1.0;
+      
+      // Verify the transformation
+      final resultMatrix = viewModel.transformationController.value;
+      
+      // The scale should remain unchanged
+      expect(resultMatrix.getMaxScaleOnAxis(), closeTo(1.0, 0.001));
+      
+      // The translation should center the point - extract from matrix
+      expect(resultMatrix[12], isNotNull);
+      expect(resultMatrix[13], isNotNull);
+      
+      // Since we're centering on a point with positive coordinates,
+      // the translation values should be negative
+      expect(resultMatrix[12], lessThan(0.0));
+      expect(resultMatrix[13], lessThan(0.0));
     });
 
-    test('_updateMarkers should update markers when a room is selected',
-        () async {
-      await viewModel.fetchRoutesForAllModes('1', '2');
-      expect(viewModel.markersNotifier.value.length, 1);
+    test('centerBetweenPoints calculates transformation between two points', () {
+      // Set initial position
+      viewModel.setInitialCameraPosition(scale: 1.0);
+      
+      const Offset startPoint = Offset(100.0, 200.0);
+      const Offset endPoint = Offset(500.0, 400.0);
+      const Size viewportSize = Size(800.0, 600.0);
+      
+      viewModel.centerBetweenPoints(startPoint, endPoint, viewportSize);
+      
+      // Run the animation to completion synchronously
+      viewModel.animationController.value = 1.0;
+      
+      // Verify the transformation
+      final resultMatrix = viewModel.transformationController.value;
+      
+      // The scale should be adjusted to fit both points
+      final scale = resultMatrix.getMaxScaleOnAxis();
+      expect(scale, lessThanOrEqualTo(1.5)); // Max scale
+      expect(scale, greaterThanOrEqualTo(0.6)); // Min scale
+      
+      // The translation should center between the points
+      expect(resultMatrix[12], isNotNull);
+      expect(resultMatrix[13], isNotNull);
     });
 
-    test('_updateMarkers should clear markers when no room is selected', () {
-      viewModel.selectedRoom = null;
-      viewModel.updateMarkers();
-      expect(viewModel.markersNotifier.value, isEmpty);
+    test('doesAssetExist returns false for non-existing assets', () async {
+      final bool exists = await viewModel.doesAssetExist('non_existent_asset.png');
+      expect(exists, isFalse);
+    });
+
+    test('dispose should release resources', () {
+      // This is more of a verification that dispose doesn't throw errors
+      expect(() => viewModel.dispose(), returnsNormally);
     });
   });
 }

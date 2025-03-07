@@ -75,10 +75,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _getSvgSize() async {
     final size = await _directionsViewModel.getSvgDimensions(floorPlanPath);
-    setState(() {
-      width = size.width;
-      height = size.height;
-    });
+    if (mounted) {
+      setState(() {
+        width = size.width;
+        height = size.height;
+      });
+    }
   }
 
   Future<void> _initializeRoute() async {
