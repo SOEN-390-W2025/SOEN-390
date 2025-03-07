@@ -162,7 +162,7 @@ class IndoorMapPainter extends CustomPainter {
     List<FloorRoutablePoint> points, 
     Offset targetPoint
   ) {
-    if (points.isEmpty) return;
+    if (points.isEmpty || points.length < 3) return;
 
     // Find the closest segment to the target point
     double minDistance = double.infinity;
@@ -179,14 +179,24 @@ class IndoorMapPainter extends CustomPainter {
       }
     }
 
-    // Draw the highlighted segment
+    // Draw two highlighted segments
     if (closestSegmentStart != 0 && closestSegmentStart != points.length - 2) {
       final highlightPath = Path();
-      final start = points[closestSegmentStart + 1];
-      final end = points[closestSegmentStart + 2];
-
-      highlightPath.moveTo(start.positionX, start.positionY);
-      highlightPath.lineTo(end.positionX, end.positionY);
+      
+      // First segment
+      final start1 = points[closestSegmentStart + 1];
+      final end1 = points[closestSegmentStart + 2];
+      
+      highlightPath.moveTo(start1.positionX, start1.positionY);
+      highlightPath.lineTo(end1.positionX, end1.positionY);
+      
+      // Second segment
+      final start2 = points[closestSegmentStart + 2];
+      final end2 = points[closestSegmentStart + 3];
+      
+      // Create a separate path movement for the second line to ensure both are drawn
+      highlightPath.moveTo(start2.positionX, start2.positionY);
+      highlightPath.lineTo(end2.positionX, end2.positionY);
 
       canvas.drawPath(highlightPath, _highlightPaint);
     }

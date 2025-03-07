@@ -123,12 +123,6 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
   }
 
-  void toggleDisability() {
-    disability = !disability;
-    notifyListeners();
-    initializeRoute();
-  }
-
   void focusOnCurrentStep(BuildContext context) {
     if (navigationSteps.isEmpty || currentStepIndex >= navigationSteps.length) return;
     
@@ -159,24 +153,6 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       currentStepIndex--;
       notifyListeners();
       focusOnCurrentStep(context);
-    }
-  }
-
-  void zoomIn() {
-    final Matrix4 currentMatrix = indoorMapViewModel.transformationController.value.clone();
-    final double currentScale = currentMatrix.getMaxScaleOnAxis();
-    if (currentScale < maxScale) {
-      final Matrix4 zoomedInMatrix = currentMatrix..scale(1.2);
-      indoorMapViewModel.animateTo(zoomedInMatrix);
-    }
-  }
-
-  void zoomOut() {
-    final Matrix4 currentMatrix = indoorMapViewModel.transformationController.value.clone();
-    final double currentScale = currentMatrix.getMaxScaleOnAxis();
-    if (currentScale > minScale) {
-      final Matrix4 zoomedOutMatrix = currentMatrix..scale(0.8);
-      indoorMapViewModel.animateTo(zoomedOutMatrix);
     }
   }
 
@@ -314,8 +290,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     // Skip if there are too few points to create meaningful steps
     if (points.length < 3) return;
     
-    // Track current direction to detect turns
-    final String currentDirection = _getInitialDirection(points);
+    // Track previous point for calculations
     Offset previousPoint = Offset(points[0].positionX, points[0].positionY);
     
     // Create a list to store significant turns
@@ -326,19 +301,21 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       final currentPoint = Offset(points[i].positionX, points[i].positionY);
       final nextPoint = Offset(points[i + 1].positionX, points[i + 1].positionY);
       
-      // Calculate the previous and next segments' directions
-      final prevDirection = _getDirectionBetweenPoints(previousPoint, currentPoint);
-      final nextDirection = _getDirectionBetweenPoints(currentPoint, nextPoint);
+      // Calculate the previous and next segments' directions (including diagonals)
+      final prevDirection = _getDetailedDirectionBetweenPoints(previousPoint, currentPoint);
+      final nextDirection = _getDetailedDirectionBetweenPoints(currentPoint, nextPoint);
       
-      // If there's a significant turn (direction change), add it to turn points
+      // If there's a direction change (including diagonal changes), add it as a turn point
       if (prevDirection != nextDirection) {
-        final turnType = _getTurnType(prevDirection, nextDirection);
+        final turnType = _getDetailedTurnType(prevDirection, nextDirection);
+        
+        // Only add meaningful turns (skip "Continue straight" instructions)
         if (turnType != 'Continue straight') {
           turnPoints.add(
             TurnPoint(
-              point: currentPoint,
-              turnInstruction: turnType,
-              index: i
+              point: previousPoint, // Use previous point to give advance notice
+              turnInstruction: "Prepare to ${turnType.toLowerCase()}",
+              index: i - 1
             )
           );
         }
@@ -353,23 +330,37 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       final turn = turnPoints[i];
       
       // Skip if too close to last added step (prevents redundant instructions)
-      if (turn.index - lastAddedIndex < 3) continue;
+      if (turn.index - lastAddedIndex < 2) continue;
       
       IconData icon;
       if (turn.turnInstruction.contains('right')) {
         icon = Icons.turn_right;
       } else if (turn.turnInstruction.contains('left')) {
         icon = Icons.turn_left;
+      } else if (turn.turnInstruction.contains('diagonal')) {
+        // For diagonal turns, use a different icon
+        if (turn.turnInstruction.contains('right')) {
+          icon = Icons.turn_slight_right;
+        } else {
+          icon = Icons.turn_slight_left;
+        }
       } else if (turn.turnInstruction.contains('U-turn')) {
         icon = Icons.u_turn_right;
       } else {
         icon = Icons.straight;
       }
       
+      String description = '${turn.turnInstruction} at the upcoming intersection';
+      
+      // If this is the last turn point, change the description to reference the classroom
+      if (i == turnPoints.length - 1) {
+        description = '${turn.turnInstruction} in front of the classroom';
+      }
+      
       navigationSteps.add(
         NavigationStep(
           title: turn.turnInstruction,
-          description: '${turn.turnInstruction} and continue walking',
+          description: description,
           focusPoint: turn.point,
           zoomLevel: 1.2,
           icon: icon,
@@ -378,77 +369,129 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       
       lastAddedIndex = turn.index;
     }
+
+  }
+
+  // New helper method for detailed direction detection (including diagonals)
+  String _getDetailedDirectionBetweenPoints(Offset point1, Offset point2) {
+    final dx = point2.dx - point1.dx;
+    final dy = point2.dy - point1.dy;
     
-    // Add "Continue walking" steps at reasonable intervals if no turns
-    if (turnPoints.isEmpty && points.length > 5) {
-      final int step = (points.length / 2).floor();
-      final midPoint = points[step];
+    // Determine primary movement direction
+    final double absX = dx.abs();
+    final double absY = dy.abs();
+    
+    // Use a threshold to detect diagonal movement
+    // If x and y components are similar in magnitude, it's diagonal
+    final bool isDiagonal = absX > 0.3 && absY > 0.3 && absX / absY < 3 && absY / absX < 3;
+    
+    if (isDiagonal) {
+      // Determine which diagonal
+      if (dx > 0 && dy > 0) return 'SouthEast';
+      if (dx > 0 && dy < 0) return 'NorthEast';
+      if (dx < 0 && dy > 0) return 'SouthWest';
+      if (dx < 0 && dy < 0) return 'NorthWest';
+    }
+    
+    // For non-diagonal movement
+    if (absX > absY) {
+      return dx > 0 ? 'East' : 'West';
+    } else {
+      return dy > 0 ? 'South' : 'North';
+    }
+  }
+  
+  String _getDetailedTurnType(String fromDirection, String toDirection) {
+    // Define a map of direction changes to turn types
+    final Map<String, Map<String, String>> turnTypes = {
+      'North': {
+        'North': 'Continue straight',
+        'East': 'Turn right',
+        'West': 'Turn left',
+        'South': 'Make a U-turn',
+        'NorthEast': 'Turn slight right',
+        'NorthWest': 'Turn slight left',
+        'SouthEast': 'Turn diagonal right',
+        'SouthWest': 'Turn diagonal left',
+      },
+      'South': {
+        'South': 'Continue straight',
+        'East': 'Turn left',
+        'West': 'Turn right',
+        'North': 'Make a U-turn',
+        'SouthEast': 'Turn slight left',
+        'SouthWest': 'Turn slight right',
+        'NorthEast': 'Turn diagonal left',
+        'NorthWest': 'Turn diagonal right',
+      },
+      'East': {
+        'East': 'Continue straight',
+        'North': 'Turn left',
+        'South': 'Turn right',
+        'West': 'Make a U-turn',
+        'NorthEast': 'Turn slight left',
+        'SouthEast': 'Turn slight right',
+        'NorthWest': 'Turn diagonal left',
+        'SouthWest': 'Turn diagonal right',
+      },
+      'West': {
+        'West': 'Continue straight',
+        'North': 'Turn right',
+        'South': 'Turn left',
+        'East': 'Make a U-turn',
+        'NorthWest': 'Turn slight right',
+        'SouthWest': 'Turn slight left',
+        'NorthEast': 'Turn diagonal right',
+        'SouthEast': 'Turn diagonal left',
+      },
       
-      navigationSteps.add(
-        NavigationStep(
-          title: 'Continue straight',
-          description: 'Continue walking straight along the corridor',
-          focusPoint: Offset(midPoint.positionX, midPoint.positionY),
-          zoomLevel: 1.1,
-          icon: Icons.straight,
-        )
-      );
-    }
+      // Handle diagonal directions too
+      'NorthEast': {
+        'NorthEast': 'Continue straight',
+        'North': 'Turn slight left',
+        'East': 'Turn slight right',
+        'South': 'Turn diagonal right',
+        'West': 'Turn diagonal left',
+        'SouthWest': 'Make a U-turn',
+        'NorthWest': 'Turn left',
+        'SouthEast': 'Turn right',
+      },
+      'NorthWest': {
+        'NorthWest': 'Continue straight',
+        'North': 'Turn slight right',
+        'West': 'Turn slight left',
+        'South': 'Turn diagonal left',
+        'East': 'Turn diagonal right',
+        'SouthEast': 'Make a U-turn',
+        'NorthEast': 'Turn right',
+        'SouthWest': 'Turn left',
+      },
+      'SouthEast': {
+        'SouthEast': 'Continue straight',
+        'South': 'Turn slight left',
+        'East': 'Turn slight right',
+        'North': 'Turn diagonal left',
+        'West': 'Turn diagonal right',
+        'NorthWest': 'Make a U-turn',
+        'SouthWest': 'Turn left',
+        'NorthEast': 'Turn right',
+      },
+      'SouthWest': {
+        'SouthWest': 'Continue straight',
+        'South': 'Turn slight right',
+        'West': 'Turn slight left',
+        'North': 'Turn diagonal right',
+        'East': 'Turn diagonal left',
+        'NorthEast': 'Make a U-turn',
+        'SouthEast': 'Turn right',
+        'NorthWest': 'Turn left',
+      },
+    };
+    
+    // Return the turn type if defined, otherwise return a generic "Change direction"
+    return turnTypes[fromDirection]?[toDirection] ?? 'Change direction';
   }
-  
-  String _getInitialDirection(List<FloorRoutablePoint> points) {
-    if (points.length < 2) return 'unknown';
-    
-    final start = Offset(points[0].positionX, points[0].positionY);
-    final next = Offset(points[1].positionX, points[1].positionY);
-    
-    return _getDirectionBetweenPoints(start, next);
-  }
-  
-  String _getDirectionBetweenPoints(Offset start, Offset end) {
-    final dx = end.dx - start.dx;
-    final dy = end.dy - start.dy;
-    
-    // Determine if movement is more horizontal or vertical
-    if (dx.abs() > dy.abs()) {
-      return dx > 0 ? 'east' : 'west';
-    } else {
-      return dy > 0 ? 'south' : 'north';
-    }
-  }
-  
-  String _getTurnType(String fromDirection, String toDirection) {
-    // Define the clockwise order of directions
-    final directions = ['north', 'east', 'south', 'west', 'north'];
-    
-    // Find indices of the from and to directions
-    final fromIndex = directions.indexOf(fromDirection);
-    final toIndex = directions.indexOf(toDirection);
-    
-    // Handle the special case for west to north (which is a right turn)
-    if (fromDirection == 'west' && toDirection == 'north') {
-      return 'Turn right';
-    }
-    
-    // Calculate the difference
-    var diff = toIndex - fromIndex;
-    
-    // Handle wrap-around
-    if (diff == -3) diff = 1;
-    if (diff == 3) diff = -1;
-    
-    // Interpret the turn based on the difference
-    if (diff == 0) {
-      return 'Continue straight';
-    } else if (diff == 1 || diff == -3) {
-      return 'Turn right';
-    } else if (diff == -1 || diff == 3) {
-      return 'Turn left';
-    } else {
-      return 'Make a U-turn';
-    }
-  }
-  
+
   Offset _getConnectionFocusPoint(Connection connection) {
     // In a real implementation, you'd get the specific point for the current floor
     final floorKey = floor;
