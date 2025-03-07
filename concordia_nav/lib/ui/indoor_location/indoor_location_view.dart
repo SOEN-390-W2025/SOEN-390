@@ -31,9 +31,6 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   bool _floorPlanExists = true;
   bool _isLoading = true;
 
-  final double _maxScale = 1.5;
-  final double _minScale = 0.6;
-
   @override
   void initState() {
     super.initState();

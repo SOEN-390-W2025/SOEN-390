@@ -12,7 +12,8 @@ class FloorSelection extends StatefulWidget {
   final String? endRoom;
   final bool isSource;
   final bool isSearch;
-  const FloorSelection({super.key, required this.building, this.endRoom,  this.isSource = false, this.isSearch = false});
+  final bool isDisability;
+  const FloorSelection({super.key, required this.building, this.endRoom,  this.isSource = false, this.isSearch = false , this.isDisability = false});
 
   @override
   FloorSelectionState createState() => FloorSelectionState();
@@ -60,7 +61,7 @@ class FloorSelectionState extends State<FloorSelection> {
             iconColor: Theme.of(context).primaryColor,
           ),
           if (!widget.isSearch)
-            SelectIndoorDestination(building: widget.building, isSource: widget.isSource, endRoom: widget.endRoom),
+            SelectIndoorDestination(building: widget.building, isSource: widget.isSource, endRoom: widget.endRoom, isDisability: widget.isDisability),
           FutureBuilder<List<String>>(
             future: floorsFuture,
             builder: (context, snapshot) {
@@ -110,6 +111,7 @@ class FloorSelectionState extends State<FloorSelection> {
                             floor: floor.toString(),
                             currentRoom: widget.endRoom,
                             isSource: widget.isSource,
+                            isDisability: widget.isDisability
                           ),
                         ),
                       );

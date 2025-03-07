@@ -13,18 +13,22 @@ import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart'; 
 
+import 'dart:developer' as dev; 
+
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
   final String endRoom;
   final String sourceRoom;
+  final bool isDisability;
 
   const IndoorDirectionsView(
       {super.key,
       required this.sourceRoom,
       required this.building,
       required this.floor,
-      required this.endRoom});
+      required this.endRoom,
+      this.isDisability = false});
 
   @override
   State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
@@ -33,7 +37,7 @@ class IndoorDirectionsView extends StatefulWidget {
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
       
-  bool disability = false;
+  late bool disability;
   late String from;
   late String to;
   late String buildingAbbreviation;
@@ -58,7 +62,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     _buildingViewModel = BuildingViewModel();
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-
+    disability = widget.isDisability;
     buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(widget.building)!;
     floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
     _getSvgSize();
@@ -86,7 +90,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         widget.building,
         widget.floor,
         widget.sourceRoom,
-        widget.endRoom
+        widget.endRoom,
+        disability
       );
       if (_directionsViewModel.startLocation != Offset.zero &&
         _directionsViewModel.endLocation != Offset.zero) {
@@ -154,7 +159,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                       ? widget.endRoom
                       : '$buildingAbbreviation ${widget.endRoom}'),
                   building: widget.building,
-                  floor: widget.floor
+                  floor: widget.floor,
+                  isDisability: disability
                 ),
                 Expanded(
                   child: Stack(
@@ -216,9 +222,9 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                         child: AccessibilityButton(
                           sourceRoom: widget.sourceRoom,
                           endRoom: widget.endRoom,
-                          disability: viewModel.isAccessibilityMode,
+                          disability: disability,
                           onDisabilityChanged: (value) {
-                            viewModel.toggleAccessibilityMode(value);
+                            disability = !disability;
                             _initializeRoute(); // Recalculate route with new setting
                           },
                         ),

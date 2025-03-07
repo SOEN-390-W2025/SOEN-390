@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_floor_point.dart';
@@ -10,6 +12,8 @@ import '../data/repositories/building_data.dart';
 import '../data/repositories/building_data_manager.dart';
 import '../data/services/indoor_routing_service.dart';
 import 'building_viewmodel.dart';
+
+import 'dart:developer' as dev;
 
 class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
@@ -73,52 +77,80 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   Future<ConcordiaFloorPoint?> getStartPoint(
-    String buildingName, String floor) async {
+    String buildingName, String floor, bool disability) async {
 
     // Get the building by name
     final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
 
-    final  buildingData = await BuildingDataManager.getBuildingData(building.abbreviation.toUpperCase());
-    // Load YAML data for the building
-    final dynamic yamlData = await BuildingViewModel().getYamlDataForBuilding(building.abbreviation.toUpperCase());
-
-    // Load floors and rooms from the YAML data
-    final loadedFloors = loadFloors(yamlData, building);
-    final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
-    final List<Connection> connections = loadConnections(yamlData, floorMap);
-
-    // Search through connections to find the elevator for the given floor
-    for (var connection in connections) {
-
-      if (floor == '1') {
-          final floorPoints = buildingData!.outdoorExitPoint;
-          return floorPoints;
-      } else if (connection.name.toLowerCase().contains("main elevators")) {  // Check if the connection is an elevator
-        final floorPoints = connection.floorPoints[floor];
+    // Load building data
+    final buildingData = await BuildingDataManager.getBuildingData(building.abbreviation.toUpperCase());
+    
+    // If floor is "1", simply return the outdoor exit point
+    if (floor == '1') {
+      return buildingData!.outdoorExitPoint;
+    }
+    
+    // Find appropriate connection based on accessibility needs
+    if (disability) {
+      // If person has disability, look for accessible elevators
+      Connection? elevatorConnection;
+      try {
+        elevatorConnection = buildingData!.connections.firstWhere(
+          (conn) => conn.name.toLowerCase().contains("main elevators") && conn.isAccessible
+        );
+        
+        final floorPoints = elevatorConnection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
           return floorPoints.first;
         }
+      } catch (e) {
+        // No matching elevator found
       }
-      else if (connection.name.toLowerCase().contains("escalators")) {  // Check if the connection is an escalator
-        final floorPoints = connection.floorPoints[floor];
+    } else {
+      // Try escalators first if no disability
+      try {
+        Connection escalatorConnection = buildingData!.connections.firstWhere(
+          (conn) => conn.name.toLowerCase().contains("escalators")
+        );
+        
+        final floorPoints = escalatorConnection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
-          return floorPoints[1];
+          return floorPoints.first;
         }
+      } catch (e) {
+        // No matching escalator found
       }
-      else if (connection.name.toLowerCase().contains("stairs")) {  // Check if the connection is a staircase
-        final floorPoints = connection.floorPoints[floor];
+      
+      // Try stairs as fallback if no escalators for this floor
+      try {
+        Connection stairsConnection = buildingData!.connections.firstWhere(
+          (conn) => conn.name.toLowerCase().contains("stairs")
+        );
+        
+        final floorPoints = stairsConnection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
-          return floorPoints[2];
+          // Use a specific stair point (third in the list, if available)
+          return floorPoints.length > 3 ? floorPoints[3] : floorPoints.first;
         }
+      } catch (e) {
+        // No matching stairs found
       }
     }
 
-    // Return null if no elevator is found for the floor
+    // If no appropriate connection found, try any available connection
+    for (var connection in buildingData!.connections) {
+      final floorPoints = connection.floorPoints[floor];
+      if (floorPoints != null && floorPoints.isNotEmpty) {
+        return floorPoints.first;
+      }
+    }
+
+    // Return null if no point found for the floor
     return null;
   }
 
 
-  Future<void> calculateRoute(String building, String floor, String sourceRoom, String endRoom) async {
+  Future<void> calculateRoute(String building, String floor, String sourceRoom, String endRoom, bool disability) async {
     try {
 
       final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
@@ -130,7 +162,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
       // Get start location (elevator point)
       if (sourceRoomClean == 'Your Location') {
-        startPositionPoint = await getStartPoint(building, floor);
+        dev.log(disability.toString());
+        startPositionPoint = await getStartPoint(building, floor, disability);
       } else {
         startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
       }

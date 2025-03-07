@@ -9,8 +9,8 @@ import 'floor_selection.dart';
 class BuildingSelection extends StatefulWidget {
   final String? endRoom;
   final bool isSource;
-  
-  const BuildingSelection({super.key, this.endRoom, this.isSource = false});
+  final bool isDisability;
+  const BuildingSelection({super.key, this.endRoom, this.isSource = false, this.isDisability = false});
 
   @override
   BuildingSelectionState createState() => BuildingSelectionState();
@@ -61,6 +61,7 @@ class BuildingSelectionState extends State<BuildingSelection> {
                     building: building,
                     endRoom: widget.endRoom,
                     isSource: widget.isSource,
+                    isDisability: widget.isDisability,
                   ),
                 ),
               );
