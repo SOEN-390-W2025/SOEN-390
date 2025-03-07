@@ -426,40 +426,40 @@ class IndoorRoutingService {
   Future<Size> getSvgDimensions(String svgPath) async {
     // Default size in case we can't determine
     Size defaultSize = const Size(1024, 1024);
-    
+
     try {
       // Load the SVG file
       final String svgString = await rootBundle.loadString(svgPath);
-      
+
       // Parse the SVG to extract width and height
       // This is a simple regex approach - for production you might want a more robust parser
       final RegExp widthRegex = RegExp(r'width="([^"]*)"');
       final RegExp heightRegex = RegExp(r'height="([^"]*)"');
-      
+
       final widthMatch = widthRegex.firstMatch(svgString);
       final heightMatch = heightRegex.firstMatch(svgString);
-      
+
       if (widthMatch != null && heightMatch != null) {
         final width = double.tryParse(widthMatch.group(1)!) ?? defaultSize.width;
         final height = double.tryParse(heightMatch.group(1)!) ?? defaultSize.height;
         return Size(width, height);
       }
-      
+
       // Try to get viewBox dimensions if width/height are not specified directly
       final RegExp viewBoxRegex = RegExp(r'viewBox="([^"]*)"');
       final viewBoxMatch = viewBoxRegex.firstMatch(svgString);
-      
+
       if (viewBoxMatch != null) {
         final String viewBox = viewBoxMatch.group(1)!;
         final List<String> parts = viewBox.split(' ');
-        
+
         if (parts.length >= 4) {
           final width = double.tryParse(parts[2]) ?? defaultSize.width;
           final height = double.tryParse(parts[3]) ?? defaultSize.height;
           return Size(width, height);
         }
       }
-      
+
       return defaultSize;
     } catch (e) {
       dev.log('Error getting SVG dimensions: $e');

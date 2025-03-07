@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses
+// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import '../data/domain-model/concordia_floor.dart';
@@ -6,6 +6,7 @@ import '../data/domain-model/concordia_floor_point.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concrete_floor_routable_point.dart';
 import '../data/domain-model/connection.dart';
+import '../data/domain-model/floor_routable_point.dart';
 import '../data/domain-model/indoor_route.dart';
 import '../data/repositories/building_data.dart';
 import '../data/repositories/building_data_manager.dart';
@@ -18,14 +19,15 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   
   bool _isAccessibilityMode = false;
-  final String _eta = '5 min';
+  String eta = 'Calculating...';
+  String distance = 'Calculating...';
   IndoorRoute? _calculatedRoute;
   Offset _startLocation = Offset.zero;
   Offset _endLocation = Offset.zero;
   
+  
   // Getters
   bool get isAccessibilityMode => _isAccessibilityMode;
-  String get eta => _eta;
   IndoorRoute? get calculatedRoute => _calculatedRoute;
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
@@ -221,10 +223,103 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
           _isAccessibilityMode
         );
 
+        // Calculate ETA based on the route
+        if (_calculatedRoute != null) {
+          double travelTimeSeconds = _calculatedRoute!.getIndoorTravelTimeSeconds();
+          eta = _formatTravelTime(travelTimeSeconds);
+          // Calculate distance using the existing method in IndoorRoute
+          double distanceInPixels = _calculateTotalDistanceFromRoute(_calculatedRoute!);
+          // Convert pixels to meters (you'll need to determine an appropriate conversion factor)
+          // This depends on the scale of your floor plans
+          double conversionFactor = _getPixelToMeterConversionFactor(building, floor);
+          double distanceInMeters = distanceInPixels * conversionFactor;
+          distance = _formatDistance(distanceInMeters);
+        } else {
+          eta = "Unknown";
+          distance = "Unknown";
+        }
+
         notifyListeners();
       }
     } catch (e) {
-      rethrow; // Let the view handle the error
+      eta = "Unknown";
+      distance = "Unknown";
+      rethrow;
+    }
+  }
+
+  double _calculateTotalDistanceFromRoute(IndoorRoute route) {
+    double totalDistance = 0.0;
+    
+    // Calculate distance for first indoor portion
+    if (route.firstIndoorPortionToConnection != null && 
+        route.firstIndoorPortionToConnection!.length > 1) {
+      List<FloorRoutablePoint> points = route.firstIndoorPortionToConnection!;
+      for (int i = 1; i < points.length; i++) {
+        totalDistance += IndoorRoute.getDistanceBetweenPoints(points[i-1], points[i]);
+      }
+    }
+    
+    // Calculate distance for first indoor portion after connection
+    if (route.firstIndoorPortionFromConnection != null && 
+        route.firstIndoorPortionFromConnection!.length > 1) {
+      List<FloorRoutablePoint> points = route.firstIndoorPortionFromConnection!;
+      for (int i = 1; i < points.length; i++) {
+        totalDistance += IndoorRoute.getDistanceBetweenPoints(points[i-1], points[i]);
+      }
+    }
+
+    // Calculate distance for second indoor portion
+    if (route.secondIndoorPortionToConnection != null && 
+        route.secondIndoorPortionToConnection!.length > 1) {
+      List<FloorRoutablePoint> points = route.secondIndoorPortionToConnection!;
+      for (int i = 1; i < points.length; i++) {
+        totalDistance += IndoorRoute.getDistanceBetweenPoints(points[i-1], points[i]);
+      }
+    }
+
+    // Calculate distance for second indoor portion after connection
+    if (route.secondIndoorPortionFromConnection != null && 
+        route.secondIndoorPortionFromConnection!.length > 1) {
+      List<FloorRoutablePoint> points = route.secondIndoorPortionFromConnection!;
+      for (int i = 1; i < points.length; i++) {
+        totalDistance += IndoorRoute.getDistanceBetweenPoints(points[i-1], points[i]);
+      }
+    }
+
+    return totalDistance;
+  }
+
+  double _getPixelToMeterConversionFactor(String building, String floor) {
+    // This will depend on your floor plan scale
+    // You might want to store this in your building/floor data
+    // For example: return buildingData.getFloor(floor).pixelsPerMeter;
+
+    // Default conversion factor (you'll need to adjust this based on your floor plans)
+    return 0.05; // Example: 20 pixels = 1 meter
+  }
+
+  String _formatDistance(double meters) {
+    if (meters < 10) {
+      // For very short distances, show in meters with one decimal place
+      return "${meters.toStringAsFixed(1)} m";
+    } else if (meters < 1000) {
+      // For medium distances, show in meters with no decimal places
+      return "${meters.round()} m";
+    } else {
+      // For large distances, show in kilometers
+      return "${(meters / 1000).toStringAsFixed(2)} km";
+    }
+  }
+
+  // Helper method to format travel time in
+  String _formatTravelTime(double seconds) {
+    if (seconds < 60) {
+      return "${seconds.round()} sec";
+    } else {
+      int minutes = (seconds / 60).floor();
+      int remainingSeconds = (seconds % 60).round();
+      return "$minutes min${remainingSeconds > 0 ? " $remainingSeconds sec" : ""}";
     }
   }
 
