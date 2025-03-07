@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
@@ -28,16 +29,24 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   late IndoorMapViewModel _indoorMapViewModel;
 
   late String floorPlanPath;
+  double width = 1024.0;
+  double height = 1024.0;
+  final double _maxScale = 1.5;
+  final double _minScale = 0.6;
   bool _floorPlanExists = true;
   bool _isLoading = true;
-
+  late IndoorDirectionsViewModel _directionsViewModel;
+  
   @override
   void initState() {
     super.initState();
+    _directionsViewModel = IndoorDirectionsViewModel();
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
     floorPlanPath =
         'assets/maps/indoor/floorplans/${widget.building.abbreviation}${widget.floor}.svg';
     _checkIfFloorPlanExists();
+
+    _getSvgSize();
 
     _destinationController = TextEditingController();
     _indoorMapViewModel.setInitialCameraPosition(
@@ -45,6 +54,14 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
       offsetX: -50.0,
       offsetY: -50.0,
     );
+  }
+
+  Future<void> _getSvgSize() async {
+    final size = await _directionsViewModel.getSvgDimensions(floorPlanPath);
+    setState(() {
+      width = size.width;
+      height = size.height;
+    });
   }
 
   Future<void> _checkIfFloorPlanExists() async {
@@ -82,6 +99,8 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
             floorPlanPath: floorPlanPath,
             semanticsLabel:
                 'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
+            width: width,
+            height: height
           ),
           Positioned(
             top: 0,
@@ -119,8 +138,12 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
                     final Matrix4 currentMatrix = _indoorMapViewModel
                         .transformationController.value
                         .clone();
-                    final Matrix4 zoomedInMatrix = currentMatrix..scale(1.2);
-                    _indoorMapViewModel.animateTo(zoomedInMatrix);
+                    final double currentScale = currentMatrix.getMaxScaleOnAxis();
+                    if (currentScale < _maxScale) {
+                      final Matrix4 zoomedInMatrix = currentMatrix
+                        ..scale(1.2);
+                      _indoorMapViewModel.animateTo(zoomedInMatrix);
+                    }
                   },
                   icon: Icons.add,
                   isZoomInButton: true,
@@ -130,8 +153,12 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
                     final Matrix4 currentMatrix = _indoorMapViewModel
                         .transformationController.value
                         .clone();
-                    final Matrix4 zoomedOutMatrix = currentMatrix..scale(0.8);
-                    _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                    final double currentScale = currentMatrix.getMaxScaleOnAxis();
+                    if (currentScale > _minScale) {
+                      final Matrix4 zoomedOutMatrix = currentMatrix
+                        ..scale(0.8);
+                      _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                    }
                   },
                   icon: Icons.remove,
                   isZoomInButton: false,

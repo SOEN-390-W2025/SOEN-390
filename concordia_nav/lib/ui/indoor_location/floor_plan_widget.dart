@@ -9,6 +9,8 @@ class FloorPlanWidget extends StatelessWidget {
   final String floorPlanPath;
   final String semanticsLabel;
   final IndoorDirectionsViewModel? viewModel;
+  final double width;
+  final double height;
   final VoidCallback? onTap;
 
   const FloorPlanWidget({
@@ -17,6 +19,8 @@ class FloorPlanWidget extends StatelessWidget {
     required this.floorPlanPath,
     this.viewModel,
     required this.semanticsLabel,
+    required this.width,
+    required this.height,
     this.onTap,
   });
 
@@ -37,8 +41,8 @@ class FloorPlanWidget extends StatelessWidget {
         boundaryMargin: const EdgeInsets.all(50.0),
         transformationController: indoorMapViewModel.transformationController,
         child: SizedBox(
-          width: 1024,
-          height: 1024,
+          width: width,
+          height: height,
           child: Stack(
             children: [
               SvgPicture.asset(

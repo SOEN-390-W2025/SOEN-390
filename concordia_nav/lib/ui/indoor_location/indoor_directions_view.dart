@@ -168,6 +168,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                         viewModel: viewModel,
                         semanticsLabel:
                             'Floor plan of $buildingAbbreviation-${widget.floor}',
+                        width: width,
+                        height: height,
                       ),
                       Positioned(
                         top: 16,
