@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +38,9 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   late BuildingViewModel _buildingViewModel;
   late String floorPlanPath;
   late String buildingAbbreviation;
-  
+
+  double width = 1024.0;
+  double height = 1024.0;
   final double _maxScale = 1.5;
   final double _minScale = 0.6;
 
@@ -48,19 +52,28 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-    
+
     buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(widget.building)!;
     floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
-    
+    _getSvgSize();
+
     _indoorMapViewModel.setInitialCameraPosition(
       scale: 1.0,
       offsetX: -50.0,
       offsetY: -50.0,
     );
-    
+
     _initializeRoute();
   }
-  
+
+  Future<void> _getSvgSize() async {
+    final size = await _directionsViewModel.getSvgDimensions(floorPlanPath);
+    setState(() {
+      width = size.width;
+      height = size.height;
+    });
+  }
+
   Future<void> _initializeRoute() async {
     try {
       await _directionsViewModel.calculateRoute(
@@ -69,11 +82,27 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         widget.sourceRoom,
         widget.endRoom
       );
+      if (_directionsViewModel.startLocation != Offset.zero && 
+        _directionsViewModel.endLocation != Offset.zero) {
+        // Add a slight delay to ensure the UI has been laid out
+        Future.delayed(const Duration(milliseconds: 300), () {
+          // Get the actual size of the viewport
+          final Size viewportSize = Size(width, height);
+          
+          _indoorMapViewModel.centerBetweenPoints(
+            _directionsViewModel.startLocation,
+            _directionsViewModel.endLocation,
+            viewportSize,
+            padding: 80.0,
+            
+          );
+        });
+      }
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
   }
-  
+
   void _showErrorMessage(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -81,13 +110,13 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       );
     }
   }
-  
+
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
     super.dispose();
   }
-  
+
   static bool hasFullRoomName(String room) {
     return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
   }
@@ -135,8 +164,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                           transformationController:
                               _indoorMapViewModel.transformationController,
                           child: SizedBox(
-                            width: 1024,
-                            height: 1024,
+                            width: width,
+                            height: height,
                             child: Stack(
                               children: [
                                 SvgPicture.asset(

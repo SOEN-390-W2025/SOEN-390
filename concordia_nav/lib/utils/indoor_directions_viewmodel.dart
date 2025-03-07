@@ -149,4 +149,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       rethrow; // Let the view handle the error
     }
   }
+
+  Future<Size> getSvgDimensions(String svgPath) async {
+    return await IndoorRoutingService().getSvgDimensions(svgPath);
+  }
 }
