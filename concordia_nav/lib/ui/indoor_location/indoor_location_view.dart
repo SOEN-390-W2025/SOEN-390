@@ -68,89 +68,95 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   @override
   Widget build(BuildContext context) {
     dev.log(_floorPlanExists.toString());
+
+    // Extracted body content decision into a separate statement
+    Widget bodyContent;
+
+    if (_isLoading) {
+      bodyContent = const Center(child: CircularProgressIndicator());
+    } else if (_floorPlanExists) {
+      bodyContent = Stack(
+        children: [
+          FloorPlanWidget(
+            indoorMapViewModel: _indoorMapViewModel,
+            floorPlanPath: floorPlanPath,
+            semanticsLabel:
+                'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloorPlanSearchWidget(
+                    searchController: _destinationController,
+                    building: widget.building,
+                    floor: 'Floor ${widget.floor}',
+                    disabled: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            top: 80,
+            right: 16,
+            child: FloorButton(
+              floor: widget.floor!,
+              building: widget.building,
+            ),
+          ),
+          Positioned(
+            top: 140,
+            right: 16,
+            child: Column(
+              children: [
+                ZoomButton(
+                  onTap: () {
+                    final Matrix4 currentMatrix = _indoorMapViewModel
+                        .transformationController.value
+                        .clone();
+                    final Matrix4 zoomedInMatrix = currentMatrix..scale(1.2);
+                    _indoorMapViewModel.animateTo(zoomedInMatrix);
+                  },
+                  icon: Icons.add,
+                  isZoomInButton: true,
+                ),
+                ZoomButton(
+                  onTap: () {
+                    final Matrix4 currentMatrix = _indoorMapViewModel
+                        .transformationController.value
+                        .clone();
+                    final Matrix4 zoomedOutMatrix = currentMatrix..scale(0.8);
+                    _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                  },
+                  icon: Icons.remove,
+                  isZoomInButton: false,
+                ),
+              ],
+            ),
+          ),
+          if (widget.room != null) _buildFooter(),
+        ],
+      );
+    } else {
+      bodyContent = const Center(
+        child: Text(
+          'No floor plans exist at this time.',
+          style: TextStyle(fontSize: 18),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: customAppBar(
         context,
         widget.building.name,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _floorPlanExists
-              ? Stack(
-                  children: [
-                    FloorPlanWidget(
-                      indoorMapViewModel: _indoorMapViewModel,
-                      floorPlanPath: floorPlanPath,
-                      semanticsLabel:
-                          'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
-                    ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: SafeArea(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FloorPlanSearchWidget(
-                              searchController: _destinationController,
-                              building: widget.building,
-                              floor: 'Floor ${widget.floor}',
-                              disabled: true,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 80,
-                      right: 16,
-                      child: FloorButton(
-                        floor: widget.floor!,
-                        building: widget.building,
-                      ),
-                    ),
-                    Positioned(
-                      top: 140,
-                      right: 16,
-                      child: Column(
-                        children: [
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final Matrix4 zoomedInMatrix = currentMatrix
-                                ..scale(1.2);
-                              _indoorMapViewModel.animateTo(zoomedInMatrix);
-                            },
-                            icon: Icons.add,
-                            isZoomInButton: true,
-                          ),
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final Matrix4 zoomedOutMatrix = currentMatrix
-                                ..scale(0.8);
-                              _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                            },
-                            icon: Icons.remove,
-                            isZoomInButton: false,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (widget.room != null) _buildFooter(),
-                  ],
-                )
-              : const Center(
-                  child: Text(
-                    'No floor plans exist at this time.',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
+      body: bodyContent,
     );
   }
 

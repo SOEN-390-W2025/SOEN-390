@@ -14,7 +14,13 @@ class ClassroomSelection extends StatefulWidget {
   final String? currentRoom;
   final bool isSource;
   final bool isSearch;
-  const ClassroomSelection({super.key, required this.building, required this.floor, this.currentRoom, this.isSource = false, this.isSearch = false});
+  const ClassroomSelection(
+      {super.key,
+      required this.building,
+      required this.floor,
+      this.currentRoom,
+      this.isSource = false,
+      this.isSearch = false});
 
   @override
   ClassroomSelectionState createState() => ClassroomSelectionState();
@@ -31,45 +37,46 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
   @override
   void initState() {
     super.initState();
-    if (widget.currentRoom != null && widget.currentRoom != 'Your Location') {
-      currentRoom = widget.currentRoom!;
-    } else {
-      currentRoom = 'Your Location';
-    }
+    _initializeCurrentRoom();
     classroomsFuture = _loadClassrooms();
     searchController.addListener(filterClassrooms);
     floorNumber = widget.floor.replaceAll('Floor ', '');
   }
 
+  void _initializeCurrentRoom() {
+    if (widget.currentRoom != null && widget.currentRoom != 'Your Location') {
+      currentRoom = widget.currentRoom!;
+    } else {
+      currentRoom = 'Your Location';
+    }
+  }
+
   Future<List<String>> _loadClassrooms() async {
-    final List<String> classrooms =
-        await BuildingViewModel().getRoomsForFloor(widget.building, widget.floor)
+    final List<String> classrooms = await BuildingViewModel()
+        .getRoomsForFloor(widget.building, widget.floor)
         .then((rooms) {
-          return rooms.map((room) {
-            // Check if room number is a single digit and add leading zero if true
-            final String hyphen = room.roomNumber.split('-').first;
-            String roomNumber = room.roomNumber;
-            if (hyphen.length == 1) {
-              roomNumber = '0$roomNumber';  // Add leading zero to single digit room
-            }
-            
-            // Combine room number with floor number
-            return '$floorNumber$roomNumber';
-          }).toList();
-        });
+      return rooms.map((room) {
+        final String hyphen = room.roomNumber.split('-').first;
+        String roomNumber = room.roomNumber;
+        if (hyphen.length == 1) {
+          roomNumber = '0$roomNumber'; // Add leading zero to single digit room
+        }
+        return '$floorNumber$roomNumber';
+      }).toList();
+    });
     setState(() {
       allClassrooms = classrooms;
       filteredClassrooms = List.from(classrooms);
     });
-
     return classrooms;
   }
 
   void filterClassrooms() {
     setState(() {
       filteredClassrooms = allClassrooms
-          .where((classroom) =>
-              classroom.toLowerCase().contains(searchController.text.toLowerCase()))
+          .where((classroom) => classroom
+              .toLowerCase()
+              .contains(searchController.text.toLowerCase()))
           .toList();
     });
   }
@@ -83,90 +90,107 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: customAppBar(context, widget.building),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IndoorSearchBar(
-            controller: searchController,
-            hintText: 'Search',
-            icon: Icons.location_on,
-            iconColor: Theme.of(context).primaryColor,
-          ),
-          // Buttons for selecting building and floor
-          if (!widget.isSearch)
-            SelectIndoorDestination(building: widget.building, floor: widget.floor, endRoom: currentRoom, isSource: widget.isSource),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                widget.floor,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ),
-          ),
-          FutureBuilder<List<String>>(
-            future: classroomsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return const Expanded(
-                  child: Center(
-                    child: Text('Not available')
-                  )
-                );
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Expanded(
-                  child: Center(
-                    child: Text("No classrooms available")
-                  )
-                );
-              } else {
-                return SelectableList<String>(
-                  items: filteredClassrooms,
-                  title: 'Select a classroom',
-                  searchController: searchController,
-                  onItemSelected: (classroom) {
-                    if (widget.isSearch) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => IndoorLocationView(
-                            building: BuildingViewModel().getBuildingByName(widget.building)!,
-                            floor: floorNumber,
-                            room: classroom,
-                          ),
-                        ),
-                        (route) {
-                          // Remove all previous routes except CampusMapPage
-                          return route.settings.name == '/HomePage' || route.settings.name == '/CampusMapPage';
-                        },
-                      );
-                    } else {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => IndoorDirectionsView(
-                            sourceRoom: widget.isSource ? classroom : currentRoom,
-                            building: widget.building,
-                            floor: floorNumber,
-                            endRoom: widget.isSource ? currentRoom : classroom,
-                          ),
-                        ),
-                        (route) => route.isFirst,
-                      );
-                    }
-                  },
-                );
-              }
-            },
-          ),
+          _buildSearchBar(),
+          _buildSelectIndoorDestination(),
+          _buildFloorLabel(),
+          _buildClassroomList(),
         ],
       ),
     );
+  }
+
+  Widget _buildSearchBar() {
+    return IndoorSearchBar(
+      controller: searchController,
+      hintText: 'Search',
+      icon: Icons.location_on,
+      iconColor: Theme.of(context).primaryColor,
+    );
+  }
+
+  Widget _buildSelectIndoorDestination() {
+    if (widget.isSearch) return Container();
+    return SelectIndoorDestination(
+      building: widget.building,
+      floor: widget.floor,
+      endRoom: currentRoom,
+      isSource: widget.isSource,
+    );
+  }
+
+  Widget _buildFloorLabel() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, top: 8.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          widget.floor,
+          style: const TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClassroomList() {
+    return FutureBuilder<List<String>>(
+      future: classroomsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return const Expanded(
+            child: Center(child: Text('Not available')),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Expanded(
+            child: Center(child: Text("No classrooms available")),
+          );
+        } else {
+          return SelectableList<String>(
+            items: filteredClassrooms,
+            title: 'Select a classroom',
+            searchController: searchController,
+            onItemSelected: _onClassroomSelected,
+          );
+        }
+      },
+    );
+  }
+
+  void _onClassroomSelected(String classroom) {
+    if (widget.isSearch) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => IndoorLocationView(
+            building: BuildingViewModel().getBuildingByName(widget.building)!,
+            floor: floorNumber,
+            room: classroom,
+          ),
+        ),
+        (route) {
+          return route.settings.name == '/HomePage' ||
+              route.settings.name == '/CampusMapPage';
+        },
+      );
+    } else {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => IndoorDirectionsView(
+            sourceRoom: widget.isSource ? classroom : currentRoom,
+            building: widget.building,
+            floor: floorNumber,
+            endRoom: widget.isSource ? currentRoom : classroom,
+          ),
+        ),
+        (route) => route.isFirst,
+      );
+    }
   }
 }
