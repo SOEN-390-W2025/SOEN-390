@@ -1,19 +1,16 @@
 // ignore_for_file: avoid_catches_without_on_clauses
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/indoor/indoor_path.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
 import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
+import 'floor_plan_widget.dart'; // Fixed empty import
 import '../../utils/building_viewmodel.dart';
-import '../../utils/indoor_map_viewmodel.dart'; 
-
-import 'dart:developer' as dev; 
+import '../../utils/indoor_map_viewmodel.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
@@ -165,56 +162,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                 Expanded(
                   child: Stack(
                     children: [
-                      GestureDetector(
-                        onDoubleTapDown: (details) {
-                          final tapPosition = details.localPosition;
-                          _indoorMapViewModel.panToRegion(
-                            offsetX: -tapPosition.dx,
-                            offsetY: -tapPosition.dy,
-                          );
-                        },
-                        child: InteractiveViewer(
-                          constrained: false,
-                          scaleEnabled: false,
-                          panEnabled: true,
-                          boundaryMargin: const EdgeInsets.all(50.0),
-                          transformationController:
-                              _indoorMapViewModel.transformationController,
-                          child: SizedBox(
-                            width: width,
-                            height: height,
-                            child: Stack(
-                              children: [
-                                SvgPicture.asset(
-                                  floorPlanPath,
-                                  fit: BoxFit.contain,
-                                  semanticsLabel:
-                                      'Floor plan of $buildingAbbreviation-${widget.floor}',
-                                  placeholderBuilder: (context) => const Center(
-                                      child: CircularProgressIndicator()),
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Center(
-                                    child: Text(
-                                      'No floor plans exist at this time.',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                CustomPaint(
-                                  painter: IndoorMapPainter(
-                                    route: viewModel.calculatedRoute,
-                                    startLocation: viewModel.startLocation,
-                                    endLocation: viewModel.endLocation,
-                                  ),
-                                  size: Size.infinite,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      FloorPlanWidget(
+                        indoorMapViewModel: _indoorMapViewModel,
+                        floorPlanPath: floorPlanPath,
+                        viewModel: viewModel,
+                        semanticsLabel:
+                            'Floor plan of $buildingAbbreviation-${widget.floor}',
                       ),
                       Positioned(
                         top: 16,
