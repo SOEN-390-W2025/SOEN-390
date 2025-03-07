@@ -171,7 +171,7 @@ class IndoorMapPainter extends CustomPainter {
     for (int i = 0; i < points.length - 1; i++) {
       final start = Offset(points[i].positionX, points[i].positionY);
       final end = Offset(points[i + 1].positionX, points[i + 1].positionY);
-      
+
       final distance = _distanceToSegment(targetPoint, start, end);
       if (distance < minDistance) {
         minDistance = distance;
@@ -180,20 +180,22 @@ class IndoorMapPainter extends CustomPainter {
     }
 
     // Draw the highlighted segment
-    final highlightPath = Path();
-    final start = points[closestSegmentStart];
-    final end = points[closestSegmentStart + 1];
-    
-    highlightPath.moveTo(start.positionX, start.positionY);
-    highlightPath.lineTo(end.positionX, end.positionY);
-    
-    canvas.drawPath(highlightPath, _highlightPaint);
+    if (closestSegmentStart != 0 && closestSegmentStart != points.length - 2) {
+      final highlightPath = Path();
+      final start = points[closestSegmentStart + 1];
+      final end = points[closestSegmentStart + 2];
+
+      highlightPath.moveTo(start.positionX, start.positionY);
+      highlightPath.lineTo(end.positionX, end.positionY);
+
+      canvas.drawPath(highlightPath, _highlightPaint);
+    }
   }
 
   double _distanceToSegment(Offset p, Offset v, Offset w) {
     final l2 = (v - w).distanceSquared;
     if (l2 == 0) return (p - v).distance;
-    
+
     var t = ((p.dx - v.dx) * (w.dx - v.dx) + (p.dy - v.dy) * (w.dy - v.dy)) / l2;
     t = t.clamp(0.0, 1.0);
     

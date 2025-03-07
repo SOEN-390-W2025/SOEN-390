@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/indoor_step_viewmodel.dart';
-import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/zoom_buttons.dart';
 import 'floor_plan_widget.dart';
 
 
@@ -187,36 +185,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                 ? viewModel.navigationSteps[viewModel.currentStepIndex].focusPoint 
                 : null,
             showStepView: true,
-          ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: AccessibilityButton(
-              sourceRoom: widget.sourceRoom,
-              endRoom: widget.endRoom,
-              disability: viewModel.disability,
-              onDisabilityChanged: (value) {
-                viewModel.toggleDisability();
-              },
-            ),
-          ),
-          Positioned(
-            top: 76,
-            right: 16,
-            child: Column(
-              children: [
-                ZoomButton(
-                  onTap: () => viewModel.zoomIn(),
-                  icon: Icons.add,
-                  isZoomInButton: true,
-                ),
-                ZoomButton(
-                  onTap: () => viewModel.zoomOut(),
-                  icon: Icons.remove,
-                  isZoomInButton: false,
-                ),
-              ],
-            ),
           ),
         ],
       ),
