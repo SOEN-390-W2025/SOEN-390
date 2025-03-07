@@ -9,76 +9,70 @@ void main() {
   dotenv.load(fileName: '.env');
   group('IndoorDirectionsView', () {
     testWidgets('IndoorDirectionsView renders correctly',
-      (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: IndoorDirectionsView(
-              sourceRoom: 'Your Location',
-              building: 'Hall Building',
-              floor: '1',
-              endRoom: 'H 110',
-            ),
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: 'Your Location',
+            building: 'Hall Building',
+            floor: '1',
+            endRoom: 'H 110',
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        expect(find.text('Indoor Directions'), findsOneWidget);
-        expect(find.text('From: Your Location'), findsOneWidget);
-        expect(find.textContaining('To: H 110'), findsOneWidget);
-        expect(find.byType(SvgPicture), findsOneWidget);
-      });
+      expect(find.text('Indoor Directions'), findsOneWidget);
+      expect(find.text('From: Your Location'), findsOneWidget);
+      expect(find.textContaining('To: H 110'), findsOneWidget);
+      expect(find.byType(SvgPicture), findsOneWidget);
     });
 
     testWidgets('Tapping zoom buttons changes scale',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: IndoorDirectionsView(
-              sourceRoom: 'Your Location',
-              building: 'Hall Building',
-              floor: '1',
-              endRoom: 'H110',
-            ),
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: 'Your Location',
+            building: 'Hall Building',
+            floor: '1',
+            endRoom: 'H110',
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        final Finder zoomInButton = find.byIcon(Icons.add);
-        final Finder zoomOutButton = find.byIcon(Icons.remove);
+      final Finder zoomInButton = find.byIcon(Icons.add);
+      final Finder zoomOutButton = find.byIcon(Icons.remove);
 
-        await tester.tap(zoomInButton);
-        await tester.pump();
+      await tester.tap(zoomInButton);
+      await tester.pumpAndSettle();
 
-        await tester.tap(zoomOutButton);
-        await tester.pumpAndSettle();
+      await tester.tap(zoomOutButton);
+      await tester.pumpAndSettle();
 
-        expect(find.byType(SvgPicture), findsOneWidget);
-      });
+      expect(find.byType(SvgPicture), findsOneWidget);
     });
 
     testWidgets('Start button exists and can be tapped',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: IndoorDirectionsView(
-              sourceRoom: 'Your Location',
-              building: 'Hall Building',
-              floor: '1',
-              endRoom: 'H110',
-            ),
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: 'Your Location',
+            building: 'Hall Building',
+            floor: '1',
+            endRoom: 'H110',
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        final Finder startButton = find.text('Start');
-        expect(startButton, findsOneWidget);
+      final Finder startButton = find.text('Start');
+      expect(startButton, findsOneWidget);
 
-        await tester.tap(startButton);
-        await tester.pump();
-      });
+      await tester.tap(startButton);
+      await tester.pumpAndSettle();
     });
   });
 }

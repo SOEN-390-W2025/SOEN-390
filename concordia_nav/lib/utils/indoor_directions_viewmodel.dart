@@ -17,20 +17,20 @@ import 'dart:developer' as dev;
 
 class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
-  
+
   bool _isAccessibilityMode = false;
   final String _eta = '5 min';
   IndoorRoute? _calculatedRoute;
   Offset _startLocation = Offset.zero;
   Offset _endLocation = Offset.zero;
-  
+
   // Getters
   bool get isAccessibilityMode => _isAccessibilityMode;
   String get eta => _eta;
   IndoorRoute? get calculatedRoute => _calculatedRoute;
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
-  
+
   // Method to toggle accessibility mode
   void toggleAccessibilityMode(bool value) {
     _isAccessibilityMode = value;
@@ -38,18 +38,20 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   Future<ConcordiaFloorPoint?> getPositionPoint(
-    String buildingName, String floor, String room) async {
-
+      String buildingName, String floor, String room) async {
     // Get the building by name
-    final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
+    final ConcordiaBuilding building =
+        BuildingViewModel().getBuildingByName(buildingName)!;
 
     // Load YAML data for the building
-    final dynamic yamlData = await BuildingViewModel().getYamlDataForBuilding(building.abbreviation.toUpperCase());
-    
+    final dynamic yamlData = await BuildingViewModel()
+        .getYamlDataForBuilding(building.abbreviation.toUpperCase());
+
     // Load floors and rooms from the YAML data
     final loadedFloors = loadFloors(yamlData, building);
     final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
-    final Map<String, List<ConcordiaRoom>> roomsByFloor = loadRooms(yamlData, floorMap);
+    final Map<String, List<ConcordiaRoom>> roomsByFloor =
+        loadRooms(yamlData, floorMap);
 
     // Get the list of rooms for the given floor
     final rooms = roomsByFloor[floor];
@@ -67,7 +69,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
           break;
         }
       }
-    
+
       // If there's more than one leading zero, remove the first one
       if (leadingZerosCount == 1) {
         roomNumber = roomNumber.substring(1);
@@ -89,28 +91,29 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   Future<ConcordiaFloorPoint?> getStartPoint(
-    String buildingName, String floor, bool disability) async {
-
+      String buildingName, String floor, bool disability) async {
     // Get the building by name
-    final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
+    final ConcordiaBuilding building =
+        BuildingViewModel().getBuildingByName(buildingName)!;
 
     // Load building data
-    final buildingData = await BuildingDataManager.getBuildingData(building.abbreviation.toUpperCase());
-    
+    final buildingData = await BuildingDataManager.getBuildingData(
+        building.abbreviation.toUpperCase());
+
     // If floor is "1", simply return the outdoor exit point
     if (floor == '1') {
       return buildingData!.outdoorExitPoint;
     }
-    
+
     // Find appropriate connection based on accessibility needs
     if (disability) {
       // If person has disability, look for accessible elevators
       Connection? elevatorConnection;
       try {
-        elevatorConnection = buildingData!.connections.firstWhere(
-          (conn) => conn.name.toLowerCase().contains("main elevators") && conn.isAccessible
-        );
-        
+        elevatorConnection = buildingData!.connections.firstWhere((conn) =>
+            conn.name.toLowerCase().contains("main elevators") &&
+            conn.isAccessible);
+
         final floorPoints = elevatorConnection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
           return floorPoints.first;
@@ -122,9 +125,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       // Try escalators first if no disability
       try {
         Connection escalatorConnection = buildingData!.connections.firstWhere(
-          (conn) => conn.name.toLowerCase().contains("escalators")
-        );
-        
+            (conn) => conn.name.toLowerCase().contains("escalators"));
+
         final floorPoints = escalatorConnection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
           return floorPoints.first;
@@ -132,13 +134,12 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       } catch (e) {
         // No matching escalator found
       }
-      
+
       // Try stairs as fallback if no escalators for this floor
       try {
-        Connection stairsConnection = buildingData!.connections.firstWhere(
-          (conn) => conn.name.toLowerCase().contains("stairs")
-        );
-        
+        Connection stairsConnection = buildingData!.connections
+            .firstWhere((conn) => conn.name.toLowerCase().contains("stairs"));
+
         final floorPoints = stairsConnection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
           // Use a specific stair point (third in the list, if available)
@@ -161,15 +162,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
-
-  Future<void> calculateRoute(String building, String floor, String sourceRoom, String endRoom, bool disability) async {
+  Future<void> calculateRoute(String building, String floor, String sourceRoom,
+      String endRoom, bool disability) async {
     try {
-
-      final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+      final sourceRoomClean =
+          sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
       final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
 
-      final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
-      final dynamic yamlData = await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
+      final buildingAbbreviation =
+          _buildingViewModel.getBuildingAbbreviation(building)!;
+      final dynamic yamlData =
+          await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
 
       ConcordiaFloorPoint? startPositionPoint;
 
@@ -178,18 +181,22 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         dev.log(disability.toString());
         startPositionPoint = await getStartPoint(building, floor, disability);
       } else {
-        startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
+        startPositionPoint =
+            await getPositionPoint(building, floor, sourceRoomClean);
       }
 
       // Get end location (room point)
-      final endPositionPoint = await getPositionPoint(building, floor, endRoomClean);
+      final endPositionPoint =
+          await getPositionPoint(building, floor, endRoomClean);
 
       if (startPositionPoint != null && endPositionPoint != null) {
+        _startLocation =
+            Offset(startPositionPoint.positionX, startPositionPoint.positionY);
+        _endLocation =
+            Offset(endPositionPoint.positionX, endPositionPoint.positionY);
 
-        _startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
-        _endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
-
-        final ConcordiaBuilding buildingData = _buildingViewModel.getBuildingByName(building)!;
+        final ConcordiaBuilding buildingData =
+            _buildingViewModel.getBuildingByName(building)!;
         final currentFloor = ConcordiaFloor(floor, buildingData);
 
         // Create FloorRoutablePoint for start and end
@@ -206,16 +213,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         );
 
         // Calculate route based on accessibility mode
-        _calculatedRoute = IndoorRoutingService.getIndoorRoute(
-          yamlData,
-          startRoutablePoint,
-          endRoutablePoint,
-          _isAccessibilityMode
-        );
+        _calculatedRoute = IndoorRoutingService.getIndoorRoute(yamlData,
+            startRoutablePoint, endRoutablePoint, _isAccessibilityMode);
 
         notifyListeners();
-      } else {
-      }
+      } else {}
     } catch (e) {
       rethrow; // Let the view handle the error
     }

@@ -33,7 +33,6 @@ class IndoorDirectionsView extends StatefulWidget {
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
-      
   late bool disability;
   late String from;
   late String to;
@@ -60,8 +59,10 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
     disability = widget.isDisability;
-    buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(widget.building)!;
-    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+    buildingAbbreviation =
+        _buildingViewModel.getBuildingAbbreviation(widget.building)!;
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
     _getSvgSize();
 
     _indoorMapViewModel.setInitialCameraPosition(
@@ -83,20 +84,15 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _initializeRoute() async {
     try {
-      await _directionsViewModel.calculateRoute(
-        widget.building,
-        widget.floor,
-        widget.sourceRoom,
-        widget.endRoom,
-        disability
-      );
+      await _directionsViewModel.calculateRoute(widget.building, widget.floor,
+          widget.sourceRoom, widget.endRoom, disability);
       if (_directionsViewModel.startLocation != Offset.zero &&
-        _directionsViewModel.endLocation != Offset.zero) {
+          _directionsViewModel.endLocation != Offset.zero) {
         // Add a slight delay to ensure the UI has been laid out
-        Future.delayed(const Duration(milliseconds: 300), () {
+        Future.delayed(Duration(milliseconds: mounted ? 0 : 300), () {
           // Get the actual size of the viewport
           final Size viewportSize = Size(width, height);
-          
+
           _indoorMapViewModel.centerBetweenPoints(
             _directionsViewModel.startLocation,
             _directionsViewModel.endLocation,
@@ -138,97 +134,97 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _directionsViewModel,
-      child: Consumer<IndoorDirectionsViewModel>(
-        builder: (context, viewModel, _) {
-          return Scaffold(
-            appBar: customAppBar(context, 'Indoor Directions'),
-            body: Column(
-              children: [
-                LocationInfoWidget(
+      child:
+          Consumer<IndoorDirectionsViewModel>(builder: (context, viewModel, _) {
+        return Scaffold(
+          appBar: customAppBar(context, 'Indoor Directions'),
+          body: Column(
+            children: [
+              LocationInfoWidget(
                   from: widget.sourceRoom == yourLocation
-                    ? yourLocation
-                    : (hasFullRoomName(widget.sourceRoom)
-                      ? widget.sourceRoom
-                      : '$buildingAbbreviation ${widget.sourceRoom}'),
+                      ? yourLocation
+                      : (hasFullRoomName(widget.sourceRoom)
+                          ? widget.sourceRoom
+                          : '$buildingAbbreviation ${widget.sourceRoom}'),
                   to: widget.endRoom == yourLocation
-                    ? yourLocation
-                    : (hasFullRoomName(widget.endRoom)
-                      ? widget.endRoom
-                      : '$buildingAbbreviation ${widget.endRoom}'),
+                      ? yourLocation
+                      : (hasFullRoomName(widget.endRoom)
+                          ? widget.endRoom
+                          : '$buildingAbbreviation ${widget.endRoom}'),
                   building: widget.building,
                   floor: widget.floor,
-                  isDisability: disability
+                  isDisability: disability),
+              Expanded(
+                child: Stack(
+                  children: [
+                    FloorPlanWidget(
+                      indoorMapViewModel: _indoorMapViewModel,
+                      floorPlanPath: floorPlanPath,
+                      viewModel: viewModel,
+                      semanticsLabel:
+                          'Floor plan of $buildingAbbreviation-${widget.floor}',
+                    ),
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: AccessibilityButton(
+                        sourceRoom: widget.sourceRoom,
+                        endRoom: widget.endRoom,
+                        disability: disability,
+                        onDisabilityChanged: (value) {
+                          disability = !disability;
+                          _initializeRoute(); // Recalculate route with new setting
+                        },
+                      ),
+                    ),
+                    Positioned(
+                      top: 76,
+                      right: 16,
+                      child: Column(
+                        children: [
+                          ZoomButton(
+                            onTap: () {
+                              final Matrix4 currentMatrix = _indoorMapViewModel
+                                  .transformationController.value
+                                  .clone();
+                              final double currentScale =
+                                  currentMatrix.getMaxScaleOnAxis();
+                              if (currentScale < _maxScale) {
+                                final Matrix4 zoomedInMatrix = currentMatrix
+                                  ..scale(1.2);
+                                _indoorMapViewModel.animateTo(zoomedInMatrix);
+                              }
+                            },
+                            icon: Icons.add,
+                            isZoomInButton: true,
+                          ),
+                          ZoomButton(
+                            onTap: () {
+                              final Matrix4 currentMatrix = _indoorMapViewModel
+                                  .transformationController.value
+                                  .clone();
+                              final double currentScale =
+                                  currentMatrix.getMaxScaleOnAxis();
+                              if (currentScale > _minScale) {
+                                final Matrix4 zoomedOutMatrix = currentMatrix
+                                  ..scale(0.8);
+                                _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                              }
+                            },
+                            icon: Icons.remove,
+                            isZoomInButton: false,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      FloorPlanWidget(
-                        indoorMapViewModel: _indoorMapViewModel,
-                        floorPlanPath: floorPlanPath,
-                        viewModel: viewModel,
-                        semanticsLabel:
-                            'Floor plan of $buildingAbbreviation-${widget.floor}',
-                      ),
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: AccessibilityButton(
-                          sourceRoom: widget.sourceRoom,
-                          endRoom: widget.endRoom,
-                          disability: disability,
-                          onDisabilityChanged: (value) {
-                            disability = !disability;
-                            _initializeRoute(); // Recalculate route with new setting
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        top: 76,
-                        right: 16,
-                        child: Column(
-                          children: [
-                            ZoomButton(
-                              onTap: () {
-                                final Matrix4 currentMatrix = _indoorMapViewModel
-                                    .transformationController.value
-                                    .clone();
-                                final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                                if (currentScale < _maxScale) {
-                                  final Matrix4 zoomedInMatrix = currentMatrix
-                                    ..scale(1.2);
-                                  _indoorMapViewModel.animateTo(zoomedInMatrix);
-                                }
-                              },
-                              icon: Icons.add,
-                              isZoomInButton: true,
-                            ),
-                            ZoomButton(
-                              onTap: () {
-                                final Matrix4 currentMatrix = _indoorMapViewModel
-                                    .transformationController.value
-                                    .clone();
-                                final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                                if (currentScale > _minScale) {
-                                  final Matrix4 zoomedOutMatrix = currentMatrix
-                                    ..scale(0.8);
-                                  _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                                }
-                              },
-                              icon: Icons.remove,
-                              isZoomInButton: false,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                BottomInfoWidget(eta: viewModel.eta),
-              ],
-            ),
-          );
-        }
-      ),
+              ),
+              BottomInfoWidget(eta: viewModel.eta),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
