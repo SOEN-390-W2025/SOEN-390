@@ -9,6 +9,7 @@ enum RoomCategory {
   office,
   restaurant,
   washroom,
+  waterFountain,
   police,
   unknown
 }
