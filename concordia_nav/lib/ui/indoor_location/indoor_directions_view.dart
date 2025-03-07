@@ -14,13 +14,12 @@ class IndoorDirectionsView extends StatefulWidget {
   final String endRoom;
   final String sourceRoom;
 
-  const IndoorDirectionsView({
-    super.key,
-    required this.sourceRoom,
-    required this.building,
-    required this.floor,
-    required this.endRoom
-  });
+  const IndoorDirectionsView(
+      {super.key,
+      required this.sourceRoom,
+      required this.building,
+      required this.floor,
+      required this.endRoom});
 
   @override
   State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
@@ -30,32 +29,26 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
   bool disability = false;
   final String _eta = '5 min';
-  late String from;
-  late String to;
   late String buildingAbbreviation;
-  late String roomNumber;
-
   late IndoorMapViewModel _indoorMapViewModel;
-
   late String floorPlanPath;
 
   @override
   void initState() {
     super.initState();
-    buildingAbbreviation = BuildingViewModel().getBuildingAbbreviation(widget.building)!;
-    roomNumber = widget.endRoom.replaceFirst( widget.floor, '');
-
-    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+    buildingAbbreviation =
+        BuildingViewModel().getBuildingAbbreviation(widget.building)!;
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-
     _indoorMapViewModel.setInitialCameraPosition(
       scale: 1.0,
       offsetX: -50.0,
       offsetY: -50.0,
     );
   }
-  
+
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
@@ -63,12 +56,52 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   }
 
   static const yourLocation = 'Your Location';
-  
-  String roomName(String room){
-    if (RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)){
-      return room;
-    }
-    else {return '$buildingAbbreviation $room';}
+
+  String roomName(String room) {
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)
+        ? room
+        : '$buildingAbbreviation $room';
+  }
+
+  Widget _buildFloorPlan() {
+    return GestureDetector(
+      onDoubleTapDown: (details) {
+        final tapPosition = details.localPosition;
+        _indoorMapViewModel.panToRegion(
+          offsetX: -tapPosition.dx,
+          offsetY: -tapPosition.dy,
+        );
+      },
+      child: InteractiveViewer(
+        constrained: false,
+        scaleEnabled: false,
+        panEnabled: true,
+        boundaryMargin: const EdgeInsets.all(50.0),
+        transformationController: _indoorMapViewModel.transformationController,
+        child: SizedBox(
+          width: 1024,
+          height: 1024,
+          child: Stack(
+            children: [
+              SvgPicture.asset(
+                floorPlanPath,
+                fit: BoxFit.contain,
+                semanticsLabel:
+                    'Floor plan of $buildingAbbreviation-${widget.floor}',
+                placeholderBuilder: (context) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorBuilder: (context, error, stackTrace) => const Center(
+                  child: Text(
+                    'No floor plans exist at this time.',
+                    style: TextStyle(color: Colors.red, fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -79,60 +112,18 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         children: [
           LocationInfoWidget(
             from: widget.sourceRoom == yourLocation
-              ? yourLocation
-              : roomName(widget.sourceRoom),
+                ? yourLocation
+                : roomName(widget.sourceRoom),
             to: widget.endRoom == yourLocation
-              ? yourLocation
-              : roomName(widget.endRoom),
+                ? yourLocation
+                : roomName(widget.endRoom),
             building: widget.building,
-            floor: widget.floor
+            floor: widget.floor,
           ),
           Expanded(
             child: Stack(
               children: [
-                GestureDetector(
-                  onDoubleTapDown: (details) {
-                    final tapPosition = details.localPosition;
-                    _indoorMapViewModel.panToRegion(
-                      offsetX: -tapPosition.dx,
-                      offsetY: -tapPosition.dy,
-                    );
-                  },
-                  child: InteractiveViewer(
-                    constrained: false,
-                    scaleEnabled: false,
-                    panEnabled: true,
-                    boundaryMargin: const EdgeInsets.all(50.0),
-                    transformationController:
-                        _indoorMapViewModel.transformationController,
-                    child: SizedBox(
-                      width: 1024,
-                      height: 1024,
-                      child: Stack(
-                        children: [
-                          SvgPicture.asset(
-                            floorPlanPath,
-                            fit: BoxFit.contain,
-                            semanticsLabel:
-                                'Floor plan of $buildingAbbreviation-${widget.floor}',
-                            placeholderBuilder: (context) => const Center(
-                                child: CircularProgressIndicator()),
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Center(
-                              child: Text(
-                                'No floor plans exist at this time.',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                _buildFloorPlan(),
                 Positioned(
                   top: 16,
                   right: 16,
@@ -147,7 +138,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                     },
                   ),
                 ),
-
                 Positioned(
                   top: 76,
                   right: 16,
@@ -183,7 +173,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
               ],
             ),
           ),
-
           BottomInfoWidget(eta: _eta),
         ],
       ),
