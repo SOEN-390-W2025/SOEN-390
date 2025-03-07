@@ -6,31 +6,47 @@ import 'building_data.dart';
 import 'dart:developer' as dev;
 
 class BuildingDataManager {
-  static Map<String, BuildingData>? _buildingDataCache;
-  static List<String>? _buildingDataPaths;
+  static Map<String, BuildingData>? buildingDataCache;
+  static List<String>? buildingDataPaths;
+
+  // Injected AssetManifest instance
+  static AssetManifest? _assetManifest;
+
+  // Constructor to inject the AssetManifest for testing purposes
+  static void setAssetManifest(AssetManifest? assetManifest) {
+    _assetManifest = assetManifest;
+  }
+
+  // Loader as a class variable
+  static BuildingDataLoader? _loader;
+
+  // Optionally, set the loader for testing
+  static void setLoader(BuildingDataLoader? loader) {
+    _loader = loader;
+  }
 
   /// Returns a map of building data by abbreviation
   static Future<Map<String, BuildingData>> getAllBuildingData() async {
-    _buildingDataPaths ??= await _getBuildingDataPaths();
+    buildingDataPaths ??= await getBuildingDataPaths();
 
     // Check if cache exists and contains all buildings
-    if (_buildingDataCache != null) {
-      final Set<String> allBuildingAbbrs = _buildingDataPaths!
+    if (buildingDataCache != null) {
+      final Set<String> allBuildingAbbrs = buildingDataPaths!
           .map((path) => path.split('/').last.split('.').first.toUpperCase())
           .toSet();
 
       // Check if all buildings are in the cache
       final bool isComplete = allBuildingAbbrs
-          .every((abbr) => _buildingDataCache!.containsKey(abbr));
+          .every((abbr) => buildingDataCache!.containsKey(abbr));
 
       if (isComplete) {
-        return _buildingDataCache!;
+        return buildingDataCache!;
       }
       dev.log('Cache incomplete, loading all building data');
     }
 
-    _buildingDataCache = await _loadAllBuildingData();
-    return _buildingDataCache!;
+    buildingDataCache = await loadAllBuildingData();
+    return buildingDataCache!;
   }
 
   /// Gets building data for a specific abbreviation
@@ -38,18 +54,18 @@ class BuildingDataManager {
     final String upperAbbr = abbreviation.toUpperCase();
 
     // Initialize cache if needed
-    _buildingDataCache ??= {};
+    buildingDataCache ??= {};
 
-    if (_buildingDataCache!.containsKey(upperAbbr)) {
-      return _buildingDataCache![upperAbbr];
+    if (buildingDataCache!.containsKey(upperAbbr)) {
+      return buildingDataCache![upperAbbr];
     }
 
     try {
-      // Load only the specific building data
-      final loader = BuildingDataLoader(upperAbbr);
-      final buildingData = await loader.load();
+      // Load only the specific building data using the loader class variable
+      final dataLoader = _loader ?? BuildingDataLoader(upperAbbr);
+      final buildingData = await dataLoader.load();
 
-      _buildingDataCache![upperAbbr] = buildingData;
+      buildingDataCache![upperAbbr] = buildingData;
       return buildingData;
     } on Exception catch (e, stackTrace) {
       dev.log('Error loading building data for $upperAbbr: $e',
@@ -59,36 +75,40 @@ class BuildingDataManager {
   }
 
   /// Get the list of available building files using the AssetManifest API
-  static Future<List<String>?> _getBuildingDataPaths() async {
-    if (_buildingDataPaths != null) {
-      return _buildingDataPaths;
+  static Future<List<String>?> getBuildingDataPaths() async {
+    if (buildingDataPaths != null) {
+      return buildingDataPaths;
     }
 
+    // Use injected AssetManifest instance
+    final assetManifest =
+        _assetManifest ?? await AssetManifest.loadFromAssetBundle(rootBundle);
+
     try {
-      final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
       final indoorMapPaths = assetManifest
           .listAssets()
           .where((path) =>
               path.startsWith(BuildingData.dataPath) && path.endsWith('.yaml'))
           .toList();
 
-      _buildingDataPaths = indoorMapPaths;
+      buildingDataPaths = indoorMapPaths;
       return indoorMapPaths;
     } on FileSystemException catch (e, stackTrace) {
       dev.log('File system error for ${BuildingData.dataPath}: $e',
           error: e, stackTrace: stackTrace);
-      return null;
+      rethrow; // Rethrow the exception instead of returning null
     } on Exception catch (e, stackTrace) {
       dev.log('Error loading building data form ${BuildingData.dataPath}: $e',
           error: e, stackTrace: stackTrace);
-      return null;
+      rethrow; // Re-throws the caught exception
     }
   }
 
-  static Future<dynamic> _loadBuildingData(String abbreviation) async {
+  static Future<dynamic> loadBuildingData(String abbreviation) async {
     try {
-      final loader = BuildingDataLoader(abbreviation);
-      final buildingData = await loader.load();
+      // Use the class-level loader if it's set, or create a new one
+      final dataLoader = _loader ?? BuildingDataLoader(abbreviation);
+      final buildingData = await dataLoader.load();
       return buildingData;
     } on FormatException catch (e, stackTrace) {
       dev.log('Format error in YAML for $abbreviation: $e',
@@ -111,14 +131,14 @@ class BuildingDataManager {
 
   /// Loads all building data from YAML files in assets/maps/indoor
   /// Skip files that are already loaded in the cache
-  static Future<Map<String, BuildingData>> _loadAllBuildingData() async {
+  static Future<Map<String, BuildingData>> loadAllBuildingData() async {
     // Start with existing cache data if available, or create empty map
-    final Map<String, BuildingData> result = _buildingDataCache != null
-        ? Map<String, BuildingData>.from(_buildingDataCache!)
+    final Map<String, BuildingData> result = buildingDataCache != null
+        ? Map<String, BuildingData>.from(buildingDataCache!)
         : {};
 
     try {
-      final indoorMapPaths = await _getBuildingDataPaths();
+      final indoorMapPaths = await getBuildingDataPaths();
 
       if (indoorMapPaths == null || indoorMapPaths.isEmpty) {
         dev.log('No indoor YAML files found in ${BuildingData.dataPath}');
@@ -137,7 +157,7 @@ class BuildingDataManager {
           continue;
         }
 
-        final buildingData = await _loadBuildingData(abbreviation);
+        final buildingData = await loadBuildingData(abbreviation);
         if (buildingData is BuildingData) {
           result[abbreviation] = buildingData;
         } else {
@@ -154,7 +174,7 @@ class BuildingDataManager {
 
   /// Initialize the manager (call this at app startup)
   static Future<void> initialize() async {
-    await _getBuildingDataPaths();
+    await getBuildingDataPaths();
   }
 
   static Future<void> toJson() async {
@@ -165,7 +185,7 @@ class BuildingDataManager {
       final Map<String, dynamic> serializedData = {};
 
       // Convert each building data object to a serializable format
-      _buildingDataCache!.forEach((abbr, data) {
+      buildingDataCache!.forEach((abbr, data) {
         serializedData[abbr] = {
           'building': {
             'name': data.building.name,

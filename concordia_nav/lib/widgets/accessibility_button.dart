@@ -29,7 +29,8 @@ class _AccessibilityButtonState extends State<AccessibilityButton> {
       elevation: 3,
       child: InkWell(
         onTap: () {
-          widget.onDisabilityChanged(!widget.disability); // Change the state when tapped
+          widget.onDisabilityChanged(
+              !widget.disability); // Change the state when tapped
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -37,7 +38,9 @@ class _AccessibilityButtonState extends State<AccessibilityButton> {
           height: 45,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: widget.disability ? Theme.of(context).primaryColor : Colors.white, // Color changes based on state
+            color: widget.disability
+                ? Theme.of(context).primaryColor
+                : Colors.white, // Color changes based on state
             borderRadius: BorderRadius.circular(16),
             boxShadow: const [
               BoxShadow(
@@ -47,10 +50,12 @@ class _AccessibilityButtonState extends State<AccessibilityButton> {
               ),
             ],
           ),
-          child: Icon(
-            Icons.accessible,
-            color: widget.disability ? Colors.white : Theme.of(context).primaryColor // Icon color to maintain visibility
-          ),
+          child: Icon(Icons.accessible,
+              color: widget.disability
+                  ? Colors.white
+                  : Theme.of(context)
+                      .primaryColor // Icon color to maintain visibility
+              ),
         ),
       ),
     );

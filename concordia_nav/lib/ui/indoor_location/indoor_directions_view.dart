@@ -19,13 +19,12 @@ class IndoorDirectionsView extends StatefulWidget {
   final String endRoom;
   final String sourceRoom;
 
-  const IndoorDirectionsView({
-    super.key,
-    required this.sourceRoom,
-    required this.building,
-    required this.floor,
-    required this.endRoom
-  });
+  const IndoorDirectionsView(
+      {super.key,
+      required this.sourceRoom,
+      required this.building,
+      required this.floor,
+      required this.endRoom});
 
   @override
   State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
@@ -33,11 +32,17 @@ class IndoorDirectionsView extends StatefulWidget {
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
-  late IndoorDirectionsViewModel _directionsViewModel;
+      
+  bool disability = false;
+  late String from;
+  late String to;
+  late String buildingAbbreviation;
+  late String roomNumber;
+
   late IndoorMapViewModel _indoorMapViewModel;
   late BuildingViewModel _buildingViewModel;
+  late IndoorDirectionsViewModel _directionsViewModel;
   late String floorPlanPath;
-  late String buildingAbbreviation;
 
   double width = 1024.0;
   double height = 1024.0;
@@ -51,6 +56,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     super.initState();
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
+
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
 
     buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(widget.building)!;
@@ -114,6 +120,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   void dispose() {
     _indoorMapViewModel.dispose();
     super.dispose();
+  }
+
+  String roomName(String room) {
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)
+        ? room
+        : '$buildingAbbreviation $room';
   }
 
   static bool hasFullRoomName(String room) {
