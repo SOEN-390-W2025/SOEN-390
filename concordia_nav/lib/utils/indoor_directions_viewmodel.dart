@@ -120,29 +120,30 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
   Future<void> calculateRoute(String building, String floor, String sourceRoom, String endRoom) async {
     try {
+
+      final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+      final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
       final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
       final dynamic yamlData = await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
 
       ConcordiaFloorPoint? startPositionPoint;
 
       // Get start location (elevator point)
-      if (sourceRoom == 'Your Location') {
+      if (sourceRoomClean == 'Your Location') {
         startPositionPoint = await getStartPoint(building, floor);
       } else {
-        startPositionPoint = await getPositionPoint(building, floor, sourceRoom);
+        startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
       }
 
       // Get end location (room point)
-      final endPositionPoint = await getPositionPoint(building, floor, endRoom);
+      final endPositionPoint = await getPositionPoint(building, floor, endRoomClean);
 
       if (startPositionPoint != null && endPositionPoint != null) {
-        // Update location points
+
         _startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
         _endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
 
         final ConcordiaBuilding buildingData = _buildingViewModel.getBuildingByName(building)!;
-
-        // Create ConcordiaFloor for the current floor
         final currentFloor = ConcordiaFloor(floor, buildingData);
 
         // Create FloorRoutablePoint for start and end
@@ -167,6 +168,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         );
 
         notifyListeners();
+      } else {
       }
     } catch (e) {
       rethrow; // Let the view handle the error

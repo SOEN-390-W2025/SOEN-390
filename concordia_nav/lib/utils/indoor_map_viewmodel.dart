@@ -28,7 +28,7 @@ class IndoorMapViewModel extends MapViewModel {
   ConcordiaRoom? selectedRoom;
 
   final double _maxScale = 1.5;
-  final double _minScale = 0.4;
+  final double _minScale = 0.6;
   //hard code floors for mock
   final List<ConcordiaFloor> floors = [
     ConcordiaFloor(
@@ -177,7 +177,7 @@ class IndoorMapViewModel extends MapViewModel {
   }
 
   /// Centers the camera view between start and end points with appropriate zoom
-  void centerBetweenPoints(Offset startLocation, Offset endLocation, Size viewportSize, {double padding = 200.0}) {
+  void centerBetweenPoints(Offset startLocation, Offset endLocation, Size viewportSize, {double padding = 100.0}) {
     final double width = viewportSize.width;
     final double height = viewportSize.height;
     

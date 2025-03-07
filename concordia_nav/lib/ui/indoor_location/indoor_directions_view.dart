@@ -11,9 +11,7 @@ import '../../widgets/indoor/bottom_info_widget.dart';
 import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
-import '../../utils/indoor_map_viewmodel.dart';
-
-import 'dart:developer' as dev; 
+import '../../utils/indoor_map_viewmodel.dart'; 
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
@@ -78,7 +76,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _initializeRoute() async {
     try {
-      dev.log("Calculating route for ${widget.sourceRoom} to ${widget.endRoom} in ${widget.floor} of ${widget.building}");
       await _directionsViewModel.calculateRoute(
         widget.building,
         widget.floor,
