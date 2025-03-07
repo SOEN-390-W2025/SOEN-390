@@ -7,66 +7,79 @@ import 'package:flutter_svg/flutter_svg.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
-
-  testWidgets('IndoorDirectionsView renders correctly',
+  group('IndoorDirectionsView', () {
+    testWidgets('IndoorDirectionsView renders correctly',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: IndoorDirectionsView(
-          sourceRoom: 'Your Location',
-          building: 'Hall Building',
-          floor: '1',
-          endRoom: 'H 110',
-        ),
-      ),
-    );
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: IndoorDirectionsView(
+              sourceRoom: 'Your Location',
+              building: 'Hall Building',
+              floor: '1',
+              endRoom: 'H 110',
+            ),
+          ),
+        );
+        await tester.pump();
 
-    expect(find.text('Indoor Directions'), findsOneWidget);
-    expect(find.text('From: Your Location'), findsOneWidget);
-    expect(find.textContaining('To: H 110'), findsOneWidget);
-    expect(find.byType(SvgPicture), findsOneWidget);
-  });
+        expect(find.text('Indoor Directions'), findsOneWidget);
+        expect(find.text('From: Your Location'), findsOneWidget);
+        expect(find.textContaining('To: H 110'), findsOneWidget);
+        expect(find.byType(SvgPicture), findsOneWidget);
+      });
+    });
 
-  testWidgets('Tapping zoom buttons changes scale',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: IndoorDirectionsView(
-          sourceRoom: 'Your Location',
-          building: 'Hall Building',
-          floor: '1',
-          endRoom: 'H101',
-        ),
-      ),
-    );
+    testWidgets('Tapping zoom buttons changes scale',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: IndoorDirectionsView(
+              sourceRoom: 'Your Location',
+              building: 'Hall Building',
+              floor: '1',
+              endRoom: 'H110',
+            ),
+          ),
+        );
+        await tester.pump();
 
-    final Finder zoomInButton = find.byIcon(Icons.add);
-    final Finder zoomOutButton = find.byIcon(Icons.remove);
+        final Finder zoomInButton = find.byIcon(Icons.add);
+        final Finder zoomOutButton = find.byIcon(Icons.remove);
 
-    await tester.tap(zoomInButton);
-    await tester.pumpAndSettle();
+        await tester.tap(zoomInButton);
+        await tester.pump();
 
-    await tester.tap(zoomOutButton);
-    await tester.pumpAndSettle();
-  });
+        await tester.tap(zoomOutButton);
+        await tester.pumpAndSettle();
 
-  testWidgets('Start button exists and can be tapped',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: IndoorDirectionsView(
-          sourceRoom: 'Your Location',
-          building: 'Hall Building',
-          floor: '1',
-          endRoom: 'H101',
-        ),
-      ),
-    );
+        expect(find.byType(SvgPicture), findsOneWidget);
+      });
+    });
 
-    final Finder startButton = find.text('Start');
-    expect(startButton, findsOneWidget);
+    testWidgets('Start button exists and can be tapped',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: IndoorDirectionsView(
+              sourceRoom: 'Your Location',
+              building: 'Hall Building',
+              floor: '1',
+              endRoom: 'H110',
+            ),
+          ),
+        );
+        await tester.pump();
 
-    await tester.tap(startButton);
-    await tester.pumpAndSettle();
+        final Finder startButton = find.text('Start');
+        expect(startButton, findsOneWidget);
+
+        await tester.tap(startButton);
+        await tester.pump();
+      });
+    });
+
   });
 }
