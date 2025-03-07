@@ -6,7 +6,6 @@ import '../data/domain-model/concordia_floor_point.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concrete_floor_routable_point.dart';
 import '../data/domain-model/connection.dart';
-import '../data/domain-model/floor_routable_point.dart';
 import '../data/domain-model/indoor_route.dart';
 import '../data/repositories/building_data.dart';
 import '../data/repositories/building_data_manager.dart';
@@ -228,8 +227,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         if (_calculatedRoute != null) {
           double totalDistance = RouteCalculationService.calculateTotalDistanceFromRoute(_calculatedRoute!);
 
+          final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByName(building)!;
+          final currentFloor = ConcordiaFloor(floor, buildingObj);
+
           // Convert pixels to meters 
-          double conversionFactor = _getPixelToMeterConversionFactor(building, floor);
+          double conversionFactor = _getPixelToMeterConversionFactor(currentFloor);
           double distanceInMeters = totalDistance * conversionFactor;
 
           // Get travel time
@@ -252,8 +254,16 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     }
   }
 
-  double _getPixelToMeterConversionFactor(String building, String floor) {
-    return 0.01;
+  double _getPixelToMeterConversionFactor(ConcordiaFloor floor) {
+    if (floor.pixelsPerSecond > 0) {
+    // Calculate meters per pixel based on pixels per second
+    // Assuming an average walking speed of 1.4 meters per second
+    const double metersPerSecond = 1.4;
+    return metersPerSecond / floor.pixelsPerSecond;
+  }
+  
+  // Default conversion factor if no data is available
+  return 0.05; 
   }
 
   Future<Size> getSvgDimensions(String svgPath) async {
