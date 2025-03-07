@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/zoom_buttons.dart';
+import 'floor_plan_widget.dart';
 import 'indoor_directions_view.dart';
 import 'dart:developer' as dev;
 
@@ -58,47 +58,6 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     });
   }
 
-  Widget _buildFloorPlan() {
-    return GestureDetector(
-      onDoubleTapDown: (details) {
-        final tapPosition = details.localPosition;
-        _indoorMapViewModel.panToRegion(
-          offsetX: -tapPosition.dx,
-          offsetY: -tapPosition.dy,
-        );
-      },
-      child: InteractiveViewer(
-        constrained: false,
-        scaleEnabled: false,
-        panEnabled: true,
-        boundaryMargin: const EdgeInsets.all(50.0),
-        transformationController: _indoorMapViewModel.transformationController,
-        child: SizedBox(
-          width: 1024,
-          height: 1024,
-          child: Stack(
-            children: [
-              SvgPicture.asset(
-                floorPlanPath,
-                fit: BoxFit.contain,
-                semanticsLabel:
-                    'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
-                placeholderBuilder: (context) =>
-                    const Center(child: CircularProgressIndicator()),
-                errorBuilder: (context, error, stackTrace) => const Center(
-                  child: Text(
-                    'No floor plans exist at this time.',
-                    style: TextStyle(color: Colors.red, fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
@@ -119,7 +78,12 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
           : _floorPlanExists
               ? Stack(
                   children: [
-                    _buildFloorPlan(),
+                    FloorPlanWidget(
+                      indoorMapViewModel: _indoorMapViewModel,
+                      floorPlanPath: floorPlanPath,
+                      semanticsLabel:
+                          'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
+                    ),
                     Positioned(
                       top: 0,
                       left: 0,

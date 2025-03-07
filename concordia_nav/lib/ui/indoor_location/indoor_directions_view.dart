@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
 import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
-import '../../utils/indoor_map_viewmodel.dart';
+import 'floor_plan_widget.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
@@ -63,47 +63,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         : '$buildingAbbreviation $room';
   }
 
-  Widget _buildFloorPlan() {
-    return GestureDetector(
-      onDoubleTapDown: (details) {
-        final tapPosition = details.localPosition;
-        _indoorMapViewModel.panToRegion(
-          offsetX: -tapPosition.dx,
-          offsetY: -tapPosition.dy,
-        );
-      },
-      child: InteractiveViewer(
-        constrained: false,
-        scaleEnabled: false,
-        panEnabled: true,
-        boundaryMargin: const EdgeInsets.all(50.0),
-        transformationController: _indoorMapViewModel.transformationController,
-        child: SizedBox(
-          width: 1024,
-          height: 1024,
-          child: Stack(
-            children: [
-              SvgPicture.asset(
-                floorPlanPath,
-                fit: BoxFit.contain,
-                semanticsLabel:
-                    'Floor plan of $buildingAbbreviation-${widget.floor}',
-                placeholderBuilder: (context) =>
-                    const Center(child: CircularProgressIndicator()),
-                errorBuilder: (context, error, stackTrace) => const Center(
-                  child: Text(
-                    'No floor plans exist at this time.',
-                    style: TextStyle(color: Colors.red, fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +82,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
           Expanded(
             child: Stack(
               children: [
-                _buildFloorPlan(),
+                FloorPlanWidget(
+                  indoorMapViewModel: _indoorMapViewModel,
+                  floorPlanPath: floorPlanPath,
+                  semanticsLabel:
+                      'Floor plan of $buildingAbbreviation-${widget.floor}',
+                ),
                 Positioned(
                   top: 16,
                   right: 16,
