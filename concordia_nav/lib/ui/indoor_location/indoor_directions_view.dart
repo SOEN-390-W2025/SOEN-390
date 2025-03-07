@@ -13,6 +13,8 @@ import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 
+import 'dart:developer' as dev; 
+
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
@@ -76,13 +78,14 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _initializeRoute() async {
     try {
+      dev.log("Calculating route for ${widget.sourceRoom} to ${widget.endRoom} in ${widget.floor} of ${widget.building}");
       await _directionsViewModel.calculateRoute(
         widget.building,
         widget.floor,
         widget.sourceRoom,
         widget.endRoom
       );
-      if (_directionsViewModel.startLocation != Offset.zero && 
+      if (_directionsViewModel.startLocation != Offset.zero &&
         _directionsViewModel.endLocation != Offset.zero) {
         // Add a slight delay to ensure the UI has been laid out
         Future.delayed(const Duration(milliseconds: 300), () {
@@ -94,7 +97,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
             _directionsViewModel.endLocation,
             viewportSize,
             padding: 80.0,
-            
           );
         });
       }

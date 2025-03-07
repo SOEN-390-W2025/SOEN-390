@@ -7,6 +7,7 @@ import '../data/domain-model/concrete_floor_routable_point.dart';
 import '../data/domain-model/connection.dart';
 import '../data/domain-model/indoor_route.dart';
 import '../data/repositories/building_data.dart';
+import '../data/repositories/building_data_manager.dart';
 import '../data/services/indoor_routing_service.dart';
 import 'building_viewmodel.dart';
 
@@ -71,12 +72,13 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<ConcordiaFloorPoint?> getElevatorPoint(
+  Future<ConcordiaFloorPoint?> getStartPoint(
     String buildingName, String floor) async {
 
     // Get the building by name
     final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
 
+    final  buildingData = await BuildingDataManager.getBuildingData(building.abbreviation.toUpperCase());
     // Load YAML data for the building
     final dynamic yamlData = await BuildingViewModel().getYamlDataForBuilding(building.abbreviation.toUpperCase());
 
@@ -88,11 +90,25 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     // Search through connections to find the elevator for the given floor
     for (var connection in connections) {
 
-      if (connection.name.toLowerCase().contains("main elevators")) {  // Check if the connection is an elevator
+      if (floor == '1') {
+          final floorPoints = buildingData!.outdoorExitPoint;
+          return floorPoints;
+      } else if (connection.name.toLowerCase().contains("main elevators")) {  // Check if the connection is an elevator
         final floorPoints = connection.floorPoints[floor];
         if (floorPoints != null && floorPoints.isNotEmpty) {
-          // Return the first point for the given floor
           return floorPoints.first;
+        }
+      }
+      else if (connection.name.toLowerCase().contains("escalators")) {  // Check if the connection is an escalator
+        final floorPoints = connection.floorPoints[floor];
+        if (floorPoints != null && floorPoints.isNotEmpty) {
+          return floorPoints[1];
+        }
+      }
+      else if (connection.name.toLowerCase().contains("stairs")) {  // Check if the connection is a staircase
+        final floorPoints = connection.floorPoints[floor];
+        if (floorPoints != null && floorPoints.isNotEmpty) {
+          return floorPoints[2];
         }
       }
     }
@@ -101,13 +117,20 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
+
   Future<void> calculateRoute(String building, String floor, String sourceRoom, String endRoom) async {
     try {
       final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
       final dynamic yamlData = await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
 
+      ConcordiaFloorPoint? startPositionPoint;
+
       // Get start location (elevator point)
-      final startPositionPoint = await getElevatorPoint(building, floor);
+      if (sourceRoom == 'Your Location') {
+        startPositionPoint = await getStartPoint(building, floor);
+      } else {
+        startPositionPoint = await getPositionPoint(building, floor, sourceRoom);
+      }
 
       // Get end location (room point)
       final endPositionPoint = await getPositionPoint(building, floor, endRoom);

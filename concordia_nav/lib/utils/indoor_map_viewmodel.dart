@@ -209,8 +209,8 @@ class IndoorMapViewModel extends MapViewModel {
     final clampedScale = scale.clamp(_minScale, _maxScale);
 
     // Calculate the offset to center the route
-    final offsetX = -centerX + viewportWidth / (2.2 * clampedScale);
-    final offsetY = -centerY + viewportHeight / (2.2 * clampedScale);
+    final offsetX = -centerX + viewportWidth / (2.3 * clampedScale);
+    final offsetY = -centerY + viewportHeight / (2.3 * clampedScale);
 
     dev.log('Centering between points: offsetX=$offsetX, offsetY=$offsetY, clampedScale=$clampedScale');
 
