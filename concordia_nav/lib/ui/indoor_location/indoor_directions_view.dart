@@ -96,7 +96,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         Future.delayed(const Duration(milliseconds: 300), () {
           // Get the actual size of the viewport
           final Size viewportSize = Size(width, height);
-          
+
           _indoorMapViewModel.centerBetweenPoints(
             _directionsViewModel.startLocation,
             _directionsViewModel.endLocation,
@@ -225,7 +225,13 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                     ],
                   ),
                 ),
-                BottomInfoWidget(eta: viewModel.eta),
+                BottomInfoWidget(
+                  building: widget.building,
+                  floor: widget.floor,
+                  sourceRoom: widget.sourceRoom,
+                  endRoom: widget.endRoom,
+                  isDisability: widget.isDisability,
+                  eta: viewModel.eta),
               ],
             ),
           );

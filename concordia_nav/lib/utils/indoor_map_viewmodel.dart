@@ -67,6 +67,31 @@ class IndoorMapViewModel extends MapViewModel {
     animateTo(targetMatrix);
   }
 
+  /// Centers the camera view on a specific point
+  void centerOnPoint(Offset point, Size viewportSize, {double padding = 50.0}) {
+    final double width = viewportSize.width;
+    final double height = viewportSize.height;
+
+    // Calculate viewport dimensions
+    final viewportWidth = width / 2;
+    final viewportHeight = height / 2;
+
+    // Calculate scale and offset to center the point
+    final scale = transformationController.value.getMaxScaleOnAxis(); // Use the current scale
+    final offsetX = -point.dx + viewportWidth / (2.3 * scale);
+    final offsetY = -point.dy + viewportHeight / (2.3 * scale);
+
+    dev.log('Centering on point: offsetX=$offsetX, offsetY=$offsetY, scale=$scale');
+
+    // Create the transformation matrix
+    final matrix = Matrix4.identity()
+      ..translate(offsetX, offsetY)
+      ..scale(scale);
+
+    // Animate to the new position and zoom
+    animateTo(matrix);
+  }
+
   /// Centers the camera view between start and end points with appropriate zoom
   void centerBetweenPoints(Offset startLocation, Offset endLocation, Size viewportSize, {double padding = 100.0}) {
     final double width = viewportSize.width;

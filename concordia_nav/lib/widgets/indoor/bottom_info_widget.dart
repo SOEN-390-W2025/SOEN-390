@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../../ui/indoor_location/indoor_step_view.dart';
+
 class BottomInfoWidget extends StatelessWidget {
+  final String building;
+  final String floor;
+  final String sourceRoom;
+  final String endRoom;
+  final bool isDisability;
   final String eta;
 
   const BottomInfoWidget({
     super.key,
+    required this.building,
+    required this.floor,
+    required this.sourceRoom,
+    required this.endRoom,
+    required this.isDisability,
     required this.eta,
   });
 
@@ -27,7 +39,20 @@ class BottomInfoWidget extends StatelessWidget {
             ],
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VirtualStepGuideView(
+                    building: building,
+                    floor: floor,
+                    sourceRoom: sourceRoom,
+                    endRoom: endRoom,
+                    isDisability: isDisability,
+                  ),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),

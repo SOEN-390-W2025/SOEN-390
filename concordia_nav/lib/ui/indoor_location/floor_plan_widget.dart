@@ -12,6 +12,10 @@ class FloorPlanWidget extends StatelessWidget {
   final double width;
   final double height;
   final VoidCallback? onTap;
+  final bool highlightCurrentStep;
+  final Offset? currentStepPoint;
+  final bool showStepView;
+
 
   const FloorPlanWidget({
     super.key,
@@ -22,6 +26,10 @@ class FloorPlanWidget extends StatelessWidget {
     required this.width,
     required this.height,
     this.onTap,
+    this.highlightCurrentStep = false,
+    this.currentStepPoint,
+    this.showStepView = false
+
   });
 
   @override
@@ -36,7 +44,6 @@ class FloorPlanWidget extends StatelessWidget {
       },
       child: InteractiveViewer(
         constrained: false,
-        scaleEnabled: false,
         panEnabled: true,
         boundaryMargin: const EdgeInsets.all(50.0),
         transformationController: indoorMapViewModel.transformationController,
@@ -64,8 +71,11 @@ class FloorPlanWidget extends StatelessWidget {
                     route: viewModel!.calculatedRoute,
                     startLocation: viewModel!.startLocation,
                     endLocation: viewModel!.endLocation,
+                    highlightCurrentStep: highlightCurrentStep,
+                    currentStepPoint: currentStepPoint,
+                    showStepView: showStepView,
                   ),
-                  size: const Size(1024, 1024),
+                  size: Size(width, height),
                 ),
             ],
           ),
