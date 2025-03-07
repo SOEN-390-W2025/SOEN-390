@@ -2,6 +2,7 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
+import 'package:concordia_nav/ui/search/search_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:concordia_nav/widgets/compact_location_search_widget.dart';
 import 'package:google_directions_api/google_directions_api.dart' as gda;
@@ -25,6 +26,8 @@ void main() async {
   late MockMapService mockMapService;
   late ODSDirectionsService directionsService;
   late MockDirectionsService mockDirectionsService;
+  late TextEditingController originController;
+  late TextEditingController destinationController;
 
   const Marker mockMarker = Marker(
     markerId: MarkerId('mock_marker'),
@@ -57,6 +60,8 @@ void main() async {
   setUp(() {
     mockMapViewModel = MockMapViewModel();
     mockMapService = MockMapService();
+    originController = TextEditingController();
+    destinationController = TextEditingController();
 
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
 
@@ -101,6 +106,71 @@ void main() async {
     mockDirectionsService = MockDirectionsService();
     directionsService = ODSDirectionsService();
     directionsService.directionsService = mockDirectionsService;
+  });
+
+  testWidgets(
+      'Tapping on origin field should unselect building and call handleSelection',
+      (WidgetTester tester) async {
+    final Map<String, WidgetBuilder> routes = {
+      '/SearchView': (context) => const SearchView(),
+    };
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: CompactSearchCardWidget(
+            originController: originController,
+            destinationController: destinationController,
+            mapViewModel: mockMapViewModel,
+            searchList: ['Building A', 'Building B'],
+          ),
+          routes: routes),
+    );
+
+    final ValueNotifier<ConcordiaBuilding> selectedBuildingNotifier =
+        ValueNotifier(BuildingRepository.h);
+
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(selectedBuildingNotifier);
+
+    await tester.tap(find.byWidgetPredicate((widget) =>
+        widget is TextField && widget.decoration?.hintText == 'Your Location'));
+
+    await tester.pumpAndSettle();
+
+    verify(mockMapViewModel.unselectBuilding()).called(1);
+  });
+
+  testWidgets(
+      'Tapping on destination field should unselect building and call handleSelection',
+      (WidgetTester tester) async {
+    final Map<String, WidgetBuilder> routes = {
+      '/SearchView': (context) => const SearchView(),
+    };
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: CompactSearchCardWidget(
+            originController: originController,
+            destinationController: destinationController,
+            mapViewModel: mockMapViewModel,
+            searchList: ['Building A', 'Building B'],
+          ),
+          routes: routes),
+    );
+
+    final ValueNotifier<ConcordiaBuilding> selectedBuildingNotifier =
+        ValueNotifier(BuildingRepository.h);
+
+    when(mockMapViewModel.selectedBuildingNotifier)
+        .thenReturn(selectedBuildingNotifier);
+
+    await tester.tap(find.byWidgetPredicate((widget) =>
+        widget is TextField &&
+        widget.decoration?.hintText == 'Enter Destination'));
+
+    await tester.pumpAndSettle();
+
+    verify(mockMapViewModel.unselectBuilding()).called(1);
   });
 
   testWidgets('Button press triggers updatePath and fetches routes',

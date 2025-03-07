@@ -7,7 +7,13 @@ import '../../widgets/custom_appbar.dart';
 
 class SearchView extends StatefulWidget {
   final MapViewModel? mapViewModel;
-  const SearchView({super.key, this.mapViewModel});
+  final SearchViewModel? searchViewModel;
+
+  const SearchView({
+    super.key,
+    this.mapViewModel,
+    this.searchViewModel,
+  });
 
   @override
   State<SearchView> createState() => _SearchViewState();
@@ -17,6 +23,7 @@ class _SearchViewState extends State<SearchView> {
   String? _selectedBuilding; // To keep track of the selected building
   LatLng? _currentLocation;
   late MapViewModel _mapViewModel;
+  late SearchViewModel _searchViewModel;
 
   @override
   void didChangeDependencies() {
@@ -24,8 +31,8 @@ class _SearchViewState extends State<SearchView> {
 
     // Initialize mapViewModel and fetch current location after the widget's dependencies are set
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
+    _searchViewModel = widget.searchViewModel ?? SearchViewModel([]);
     _fetchCurrentLocation();
-
   }
 
   Future<void> _fetchCurrentLocation() async {
@@ -35,10 +42,11 @@ class _SearchViewState extends State<SearchView> {
   @override
   Widget build(BuildContext context) {
     // Get the buildings list from the arguments passed to the page
-    final searchList = ModalRoute.of(context)?.settings.arguments as List<String>;
+    final searchList =
+        ModalRoute.of(context)?.settings.arguments as List<String>? ?? [];
 
-    return ChangeNotifierProvider(
-      create: (_) => SearchViewModel(searchList), // Initialize the ViewModel
+    return ChangeNotifierProvider<SearchViewModel>.value(
+      value: _searchViewModel, // Use the provided or created ViewModel
       child: Scaffold(
         appBar: customAppBar(context, 'Search'),
         body: Consumer<SearchViewModel>(
@@ -47,7 +55,8 @@ class _SearchViewState extends State<SearchView> {
               children: [
                 TextField(
                   onChanged: (query) {
-                    viewModel.filterBuildings(query); // Filter buildings on input
+                    viewModel
+                        .filterBuildings(query); // Filter buildings on input
                   },
                   decoration: const InputDecoration(
                     labelText: 'Search for a building',
@@ -56,13 +65,14 @@ class _SearchViewState extends State<SearchView> {
                       color: Colors.grey,
                     ),
                     focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey), // Color when focused
+                      borderSide:
+                          BorderSide(color: Colors.grey), // Color when focused
                     ),
                     enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey), // Color when not focused
+                      borderSide: BorderSide(
+                          color: Colors.grey), // Color when not focused
                     ),
                   ),
-
                 ),
                 const SizedBox(height: 20),
                 // List of filtered buildings
@@ -72,19 +82,24 @@ class _SearchViewState extends State<SearchView> {
                         ? searchList.length
                         : viewModel.filteredBuildings.length,
                     itemBuilder: (context, index) {
-                      final String building = viewModel.filteredBuildings.isEmpty
-                          ? searchList[index]
-                          : viewModel.filteredBuildings[index];
+                      final String building =
+                          viewModel.filteredBuildings.isEmpty
+                              ? searchList[index]
+                              : viewModel.filteredBuildings[index];
 
                       final bool isSelected = _selectedBuilding == building;
 
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            _selectedBuilding = building; // Update the selected building
+                            _selectedBuilding =
+                                building; // Update the selected building
                           });
-          
-                          Navigator.pop(context, [building, _currentLocation]); // Return the selected building
+
+                          Navigator.pop(context, [
+                            building,
+                            _currentLocation
+                          ]); // Return the selected building
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -93,7 +108,8 @@ class _SearchViewState extends State<SearchView> {
                                 : null, // Change color if selected
                             border: const Border(
                               bottom: BorderSide(
-                                color: Colors.grey, // Border color between each item
+                                color: Colors
+                                    .grey, // Border color between each item
                                 width: 0.5, // Border thickness
                               ),
                             ),
