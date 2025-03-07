@@ -205,27 +205,27 @@ rooms:
       floor: "2"
       entrancePoint: { x: 880, y: 595 }
   "8":
-    - roomNumber: "01"
+    - roomNumber: "1"
       category: classroom
       floor: "8"
       entrancePoint: { x: 880, y: 885 }
-    - roomNumber: "02"
+    - roomNumber: "2"
       category: lab
       floor: "8"
       entrancePoint: { x: 645, y: 810 }
-    - roomNumber: "03"
+    - roomNumber: "3"
       category: classroom
       floor: "8"
       entrancePoint: { x: 788, y: 866 }
-    - roomNumber: "05"
+    - roomNumber: "5"
       category: office
       floor: "8"
       entrancePoint: { x: 680, y: 875 }
-    - roomNumber: "06"
+    - roomNumber: "6"
       category: office
       floor: "8"
       entrancePoint: { x: 507, y: 747 }
-    - roomNumber: "07"
+    - roomNumber: "7"
       category: lab
       floor: "8"
       entrancePoint: { x: 518, y: 855 }
