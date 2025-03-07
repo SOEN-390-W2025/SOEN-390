@@ -74,7 +74,15 @@ class HomePage extends StatelessWidget {
                       title: 'Next class directions',
                       icon: const Icon(Icons.calendar_today),
                       onPress: () =>
-                          Navigator.pushNamed(context, '/IndoorDirectionsView')),
+                        Navigator.pushNamed(context, '/IndoorDirectionsView',
+                          arguments: {
+                            'sourceRoom': 'Your Location',
+                            'building': 'Hall Building',
+                            'floor': '1',
+                            'endRoom': 'H 101'
+                          }
+                      )
+                    ),
                 ],
               ),
             ),

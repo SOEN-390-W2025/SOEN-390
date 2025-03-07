@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../../utils/indoor_map_viewmodel.dart';
+import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
+import '../../widgets/indoor/bottom_info_widget.dart';
+import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import '../../utils/building_viewmodel.dart';
-import '../../utils/indoor_map_viewmodel.dart';
+import 'floor_plan_widget.dart';
 
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   final String floor;
-  final String room;
-  final String currentLocation;
+  final String endRoom;
+  final String sourceRoom;
 
   const IndoorDirectionsView(
       {super.key,
-      required this.currentLocation,
+      required this.sourceRoom,
       required this.building,
       required this.floor,
-      required this.room});
+      required this.endRoom});
 
   @override
   State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
@@ -24,14 +27,10 @@ class IndoorDirectionsView extends StatefulWidget {
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
-  String _selectedMode = 'Walking';
+  bool disability = false;
   final String _eta = '5 min';
-
   late String buildingAbbreviation;
-  late String roomNumber;
-
   late IndoorMapViewModel _indoorMapViewModel;
-
   late String floorPlanPath;
 
   @override
@@ -39,13 +38,10 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     super.initState();
     buildingAbbreviation =
         BuildingViewModel().getBuildingAbbreviation(widget.building)!;
-    roomNumber = widget.room.replaceFirst(widget.floor, '');
-    // floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
-    // Hardcoding a default selected floor for testing
-    floorPlanPath = 'assets/maps/indoor/floorplans/hall1.svg';
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-
     _indoorMapViewModel.setInitialCameraPosition(
       scale: 1.0,
       offsetX: -50.0,
@@ -59,129 +55,55 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     super.dispose();
   }
 
+  static const yourLocation = 'Your Location';
+
+  String roomName(String room) {
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)
+        ? room
+        : '$buildingAbbreviation $room';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, 'Indoor Directions'),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.location_on, color: Colors.red),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'From: ${widget.currentLocation}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'To: $buildingAbbreviation ${widget.room}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: DropdownButton<String>(
-              value: _selectedMode,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedMode = newValue!;
-                });
-              },
-              items: <String>['Walking', 'Accessibility', 'X']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
+          LocationInfoWidget(
+            from: widget.sourceRoom == yourLocation
+                ? yourLocation
+                : roomName(widget.sourceRoom),
+            to: widget.endRoom == yourLocation
+                ? yourLocation
+                : roomName(widget.endRoom),
+            building: widget.building,
+            floor: widget.floor,
           ),
           Expanded(
             child: Stack(
               children: [
-                GestureDetector(
-                  onDoubleTapDown: (details) {
-                    final tapPosition = details.localPosition;
-                    _indoorMapViewModel.panToRegion(
-                      offsetX: -tapPosition.dx,
-                      offsetY: -tapPosition.dy,
-                    );
-                  },
-                  child: InteractiveViewer(
-                    constrained: false,
-                    scaleEnabled: false,
-                    panEnabled: true,
-                    boundaryMargin: const EdgeInsets.all(50.0),
-                    transformationController:
-                        _indoorMapViewModel.transformationController,
-                    child: SizedBox(
-                      width: 1024,
-                      height: 1024,
-                      child: Stack(
-                        children: [
-                          SvgPicture.asset(
-                            floorPlanPath,
-                            fit: BoxFit.contain,
-                            semanticsLabel:
-                                'Floor plan of $buildingAbbreviation-${widget.floor}',
-                            placeholderBuilder: (context) => const Center(
-                                child: CircularProgressIndicator()),
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Center(
-                              child: Text(
-                                'No floor plans exist at this time.',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                FloorPlanWidget(
+                  indoorMapViewModel: _indoorMapViewModel,
+                  floorPlanPath: floorPlanPath,
+                  semanticsLabel:
+                      'Floor plan of $buildingAbbreviation-${widget.floor}',
                 ),
                 Positioned(
                   top: 16,
+                  right: 16,
+                  child: AccessibilityButton(
+                    sourceRoom: widget.sourceRoom,
+                    endRoom: widget.endRoom,
+                    disability: disability,
+                    onDisabilityChanged: (value) {
+                      setState(() {
+                        disability = value;
+                      });
+                    },
+                  ),
+                ),
+                Positioned(
+                  top: 76,
                   right: 16,
                   child: Column(
                     children: [
@@ -215,48 +137,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(26),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Text(
-                      'ETA: $_eta',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: incorporate "start navigation" functionality
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 10),
-                  ),
-                  child: const Text(
-                    'Start',
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          BottomInfoWidget(eta: _eta),
         ],
       ),
     );

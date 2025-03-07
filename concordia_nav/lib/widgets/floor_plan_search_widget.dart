@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../data/domain-model/concordia_building.dart';
 import '../ui/indoor_map/classroom_selection.dart';
 
 class FloorPlanSearchWidget extends StatelessWidget {
   final TextEditingController searchController;
-  final Function(String) onFloorSelected;
-  final String? building;
-  final String? floor;
+  final ConcordiaBuilding building;
+  final String floor;
+  final bool disabled;
 
   const FloorPlanSearchWidget({
     super.key,
     required this.searchController,
-    required this.onFloorSelected,
     required this.building,
     required this.floor,
+    this.disabled = false,
   });
 
   @override
@@ -44,6 +45,7 @@ class FloorPlanSearchWidget extends StatelessWidget {
               child: TextField(
                 controller: searchController,
                 style: const TextStyle(fontSize: 16),
+                readOnly: disabled,
                 decoration: const InputDecoration(
                   hintText: 'Search Room',
                   border: InputBorder.none,
@@ -54,7 +56,7 @@ class FloorPlanSearchWidget extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ClassroomSelection(building: 'Hall Building', floor: '1'),
+                      builder: (context) => ClassroomSelection(building: building.name, floor: floor, isSearch: true),
                     ),
                   );
                 },

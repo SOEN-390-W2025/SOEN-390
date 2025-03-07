@@ -266,10 +266,10 @@ void main() async {
     final routes = {
       '/': (context) => const HomePage(),
       '/IndoorDirectionsView': (context) => const IndoorDirectionsView(
-          currentLocation: 'Your location',
+          sourceRoom: 'Your location',
           building: 'Hall Building',
           floor: '1',
-          room: '901'
+          endRoom: '901'
         ),
     };
 
