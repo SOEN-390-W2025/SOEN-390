@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_floor_point.dart';
-import '../data/domain-model/concordia_room.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concrete_floor_routable_point.dart';
 import '../data/domain-model/connection.dart';
@@ -42,17 +41,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     // Get the building by name
     final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
+    final String abbreviation = building.abbreviation.toUpperCase();
 
-    // Load YAML data for the building
-    final dynamic yamlData = await BuildingViewModel().getYamlDataForBuilding(building.abbreviation.toUpperCase());
-    
-    // Load floors and rooms from the YAML data
-    final loadedFloors = loadFloors(yamlData, building);
-    final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
-    final Map<String, List<ConcordiaRoom>> roomsByFloor = loadRooms(yamlData, floorMap);
+    // Use BuildingDataManager instead of direct YAML loading
+    final BuildingData? buildingData = await BuildingDataManager.getBuildingData(abbreviation);
+
+    if (buildingData == null) {
+      return null;
+    }
 
     // Get the list of rooms for the given floor
-    final rooms = roomsByFloor[floor];
+    final rooms = buildingData.roomsByFloor[floor];
 
     // Remove the floor part of the room identifier
     String roomNumber = room.replaceFirst(floor, '');
@@ -67,7 +66,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
           break;
         }
       }
-    
+
       // If there's more than one leading zero, remove the first one
       if (leadingZerosCount == 1) {
         roomNumber = roomNumber.substring(1);
@@ -76,12 +75,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     if (rooms != null) {
       // Find the room by its number
-      final roomFound = rooms.firstWhere(
-        (room) => room.roomNumber == roomNumber,
-      );
+      try {
+        final roomFound = rooms.firstWhere(
+          (room) => room.roomNumber == roomNumber,
+        );
 
-      // Return the entrancePoint if the room is found
-      return roomFound.entrancePoint;
+        // Return the entrancePoint if the room is found
+        return roomFound.entrancePoint;
+      } catch (e) {
+        // Room not found
+        return null;
+      }
     }
 
     // Return null if the floor or room wasn't found
@@ -164,12 +168,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
   Future<void> calculateRoute(String building, String floor, String sourceRoom, String endRoom, bool disability) async {
     try {
-
       final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
       final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
 
       final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
-      final dynamic yamlData = await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
+
+      // Get the building data using BuildingDataManager
+      final BuildingData? buildingData = await BuildingDataManager.getBuildingData(buildingAbbreviation);
+
+      if (buildingData == null) {
+        throw Exception('Building data not found for $building');
+      }
 
       ConcordiaFloorPoint? startPositionPoint;
 
@@ -185,12 +194,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       final endPositionPoint = await getPositionPoint(building, floor, endRoomClean);
 
       if (startPositionPoint != null && endPositionPoint != null) {
-
         _startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
         _endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
 
-        final ConcordiaBuilding buildingData = _buildingViewModel.getBuildingByName(building)!;
-        final currentFloor = ConcordiaFloor(floor, buildingData);
+        final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByName(building)!;
+        final currentFloor = ConcordiaFloor(floor, buildingObj);
 
         // Create FloorRoutablePoint for start and end
         final startRoutablePoint = ConcreteFloorRoutablePoint(
@@ -207,14 +215,13 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
         // Calculate route based on accessibility mode
         _calculatedRoute = IndoorRoutingService.getIndoorRoute(
-          yamlData,
+          buildingData,
           startRoutablePoint,
           endRoutablePoint,
           _isAccessibilityMode
         );
 
         notifyListeners();
-      } else {
       }
     } catch (e) {
       rethrow; // Let the view handle the error
