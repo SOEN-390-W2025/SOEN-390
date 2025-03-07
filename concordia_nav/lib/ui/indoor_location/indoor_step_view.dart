@@ -123,6 +123,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
@@ -153,13 +154,41 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                       currentStep.description,
                       style: const TextStyle(fontSize: 16),
                     ),
+                    // Add step metrics
+                    if (viewModel.currentStepIndex > 0 && viewModel.currentStepIndex < viewModel.navigationSteps.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.timer_outlined, size: 16, color: Colors.grey[600]),
+                            const SizedBox(width: 4),
+                            Text(
+                              viewModel.getCurrentStepTimeEstimate(),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(Icons.straighten, size: 16, color: Colors.grey[600]),
+                            const SizedBox(width: 4),
+                            Text(
+                              viewModel.getCurrentStepDistanceEstimate(),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          // Navigation controls moved here
+          // Navigation controls
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -230,9 +259,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
   }
 
   Widget _buildTravelInfoBox(VirtualStepGuideViewModel viewModel) {
-    // Calculate estimated remaining time (this assumes your viewModel has this data)
-    final int estimatedRemainingMinutes = 20;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(
@@ -248,6 +274,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Time estimate column
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -261,7 +288,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                   const Icon(Icons.access_time, size: 20),
                   const SizedBox(width: 4),
                   Text(
-                    '$estimatedRemainingMinutes min',
+                    viewModel.getRemainingTimeEstimate(),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -271,6 +298,33 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ),
             ],
           ),
+
+          // Distance estimate column
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Distance remaining',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              Row(
+                children: [
+                  const Icon(Icons.straighten, size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    viewModel.getRemainingDistanceEstimate(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Exit button
           ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.exit_to_app, color: Colors.white),

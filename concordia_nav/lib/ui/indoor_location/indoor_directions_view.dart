@@ -232,7 +232,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                   floor: widget.floor,
                   sourceRoom: widget.sourceRoom,
                   endRoom: widget.endRoom,
-                  isDisability: widget.isDisability,
+                  isDisability: disability,
                   eta: viewModel.eta,
                   distance: viewModel.distance,
                 ),
