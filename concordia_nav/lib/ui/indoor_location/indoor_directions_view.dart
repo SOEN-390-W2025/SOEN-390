@@ -89,11 +89,15 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       offsetY: -50.0,
     );
 
-    from = realStartRoom == yourLocation
-        ? yourLocation
-        : (hasFullRoomName(realStartRoom)
-            ? realStartRoom
-            : '$buildingAbbreviation $realStartRoom');
+    from = realStartRoom;
+
+    if (realStartRoom == yourLocation) {
+      from = yourLocation;
+    } else if (hasFullRoomName(realStartRoom)) {
+      from = realStartRoom;
+    } else {
+      from = '$buildingAbbreviation $realStartRoom';
+    }
 
     to = hasFullRoomName(realEndRoom)
         ? realEndRoom

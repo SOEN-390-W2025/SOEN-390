@@ -6,6 +6,8 @@ import '../../utils/map_viewmodel.dart';
 class ShuttleRouteRepository {
   final AssetBundle assetBundle;
 
+  final String mondayThursday = 'Monday-Thursday';
+
   ShuttleRouteRepository({AssetBundle? assetBundle})
       : assetBundle = assetBundle ?? rootBundle;
 
@@ -60,7 +62,7 @@ class ShuttleRouteRepository {
 
     final Map<String, dynamic> schedule;
     try {
-      schedule = await loadShuttleSchedule(dayType ?? 'Monday-Thursday');
+      schedule = await loadShuttleSchedule(dayType ?? mondayThursday);
     } on Exception {
       return false; // In case of an error, assume the shuttle is unavailable.
     }
@@ -80,8 +82,8 @@ class ShuttleRouteRepository {
 
   /// Helper method to determine the range that maps to today's day of the week.
   String? getDayType(DateTime now) {
-    const weekday = 'Monday-Thursday';
-    const Map<int, String> dayTypeMapping = {
+    final String weekday = mondayThursday;
+    final Map<int, String> dayTypeMapping = {
       DateTime.monday: weekday,
       DateTime.tuesday: weekday,
       DateTime.wednesday: weekday,
