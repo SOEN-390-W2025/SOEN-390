@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +45,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   static late String realEndRoom;
   late String roomNumber;
   static bool isMultiFloor = false;
+  Timer? _timer;
 
   late IndoorMapViewModel _indoorMapViewModel;
   late IndoorDirectionsViewModel _directionsViewModel;
@@ -92,6 +95,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   @override
   void dispose() {
+    _timer?.cancel();
     _indoorMapViewModel.dispose();
     super.dispose();
   }
@@ -108,10 +112,13 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> getSvgSize() async {
     final size = await _directionsViewModel.getSvgDimensions(floorPlanPath);
-    setState(() {
-      width = size.width;
-      height = size.height;
-    });
+    if (mounted) {
+      // Ensure widget is still mounted before calling setState
+      setState(() {
+        width = size.width;
+        height = size.height;
+      });
+    }
   }
 
   bool _isSameFloor(String sourceRoom, String endRoom) {
@@ -140,21 +147,22 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       );
 
       if (_directionsViewModel.startLocation != Offset.zero &&
-          _directionsViewModel.endLocation != Offset.zero &&
-          !kDebugMode) {
-        // Add a slight delay to ensure the UI has been laid out
-        Future.delayed(Duration(milliseconds: mounted ? 0 : 300), () {
-          // Get the actual size of the viewport
-          final Size viewportSize = Size(width, height);
-          _indoorMapViewModel.centerBetweenPoints(
-            _directionsViewModel.startLocation,
-            _directionsViewModel.endLocation,
-            viewportSize,
-            padding: 80.0,
-          );
+          _directionsViewModel.endLocation != Offset.zero) {
+        // If you were using Future.delayed before, use Timer instead:
+        _timer?.cancel(); // Cancel any existing timer
+        _timer = Timer(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            // Ensure widget is still mounted before proceeding
+            final Size viewportSize = Size(width, height);
+            _indoorMapViewModel.centerBetweenPoints(
+              _directionsViewModel.startLocation,
+              _directionsViewModel.endLocation,
+              viewportSize,
+              padding: 80.0,
+            );
+          }
         });
       }
-      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
