@@ -50,6 +50,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       // Add a slight delay to ensure the UI has been laid out
       if (mounted && !kDebugMode) {
         Future.delayed(const Duration(milliseconds: 300), () {
+          // ignore: use_build_context_synchronously
           _viewModel.focusOnCurrentStep(context);
         });
       }
