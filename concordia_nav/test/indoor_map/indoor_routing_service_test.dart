@@ -49,6 +49,22 @@ void main() async {
       expect(route.secondIndoorPortionToConnection, isNull);
     });
 
+    test(
+        'getIndoorRoute with valid destinationExitPoint',
+        () async {
+      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
+      final origin =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.mb), 0, 0);
+      final destination =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 775, 400);
+
+      final route =
+          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+
+      expect(route.firstIndoorPortionToConnection, isNull);
+      expect(route.firstIndoorConnection, isNull);
+    });
+
     test('finding no best neighbors returns null firstIndoorPortionToConnection', () async{
       final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
       final origin =
