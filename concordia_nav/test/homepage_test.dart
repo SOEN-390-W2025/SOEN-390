@@ -265,12 +265,11 @@ void main() async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
-      '/IndoorDirectionsView': (context) => const IndoorDirectionsView(
+      '/IndoorDirectionsView': (context) => IndoorDirectionsView(
           sourceRoom: 'Your location',
           building: 'Hall Building',
           floor: '1',
-          endRoom: '901'
-        ),
+          endRoom: '901'),
     };
 
     // Build the HomePage widget

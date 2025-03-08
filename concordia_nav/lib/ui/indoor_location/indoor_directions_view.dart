@@ -1,31 +1,31 @@
-// ignore_for_file: avoid_catches_without_on_clauses
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
 import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
-import 'floor_plan_widget.dart'; // Fixed empty import
-import '../../utils/building_viewmodel.dart';
+import 'floor_plan_widget.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 
+// ignore: must_be_immutable
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
-  final String floor;
-  final String endRoom;
-  final String sourceRoom;
+  String floor;
+  late String endRoom;
+  late String sourceRoom;
   final bool isDisability;
 
-  const IndoorDirectionsView(
-      {super.key,
-      required this.sourceRoom,
-      required this.building,
-      required this.floor,
-      required this.endRoom,
-      this.isDisability = false});
+  IndoorDirectionsView({
+    super.key,
+    required this.sourceRoom,
+    required this.building,
+    required this.floor,
+    required this.endRoom,
+    this.isDisability = false,
+  });
 
   @override
   State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
@@ -37,19 +37,20 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   late String from;
   late String to;
   late String buildingAbbreviation;
+  late String floorPlanPath;
+  static late String realStartRoom;
+  static late String realEndRoom;
   late String roomNumber;
+  static bool isMultiFloor = false;
 
   late IndoorMapViewModel _indoorMapViewModel;
-  late BuildingViewModel _buildingViewModel;
   late IndoorDirectionsViewModel _directionsViewModel;
-  late String floorPlanPath;
+  late BuildingViewModel _buildingViewModel;
+
+  static const yourLocation = 'Your Location';
 
   double width = 1024.0;
   double height = 1024.0;
-  final double _maxScale = 1.5;
-  final double _minScale = 0.6;
-
-  static const yourLocation = 'Your Location';
 
   @override
   void initState() {
@@ -58,12 +59,23 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     _buildingViewModel = BuildingViewModel();
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+
     disability = widget.isDisability;
     buildingAbbreviation =
         _buildingViewModel.getBuildingAbbreviation(widget.building)!;
     floorPlanPath =
         'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
-    _getSvgSize();
+
+    // Check if source and destination are on different floors
+    if (!isMultiFloor && !_isSameFloor(widget.sourceRoom, widget.endRoom)) {
+      isMultiFloor = true;
+      realStartRoom = widget.sourceRoom;
+      widget.endRoom = 'Your Location';
+    } else {
+      isMultiFloor = false;
+      realStartRoom = widget.sourceRoom;
+      realEndRoom = widget.endRoom;
+    }
 
     _indoorMapViewModel.setInitialCameraPosition(
       scale: 1.0,
@@ -71,7 +83,25 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       offsetY: -50.0,
     );
 
+    _getSvgSize();
+
     _initializeRoute();
+  }
+
+  @override
+  void dispose() {
+    _indoorMapViewModel.dispose();
+    super.dispose();
+  }
+
+  String roomName(String room) {
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)
+        ? room
+        : '$buildingAbbreviation $room';
+  }
+
+  static bool hasFullRoomName(String room) {
+    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
   }
 
   Future<void> _getSvgSize() async {
@@ -82,17 +112,37 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     });
   }
 
+  bool _isSameFloor(String sourceRoom, String endRoom) {
+    // If either sourceRoom or endRoom is "Your Location", return true
+    if (sourceRoom == 'Your Location' || endRoom == 'Your Location') {
+      return true;
+    }
+
+    // Clean the room strings by removing leading alphabetic characters and spaces
+    final String cleanSourceRoom =
+        sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]+|\s+'), '');
+    final String cleanEndRoom =
+        endRoom.replaceAll(RegExp(r'^[a-zA-Z]+|\s+'), '');
+
+    return cleanSourceRoom[0] == cleanEndRoom[0];
+  }
+
   Future<void> _initializeRoute() async {
     try {
-      await _directionsViewModel.calculateRoute(widget.building, widget.floor,
-          widget.sourceRoom, widget.endRoom, disability);
+      await _directionsViewModel.calculateRoute(
+        widget.building,
+        widget.floor,
+        widget.sourceRoom,
+        widget.endRoom,
+        disability,
+      );
+
       if (_directionsViewModel.startLocation != Offset.zero &&
           _directionsViewModel.endLocation != Offset.zero) {
         // Add a slight delay to ensure the UI has been laid out
         Future.delayed(Duration(milliseconds: mounted ? 0 : 300), () {
           // Get the actual size of the viewport
           final Size viewportSize = Size(width, height);
-
           _indoorMapViewModel.centerBetweenPoints(
             _directionsViewModel.startLocation,
             _directionsViewModel.endLocation,
@@ -115,116 +165,169 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
   }
 
   @override
-  void dispose() {
-    _indoorMapViewModel.dispose();
-    super.dispose();
-  }
-
-  String roomName(String room) {
-    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room)
-        ? room
-        : '$buildingAbbreviation $room';
-  }
-
-  static bool hasFullRoomName(String room) {
-    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _directionsViewModel,
-      child:
-          Consumer<IndoorDirectionsViewModel>(builder: (context, viewModel, _) {
-        return Scaffold(
-          appBar: customAppBar(context, 'Indoor Directions'),
-          body: Column(
-            children: [
-              LocationInfoWidget(
-                  from: widget.sourceRoom == yourLocation
+      child: Consumer<IndoorDirectionsViewModel>(
+        builder: (context, viewModel, _) {
+          return Scaffold(
+            appBar: customAppBar(context, 'Indoor Directions'),
+            body: Column(
+              children: [
+                LocationInfoWidget(
+                  from: realStartRoom == yourLocation
                       ? yourLocation
-                      : (hasFullRoomName(widget.sourceRoom)
-                          ? widget.sourceRoom
-                          : '$buildingAbbreviation ${widget.sourceRoom}'),
-                  to: widget.endRoom == yourLocation
-                      ? yourLocation
-                      : (hasFullRoomName(widget.endRoom)
-                          ? widget.endRoom
-                          : '$buildingAbbreviation ${widget.endRoom}'),
+                      : (hasFullRoomName(realStartRoom)
+                          ? realStartRoom
+                          : '$buildingAbbreviation $realStartRoom'),
+                  to: (hasFullRoomName(realEndRoom)
+                      ? realEndRoom
+                      : '$buildingAbbreviation $realEndRoom'),
                   building: widget.building,
                   floor: widget.floor,
-                  isDisability: disability),
-              Expanded(
-                child: Stack(
-                  children: [
-                    FloorPlanWidget(
-                      indoorMapViewModel: _indoorMapViewModel,
-                      floorPlanPath: floorPlanPath,
-                      viewModel: viewModel,
-                      semanticsLabel:
-                          'Floor plan of $buildingAbbreviation-${widget.floor}',
-                    ),
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: AccessibilityButton(
-                        sourceRoom: widget.sourceRoom,
-                        endRoom: widget.endRoom,
-                        disability: disability,
-                        onDisabilityChanged: (value) {
-                          disability = !disability;
-                          _initializeRoute(); // Recalculate route with new setting
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      top: 76,
-                      right: 16,
-                      child: Column(
-                        children: [
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final double currentScale =
-                                  currentMatrix.getMaxScaleOnAxis();
-                              if (currentScale < _maxScale) {
-                                final Matrix4 zoomedInMatrix = currentMatrix
-                                  ..scale(1.2);
-                                _indoorMapViewModel.animateTo(zoomedInMatrix);
-                              }
-                            },
-                            icon: Icons.add,
-                            isZoomInButton: true,
-                          ),
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final double currentScale =
-                                  currentMatrix.getMaxScaleOnAxis();
-                              if (currentScale > _minScale) {
-                                final Matrix4 zoomedOutMatrix = currentMatrix
-                                  ..scale(0.8);
-                                _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                              }
-                            },
-                            icon: Icons.remove,
-                            isZoomInButton: false,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  isDisability: disability,
                 ),
-              ),
-              BottomInfoWidget(eta: viewModel.eta),
-            ],
-          ),
-        );
-      }),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      FloorPlanWidget(
+                        indoorMapViewModel: _indoorMapViewModel,
+                        floorPlanPath: floorPlanPath,
+                        viewModel: viewModel,
+                        semanticsLabel:
+                            'Floor plan of $buildingAbbreviation-${widget.floor}',
+                      ),
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: AccessibilityButton(
+                          sourceRoom: widget.sourceRoom,
+                          endRoom: widget.endRoom,
+                          disability: disability,
+                          onDisabilityChanged: (value) {
+                            disability = !disability;
+                            _initializeRoute(); // Recalculate route with new setting
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        top: 76,
+                        right: 16,
+                        child: Column(
+                          children: [
+                            ZoomButton(
+                              onTap: () {
+                                final Matrix4 currentMatrix =
+                                    _indoorMapViewModel
+                                        .transformationController.value
+                                        .clone();
+                                final double currentScale =
+                                    currentMatrix.getMaxScaleOnAxis();
+                                if (currentScale < 1.5) {
+                                  final Matrix4 zoomedInMatrix = currentMatrix
+                                    ..scale(1.2);
+                                  _indoorMapViewModel.animateTo(zoomedInMatrix);
+                                }
+                              },
+                              icon: Icons.add,
+                              isZoomInButton: true,
+                            ),
+                            ZoomButton(
+                              onTap: () {
+                                final Matrix4 currentMatrix =
+                                    _indoorMapViewModel
+                                        .transformationController.value
+                                        .clone();
+                                final double currentScale =
+                                    currentMatrix.getMaxScaleOnAxis();
+                                if (currentScale > 0.6) {
+                                  final Matrix4 zoomedOutMatrix = currentMatrix
+                                    ..scale(0.8);
+                                  _indoorMapViewModel
+                                      .animateTo(zoomedOutMatrix);
+                                }
+                              },
+                              icon: Icons.remove,
+                              isZoomInButton: false,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                BottomInfoWidget(
+                  eta: viewModel.eta,
+                  onNextFloor: _handleNextFloorPress,
+                  onPrevFloor: _handlePrevFloorPress,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  void _handlePrevFloorPress() {
+    setState(() {
+      widget.sourceRoom = realStartRoom;
+      widget.endRoom =
+          yourLocation; // Go back to the previous floor's start point
+
+      isMultiFloor = true; // Mark as multi-floor again
+
+      final String newFloor =
+          realStartRoom.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty
+              ? realStartRoom.replaceAll(RegExp(r'[^0-9]'), '').substring(0, 1)
+              : widget.floor;
+
+      if (widget.floor != newFloor) {
+        widget.floor = newFloor;
+        floorPlanPath =
+            'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+
+        _indoorMapViewModel.setInitialCameraPosition(
+          scale: 1.0,
+          offsetX: -50.0,
+          offsetY: -50.0,
+        );
+
+        _getSvgSize();
+      }
+    });
+
+    _initializeRoute();
+  }
+
+  void _handleNextFloorPress() {
+    setState(() {
+      widget.sourceRoom = 'Your Location';
+      widget.endRoom = realEndRoom;
+
+      isMultiFloor = false;
+
+      final String newFloor =
+          realEndRoom.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty
+              ? realEndRoom.replaceAll(RegExp(r'[^0-9]'), '').substring(0, 1)
+              : widget.floor;
+
+      if (widget.floor != newFloor) {
+        widget.floor = newFloor;
+        floorPlanPath =
+            'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+
+        // Reset the state of _indoorMapViewModel instead of recreating it
+        _indoorMapViewModel.setInitialCameraPosition(
+          scale: 1.0,
+          offsetX: -50.0,
+          offsetY: -50.0,
+        );
+
+        _getSvgSize(); // Ensure floor plan dimensions update
+      }
+    });
+
+    _initializeRoute();
   }
 }

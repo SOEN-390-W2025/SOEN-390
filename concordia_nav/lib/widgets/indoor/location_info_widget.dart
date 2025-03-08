@@ -11,14 +11,13 @@ class LocationInfoWidget extends StatelessWidget {
   final String floor;
   final bool isDisability;
 
-  const LocationInfoWidget({
-    super.key,
-    required this.from,
-    required this.to,
-    required this.building,
-    required this.floor,
-    required this.isDisability
-  });
+  const LocationInfoWidget(
+      {super.key,
+      required this.from,
+      required this.to,
+      required this.building,
+      required this.floor,
+      required this.isDisability});
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +26,10 @@ class LocationInfoWidget extends StatelessWidget {
       decoration: _boxDecoration(),
       child: Row(
         children: [
-          Column(
-            children: [
-            Icon(Icons.radio_button_checked,
-                  color: Theme.of(context).primaryColor,
+          Column(children: [
+            Icon(
+              Icons.radio_button_checked,
+              color: Theme.of(context).primaryColor,
             ),
             const VerticalDottedLine(
               height: 20,
@@ -40,9 +39,7 @@ class LocationInfoWidget extends StatelessWidget {
               strokeWidth: 2,
             ),
             const Icon(Icons.location_on, color: Colors.red),
-            ]
-          ),
-
+          ]),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -73,24 +70,25 @@ class LocationInfoWidget extends StatelessWidget {
   }
 
   Widget _buildLocationBox(BuildContext context, String text, bool isSource) {
-
     final toBuildingAbbrev = to.split(' ')[0];
-    final ConcordiaBuilding? toBuilding = BuildingViewModel().getBuildingByAbbreviation(toBuildingAbbrev);
+    final ConcordiaBuilding? toBuilding =
+        BuildingViewModel().getBuildingByAbbreviation(toBuildingAbbrev);
     final cleanedTo = to.replaceAll('$toBuildingAbbrev ', '').trim();
     final toFloor = cleanedTo.startsWith(RegExp(r'^[a-zA-Z]'))
-    ? cleanedTo.substring(0, 2)
-    : cleanedTo[0];
+        ? cleanedTo.substring(0, 2)
+        : cleanedTo[0];
 
     String fromBuildingAbbrev = toBuildingAbbrev;
     ConcordiaBuilding? fromBuilding = toBuilding;
     String fromFloor = toFloor;
     if (from != 'Your Location') {
       fromBuildingAbbrev = from.split(' ')[0];
-      fromBuilding = BuildingViewModel().getBuildingByAbbreviation(fromBuildingAbbrev);
+      fromBuilding =
+          BuildingViewModel().getBuildingByAbbreviation(fromBuildingAbbrev);
       final cleanedFrom = from.replaceAll('$fromBuildingAbbrev ', '').trim();
       fromFloor = cleanedFrom.startsWith(RegExp(r'^[a-zA-Z]'))
-        ? cleanedFrom.substring(0, 2)
-        : cleanedFrom[0];
+          ? cleanedFrom.substring(0, 2)
+          : cleanedFrom[0];
     }
 
     return GestureDetector(
@@ -99,23 +97,21 @@ class LocationInfoWidget extends StatelessWidget {
           context,
           '/ClassroomSelection',
           arguments: {
-            'building': isSource
-                ? fromBuilding!.name
-                : toBuilding!.name,
+            'building': isSource ? fromBuilding!.name : toBuilding!.name,
             'floor': (isSource || from == 'Your Location')
                 ? 'Floor $fromFloor'
                 : 'Floor $toFloor',
-            'currentRoom': isSource
-                ? to
-                : from,
+            'currentRoom': isSource ? to : from,
             'isSource': isSource,
             'isDisability': isDisability
           },
         );
       },
-      child: Row(  // Wrap it with Row widget to allow Expanded to work
+      child: Row(
+        // Wrap it with Row widget to allow Expanded to work
         children: [
-          Expanded(  // Expanded widget now works within Row
+          Expanded(
+            // Expanded widget now works within Row
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(

@@ -11,7 +11,7 @@ void main() {
     testWidgets('IndoorDirectionsView renders correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: IndoorDirectionsView(
             sourceRoom: 'Your Location',
             building: 'Hall Building',
@@ -31,7 +31,7 @@ void main() {
     testWidgets('Tapping zoom buttons changes scale',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: IndoorDirectionsView(
             sourceRoom: 'Your Location',
             building: 'Hall Building',
@@ -57,7 +57,7 @@ void main() {
     testWidgets('Start button exists and can be tapped',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: IndoorDirectionsView(
             sourceRoom: 'Your Location',
             building: 'Hall Building',

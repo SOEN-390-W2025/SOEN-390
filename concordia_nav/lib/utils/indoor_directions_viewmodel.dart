@@ -175,6 +175,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
           await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
 
       ConcordiaFloorPoint? startPositionPoint;
+      ConcordiaFloorPoint? endPositionPoint;
 
       // Get start location (elevator point)
       if (sourceRoomClean == 'Your Location') {
@@ -185,9 +186,15 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
             await getPositionPoint(building, floor, sourceRoomClean);
       }
 
-      // Get end location (room point)
-      final endPositionPoint =
-          await getPositionPoint(building, floor, endRoomClean);
+      // Get end location (room point), handle "Your Location"
+      if (endRoomClean == 'Your Location') {
+        dev.log('End room is "Your Location", using current position');
+        endPositionPoint = await getStartPoint(
+            building, floor, disability); // Assuming same logic as start
+      } else {
+        endPositionPoint =
+            await getPositionPoint(building, floor, endRoomClean);
+      }
 
       if (startPositionPoint != null && endPositionPoint != null) {
         _startLocation =
@@ -217,7 +224,9 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
             startRoutablePoint, endRoutablePoint, _isAccessibilityMode);
 
         notifyListeners();
-      } else {}
+      } else {
+        // Handle case when start or end point is null (you may want to show an error or fallback logic)
+      }
     } catch (e) {
       rethrow; // Let the view handle the error
     }
