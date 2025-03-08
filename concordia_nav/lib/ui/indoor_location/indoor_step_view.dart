@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_declarations
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/indoor_step_viewmodel.dart';
@@ -48,7 +47,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
 
     _viewModel.initializeRoute().then((_) {
       // Add a slight delay to ensure the UI has been laid out
-      if (mounted && !kDebugMode) {
+      if (mounted) {
         Future.delayed(const Duration(milliseconds: 300), () {
           // ignore: use_build_context_synchronously
           _viewModel.focusOnCurrentStep(context);
@@ -221,7 +220,31 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ElevatedButton.icon(
                 onPressed: viewModel.currentStepIndex <
                         viewModel.navigationSteps.length - 1
-                    ? () => viewModel.nextStep(context)
+                    ? () {
+                        if (currentStep.title == 'Escalators' ||
+                            currentStep.title == 'Elevator') {
+                          // Get the first digit of the endRoom to determine the next floor
+                          final String nextFloor =
+                              (RegExp(r'\d').firstMatch(widget.endRoom))
+                                      ?.group(0) ??
+                                  '';
+                          final String buildingAbbreviation =
+                              viewModel.buildingAbbreviation;
+
+                          // Update the floorPlanPath
+                          final String newFloorPlanPath =
+                              'assets/maps/indoor/floorplans/$buildingAbbreviation$nextFloor.svg';
+
+                          // Update the floorPlanPath and rebuild the floor plan
+                          setState(() {
+                            viewModel.floorPlanPath = newFloorPlanPath;
+                          });
+
+                          return;
+                        }
+
+                        viewModel.nextStep(context);
+                      }
                     : () {
                         Navigator.pop(context);
                       },

@@ -77,20 +77,21 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     required bool isDisability,
     required TickerProvider vsync,
     IndoorDirectionsViewModel? directionsViewModel,
-  }) :
-    directionsViewModel = directionsViewModel ?? IndoorDirectionsViewModel(),
-    buildingViewModel = BuildingViewModel(),
-    indoorMapViewModel = IndoorMapViewModel(vsync: vsync),
-    disability = isDisability {
-      buildingAbbreviation = buildingViewModel.getBuildingAbbreviation(building)!;
-      floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$floor.svg';
-      _initializeSvgSize();
+  })  : directionsViewModel =
+            directionsViewModel ?? IndoorDirectionsViewModel(),
+        buildingViewModel = BuildingViewModel(),
+        indoorMapViewModel = IndoorMapViewModel(vsync: vsync),
+        disability = isDisability {
+    buildingAbbreviation = buildingViewModel.getBuildingAbbreviation(building)!;
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation$floor.svg';
+    _initializeSvgSize();
 
-      indoorMapViewModel.setInitialCameraPosition(
-        scale: 1.0,
-        offsetX: -50.0,
-        offsetY: -50.0,
-      );
+    indoorMapViewModel.setInitialCameraPosition(
+      scale: 1.0,
+      offsetX: -50.0,
+      offsetY: -50.0,
+    );
   }
 
   Future<void> _initializeSvgSize() async {
@@ -110,12 +111,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
     try {
       await directionsViewModel.calculateRoute(
-        building,
-        floor,
-        sourceRoom,
-        endRoom,
-        disability
-      );
+          building, floor, sourceRoom, endRoom, disability);
 
       if (directionsViewModel.calculatedRoute != null) {
         _generateNavigationSteps();
@@ -130,16 +126,19 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
   }
 
   void focusOnCurrentStep(BuildContext context) {
-    if (navigationSteps.isEmpty || currentStepIndex >= navigationSteps.length) return;
+    if (navigationSteps.isEmpty || currentStepIndex >= navigationSteps.length) {
+      return;
+    }
 
     final step = navigationSteps[currentStepIndex];
 
     if (step.focusPoint != Offset.zero) {
       final Matrix4 matrix = Matrix4.identity()
         ..translate(
-          -step.focusPoint.dx * step.zoomLevel + MediaQuery.of(context).size.width / 2,
-          -step.focusPoint.dy * step.zoomLevel + MediaQuery.of(context).size.height / 3
-        )
+            -step.focusPoint.dx * step.zoomLevel +
+                MediaQuery.of(context).size.width / 2,
+            -step.focusPoint.dy * step.zoomLevel +
+                MediaQuery.of(context).size.height / 3)
         ..scale(step.zoomLevel);
 
       indoorMapViewModel.animateTo(matrix);
@@ -173,69 +172,71 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
     if (route.firstIndoorConnection!.name.toLowerCase().contains('elevator')) {
       actionText = 'Take the elevator';
-    } else if (route.firstIndoorConnection!.name.toLowerCase().contains('stair')) {
+    } else if (route.firstIndoorConnection!.name
+        .toLowerCase()
+        .contains('stair')) {
       actionText = 'Use the stairs';
-    } else if (route.firstIndoorConnection!.name.toLowerCase().contains('escalator')) {
+    } else if (route.firstIndoorConnection!.name
+        .toLowerCase()
+        .contains('escalator')) {
       actionText = 'Take the escalator';
     } else {
       actionText = 'Use ${route.firstIndoorConnection!.name}';
     }
 
-    navigationSteps.add(
-      NavigationStep(
-        title: route.firstIndoorConnection!.name,
-        description: '$actionText ${route.firstIndoorConnection!.isAccessible ? '(accessible)' : 'to continue your route'}',
-        focusPoint: RouteCalculationService.getConnectionFocusPoint(
+    navigationSteps.add(NavigationStep(
+      title: route.firstIndoorConnection!.name,
+      description:
+          '$actionText ${route.firstIndoorConnection!.isAccessible ? '(accessible)' : 'to continue your route'}',
+      focusPoint: RouteCalculationService.getConnectionFocusPoint(
           route.firstIndoorConnection!,
           floor,
           directionsViewModel.startLocation,
-          directionsViewModel.endLocation
-        ),
-        zoomLevel: 1.2,
-        icon: route.firstIndoorConnection!.name.toLowerCase().contains('elevator') 
-            ? Icons.elevator 
-            : Icons.stairs,
-      )
-    );
+          directionsViewModel.endLocation),
+      zoomLevel: 1.2,
+      icon: route.firstIndoorConnection!.name.toLowerCase().contains('elevator')
+          ? Icons.elevator
+          : Icons.stairs,
+    ));
   }
 
   void _handleSecondBuilding(IndoorRoute route) {
-    navigationSteps.add(
-      NavigationStep(
-        title: 'Building Transition',
-        description: 'You are now entering ${route.secondBuilding!.name} building',
-        focusPoint: Offset.zero, // This would need actual building transition point
-        zoomLevel: 1.0,
-        icon: Icons.business,
-      )
-    );
+    navigationSteps.add(NavigationStep(
+      title: 'Building Transition',
+      description:
+          'You are now entering ${route.secondBuilding!.name} building',
+      focusPoint:
+          Offset.zero, // This would need actual building transition point
+      zoomLevel: 1.0,
+      icon: Icons.business,
+    ));
 
     // Add second building navigation steps
-    if (route.secondIndoorPortionToConnection != null && 
+    if (route.secondIndoorPortionToConnection != null &&
         route.secondIndoorPortionToConnection!.length > 1) {
       _addDirectionalSteps(route.secondIndoorPortionToConnection!);
     }
 
     if (route.secondIndoorConnection != null) {
-      navigationSteps.add(
-        NavigationStep(
-          title: route.secondIndoorConnection!.name,
-          description: 'Use ${route.secondIndoorConnection!.name} ${route.secondIndoorConnection!.isAccessible ? '(accessible)' : ''}',
-          focusPoint: RouteCalculationService.getConnectionFocusPoint(
+      navigationSteps.add(NavigationStep(
+        title: route.secondIndoorConnection!.name,
+        description:
+            'Use ${route.secondIndoorConnection!.name} ${route.secondIndoorConnection!.isAccessible ? '(accessible)' : ''}',
+        focusPoint: RouteCalculationService.getConnectionFocusPoint(
             route.secondIndoorConnection!,
             floor,
             directionsViewModel.startLocation,
-            directionsViewModel.endLocation
-          ),
-          zoomLevel: 1.2,
-          icon: route.secondIndoorConnection!.name.toLowerCase().contains('elevator') 
-              ? Icons.elevator 
-              : Icons.stairs,
-        )
-      );
+            directionsViewModel.endLocation),
+        zoomLevel: 1.2,
+        icon: route.secondIndoorConnection!.name
+                .toLowerCase()
+                .contains('elevator')
+            ? Icons.elevator
+            : Icons.stairs,
+      ));
     }
 
-    if (route.secondIndoorPortionFromConnection != null && 
+    if (route.secondIndoorPortionFromConnection != null &&
         route.secondIndoorPortionFromConnection!.length > 1) {
       _addDirectionalSteps(route.secondIndoorPortionFromConnection!);
     }
@@ -249,18 +250,17 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     final route = directionsViewModel.calculatedRoute!;
 
     // Start with initial orientation step
-    navigationSteps.add(
-      NavigationStep(
-        title: 'Start',
-        description: 'Begin navigation from ${sourceRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
-        focusPoint: directionsViewModel.startLocation,
-        zoomLevel: 1.3,
-        icon: Icons.my_location,
-      )
-    );
+    navigationSteps.add(NavigationStep(
+      title: 'Start',
+      description:
+          'Begin navigation from ${sourceRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+      focusPoint: directionsViewModel.startLocation,
+      zoomLevel: 1.3,
+      icon: Icons.my_location,
+    ));
 
     // Add steps from first indoor portion to connection
-    if (route.firstIndoorPortionToConnection != null && 
+    if (route.firstIndoorPortionToConnection != null &&
         route.firstIndoorPortionToConnection!.length > 1) {
       _addDirectionalSteps(route.firstIndoorPortionToConnection!);
     }
@@ -271,7 +271,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
 
     // Add steps from first connection to second connection or destination
-    if (route.firstIndoorPortionFromConnection != null && 
+    if (route.firstIndoorPortionFromConnection != null &&
         route.firstIndoorPortionFromConnection!.length > 1) {
       _addDirectionalSteps(route.firstIndoorPortionFromConnection!);
     }
@@ -282,29 +282,24 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
 
     // Add final arrival step
-    navigationSteps.add(
-      NavigationStep(
-        title: 'Destination',
-        description: 'You have reached your destination: ${endRoom == yourLocation
-                ? yourLocation
-                : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
-        focusPoint: directionsViewModel.endLocation,
-        zoomLevel: 1.3,
-        icon: Icons.place,
-      )
-    );
+    navigationSteps.add(NavigationStep(
+      title: 'Destination',
+      description:
+          'You have reached your destination: ${endRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+      focusPoint: directionsViewModel.endLocation,
+      zoomLevel: 1.3,
+      icon: Icons.place,
+    ));
 
     // Ensure we have at least one step
     if (navigationSteps.isEmpty) {
-      navigationSteps.add(
-        NavigationStep(
-          title: 'Navigate to Destination',
-          description: 'Follow the highlighted path to your destination',
-          focusPoint: directionsViewModel.endLocation,
-          zoomLevel: 1.0,
-          icon: Icons.directions,
-        )
-      );
+      navigationSteps.add(NavigationStep(
+        title: 'Navigate to Destination',
+        description: 'Follow the highlighted path to your destination',
+        focusPoint: directionsViewModel.endLocation,
+        zoomLevel: 1.0,
+        icon: Icons.directions,
+      ));
     }
 
     notifyListeners();
@@ -323,25 +318,28 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     // Identify turn points by looking at direction changes
     for (int i = 1; i < points.length - 1; i++) {
       final currentPoint = Offset(points[i].positionX, points[i].positionY);
-      final nextPoint = Offset(points[i + 1].positionX, points[i + 1].positionY);
+      final nextPoint =
+          Offset(points[i + 1].positionX, points[i + 1].positionY);
 
       // Calculate the previous and next segments' directions (including diagonals)
-      final prevDirection = RouteCalculationService.getDetailedDirectionBetweenPoints(previousPoint, currentPoint);
-      final nextDirection = RouteCalculationService.getDetailedDirectionBetweenPoints(currentPoint, nextPoint);
+      final prevDirection =
+          RouteCalculationService.getDetailedDirectionBetweenPoints(
+              previousPoint, currentPoint);
+      final nextDirection =
+          RouteCalculationService.getDetailedDirectionBetweenPoints(
+              currentPoint, nextPoint);
 
       // If there's a direction change (including diagonal changes), add it as a turn point
       if (prevDirection != nextDirection) {
-        final turnType = RouteCalculationService.getDetailedTurnType(prevDirection, nextDirection);
+        final turnType = RouteCalculationService.getDetailedTurnType(
+            prevDirection, nextDirection);
 
         // Only add meaningful turns (skip "Continue straight" instructions)
         if (turnType != 'Continue straight') {
-          turnPoints.add(
-            TurnPoint(
+          turnPoints.add(TurnPoint(
               point: previousPoint, // Use previous point to give advance notice
               turnInstruction: "Prepare to ${turnType.toLowerCase()}",
-              index: i - 1
-            )
-          );
+              index: i - 1));
         }
       }
 
@@ -356,30 +354,30 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       // Skip if too close to last added step (prevents redundant instructions)
       if (turn.index - lastAddedIndex < 2) continue;
 
-      final IconData icon = RouteCalculationService.getTurnIcon(turn.turnInstruction);
-      String description = '${turn.turnInstruction} at the upcoming intersection';
+      final IconData icon =
+          RouteCalculationService.getTurnIcon(turn.turnInstruction);
+      String description =
+          '${turn.turnInstruction} at the upcoming intersection';
 
       // If this is the last turn point, change the description to reference the classroom
       if (i == turnPoints.length - 1) {
         description = '${turn.turnInstruction} in front of the classroom';
       }
 
-      navigationSteps.add(
-        NavigationStep(
-          title: turn.turnInstruction,
-          description: description,
-          focusPoint: turn.point,
-          zoomLevel: 1.2,
-          icon: icon,
-        )
-      );
+      navigationSteps.add(NavigationStep(
+        title: turn.turnInstruction,
+        description: description,
+        focusPoint: turn.point,
+        zoomLevel: 1.2,
+        icon: icon,
+      ));
 
       lastAddedIndex = turn.index;
     }
   }
 
-  List<dynamic> _calculatePortionAfterFirstConnection(
-      IndoorRoute route, double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
+  List<dynamic> _calculatePortionAfterFirstConnection(IndoorRoute route,
+      double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
     double totalDistance = totalDistanceEstimateMeters;
     int totalTime = totalTimeEstimateMinutes;
     int stepIndex = navigationSteps.length - 1; // Default to destination
@@ -393,35 +391,32 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
 
     RouteCalculationService.calculateSegmentMetrics(
-      route.firstIndoorPortionFromConnection,
-      onResult: (distanceMeters, timeSeconds) {
-        stepDistanceMeters[stepIndex] = distanceMeters;
-        stepTimeSeconds[stepIndex] = timeSeconds;
-        totalDistance += distanceMeters;
-        totalTime += (timeSeconds / 60).ceil();
-      }
-    );
+        route.firstIndoorPortionFromConnection,
+        onResult: (distanceMeters, timeSeconds) {
+      stepDistanceMeters[stepIndex] = distanceMeters;
+      stepTimeSeconds[stepIndex] = timeSeconds;
+      totalDistance += distanceMeters;
+      totalTime += (timeSeconds / 60).ceil();
+    });
     return [totalDistance, totalTime];
   }
 
-  List<dynamic> _calculateSecondPortion(
-    IndoorRoute route, double totalDistanceEstimateMeters, int totalTimeEstimateMinutes){
+  List<dynamic> _calculateSecondPortion(IndoorRoute route,
+      double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
     double totalDistance = totalDistanceEstimateMeters;
     int totalTime = totalTimeEstimateMinutes;
-    final int buildingTransitionIndex = navigationSteps.indexWhere(
-      (step) => step.title == 'Building Transition'
-    );
+    final int buildingTransitionIndex = navigationSteps
+        .indexWhere((step) => step.title == 'Building Transition');
 
     if (buildingTransitionIndex >= 0) {
       RouteCalculationService.calculateSegmentMetrics(
-        route.secondIndoorPortionToConnection,
-        onResult: (distanceMeters, timeSeconds) {
-          stepDistanceMeters[buildingTransitionIndex + 1] = distanceMeters;
-          stepTimeSeconds[buildingTransitionIndex + 1] = timeSeconds;
-          totalDistance += distanceMeters;
-          totalTime += (timeSeconds / 60).ceil();
-        }
-      );
+          route.secondIndoorPortionToConnection,
+          onResult: (distanceMeters, timeSeconds) {
+        stepDistanceMeters[buildingTransitionIndex + 1] = distanceMeters;
+        stepTimeSeconds[buildingTransitionIndex + 1] = timeSeconds;
+        totalDistance += distanceMeters;
+        totalTime += (timeSeconds / 60).ceil();
+      });
     }
     return [totalDistance, totalTime];
   }
@@ -439,30 +434,30 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     var totalTimeEstimateMinutes = 0;
 
     // Calculate for first portion (up to first connection)
-    if (route.firstIndoorPortionToConnection != null && route.firstIndoorPortionToConnection!.length > 1) {
+    if (route.firstIndoorPortionToConnection != null &&
+        route.firstIndoorPortionToConnection!.length > 1) {
       RouteCalculationService.calculateSegmentMetrics(
-        route.firstIndoorPortionToConnection,
-        onResult: (distanceMeters, timeSeconds) {
-          stepDistanceMeters[1] = distanceMeters;
-          stepTimeSeconds[1] = timeSeconds;
-          totalDistanceEstimateMeters += distanceMeters;
-          totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
-        }
-      );
+          route.firstIndoorPortionToConnection,
+          onResult: (distanceMeters, timeSeconds) {
+        stepDistanceMeters[1] = distanceMeters;
+        stepTimeSeconds[1] = timeSeconds;
+        totalDistanceEstimateMeters += distanceMeters;
+        totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
+      });
     }
 
     // Connection waiting time (e.g., elevator)
-    if (route.firstIndoorConnection != null && route.firstIndoorPortionFromConnection != null) {
+    if (route.firstIndoorConnection != null &&
+        route.firstIndoorPortionFromConnection != null) {
       final int connectionIndex = navigationSteps.indexWhere(
-        (step) => step.title == route.firstIndoorConnection!.name
-      );
+          (step) => step.title == route.firstIndoorConnection!.name);
 
       if (connectionIndex >= 0) {
-        final int waitTimeSeconds = RouteCalculationService.getConnectionWaitTime(
-          route.firstIndoorConnection!,
-          route.firstIndoorPortionToConnection![0].floor.name,
-          route.firstIndoorPortionFromConnection![0].floor.name
-        );
+        final int waitTimeSeconds =
+            RouteCalculationService.getConnectionWaitTime(
+                route.firstIndoorConnection!,
+                route.firstIndoorPortionToConnection![0].floor.name,
+                route.firstIndoorPortionFromConnection![0].floor.name);
 
         stepTimeSeconds[connectionIndex] = waitTimeSeconds;
         totalTimeEstimateMinutes += (waitTimeSeconds / 60).ceil();
@@ -470,44 +465,46 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
 
     // Calculate for portion after first connection
-    if (route.firstIndoorPortionFromConnection != null && route.firstIndoorPortionFromConnection!.length > 1) {
-      final results = _calculatePortionAfterFirstConnection(route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
+    if (route.firstIndoorPortionFromConnection != null &&
+        route.firstIndoorPortionFromConnection!.length > 1) {
+      final results = _calculatePortionAfterFirstConnection(
+          route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
       totalDistanceEstimateMeters = results[0];
       totalTimeEstimateMinutes = results[1];
     }
 
     // Handle second building portions if applicable
     if (route.secondIndoorPortionToConnection != null) {
-      final results = _calculateSecondPortion(route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
+      final results = _calculateSecondPortion(
+          route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
       totalDistanceEstimateMeters = results[0];
       totalTimeEstimateMinutes = results[1];
     }
 
-    if (route.secondIndoorConnection != null && route.secondIndoorPortionFromConnection != null) {
+    if (route.secondIndoorConnection != null &&
+        route.secondIndoorPortionFromConnection != null) {
       final int connectionIndex = navigationSteps.indexWhere(
-        (step) => step.title == route.secondIndoorConnection!.name
-      );
+          (step) => step.title == route.secondIndoorConnection!.name);
 
       if (connectionIndex >= 0) {
-        final int waitTimeSeconds = RouteCalculationService.getConnectionWaitTime(
-          route.secondIndoorConnection!,
-          route.secondIndoorPortionToConnection![0].floor.name,
-          route.secondIndoorPortionFromConnection![0].floor.name
-        );
+        final int waitTimeSeconds =
+            RouteCalculationService.getConnectionWaitTime(
+                route.secondIndoorConnection!,
+                route.secondIndoorPortionToConnection![0].floor.name,
+                route.secondIndoorPortionFromConnection![0].floor.name);
 
         stepTimeSeconds[connectionIndex] = waitTimeSeconds;
         totalTimeEstimateMinutes += (waitTimeSeconds / 60).ceil();
       }
 
       RouteCalculationService.calculateSegmentMetrics(
-        route.secondIndoorPortionFromConnection,
-        onResult: (distanceMeters, timeSeconds) {
-          stepDistanceMeters[navigationSteps.length - 1] = distanceMeters;
-          stepTimeSeconds[navigationSteps.length - 1] = timeSeconds;
-          totalDistanceEstimateMeters += distanceMeters;
-          totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
-        }
-      );
+          route.secondIndoorPortionFromConnection,
+          onResult: (distanceMeters, timeSeconds) {
+        stepDistanceMeters[navigationSteps.length - 1] = distanceMeters;
+        stepTimeSeconds[navigationSteps.length - 1] = timeSeconds;
+        totalDistanceEstimateMeters += distanceMeters;
+        totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
+      });
     }
 
     notifyListeners();
@@ -515,14 +512,19 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
   // Helper method to get time estimate for current step
   String getCurrentStepTimeEstimate() {
-    if (navigationSteps.isEmpty || currentStepIndex >= stepTimeSeconds.length) return "N/A";
+    if (navigationSteps.isEmpty || currentStepIndex >= stepTimeSeconds.length) {
+      return "N/A";
+    }
     final seconds = stepTimeSeconds[currentStepIndex];
     return RouteCalculationService.formatTime(seconds);
   }
 
   // Helper method to get distance estimate for current step
   String getCurrentStepDistanceEstimate() {
-    if (navigationSteps.isEmpty || currentStepIndex >= stepDistanceMeters.length) return "N/A";
+    if (navigationSteps.isEmpty ||
+        currentStepIndex >= stepDistanceMeters.length) {
+      return "N/A";
+    }
     final meters = stepDistanceMeters[currentStepIndex];
     return RouteCalculationService.formatDistance(meters);
   }
@@ -535,7 +537,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     for (int i = currentStepIndex; i < stepTimeSeconds.length; i++) {
       remainingSeconds += stepTimeSeconds[i];
     }
-    
+
     return RouteCalculationService.formatTime(remainingSeconds);
   }
 
