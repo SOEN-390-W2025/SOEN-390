@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_declarations
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/indoor_step_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import 'floor_plan_widget.dart';
-
 
 class VirtualStepGuideView extends StatefulWidget {
   final String building;
@@ -13,6 +13,7 @@ class VirtualStepGuideView extends StatefulWidget {
   final String endRoom;
   final String sourceRoom;
   final bool isDisability;
+  final VirtualStepGuideViewModel? viewModel;
 
   const VirtualStepGuideView({
     super.key,
@@ -21,35 +22,37 @@ class VirtualStepGuideView extends StatefulWidget {
     required this.floor,
     required this.endRoom,
     this.isDisability = false,
+    this.viewModel,
   });
 
   @override
   State<VirtualStepGuideView> createState() => _VirtualStepGuideViewState();
 }
 
-class _VirtualStepGuideViewState extends State<VirtualStepGuideView> 
-    with TickerProviderStateMixin{
+class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
+    with TickerProviderStateMixin {
   late VirtualStepGuideViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = VirtualStepGuideViewModel(
-      sourceRoom: widget.sourceRoom,
-      building: widget.building,
-      floor: widget.floor,
-      endRoom: widget.endRoom,
-      isDisability: widget.isDisability,
-      vsync: this,
-    );
-    
+    _viewModel = widget.viewModel ??
+        VirtualStepGuideViewModel(
+          sourceRoom: widget.sourceRoom,
+          building: widget.building,
+          floor: widget.floor,
+          endRoom: widget.endRoom,
+          isDisability: widget.isDisability,
+          vsync: this,
+        );
+
     _viewModel.initializeRoute().then((_) {
       // Add a slight delay to ensure the UI has been laid out
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) {
+      if (mounted && !kDebugMode) {
+        Future.delayed(const Duration(milliseconds: 300), () {
           _viewModel.focusOnCurrentStep(context);
-        }
-      });
+        });
+      }
     });
   }
 
@@ -67,15 +70,15 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         builder: (context, viewModel, _) {
           return Scaffold(
             appBar: customAppBar(context, 'Step-by-Step Guide'),
-            body: viewModel.isLoading 
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  _buildGuidanceBox(viewModel),
-                  _buildFloorPlanView(viewModel),
-                  _buildTravelInfoBox(viewModel),
-                ],
-              ),
+            body: viewModel.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      _buildGuidanceBox(viewModel),
+                      _buildFloorPlanView(viewModel),
+                      _buildTravelInfoBox(viewModel),
+                    ],
+                  ),
           );
         },
       ),
@@ -155,12 +158,15 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                       style: const TextStyle(fontSize: 16),
                     ),
                     // Add step metrics
-                    if (viewModel.currentStepIndex > 0 && viewModel.currentStepIndex < viewModel.navigationSteps.length - 1)
+                    if (viewModel.currentStepIndex > 0 &&
+                        viewModel.currentStepIndex <
+                            viewModel.navigationSteps.length - 1)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Row(
                           children: [
-                            Icon(Icons.timer_outlined, size: 16, color: Colors.grey[600]),
+                            Icon(Icons.timer_outlined,
+                                size: 16, color: Colors.grey[600]),
                             const SizedBox(width: 4),
                             Text(
                               viewModel.getCurrentStepTimeEstimate(),
@@ -170,7 +176,8 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Icon(Icons.straighten, size: 16, color: Colors.grey[600]),
+                            Icon(Icons.straighten,
+                                size: 16, color: Colors.grey[600]),
                             const SizedBox(width: 4),
                             Text(
                               viewModel.getCurrentStepDistanceEstimate(),
@@ -193,8 +200,8 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton.icon(
-                onPressed: viewModel.currentStepIndex > 0 
-                    ? () => viewModel.previousStep(context) 
+                onPressed: viewModel.currentStepIndex > 0
+                    ? () => viewModel.previousStep(context)
                     : null,
                 icon: const Icon(Icons.arrow_back, color: Colors.black),
                 label: const Text('Back'),
@@ -211,18 +218,21 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
-                    ? () => viewModel.nextStep(context) 
+                onPressed: viewModel.currentStepIndex <
+                        viewModel.navigationSteps.length - 1
+                    ? () => viewModel.nextStep(context)
                     : () {
                         Navigator.pop(context);
                       },
-                icon: Icon(viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
-                    ? Icons.arrow_forward
-                    : Icons.check,
-                    color: Colors.white
-                ),
-                label: Text(viewModel.currentStepIndex < viewModel.navigationSteps.length - 1 
-                    ? 'Next' 
+                icon: Icon(
+                    viewModel.currentStepIndex <
+                            viewModel.navigationSteps.length - 1
+                        ? Icons.arrow_forward
+                        : Icons.check,
+                    color: Colors.white),
+                label: Text(viewModel.currentStepIndex <
+                        viewModel.navigationSteps.length - 1
+                    ? 'Next'
                     : 'Finish'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
@@ -244,12 +254,14 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
             indoorMapViewModel: viewModel.indoorMapViewModel,
             floorPlanPath: viewModel.floorPlanPath,
             viewModel: viewModel.directionsViewModel,
-            semanticsLabel: 'Floor plan of ${viewModel.buildingAbbreviation}-${widget.floor}',
+            semanticsLabel:
+                'Floor plan of ${viewModel.buildingAbbreviation}-${widget.floor}',
             width: viewModel.width,
             height: viewModel.height,
             highlightCurrentStep: true,
-            currentStepPoint: viewModel.navigationSteps.isNotEmpty 
-                ? viewModel.navigationSteps[viewModel.currentStepIndex].focusPoint 
+            currentStepPoint: viewModel.navigationSteps.isNotEmpty
+                ? viewModel
+                    .navigationSteps[viewModel.currentStepIndex].focusPoint
                 : null,
             showStepView: true,
           ),

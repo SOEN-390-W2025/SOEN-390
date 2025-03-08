@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field
+// ignoreforfile: unusedfield
 
 import 'package:flutter/material.dart';
 import '../../data/domain-model/connection.dart';
@@ -14,44 +14,44 @@ class IndoorMapPainter extends CustomPainter {
   final bool showStepView;
 
   // Paint objects defined once to avoid recreation on each paint call
-  final Paint _routePaint = Paint()
+  final Paint routePaint = Paint()
     ..color = Colors.blue
     ..strokeWidth = 4.0
     ..style = PaintingStyle.stroke;
 
-  final Paint _highlightPaint = Paint()
+  final Paint highlightPaint = Paint()
     ..color = Colors.yellow
     ..strokeWidth = 5.0
     ..style = PaintingStyle.stroke;
 
-  final Paint _startPaint = Paint()
+  final Paint startPaint = Paint()
     ..color = Colors.white
     ..style = PaintingStyle.fill;
 
-  final Paint _endPaint = Paint()
+  final Paint endPaint = Paint()
     ..color = Colors.red
     ..style = PaintingStyle.fill;
 
-  final Paint _connectionPaint = Paint()
+  final Paint connectionPaint = Paint()
     ..color = Colors.purple
     ..style = PaintingStyle.fill;
 
-  final Paint _currentStepPaint = Paint()
+  final Paint currentStepPaint = Paint()
     ..color = Colors.orange
     ..strokeWidth = 10.0
     ..style = PaintingStyle.fill;
 
-  final Paint _firstPortionPaint = Paint()
+  final Paint firstPortionPaint = Paint()
     ..color = Colors.blue
     ..strokeWidth = 5
     ..style = PaintingStyle.stroke;
 
-  final Paint _secondPortionPaint = Paint()
+  final Paint secondPortionPaint = Paint()
     ..color = Colors.green
     ..strokeWidth = 5
     ..style = PaintingStyle.stroke;
 
-  final Paint _connectionLinePaint = Paint()
+  final Paint connectionLinePaint = Paint()
     ..color = Colors.orange
     ..strokeWidth = 5
     ..style = PaintingStyle.stroke;
@@ -70,51 +70,52 @@ class IndoorMapPainter extends CustomPainter {
     if (showStepView) {
       canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
     }
-    
+
     if (route == null) return;
-    
-    showStepView ? _drawStepView(canvas) : _drawFullView(canvas);
+
+    showStepView ? drawStepView(canvas) : drawFullView(canvas);
   }
 
-  void _drawStepView(Canvas canvas) {
+  void drawStepView(Canvas canvas) {
     // Draw all path segments
-    _drawPath(canvas, route!.firstIndoorPortionToConnection);
-    _drawPath(canvas, route!.firstIndoorPortionFromConnection);
+    drawPath(canvas, route!.firstIndoorPortionToConnection);
+    drawPath(canvas, route!.firstIndoorPortionFromConnection);
 
     // Draw connections
     if (route!.firstIndoorConnection != null) {
-      _drawConnection(canvas, route!.firstIndoorConnection!);
+      drawConnection(canvas, route!.firstIndoorConnection!);
     }
 
     // Draw second building parts if they exist
     if (route!.secondIndoorPortionToConnection != null) {
-      _drawPath(canvas, route!.secondIndoorPortionToConnection);
+      drawPath(canvas, route!.secondIndoorPortionToConnection);
     }
 
     if (route!.secondIndoorConnection != null) {
-      _drawConnection(canvas, route!.secondIndoorConnection!);
+      drawConnection(canvas, route!.secondIndoorConnection!);
     }
 
     if (route!.secondIndoorPortionFromConnection != null) {
-      _drawPath(canvas, route!.secondIndoorPortionFromConnection);
+      drawPath(canvas, route!.secondIndoorPortionFromConnection);
     }
 
     // Draw start and end points
-    canvas.drawCircle(startLocation, 6.0, _startPaint);
-    canvas.drawCircle(endLocation, 6.0, _endPaint);
+    canvas.drawCircle(startLocation, 6.0, startPaint);
+    canvas.drawCircle(endLocation, 6.0, endPaint);
 
     // Draw current step indicator if highlighting is enabled
     if (highlightCurrentStep && currentStepPoint != null) {
-      canvas.drawCircle(currentStepPoint!, 12.0, _currentStepPaint);
+      canvas.drawCircle(currentStepPoint!, 12.0, currentStepPaint);
     }
   }
 
-  void _drawFullView(Canvas canvas) {
-    _drawComplexRoute(canvas);
-    _drawStartEndPoints(canvas);
+  void drawFullView(Canvas canvas) {
+    drawComplexRoute(canvas);
+    drawStartEndPoints(canvas);
   }
 
-  void _drawIcon(Canvas canvas, Offset position, IconData iconData, Color color) {
+  void drawIcon(
+      Canvas canvas, Offset position, IconData iconData, Color color) {
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
       text: TextSpan(
@@ -129,12 +130,12 @@ class IndoorMapPainter extends CustomPainter {
 
     textPainter.layout();
     textPainter.paint(
-      canvas, 
-      Offset(position.dx - (textPainter.width / 2), position.dy - (textPainter.height / 1.2))
-    );
+        canvas,
+        Offset(position.dx - (textPainter.width / 2),
+            position.dy - (textPainter.height / 1.2)));
   }
 
-  void _drawPath(Canvas canvas, List<FloorRoutablePoint>? points) {
+  void drawPath(Canvas canvas, List<FloorRoutablePoint>? points) {
     if (points == null || points.isEmpty) return;
 
     final path = Path();
@@ -147,21 +148,18 @@ class IndoorMapPainter extends CustomPainter {
     // If highlighting current step and we have a current step point
     if (highlightCurrentStep && currentStepPoint != null) {
       // First draw normal path
-      canvas.drawPath(path, _routePaint);
+      canvas.drawPath(path, routePaint);
 
       // Then draw highlighted segment near current step point
-      _drawHighlightedSegmentNearPoint(canvas, points, currentStepPoint!);
+      drawHighlightedSegmentNearPoint(canvas, points, currentStepPoint!);
     } else {
       // Just draw normal path
-      canvas.drawPath(path, _routePaint);
+      canvas.drawPath(path, routePaint);
     }
   }
 
-  void _drawHighlightedSegmentNearPoint(
-    Canvas canvas, 
-    List<FloorRoutablePoint> points, 
-    Offset targetPoint
-  ) {
+  void drawHighlightedSegmentNearPoint(
+      Canvas canvas, List<FloorRoutablePoint> points, Offset targetPoint) {
     if (points.isEmpty || points.length < 3) return;
 
     // Find the closest segment to the target point
@@ -172,7 +170,7 @@ class IndoorMapPainter extends CustomPainter {
       final start = Offset(points[i].positionX, points[i].positionY);
       final end = Offset(points[i + 1].positionX, points[i + 1].positionY);
 
-      final distance = _distanceToSegment(targetPoint, start, end);
+      final distance = distanceToSegment(targetPoint, start, end);
       if (distance < minDistance) {
         minDistance = distance;
         closestSegmentStart = i;
@@ -182,131 +180,103 @@ class IndoorMapPainter extends CustomPainter {
     // Draw two highlighted segments
     if (closestSegmentStart != 0 && closestSegmentStart != points.length - 2) {
       final highlightPath = Path();
-      
+
       // First segment
       final start1 = points[closestSegmentStart + 1];
       final end1 = points[closestSegmentStart + 2];
-      
+
       highlightPath.moveTo(start1.positionX, start1.positionY);
       highlightPath.lineTo(end1.positionX, end1.positionY);
-      
+
       // Second segment
       final start2 = points[closestSegmentStart + 2];
       final end2 = points[closestSegmentStart + 3];
-      
+
       // Create a separate path movement for the second line to ensure both are drawn
       highlightPath.moveTo(start2.positionX, start2.positionY);
       highlightPath.lineTo(end2.positionX, end2.positionY);
 
-      canvas.drawPath(highlightPath, _highlightPaint);
+      canvas.drawPath(highlightPath, highlightPaint);
     }
   }
 
-  double _distanceToSegment(Offset p, Offset v, Offset w) {
+  double distanceToSegment(Offset p, Offset v, Offset w) {
     final l2 = (v - w).distanceSquared;
     if (l2 == 0) return (p - v).distance;
 
-    var t = ((p.dx - v.dx) * (w.dx - v.dx) + (p.dy - v.dy) * (w.dy - v.dy)) / l2;
+    var t =
+        ((p.dx - v.dx) * (w.dx - v.dx) + (p.dy - v.dy) * (w.dy - v.dy)) / l2;
     t = t.clamp(0.0, 1.0);
-    
-    final projection = Offset(
-      v.dx + t * (w.dx - v.dx),
-      v.dy + t * (w.dy - v.dy)
-    );
-    
+
+    final projection =
+        Offset(v.dx + t * (w.dx - v.dx), v.dy + t * (w.dy - v.dy));
+
     return (p - projection).distance;
   }
 
-  void _drawConnection(Canvas canvas, Connection connection) {
+  void drawConnection(Canvas canvas, Connection connection) {
     for (final entry in connection.floorPoints.entries) {
       for (final point in entry.value) {
         canvas.drawCircle(
-          Offset(point.positionX, point.positionY), 
-          8.0, 
-          _connectionPaint
-        );
+            Offset(point.positionX, point.positionY), 8.0, connectionPaint);
       }
     }
   }
 
-  void _drawStartEndPoints(Canvas canvas) {
+  void drawStartEndPoints(Canvas canvas) {
     // Draw start point
-    canvas.drawCircle(startLocation, 10, _startPaint);
+    canvas.drawCircle(startLocation, 10, startPaint);
 
     // Draw end point with icon
-    _drawIcon(canvas, endLocation, Icons.location_on, Colors.red);
+    drawIcon(canvas, endLocation, Icons.location_on, Colors.red);
   }
 
-  void _drawComplexRoute(Canvas canvas) {
+  void drawComplexRoute(Canvas canvas) {
     // Draw first indoor portion (to connection)
     if (route!.firstIndoorPortionToConnection != null) {
-      _drawRoutePortion(
-        canvas, 
-        route!.firstIndoorPortionToConnection!, 
-        _firstPortionPaint,
-        startLocation
-      );
+      drawRoutePortion(canvas, route!.firstIndoorPortionToConnection!,
+          firstPortionPaint, startLocation);
     }
 
     // Draw connection if exists
     if (route!.firstIndoorConnection != null) {
-      _drawConnection(canvas, route!.firstIndoorConnection!);
+      drawConnection(canvas, route!.firstIndoorConnection!);
     }
 
     // Draw first indoor portion from connection
     if (route!.firstIndoorPortionFromConnection != null) {
-      _drawRoutePortion(
-        canvas, 
-        route!.firstIndoorPortionFromConnection!, 
-        _firstPortionPaint,
-        null
-      );
+      drawRoutePortion(canvas, route!.firstIndoorPortionFromConnection!,
+          firstPortionPaint, null);
     }
 
     // Repeat for second building (if exists)
     if (route!.secondIndoorPortionToConnection != null) {
-      _drawRoutePortion(
-        canvas, 
-        route!.secondIndoorPortionToConnection!, 
-        _secondPortionPaint,
-        null
-      );
+      drawRoutePortion(canvas, route!.secondIndoorPortionToConnection!,
+          secondPortionPaint, null);
     }
 
     if (route!.secondIndoorConnection != null) {
-      _drawConnection(canvas, route!.secondIndoorConnection!);
+      drawConnection(canvas, route!.secondIndoorConnection!);
     }
 
     if (route!.secondIndoorPortionFromConnection != null) {
-      _drawRoutePortion(
-        canvas, 
-        route!.secondIndoorPortionFromConnection!, 
-        _secondPortionPaint,
-        endLocation
-      );
+      drawRoutePortion(canvas, route!.secondIndoorPortionFromConnection!,
+          secondPortionPaint, endLocation);
     }
   }
 
-  void _drawRoutePortion(
-    Canvas canvas, 
-    List<FloorRoutablePoint> routePoints, 
-    Paint paint,
-    Offset? startPoint
-  ) {
+  void drawRoutePortion(Canvas canvas, List<FloorRoutablePoint> routePoints,
+      Paint paint, Offset? startPoint) {
     if (routePoints.isEmpty) return;
 
     final path = Path();
-    
+
     // Start from provided start point or first route point
-    final firstRouteOffset = Offset(
-      routePoints.first.positionX, 
-      routePoints.first.positionY
-    );
-    
-    path.moveTo(
-      startPoint?.dx ?? firstRouteOffset.dx, 
-      startPoint?.dy ?? firstRouteOffset.dy
-    );
+    final firstRouteOffset =
+        Offset(routePoints.first.positionX, routePoints.first.positionY);
+
+    path.moveTo(startPoint?.dx ?? firstRouteOffset.dx,
+        startPoint?.dy ?? firstRouteOffset.dy);
 
     // Draw route points
     for (var point in routePoints) {
@@ -318,11 +288,11 @@ class IndoorMapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant IndoorMapPainter oldDelegate) {
-    return oldDelegate.route != route || 
-           oldDelegate.startLocation != startLocation || 
-           oldDelegate.endLocation != endLocation ||
-           oldDelegate.highlightCurrentStep != highlightCurrentStep ||
-           oldDelegate.currentStepPoint != currentStepPoint ||
-           oldDelegate.showStepView != showStepView;
+    return oldDelegate.route != route ||
+        oldDelegate.startLocation != startLocation ||
+        oldDelegate.endLocation != endLocation ||
+        oldDelegate.highlightCurrentStep != highlightCurrentStep ||
+        oldDelegate.currentStepPoint != currentStepPoint ||
+        oldDelegate.showStepView != showStepView;
   }
 }

@@ -147,88 +147,88 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                       : roomName(widget.endRoom),
                   building: widget.building,
                   floor: widget.floor,
-                  isDisability: disability
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      FloorPlanWidget(
-                        indoorMapViewModel: _indoorMapViewModel,
-                        floorPlanPath: floorPlanPath,
-                        viewModel: viewModel,
-                        semanticsLabel:
-                            'Floor plan of $buildingAbbreviation-${widget.floor}',
-                        width: width,
-                        height: height,
+                  isDisability: disability),
+              Expanded(
+                child: Stack(
+                  children: [
+                    FloorPlanWidget(
+                      indoorMapViewModel: _indoorMapViewModel,
+                      floorPlanPath: floorPlanPath,
+                      viewModel: viewModel,
+                      semanticsLabel:
+                          'Floor plan of $buildingAbbreviation-${widget.floor}',
+                      width: width,
+                      height: height,
+                    ),
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: AccessibilityButton(
+                        sourceRoom: widget.sourceRoom,
+                        endRoom: widget.endRoom,
+                        disability: disability,
+                        onDisabilityChanged: (value) {
+                          disability = !disability;
+                          _initializeRoute(); // Recalculate route with new setting
+                        },
                       ),
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: AccessibilityButton(
-                          sourceRoom: widget.sourceRoom,
-                          endRoom: widget.endRoom,
-                          disability: disability,
-                          onDisabilityChanged: (value) {
-                            disability = !disability;
-                            _initializeRoute(); // Recalculate route with new setting
-                          },
-                        ),
+                    ),
+                    Positioned(
+                      top: 76,
+                      right: 16,
+                      child: Column(
+                        children: [
+                          ZoomButton(
+                            onTap: () {
+                              final Matrix4 currentMatrix = _indoorMapViewModel
+                                  .transformationController.value
+                                  .clone();
+                              final double currentScale =
+                                  currentMatrix.getMaxScaleOnAxis();
+                              if (currentScale < _maxScale) {
+                                final Matrix4 zoomedInMatrix = currentMatrix
+                                  ..scale(1.2);
+                                _indoorMapViewModel.animateTo(zoomedInMatrix);
+                              }
+                            },
+                            icon: Icons.add,
+                            isZoomInButton: true,
+                          ),
+                          ZoomButton(
+                            onTap: () {
+                              final Matrix4 currentMatrix = _indoorMapViewModel
+                                  .transformationController.value
+                                  .clone();
+                              final double currentScale =
+                                  currentMatrix.getMaxScaleOnAxis();
+                              if (currentScale > _minScale) {
+                                final Matrix4 zoomedOutMatrix = currentMatrix
+                                  ..scale(0.8);
+                                _indoorMapViewModel.animateTo(zoomedOutMatrix);
+                              }
+                            },
+                            icon: Icons.remove,
+                            isZoomInButton: false,
+                          ),
+                        ],
                       ),
-                      Positioned(
-                        top: 76,
-                        right: 16,
-                        child: Column(
-                          children: [
-                            ZoomButton(
-                              onTap: () {
-                                final Matrix4 currentMatrix = _indoorMapViewModel
-                                    .transformationController.value
-                                    .clone();
-                                final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                                if (currentScale < _maxScale) {
-                                  final Matrix4 zoomedInMatrix = currentMatrix
-                                    ..scale(1.2);
-                                  _indoorMapViewModel.animateTo(zoomedInMatrix);
-                                }
-                              },
-                              icon: Icons.add,
-                              isZoomInButton: true,
-                            ),
-                            ZoomButton(
-                              onTap: () {
-                                final Matrix4 currentMatrix = _indoorMapViewModel
-                                    .transformationController.value
-                                    .clone();
-                                final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                                if (currentScale > _minScale) {
-                                  final Matrix4 zoomedOutMatrix = currentMatrix
-                                    ..scale(0.8);
-                                  _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                                }
-                              },
-                              icon: Icons.remove,
-                              isZoomInButton: false,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                BottomInfoWidget(
-                  building: widget.building,
-                  floor: widget.floor,
-                  sourceRoom: widget.sourceRoom,
-                  endRoom: widget.endRoom,
-                  isDisability: disability,
-                  eta: viewModel.eta,
-                  distance: viewModel.distance,
-                ),
-              ],
-            ),
-          );
-        }
-      ),
+              ),
+              BottomInfoWidget(
+                building: widget.building,
+                floor: widget.floor,
+                sourceRoom: widget.sourceRoom,
+                endRoom: widget.endRoom,
+                isDisability: disability,
+                eta: viewModel.eta,
+                distance: viewModel.distance,
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
