@@ -6,6 +6,7 @@ import '../../data/services/routecalculation_service.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
+import '../data/domain-model/indoor_route.dart';
 
 // Model classes moved from the view to the model layer
 class NavigationStep {
@@ -166,6 +167,79 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     indoorMapViewModel.dispose();
   }
 
+  void _addConnectionStep(IndoorRoute route) {
+    String actionText = '';
+
+    if (route.firstIndoorConnection!.name.toLowerCase().contains('elevator')) {
+      actionText = 'Take the elevator';
+    } else if (route.firstIndoorConnection!.name.toLowerCase().contains('stair')) {
+      actionText = 'Use the stairs';
+    } else if (route.firstIndoorConnection!.name.toLowerCase().contains('escalator')) {
+      actionText = 'Take the escalator';
+    } else {
+      actionText = 'Use ${route.firstIndoorConnection!.name}';
+    }
+
+    navigationSteps.add(
+      NavigationStep(
+        title: route.firstIndoorConnection!.name,
+        description: '$actionText ${route.firstIndoorConnection!.isAccessible ? '(accessible)' : 'to continue your route'}',
+        focusPoint: RouteCalculationService.getConnectionFocusPoint(
+          route.firstIndoorConnection!,
+          floor,
+          directionsViewModel.startLocation,
+          directionsViewModel.endLocation
+        ),
+        zoomLevel: 1.2,
+        icon: route.firstIndoorConnection!.name.toLowerCase().contains('elevator') 
+            ? Icons.elevator 
+            : Icons.stairs,
+      )
+    );
+  }
+
+  void _handleSecondBuilding(IndoorRoute route) {
+    navigationSteps.add(
+      NavigationStep(
+        title: 'Building Transition',
+        description: 'You are now entering ${route.secondBuilding!.name} building',
+        focusPoint: Offset.zero, // This would need actual building transition point
+        zoomLevel: 1.0,
+        icon: Icons.business,
+      )
+    );
+
+    // Add second building navigation steps
+    if (route.secondIndoorPortionToConnection != null && 
+        route.secondIndoorPortionToConnection!.length > 1) {
+      _addDirectionalSteps(route.secondIndoorPortionToConnection!);
+    }
+
+    if (route.secondIndoorConnection != null) {
+      navigationSteps.add(
+        NavigationStep(
+          title: route.secondIndoorConnection!.name,
+          description: 'Use ${route.secondIndoorConnection!.name} ${route.secondIndoorConnection!.isAccessible ? '(accessible)' : ''}',
+          focusPoint: RouteCalculationService.getConnectionFocusPoint(
+            route.secondIndoorConnection!,
+            floor,
+            directionsViewModel.startLocation,
+            directionsViewModel.endLocation
+          ),
+          zoomLevel: 1.2,
+          icon: route.secondIndoorConnection!.name.toLowerCase().contains('elevator') 
+              ? Icons.elevator 
+              : Icons.stairs,
+        )
+      );
+    }
+
+    if (route.secondIndoorPortionFromConnection != null && 
+        route.secondIndoorPortionFromConnection!.length > 1) {
+      _addDirectionalSteps(route.secondIndoorPortionFromConnection!);
+    }
+  }
+
   void _generateNavigationSteps() {
     navigationSteps = [];
 
@@ -192,34 +266,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
     // Add connection step
     if (route.firstIndoorConnection != null) {
-      String actionText = '';
-
-      if (route.firstIndoorConnection!.name.toLowerCase().contains('elevator')) {
-        actionText = 'Take the elevator';
-      } else if (route.firstIndoorConnection!.name.toLowerCase().contains('stair')) {
-        actionText = 'Use the stairs';
-      } else if (route.firstIndoorConnection!.name.toLowerCase().contains('escalator')) {
-        actionText = 'Take the escalator';
-      } else {
-        actionText = 'Use ${route.firstIndoorConnection!.name}';
-      }
-
-      navigationSteps.add(
-        NavigationStep(
-          title: route.firstIndoorConnection!.name,
-          description: '$actionText ${route.firstIndoorConnection!.isAccessible ? '(accessible)' : 'to continue your route'}',
-          focusPoint: RouteCalculationService.getConnectionFocusPoint(
-            route.firstIndoorConnection!,
-            floor,
-            directionsViewModel.startLocation,
-            directionsViewModel.endLocation
-          ),
-          zoomLevel: 1.2,
-          icon: route.firstIndoorConnection!.name.toLowerCase().contains('elevator') 
-              ? Icons.elevator 
-              : Icons.stairs,
-        )
-      );
+      _addConnectionStep(route);
     }
 
     // Add steps from first connection to second connection or destination
@@ -230,45 +277,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
     // Handle second building if applicable
     if (route.secondBuilding != null) {
-      navigationSteps.add(
-        NavigationStep(
-          title: 'Building Transition',
-          description: 'You are now entering ${route.secondBuilding!.name} building',
-          focusPoint: Offset.zero, // This would need actual building transition point
-          zoomLevel: 1.0,
-          icon: Icons.business,
-        )
-      );
-
-      // Add second building navigation steps
-      if (route.secondIndoorPortionToConnection != null && 
-          route.secondIndoorPortionToConnection!.length > 1) {
-        _addDirectionalSteps(route.secondIndoorPortionToConnection!);
-      }
-
-      if (route.secondIndoorConnection != null) {
-        navigationSteps.add(
-          NavigationStep(
-            title: route.secondIndoorConnection!.name,
-            description: 'Use ${route.secondIndoorConnection!.name} ${route.secondIndoorConnection!.isAccessible ? '(accessible)' : ''}',
-            focusPoint: RouteCalculationService.getConnectionFocusPoint(
-              route.secondIndoorConnection!,
-              floor,
-              directionsViewModel.startLocation,
-              directionsViewModel.endLocation
-            ),
-            zoomLevel: 1.2,
-            icon: route.secondIndoorConnection!.name.toLowerCase().contains('elevator') 
-                ? Icons.elevator 
-                : Icons.stairs,
-          )
-        );
-      }
-
-      if (route.secondIndoorPortionFromConnection != null && 
-          route.secondIndoorPortionFromConnection!.length > 1) {
-        _addDirectionalSteps(route.secondIndoorPortionFromConnection!);
-      }
+      _handleSecondBuilding(route);
     }
 
     // Add final arrival step
@@ -368,6 +377,54 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
   }
 
+  List<dynamic> _calculatePortionAfterFirstConnection(
+      IndoorRoute route, double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
+    double totalDistance = totalDistanceEstimateMeters;
+    int totalTime = totalTimeEstimateMinutes;
+    int stepIndex = navigationSteps.length - 1; // Default to destination
+
+    // Find the first turn after the connection
+    for (int i = 0; i < navigationSteps.length; i++) {
+      if (navigationSteps[i].title == route.firstIndoorConnection?.name) {
+        stepIndex = i + 1;
+        break;
+      }
+    }
+
+    RouteCalculationService.calculateSegmentMetrics(
+      route.firstIndoorPortionFromConnection,
+      onResult: (distanceMeters, timeSeconds) {
+        stepDistanceMeters[stepIndex] = distanceMeters;
+        stepTimeSeconds[stepIndex] = timeSeconds;
+        totalDistance += distanceMeters;
+        totalTime += (timeSeconds / 60).ceil();
+      }
+    );
+    return [totalDistance, totalTime];
+  }
+
+  List<dynamic> _calculateSecondPortion(
+    IndoorRoute route, double totalDistanceEstimateMeters, int totalTimeEstimateMinutes){
+    double totalDistance = totalDistanceEstimateMeters;
+    int totalTime = totalTimeEstimateMinutes;
+    final int buildingTransitionIndex = navigationSteps.indexWhere(
+      (step) => step.title == 'Building Transition'
+    );
+
+    if (buildingTransitionIndex >= 0) {
+      RouteCalculationService.calculateSegmentMetrics(
+        route.secondIndoorPortionToConnection,
+        onResult: (distanceMeters, timeSeconds) {
+          stepDistanceMeters[buildingTransitionIndex + 1] = distanceMeters;
+          stepTimeSeconds[buildingTransitionIndex + 1] = timeSeconds;
+          totalDistance += distanceMeters;
+          totalTime += (timeSeconds / 60).ceil();
+        }
+      );
+    }
+    return [totalDistance, totalTime];
+  }
+
   void _calculateTimeAndDistanceEstimates() {
     final route = directionsViewModel.calculatedRoute;
     if (route == null) return;
@@ -413,44 +470,16 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
     // Calculate for portion after first connection
     if (route.firstIndoorPortionFromConnection != null && route.firstIndoorPortionFromConnection!.length > 1) {
-      int stepIndex = navigationSteps.length - 1; // Default to destination
-
-      // Find the first turn after the connection
-      for (int i = 0; i < navigationSteps.length; i++) {
-        if (navigationSteps[i].title == route.firstIndoorConnection?.name) {
-          stepIndex = i + 1;
-          break;
-        }
-      }
-
-      RouteCalculationService.calculateSegmentMetrics(
-        route.firstIndoorPortionFromConnection,
-        onResult: (distanceMeters, timeSeconds) {
-          stepDistanceMeters[stepIndex] = distanceMeters;
-          stepTimeSeconds[stepIndex] = timeSeconds;
-          totalDistanceEstimateMeters += distanceMeters;
-          totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
-        }
-      );
+      final results = _calculatePortionAfterFirstConnection(route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
+      totalDistanceEstimateMeters = results[0];
+      totalTimeEstimateMinutes = results[1];
     }
 
     // Handle second building portions if applicable
     if (route.secondIndoorPortionToConnection != null) {
-      final int buildingTransitionIndex = navigationSteps.indexWhere(
-        (step) => step.title == 'Building Transition'
-      );
-
-      if (buildingTransitionIndex >= 0) {
-        RouteCalculationService.calculateSegmentMetrics(
-          route.secondIndoorPortionToConnection,
-          onResult: (distanceMeters, timeSeconds) {
-            stepDistanceMeters[buildingTransitionIndex + 1] = distanceMeters;
-            stepTimeSeconds[buildingTransitionIndex + 1] = timeSeconds;
-            totalDistanceEstimateMeters += distanceMeters;
-            totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
-          }
-        );
-      }
+      final results = _calculateSecondPortion(route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
+      totalDistanceEstimateMeters = results[0];
+      totalTimeEstimateMinutes = results[1];
     }
 
     if (route.secondIndoorConnection != null && route.secondIndoorPortionFromConnection != null) {
