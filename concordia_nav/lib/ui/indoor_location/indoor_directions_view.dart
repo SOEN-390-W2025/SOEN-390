@@ -218,6 +218,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                         viewModel: viewModel,
                         semanticsLabel:
                             'Floor plan of $buildingAbbreviation-${widget.floor}',
+                        width: width,
+                        height: height,
                       ),
                       Positioned(
                         top: 16,
@@ -279,8 +281,16 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                   ),
                 ),
                 BottomInfoWidget(
+                  building: widget.building,
+                  floor: widget.floor,
+                  sourceRoom: realStartRoom,
+                  endRoom: realEndRoom,
+                  isDisability: disability,
+                  distance: viewModel.distance,
                   eta: viewModel.eta,
-                  onNextFloor: handleNextFloorPress,
+                  onNextFloor: _isSameFloor(realStartRoom, realEndRoom)
+                      ? null
+                      : handleNextFloorPress,
                   onPrevFloor: handlePrevFloorPress,
                 ),
               ],
@@ -292,6 +302,10 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   }
 
   void handlePrevFloorPress() {
+    if (_isSameFloor(realStartRoom, realEndRoom)) {
+      return;
+    }
+
     setState(() {
       widget.sourceRoom = realStartRoom;
       widget.endRoom =

@@ -119,6 +119,8 @@ void main() {
 
       await tester.tap(startButton);
       await tester.pumpAndSettle();
+
+      expect(find.text('Step-by-Step Guide'), findsOneWidget);
     });
   });
 }

@@ -17,9 +17,13 @@ void main() {
   dotenv.load(fileName: '.env');
 
   late IndoorMapViewModel mockIndoorMapViewModel;
+  late double testWidth;
+  late double testHeight;
 
   setUp(() {
     mockIndoorMapViewModel = IndoorMapViewModel(vsync: const TestVSync());
+    testWidth = 1024.0;
+    testHeight = 1024.0;
   });
 
   testWidgets('Double tapping pans to the correct region',
@@ -31,6 +35,8 @@ void main() {
             indoorMapViewModel: mockIndoorMapViewModel,
             floorPlanPath: 'assets/floor_plan.svg',
             semanticsLabel: 'Test Floor Plan',
+            width: testWidth,
+            height: testHeight,
           ),
         ),
       ),
@@ -58,6 +64,8 @@ void main() {
             indoorMapViewModel: mockIndoorMapViewModel,
             floorPlanPath: 'invalid_path.svg',
             semanticsLabel: 'Test Floor Plan',
+            width: testWidth,
+            height: testHeight,
           ),
         ),
       ),

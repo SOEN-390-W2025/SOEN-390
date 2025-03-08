@@ -51,12 +51,12 @@ void main() {
       expect(buildingData!.building, BuildingRepository.h);
     });
 
-    test('getBuildingData throws flutterError with invalid abbrebiation', () {
+    test('getBuildingData returns null with invalid abbrebiation', () async {
       const invalidAbbreviation = "WAA";
 
-      // verify method throws flutterError when given a non existant abbreviation
-      expect(BuildingDataManager.getBuildingData(invalidAbbreviation),
-          throwsFlutterError);
+      // verify method returns null when given a non existant abbreviation
+      expect(await BuildingDataManager.getBuildingData(invalidAbbreviation),
+          isNull);
     });
 
     test('toJson doesnt trigger errors', () async {

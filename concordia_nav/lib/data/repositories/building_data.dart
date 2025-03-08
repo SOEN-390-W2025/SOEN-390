@@ -32,7 +32,7 @@ class BuildingData {
   });
 }
 
-List<dynamic> loadFloors(dynamic yamlData, ConcordiaBuilding building) {
+List<dynamic> _loadFloors(dynamic yamlData, ConcordiaBuilding building) {
   final List<ConcordiaFloor> floors = [];
   for (var floorYaml in yamlData['floors']) {
     floors.add(ConcordiaFloor(
@@ -48,7 +48,7 @@ List<dynamic> loadFloors(dynamic yamlData, ConcordiaBuilding building) {
   return [floors, floorMap];
 }
 
-Map<String, List<ConcordiaRoom>> loadRooms(
+Map<String, List<ConcordiaRoom>> _loadRooms(
     dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaRoom>> roomsByFloor = {};
   final roomsYaml = yamlData['rooms'] as Map;
@@ -78,7 +78,7 @@ Map<String, List<ConcordiaRoom>> loadRooms(
   return roomsByFloor;
 }
 
-Map<String, List<ConcordiaFloorPoint>> loadWaypoints(
+Map<String, List<ConcordiaFloorPoint>> _loadWaypoints(
       dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaFloorPoint>> waypointsByFloor = {};
   final wpYaml = yamlData['waypoints'] as Map;
@@ -95,7 +95,7 @@ Map<String, List<ConcordiaFloorPoint>> loadWaypoints(
   return waypointsByFloor;
 }
 
-Map<String, Map<int, List<int>>> loadWaypointNavigability(dynamic yamlData) {
+Map<String, Map<int, List<int>>> _loadWaypointNavigability(dynamic yamlData) {
   final Map<String, Map<int, List<int>>> waypointNavigability = {};
   final navYaml = yamlData['waypointNavigability'] as Map;
   navYaml.forEach((floorStr, mapping) {
@@ -109,7 +109,7 @@ Map<String, Map<int, List<int>>> loadWaypointNavigability(dynamic yamlData) {
   return waypointNavigability;
 }
 
-List<Connection> loadConnections(
+List<Connection> _loadConnections(
       dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final List<Connection> connections = [];
   for (var connYaml in yamlData['connections']) {
@@ -172,7 +172,7 @@ class BuildingDataLoader {
     // -------------------
     // 1. Load Floors
     // -------------------
-    final loadedFloors = loadFloors(yamlData, building);
+    final loadedFloors = _loadFloors(yamlData, building);
     final List<ConcordiaFloor> floors = loadedFloors[0];
 
     final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
@@ -182,7 +182,7 @@ class BuildingDataLoader {
     // -------------------
     Map<String, List<ConcordiaRoom>> roomsByFloor = {};
     if (yamlData['rooms'] != null) {
-      roomsByFloor = loadRooms(yamlData, floorMap);
+      roomsByFloor = _loadRooms(yamlData, floorMap);
     }
 
     // -------------------
@@ -190,7 +190,7 @@ class BuildingDataLoader {
     // -------------------
     Map<String, List<ConcordiaFloorPoint>> waypointsByFloor = {};
     if (yamlData['waypoints'] != null) {
-      waypointsByFloor = loadWaypoints(yamlData, floorMap);
+      waypointsByFloor = _loadWaypoints(yamlData, floorMap);
     }
 
     // ------------------------------
@@ -198,7 +198,7 @@ class BuildingDataLoader {
     // ------------------------------
     Map<String, Map<int, List<int>>> waypointNavigability = {};
     if (yamlData['waypointNavigability'] != null) {
-      waypointNavigability = loadWaypointNavigability(yamlData);
+      waypointNavigability = _loadWaypointNavigability(yamlData);
     }
 
     // -------------------
@@ -206,7 +206,7 @@ class BuildingDataLoader {
     // -------------------
     List<Connection> connections = [];
     if (yamlData['connections'] != null) {
-      connections = loadConnections(yamlData, floorMap);
+      connections = _loadConnections(yamlData, floorMap);
     }
 
     // ------------------------------

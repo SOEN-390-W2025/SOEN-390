@@ -2,6 +2,7 @@ import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/concrete_floor_routable_point.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:concordia_nav/utils/building_viewmodel.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,6 +92,18 @@ void main() {
       // Verify can change positionY
       concreteFloorRoutablePoint.positionY = 22;
       expect(concreteFloorRoutablePoint.positionY, 22);
+    });
+  });
+
+  group('BuildingViewModel tests', () {
+    test('getFloorsForBuilding returns empty list when cant find yaml', () async {
+      final floors = await BuildingViewModel().getFloorsForBuilding('Administration Building');
+      expect(floors, []);
+    });
+
+    test('getRoomsForFloor returns [] when cant find yaml', () async {
+      final rooms = await BuildingViewModel().getRoomsForFloor('Administration Building', '1');
+      expect(rooms, []);
     });
   });
 }
