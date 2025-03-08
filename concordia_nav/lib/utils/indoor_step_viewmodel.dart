@@ -136,7 +136,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       final Matrix4 matrix = Matrix4.identity()
         ..translate(
           -step.focusPoint.dx * step.zoomLevel + MediaQuery.of(context).size.width / 2,
-          -step.focusPoint.dy * step.zoomLevel + MediaQuery.of(context).size.height / 2
+          -step.focusPoint.dy * step.zoomLevel + MediaQuery.of(context).size.height / 3
         )
         ..scale(step.zoomLevel);
 
