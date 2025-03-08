@@ -90,6 +90,38 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
+  ConcordiaFloorPoint? _getRegularStartPoint(BuildingData buildingData, String floor) {
+    // Try escalators first if no disability
+    try {
+      Connection escalatorConnection = buildingData.connections.firstWhere(
+          (conn) => conn.name.toLowerCase().contains("escalators"));
+
+      final floorPoints = escalatorConnection.floorPoints[floor];
+      if (floorPoints != null && floorPoints.isNotEmpty) {
+        return floorPoints.first;
+      }
+    } catch (e) {
+      // No matching escalator found
+      return null;
+    }
+
+    // Try stairs as fallback if no escalators for this floor
+    try {
+      Connection stairsConnection = buildingData.connections
+          .firstWhere((conn) => conn.name.toLowerCase().contains("stairs"));
+
+      final floorPoints = stairsConnection.floorPoints[floor];
+      if (floorPoints != null && floorPoints.isNotEmpty) {
+        // Use a specific stair point (third in the list, if available)
+        return floorPoints.length > 3 ? floorPoints[3] : floorPoints.first;
+      }
+    } catch (e) {
+      // No matching stairs found
+      return null;
+    }
+    return null;
+  }
+
   Future<ConcordiaFloorPoint?> getStartPoint(
       String buildingName, String floor, bool disability) async {
     // Get the building by name
@@ -122,31 +154,9 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         // No matching elevator found
       }
     } else {
-      // Try escalators first if no disability
-      try {
-        Connection escalatorConnection = buildingData!.connections.firstWhere(
-            (conn) => conn.name.toLowerCase().contains("escalators"));
-
-        final floorPoints = escalatorConnection.floorPoints[floor];
-        if (floorPoints != null && floorPoints.isNotEmpty) {
-          return floorPoints.first;
-        }
-      } catch (e) {
-        // No matching escalator found
-      }
-
-      // Try stairs as fallback if no escalators for this floor
-      try {
-        Connection stairsConnection = buildingData!.connections
-            .firstWhere((conn) => conn.name.toLowerCase().contains("stairs"));
-
-        final floorPoints = stairsConnection.floorPoints[floor];
-        if (floorPoints != null && floorPoints.isNotEmpty) {
-          // Use a specific stair point (third in the list, if available)
-          return floorPoints.length > 3 ? floorPoints[3] : floorPoints.first;
-        }
-      } catch (e) {
-        // No matching stairs found
+      final regularStartPoint = _getRegularStartPoint(buildingData!, floor);
+      if (regularStartPoint != null){
+        return regularStartPoint;
       }
     }
 

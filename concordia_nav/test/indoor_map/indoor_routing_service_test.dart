@@ -50,8 +50,23 @@ void main() async {
       expect(route.secondIndoorPortionToConnection, isNull);
     });
 
-    test('should return route for different floors in the same building',
+    test(
+        'getIndoorRoute with valid destinationExitPoint',
         () async {
+      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
+      final origin =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.mb), 0, 0);
+      final destination =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 775, 400);
+
+      final route =
+          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+
+      expect(route.firstIndoorPortionToConnection, isNull);
+      expect(route.firstIndoorConnection, isNull);
+    });
+
+    test('should return route when origin and destination are on different floors', () async{
       final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
       final origin = ConcordiaFloorPoint(
           ConcordiaFloor("1", BuildingRepository.h), 662, 413);
@@ -210,5 +225,17 @@ void main() async {
             throwsA('Location permissions are denied.'));
       });
     });
+  });
+
+  test('getSvgDimensions with invalid svgPath returns default value', () async {
+    final svgDimensions = await IndoorRoutingService().getSvgDimensions("somePath");
+
+    expect(svgDimensions, const Size(1024, 1024));
+  });
+
+  test('getSvgDimensions with valid svgPath returns file value', () async {
+    final svgDimensions = await IndoorRoutingService().getSvgDimensions("assets/maps/indoor/floorplans/CC1.svg");
+
+    expect(svgDimensions, const Size(4096, 1024));
   });
 }
