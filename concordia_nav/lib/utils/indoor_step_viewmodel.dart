@@ -76,8 +76,9 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     required this.endRoom,
     required bool isDisability,
     required TickerProvider vsync,
+    IndoorDirectionsViewModel? directionsViewModel,
   }) :
-    directionsViewModel = IndoorDirectionsViewModel(),
+    directionsViewModel = directionsViewModel ?? IndoorDirectionsViewModel(),
     buildingViewModel = BuildingViewModel(),
     indoorMapViewModel = IndoorMapViewModel(vsync: vsync),
     disability = isDisability {

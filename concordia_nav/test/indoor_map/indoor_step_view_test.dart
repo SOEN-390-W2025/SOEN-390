@@ -1,3 +1,8 @@
+import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
+import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
+import 'package:concordia_nav/data/domain-model/connection.dart';
+import 'package:concordia_nav/data/domain-model/indoor_route.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_step_view.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
@@ -11,13 +16,14 @@ import 'package:mockito/mockito.dart';
 
 import 'indoor_step_view_test.mocks.dart';
 
-@GenerateMocks([VirtualStepGuideViewModel])
+@GenerateMocks([VirtualStepGuideViewModel, IndoorDirectionsViewModel])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
   late MockVirtualStepGuideViewModel mockViewModel;
   late IndoorMapViewModel viewModel;
   late IndoorDirectionsViewModel directionsViewModel;
+  late IndoorDirectionsViewModel mockDirectionsViewModel;
 
   setUp(() {
     mockViewModel = MockVirtualStepGuideViewModel();
@@ -149,63 +155,70 @@ void main() {
       // Check that the "Finish" button is displayed
       expect(find.text('Finish'), findsOneWidget);
     });
+  });
 
-    /*testWidgets('Can navigate to next step', (WidgetTester tester) async {
-      final step1 = NavigationStep(
-        icon: Icons.my_location,
-        title: 'Start',
-        description: 'Begin navigation from Room A',
-        focusPoint: Offset.zero,
+  group('IndoorStepViewmodel tests', () {
+    VirtualStepGuideViewModel? indoorStepViewModel;
+
+    setUp(() {
+      mockDirectionsViewModel = MockIndoorDirectionsViewModel();
+      when(mockDirectionsViewModel.getSvgDimensions(
+        'assets/maps/indoor/floorplans/H8.svg'))
+        .thenAnswer((_) async => const Size(1024, 1024));
+      when(mockDirectionsViewModel.startLocation).thenReturn(const Offset(2, 4));
+      when(mockDirectionsViewModel.endLocation).thenReturn(const Offset(6, 8));
+
+      indoorStepViewModel = VirtualStepGuideViewModel(
+        sourceRoom: '801',
+        building: 'Hall Building',
+        floor: '8',
+        endRoom: '805',
+        isDisability: false,
+        vsync: const TestVSync(),
+        directionsViewModel: mockDirectionsViewModel
       );
-      final step2 = NavigationStep(
-        icon: Icons.arrow_forward,
-        title: 'Go straight',
-        description: 'Walk straight ahead for 20 meters',
-        focusPoint: Offset.zero,
+    });
+
+    test('initializeRoute updates navigationSteps', () async {
+      // Create IndoorRoute object
+      const building = BuildingRepository.h;
+      final floor1 = ConcordiaFloor('1', building, 1.0);
+      final floor2 = ConcordiaFloor('2', building, 1.0);
+      final floor3 = ConcordiaFloor('3', building, 1.0);
+      final point1 = ConcordiaFloorPoint(floor1, 0.0, 0.0);
+      final point2 = ConcordiaFloorPoint(floor1, 3.0, 4.0);
+      final point3 = ConcordiaFloorPoint(floor2, 6.0, 8.0);
+      final point4 = ConcordiaFloorPoint(floor3, 1.0, 2.0);
+      final point5 = ConcordiaFloorPoint(floor3, 0.0, 0.0);
+
+      final connection1 =
+          Connection([floor1, floor2], {}, true, 'Elevator', 5.0, 3.0);
+      final connection2 =
+          Connection([floor2, floor3], {}, true, 'Stairs', 4.0, 2.5);
+
+      final route = IndoorRoute(
+        building,
+        [point1, point2],
+        connection1,
+        [point3, point3],
+        building,
+        [point4, point4],
+        connection2,
+        [point4, point5],
       );
-      final step3 = NavigationStep(
-        icon: Icons.location_pin,
-        title: 'Destination',
-        description: 'Arrived next to Room B',
-        focusPoint: Offset.zero,
-      );
-      when(mockViewModel.navigationSteps).thenReturn([step1, step2, step3]);
-      when(mockViewModel.currentStepIndex).thenReturn(0);
-      //when(mockViewModel.currentStepIndex).thenReturnInOrder([0, 1, 2]);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: VirtualStepGuideView(
-            viewModel: mockViewModel,
-            sourceRoom: 'Room A',
-            building: 'Hall Building',
-            floor: 'Floor 1',
-            endRoom: 'Room B',
-          ),
-        ),
-      );
+      
+      when(mockDirectionsViewModel.calculateRoute('Hall Building', '8', '801', '805', false))
+        .thenAnswer((_) async => route);
+      when(mockDirectionsViewModel.calculatedRoute).thenReturn(route);
 
-      expect(find.text(step1.description), findsOneWidget);
+      // Act
+      await indoorStepViewModel?.initializeRoute();
 
-      when(mockViewModel.currentStepIndex).thenReturn(1);
+      // verify method called
+      verify(mockDirectionsViewModel.calculateRoute('Hall Building', '8', '801', '805', false)).called(1);
 
-      // Simulate tapping the next button
-      //expect(find.text('Next'), findsOneWidget);
-      await tester.tap(find.text('Next'));
-      await tester.pumpAndSettle();
-
-      // second step should be in view
-      expect(find.text(step2.description), findsOneWidget);
-
-      //when(mockViewModel.currentStepIndex).thenReturn(2);
-      // Simulate tapping the next button
-      expect(find.text('Next'), findsOneWidget);
-      await tester.tap(find.text('Next'));
-      await tester.pumpAndSettle();
-
-      // third step should be in view
-      expect(find.text(step3.description), findsOneWidget);
-      expect(find.text('Finish'), findsOneWidget);
-    });*/
+      expect(indoorStepViewModel?.navigationSteps, isNotEmpty);
+    });
   });
 
   group('Step-by-Step Navigation tests', () {

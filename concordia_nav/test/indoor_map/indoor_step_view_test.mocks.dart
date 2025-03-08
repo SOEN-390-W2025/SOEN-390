@@ -13,6 +13,7 @@ import 'package:concordia_nav/utils/indoor_step_viewmodel.dart' as _i5;
 import 'package:flutter/material.dart' as _i8;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
+import 'package:concordia_nav/data/domain-model/indoor_route.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -374,4 +375,42 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+}
+
+class MockIndoorDirectionsViewModel extends _i1.Mock
+    implements _i2.IndoorDirectionsViewModel {
+  
+  @override
+  _i10.IndoorRoute? get calculatedRoute =>
+      (super.noSuchMethod(Invocation.getter(#calculatedRoute), returnValue: null)
+          as _i10.IndoorRoute?);
+
+  @override
+  _i9.Offset get startLocation =>
+      (super.noSuchMethod(Invocation.getter(#startLocation), returnValue: _i9.Offset(0, 0))
+          as _i9.Offset);
+  
+  @override
+  _i9.Offset get endLocation =>
+      (super.noSuchMethod(Invocation.getter(#endLocation), returnValue: _i9.Offset(0, 0))
+          as _i9.Offset);
+
+  @override
+  _i7.Future<_i9.Size> getSvgDimensions(String svgPath) => 
+    (super.noSuchMethod(
+            Invocation.method(#getSvgDimensions, [svgPath]),
+            returnValue: _i7.Future<_i9.Size>.value(_i9.Size(0, 0)),
+            returnValueForMissingStub: _i7.Future<_i9.Size>.value(_i9.Size(0, 0)),
+          )
+          as _i7.Future<_i9.Size>);
+
+  @override
+  _i7.Future<void> calculateRoute(String building, String floor, String sourceRoom,
+      String endRoom, bool disability) =>
+      (super.noSuchMethod(
+            Invocation.method(#calculateRoute, [building, floor, sourceRoom, endRoom, disability]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
 }
