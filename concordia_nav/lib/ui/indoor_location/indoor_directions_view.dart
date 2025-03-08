@@ -126,10 +126,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         : '$buildingAbbreviation $room';
   }
 
-  static bool hasFullRoomName(String room) {
-    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
-  }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -143,14 +139,10 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
               LocationInfoWidget(
                   from: widget.sourceRoom == yourLocation
                       ? yourLocation
-                      : (hasFullRoomName(widget.sourceRoom)
-                          ? widget.sourceRoom
-                          : '$buildingAbbreviation ${widget.sourceRoom}'),
+                      : roomName(widget.sourceRoom),
                   to: widget.endRoom == yourLocation
                       ? yourLocation
-                      : (hasFullRoomName(widget.endRoom)
-                          ? widget.endRoom
-                          : '$buildingAbbreviation ${widget.endRoom}'),
+                      : roomName(widget.endRoom),
                   building: widget.building,
                   floor: widget.floor,
                   isDisability: disability),
