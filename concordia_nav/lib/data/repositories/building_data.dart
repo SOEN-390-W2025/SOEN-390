@@ -78,8 +78,8 @@ Map<String, List<ConcordiaRoom>> loadRooms(
   return roomsByFloor;
 }
 
-Map<String, List<ConcordiaFloorPoint>> _loadWaypoints(
-    dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
+Map<String, List<ConcordiaFloorPoint>> loadWaypoints(
+      dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final Map<String, List<ConcordiaFloorPoint>> waypointsByFloor = {};
   final wpYaml = yamlData['waypoints'] as Map;
   wpYaml.forEach((floorStr, points) {
@@ -95,7 +95,7 @@ Map<String, List<ConcordiaFloorPoint>> _loadWaypoints(
   return waypointsByFloor;
 }
 
-Map<String, Map<int, List<int>>> _loadWaypointNavigability(dynamic yamlData) {
+Map<String, Map<int, List<int>>> loadWaypointNavigability(dynamic yamlData) {
   final Map<String, Map<int, List<int>>> waypointNavigability = {};
   final navYaml = yamlData['waypointNavigability'] as Map;
   navYaml.forEach((floorStr, mapping) {
@@ -109,8 +109,8 @@ Map<String, Map<int, List<int>>> _loadWaypointNavigability(dynamic yamlData) {
   return waypointNavigability;
 }
 
-List<Connection> _loadConnections(
-    dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
+List<Connection> loadConnections(
+      dynamic yamlData, Map<String, ConcordiaFloor> floorMap) {
   final List<Connection> connections = [];
   for (var connYaml in yamlData['connections']) {
     // Convert floor numbers to actual floor objects.
@@ -190,7 +190,7 @@ class BuildingDataLoader {
     // -------------------
     Map<String, List<ConcordiaFloorPoint>> waypointsByFloor = {};
     if (yamlData['waypoints'] != null) {
-      waypointsByFloor = _loadWaypoints(yamlData, floorMap);
+      waypointsByFloor = loadWaypoints(yamlData, floorMap);
     }
 
     // ------------------------------
@@ -198,7 +198,7 @@ class BuildingDataLoader {
     // ------------------------------
     Map<String, Map<int, List<int>>> waypointNavigability = {};
     if (yamlData['waypointNavigability'] != null) {
-      waypointNavigability = _loadWaypointNavigability(yamlData);
+      waypointNavigability = loadWaypointNavigability(yamlData);
     }
 
     // -------------------
@@ -206,7 +206,7 @@ class BuildingDataLoader {
     // -------------------
     List<Connection> connections = [];
     if (yamlData['connections'] != null) {
-      connections = _loadConnections(yamlData, floorMap);
+      connections = loadConnections(yamlData, floorMap);
     }
 
     // ------------------------------

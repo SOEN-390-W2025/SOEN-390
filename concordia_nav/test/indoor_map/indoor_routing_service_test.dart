@@ -3,6 +3,7 @@ import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:concordia_nav/utils/building_viewmodel.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,13 +19,14 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   group('getIndoorRoute', () {
-    test('should return no route if origin and destination are the same', () {
+    test('should return no route if origin and destination are the same', () async {
+      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
       final origin =
           ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
       final destination = origin;
 
       final route =
-          IndoorRoutingService.getIndoorRoute(origin, destination, true);
+          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNull);
       expect(route.firstIndoorConnection, isNull);
@@ -32,28 +34,46 @@ void main() async {
 
     test(
         'should return route when origin and destination are in different buildings',
-        () {
+        () async {
+      final yaml = await BuildingViewModel().getYamlDataForBuilding("MB");
       final origin =
           ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
       final destination =
-          ConcordiaFloorPoint(ConcordiaFloor("8", BuildingRepository.er), 0, 0);
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.mb), 0, 0);
 
       final route =
-          IndoorRoutingService.getIndoorRoute(origin, destination, true);
+          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNotNull);
       expect(route.firstIndoorConnection, isNull);
       expect(route.secondIndoorPortionToConnection, isNull);
     });
 
-    test('should return route for different floors in the same building', () {
+    test(
+        'getIndoorRoute with valid destinationExitPoint',
+        () async {
+      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
       final origin =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.mb), 0, 0);
       final destination =
-          ConcordiaFloorPoint(ConcordiaFloor("8", BuildingRepository.h), 0, 0);
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 775, 400);
 
       final route =
-          IndoorRoutingService.getIndoorRoute(origin, destination, true);
+          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+
+      expect(route.firstIndoorPortionToConnection, isNull);
+      expect(route.firstIndoorConnection, isNull);
+    });
+
+    test('should return route when origin and destination are on different floors', () async{
+      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
+      final origin =
+          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 662, 413);
+      final destination =
+          ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 488, 548);
+
+      final route =
+          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNotNull);
       expect(route.firstIndoorConnection, isNotNull);
@@ -204,5 +224,17 @@ void main() async {
             throwsA('Location permissions are denied.'));
       });
     });
+  });
+
+  test('getSvgDimensions with invalid svgPath returns default value', () async {
+    final svgDimensions = await IndoorRoutingService().getSvgDimensions("somePath");
+
+    expect(svgDimensions, const Size(1024, 1024));
+  });
+
+  test('getSvgDimensions with valid svgPath returns file value', () async {
+    final svgDimensions = await IndoorRoutingService().getSvgDimensions("assets/maps/indoor/floorplans/CC1.svg");
+
+    expect(svgDimensions, const Size(4096, 1024));
   });
 }

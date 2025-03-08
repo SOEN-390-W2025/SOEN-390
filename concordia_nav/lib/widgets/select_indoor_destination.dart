@@ -7,8 +7,8 @@ class SelectIndoorDestination extends StatelessWidget {
   final String? floor;
   final String? endRoom;
   final bool isSource;
-
-  const SelectIndoorDestination({super.key, required this.building, this.floor, this.endRoom, this.isSource = false});
+  final bool isDisability;
+  const SelectIndoorDestination({super.key, required this.building, this.floor, this.endRoom, this.isSource = false, this.isDisability = false});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +26,7 @@ class SelectIndoorDestination extends StatelessWidget {
                   builder: (context) => BuildingSelection(
                     isSource: isSource,
                     endRoom: endRoom,
+                    isDisability: isDisability
                   ),
                   settings: const RouteSettings(name: '/BuildingSelection'),
                 ),
@@ -55,6 +56,7 @@ class SelectIndoorDestination extends StatelessWidget {
                       building: building,
                       endRoom: endRoom,
                       isSource: isSource,
+                      isDisability: isDisability,
                     ),
                     settings: const RouteSettings(name: '/FloorSelection'),
                   ),

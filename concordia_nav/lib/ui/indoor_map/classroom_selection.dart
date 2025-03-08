@@ -14,13 +14,16 @@ class ClassroomSelection extends StatefulWidget {
   final String? currentRoom;
   final bool isSource;
   final bool isSearch;
+  final bool isDisability;
+
   const ClassroomSelection(
       {super.key,
       required this.building,
       required this.floor,
       this.currentRoom,
       this.isSource = false,
-      this.isSearch = false});
+      this.isSearch = false,
+      this.isDisability = false});
 
   @override
   ClassroomSelectionState createState() => ClassroomSelectionState();
@@ -187,6 +190,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
             building: widget.building,
             floor: floorNumber,
             endRoom: widget.isSource ? currentRoom : classroom,
+            isDisability: widget.isDisability,
           ),
         ),
         (route) => route.isFirst,

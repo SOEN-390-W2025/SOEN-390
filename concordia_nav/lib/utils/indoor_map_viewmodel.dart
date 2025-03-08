@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_catches_without_on_clauses
+// ignore_for_file: avoid_catches_without_on_clauses, prefer_const_declarations
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +10,8 @@ import '../data/domain-model/concordia_floor_point.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concordia_campus.dart';
 import 'map_viewmodel.dart';
+
+import 'dart:developer' as dev;
 
 class IndoorMapViewModel extends MapViewModel {
   final TransformationController transformationController;
@@ -25,6 +27,8 @@ class IndoorMapViewModel extends MapViewModel {
   final ValueNotifier<Set<Polyline>> polylinesNotifier = ValueNotifier({});
   ConcordiaRoom? selectedRoom;
 
+  final double _maxScale = 1.5;
+  final double _minScale = 0.6;
   //hard code floors for mock
   final List<ConcordiaFloor> floors = [
     ConcordiaFloor(
@@ -170,6 +174,53 @@ class IndoorMapViewModel extends MapViewModel {
       ..scale(currentScale)
       ..translate(offsetX, offsetY);
     animateTo(targetMatrix);
+  }
+
+  /// Centers the camera view between start and end points with appropriate zoom
+  void centerBetweenPoints(Offset startLocation, Offset endLocation, Size viewportSize, {double padding = 100.0}) {
+    final double width = viewportSize.width;
+    final double height = viewportSize.height;
+    
+    if (startLocation == Offset.zero || endLocation == Offset.zero) {
+      return; // Don't proceed if points aren't set
+    }
+
+    // Calculate the center point between start and end
+    final centerX = (startLocation.dx + endLocation.dx) / 2;
+    final centerY = (startLocation.dy + endLocation.dy) / 2;
+
+    // Calculate viewport dimensions (assuming we have access to MediaQuery info)
+    final viewportWidth = width / 2;
+    final viewportHeight = height / 2;
+
+    // Calculate scale needed to fit the route with padding
+    // For horizontal distance
+    final horizontalDistance = (endLocation.dx - startLocation.dx).abs() + padding * 2;
+    final horizontalScale = viewportWidth / horizontalDistance;
+
+    // For vertical distance
+    final verticalDistance = (endLocation.dy - startLocation.dy).abs() + padding * 2;
+    final verticalScale = viewportHeight / verticalDistance;
+
+    // Use the smaller scale to ensure both points are visible
+    final scale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
+
+    // Clamp scale between min and max allowable values
+    final clampedScale = scale.clamp(_minScale, _maxScale);
+
+    // Calculate the offset to center the route
+    final offsetX = -centerX + viewportWidth / (2.3 * clampedScale);
+    final offsetY = -centerY + viewportHeight / (2.3 * clampedScale);
+
+    dev.log('Centering between points: offsetX=$offsetX, offsetY=$offsetY, clampedScale=$clampedScale');
+
+    // Create the transformation matrix
+    final matrix = Matrix4.identity()
+      ..translate(offsetX, offsetY)
+      ..scale(clampedScale);
+
+    // Animate to the new position and zoom
+    animateTo(matrix);
   }
 
   Future<bool> doesAssetExist(String assetPath) async {

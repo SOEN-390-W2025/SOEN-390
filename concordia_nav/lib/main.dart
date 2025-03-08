@@ -85,6 +85,7 @@ class MyApp extends StatelessWidget {
             currentRoom: args['currentRoom'] as String,
             isSource: args['isSource'] as bool? ?? false,
             isSearch: args['isSearch'] as bool? ?? false,
+            isDisability: args['isDisability'] as bool? ?? false,
           );
         },
       },

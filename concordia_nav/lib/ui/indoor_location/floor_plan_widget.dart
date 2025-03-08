@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
+import '../../widgets/indoor/indoor_path.dart';
 
 class FloorPlanWidget extends StatelessWidget {
   final IndoorMapViewModel indoorMapViewModel;
   final String floorPlanPath;
   final String semanticsLabel;
+  final IndoorDirectionsViewModel? viewModel;
   final VoidCallback? onTap;
 
   const FloorPlanWidget({
     super.key,
     required this.indoorMapViewModel,
     required this.floorPlanPath,
+    this.viewModel,
     required this.semanticsLabel,
     this.onTap,
   });
@@ -50,6 +54,15 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                 ),
               ),
+              if (viewModel != null)
+                CustomPaint(
+                  painter: IndoorMapPainter(
+                    route: viewModel!.calculatedRoute,
+                    startLocation: viewModel!.startLocation,
+                    endLocation: viewModel!.endLocation,
+                  ),
+                  size: const Size(1024, 1024),
+                ),
             ],
           ),
         ),
