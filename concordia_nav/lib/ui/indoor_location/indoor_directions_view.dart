@@ -33,7 +33,6 @@ class IndoorDirectionsView extends StatefulWidget {
 
 class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
-      
   late bool disability;
   late String from;
   late String to;
@@ -60,8 +59,10 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
     disability = widget.isDisability;
-    buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(widget.building)!;
-    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+    buildingAbbreviation =
+        _buildingViewModel.getBuildingAbbreviation(widget.building)!;
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
     _getSvgSize();
 
     _indoorMapViewModel.setInitialCameraPosition(
@@ -85,17 +86,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _initializeRoute() async {
     try {
-      await _directionsViewModel.calculateRoute(
-        widget.building,
-        widget.floor,
-        widget.sourceRoom,
-        widget.endRoom,
-        disability
-      );
+      await _directionsViewModel.calculateRoute(widget.building, widget.floor,
+          widget.sourceRoom, widget.endRoom, disability);
       if (_directionsViewModel.startLocation != Offset.zero &&
-        _directionsViewModel.endLocation != Offset.zero) {
+          _directionsViewModel.endLocation != Offset.zero) {
         // Add a slight delay to ensure the UI has been laid out
-        Future.delayed(const Duration(milliseconds: 300), () {
+        Future.delayed(Duration(milliseconds: mounted ? 0 : 300), () {
           // Get the actual size of the viewport
           final Size viewportSize = Size(width, height);
 
@@ -132,31 +128,23 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
         : '$buildingAbbreviation $room';
   }
 
-  static bool hasFullRoomName(String room) {
-    return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
-  }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _directionsViewModel,
-      child: Consumer<IndoorDirectionsViewModel>(
-        builder: (context, viewModel, _) {
-          return Scaffold(
-            appBar: customAppBar(context, 'Indoor Directions'),
-            body: Column(
-              children: [
-                LocationInfoWidget(
+      child:
+          Consumer<IndoorDirectionsViewModel>(builder: (context, viewModel, _) {
+        return Scaffold(
+          appBar: customAppBar(context, 'Indoor Directions'),
+          body: Column(
+            children: [
+              LocationInfoWidget(
                   from: widget.sourceRoom == yourLocation
-                    ? yourLocation
-                    : (hasFullRoomName(widget.sourceRoom)
-                      ? widget.sourceRoom
-                      : '$buildingAbbreviation ${widget.sourceRoom}'),
+                      ? yourLocation
+                      : roomName(widget.sourceRoom),
                   to: widget.endRoom == yourLocation
-                    ? yourLocation
-                    : (hasFullRoomName(widget.endRoom)
-                      ? widget.endRoom
-                      : '$buildingAbbreviation ${widget.endRoom}'),
+                      ? yourLocation
+                      : roomName(widget.endRoom),
                   building: widget.building,
                   floor: widget.floor,
                   isDisability: disability

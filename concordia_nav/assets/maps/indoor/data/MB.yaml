@@ -12,7 +12,7 @@ rooms:
       floor: "S2"
       entrancePoint: { x: 635, y: 826 }
     - roomNumber: "0002"
-      category: water_fountain
+      category: waterFountain
       floor: "S2"
       entrancePoint: { x: 677, y: 826 }
     - roomNumber: "0003"
@@ -105,7 +105,7 @@ rooms:
       floor: "1"
       entrancePoint: { x: 782, y: 835 }
     - roomNumber: "0003"
-      category: unknown # Water Fountain
+      category: waterFountain
       floor: "1"
       entrancePoint: { x: 751, y: 835 }
     - roomNumber: "210"
@@ -239,7 +239,7 @@ connections:
     floors: ["S2", "1"]
     floorPoints:
       "S2": { x: 484, y: 526, floor: "S2" }
-      "1": 
+      "1":
         - { x: 491, y: 795, floor: "1" }
         - { x: 457, y: 795, floor: "1" }
   - name: "Stairs"
@@ -254,7 +254,7 @@ connections:
         - { x: 625, y: 209, floor: "S2" }
         - { x: 762, y: 629, floor: "S2" }
         - { x: 826, y: 853, floor: "S2" }
-      "1": 
+      "1":
         - { x: 773, y: 860, floor: "1" }
         - { x: 528, y: 509, floor: "1" }
         - { x: 396, y: 236, floor: "1" }

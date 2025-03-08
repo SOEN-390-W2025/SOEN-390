@@ -7,6 +7,83 @@ import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
+
+  group('BuildingSelection Test', () {
+    testWidgets('should trigger floor selection on tapping a building',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // Arrange
+        const building = 'Hall Building';
+
+        // Build the widget
+        await tester.pumpWidget(const MaterialApp(
+          home: BuildingSelection(),
+        ));
+        await tester.pump();
+
+        // Make sure the element is visible before tapping
+        await tester.ensureVisible(find.text(building));
+        await tester.pumpAndSettle();
+
+        // Simulate tapping on a building
+        expect(find.text(building), findsOneWidget);
+        await tester.tap(find.text(building));
+        await tester.pumpAndSettle(); 
+
+        // Assert
+        expect(find.text('Select Building'), findsOneWidget);
+        expect(find.text('Floor 1'), findsOneWidget);
+      });
+    });
+  });
+
+  group('IndoorMapView Widget Tests', () {
+    testWidgets('IndoorMapView should render correctly with non-constant key',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // Build the IndoorMapView widget
+        await tester.pumpWidget(
+          MaterialApp(
+            home: BuildingSelection(key: UniqueKey()),
+          ),
+        );
+
+        // Verify that the custom app bar is rendered with the correct title
+        expect(find.text('Indoor Directions'), findsOneWidget);
+      });
+    });
+
+    testWidgets('IndoorMapView should render correctly',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // Build the IndoorMapView widget
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: BuildingSelection(),
+          ),
+        );
+
+        // Verify that the custom app bar is rendered with the correct title
+        expect(find.text('Indoor Directions'), findsOneWidget);
+      });
+    });
+
+    testWidgets('CustomAppBar should have the correct title',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        // Build the IndoorMapView widget
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: BuildingSelection(),
+          ),
+        );
+
+        // Verify that the custom app bar has the correct title
+        expect(find.text('Indoor Directions'), findsOneWidget);
+      });
+    });
+  });
+
   group('ClassroomSelection', () {
     testWidgets('should display the correct classrooms initially',
         (WidgetTester tester) async {
@@ -21,7 +98,7 @@ void main() {
         ));
 
         // Wait for classrooms to be rendered
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         // Find all rendered text widgets
         final allTextWidgets = find.byType(Text);
@@ -54,7 +131,7 @@ void main() {
         ));
 
         // Wait for classrooms to be rendered
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         // Enter a search term
         await tester.enterText(find.byType(TextField), '9000');
@@ -96,6 +173,7 @@ void main() {
         await tester.pumpWidget(const MaterialApp(
           home: ClassroomSelection(building: building, floor: floor),
         ));
+        await tester.pump();
 
         // Assert: Verify the floor information text is displayed
         expect(find.text(floor), findsOneWidget);
@@ -114,43 +192,16 @@ void main() {
         await tester.pumpWidget(const MaterialApp(
           home: ClassroomSelection(building: building, floor: floor),
         ));
+        await tester.pump();
 
         // Enter a non-matching search term
         await tester.enterText(find.byType(TextField), '104');
-        await tester.pump(); // Rebuild the widget after the text input
+        await tester.pumpAndSettle(); // Rebuild the widget after the text input
 
         // Assert: Verify no classrooms are shown
         expect(find.text('Classroom 101'), findsNothing);
         expect(find.text('Classroom 102'), findsNothing);
         expect(find.text('Classroom 103'), findsNothing);
-      });
-    });
-
-    testWidgets('should display IndoorDirectionsView on tapping a classroom',
-        (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Arrange
-        const building = 'Hall Building';
-        const floor = 'Floor 1';
-        const classroom = '110';
-
-        // Build the widget
-        await tester.pumpWidget(const MaterialApp(
-          home: ClassroomSelection(building: building, floor: floor),
-        ));
-        await tester.pumpAndSettle();
-
-        // Make sure the element is visible before tapping
-        await tester.ensureVisible(find.text(classroom));
-        await tester.pumpAndSettle();
-
-        // Simulate tapping on a classroom
-        expect(find.text('110'), findsOneWidget);
-        await tester.tap(find.text(classroom));
-        await tester.pumpAndSettle(); 
-
-        expect(find.text('From: Your Location'), findsOneWidget);
-        expect(find.text('To: H 110'), findsOneWidget);
       });
     });
 
@@ -166,7 +217,7 @@ void main() {
         await tester.pumpWidget(const MaterialApp(
           home: ClassroomSelection(building: building, floor: floor, isSearch: true,),
         ));
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         // Make sure the element is visible before tapping
         await tester.ensureVisible(find.text(classroom));
@@ -181,75 +232,33 @@ void main() {
         expect(find.text('Hall Building'), findsOneWidget);
       });
     });
-  });
 
-  group('BuildingSelection Test', () {
-    testWidgets('should trigger floor selection on tapping a building',
+    testWidgets('should display IndoorDirectionsView on tapping a classroom',
         (WidgetTester tester) async {
       await tester.runAsync(() async {
         // Arrange
         const building = 'Hall Building';
+        const floor = 'Floor 1';
+        const classroom = '110';
 
         // Build the widget
         await tester.pumpWidget(const MaterialApp(
-          home: BuildingSelection(),
+          home: ClassroomSelection(building: building, floor: floor),
         ));
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         // Make sure the element is visible before tapping
-        await tester.ensureVisible(find.text(building));
-        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text(classroom));
+        await tester.pump();
 
-        // Simulate tapping on a building
-        expect(find.text(building), findsOneWidget);
-        await tester.tap(find.text(building));
+        // Simulate tapping on a classroom
+        expect(find.text('110'), findsOneWidget);
+        await tester.tap(find.text(classroom));
         await tester.pumpAndSettle(); 
 
-        // Assert
-        expect(find.text('Select Building'), findsOneWidget);
-        expect(find.text('Floor 1'), findsOneWidget);
+        expect(find.text('From: Your Location'), findsOneWidget);
+        expect(find.text('To: H 110'), findsOneWidget);
       });
-    });
-  });
-
-  group('IndoorMapView Widget Tests', () {
-    testWidgets('IndoorMapView should render correctly with non-constant key',
-        (WidgetTester tester) async {
-      // Build the IndoorMapView widget
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BuildingSelection(key: UniqueKey()),
-        ),
-      );
-
-      // Verify that the custom app bar is rendered with the correct title
-      expect(find.text('Indoor Directions'), findsOneWidget);
-    });
-
-    testWidgets('IndoorMapView should render correctly',
-        (WidgetTester tester) async {
-      // Build the IndoorMapView widget
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: BuildingSelection(),
-        ),
-      );
-
-      // Verify that the custom app bar is rendered with the correct title
-      expect(find.text('Indoor Directions'), findsOneWidget);
-    });
-
-    testWidgets('CustomAppBar should have the correct title',
-        (WidgetTester tester) async {
-      // Build the IndoorMapView widget
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: BuildingSelection(),
-        ),
-      );
-
-      // Verify that the custom app bar has the correct title
-      expect(find.text('Indoor Directions'), findsOneWidget);
     });
   });
 }
