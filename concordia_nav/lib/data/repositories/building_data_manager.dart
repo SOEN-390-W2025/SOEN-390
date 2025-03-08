@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'building_data.dart';
 import 'dart:developer' as dev;
@@ -67,7 +68,12 @@ class BuildingDataManager {
 
       buildingDataCache![upperAbbr] = buildingData;
       return buildingData;
-    } on Exception catch (e, stackTrace) {
+    } on FlutterError catch (e, stackTrace) {
+      dev.log('Error loading building data for $upperAbbr: $e',
+          error: e, stackTrace: stackTrace);
+      return null;
+    } 
+    on Exception catch (e, stackTrace) {
       dev.log('Error loading building data for $upperAbbr: $e',
           error: e, stackTrace: stackTrace);
       return null;
