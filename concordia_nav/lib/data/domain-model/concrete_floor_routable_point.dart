@@ -2,7 +2,6 @@ import 'concordia_floor.dart';
 import 'floor_routable_point.dart';
 
 class ConcreteFloorRoutablePoint implements FloorRoutablePoint {
-
   ConcordiaFloor _floor;
 
   double _positionX;

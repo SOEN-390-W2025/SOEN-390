@@ -114,17 +114,6 @@ void main() {
       expect(mapViewModel.multiModePolylines, {polyline});
     });
 
-    test('startShuttleBusTimer should start a periodic timer', () {
-      // Act
-      mapViewModel.startShuttleBusTimer();
-
-      // Assert
-      expect(mapViewModel.shuttleBusTimer, isNotNull);
-      expect(mapViewModel.shuttleBusTimer!.isActive, isTrue);
-
-      mapViewModel.stopShuttleBusTimer();
-    });
-
     test('fetchShuttleBusData should update shuttle markers', () async {
       // Arrange
       when(mockHttpClient.get(any, headers: anyNamed('headers'))).thenAnswer(

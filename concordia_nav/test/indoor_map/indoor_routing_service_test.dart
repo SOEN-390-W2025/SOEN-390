@@ -19,7 +19,8 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   group('getIndoorRoute', () {
-    test('should return no route if origin and destination are the same', () async {
+    test('should return no route if origin and destination are the same',
+        () async {
       final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
       final origin =
           ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
@@ -49,20 +50,20 @@ void main() async {
       expect(route.secondIndoorPortionToConnection, isNull);
     });
 
-    // on different floors, finds no bestNeighbour -> expected results are null
-    /*test('should return route for different floors in the same building', () async{
+    test('should return route for different floors in the same building',
+        () async {
       final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
-      final origin =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 662, 413);
-      final destination =
-          ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 488, 548);
+      final origin = ConcordiaFloorPoint(
+          ConcordiaFloor("1", BuildingRepository.h), 662, 413);
+      final destination = ConcordiaFloorPoint(
+          ConcordiaFloor("2", BuildingRepository.h), 488, 548);
 
       final route =
           IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNotNull);
       expect(route.firstIndoorConnection, isNotNull);
-    });*/
+    });
   });
 
   group('IndoorRoutingService', () {

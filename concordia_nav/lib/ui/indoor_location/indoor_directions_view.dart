@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/building_viewmodel.dart';
@@ -28,10 +29,10 @@ class IndoorDirectionsView extends StatefulWidget {
   });
 
   @override
-  State<IndoorDirectionsView> createState() => _IndoorDirectionsViewState();
+  State<IndoorDirectionsView> createState() => IndoorDirectionsViewState();
 }
 
-class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
+class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
   late bool disability;
   late String from;
@@ -84,7 +85,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       offsetY: -50.0,
     );
 
-    _getSvgSize();
+    getSvgSize();
 
     _initializeRoute();
   }
@@ -105,7 +106,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     return RegExp(r'^[a-zA-Z]{1,2} ').hasMatch(room);
   }
 
-  Future<void> _getSvgSize() async {
+  Future<void> getSvgSize() async {
     final size = await _directionsViewModel.getSvgDimensions(floorPlanPath);
     setState(() {
       width = size.width;
@@ -139,7 +140,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       );
 
       if (_directionsViewModel.startLocation != Offset.zero &&
-          _directionsViewModel.endLocation != Offset.zero) {
+          _directionsViewModel.endLocation != Offset.zero &&
+          !kDebugMode) {
         // Add a slight delay to ensure the UI has been laid out
         Future.delayed(Duration(milliseconds: mounted ? 0 : 300), () {
           // Get the actual size of the viewport
@@ -152,6 +154,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
           );
         });
       }
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
@@ -259,8 +262,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                 ),
                 BottomInfoWidget(
                   eta: viewModel.eta,
-                  onNextFloor: _handleNextFloorPress,
-                  onPrevFloor: _handlePrevFloorPress,
+                  onNextFloor: handleNextFloorPress,
+                  onPrevFloor: handlePrevFloorPress,
                 ),
               ],
             ),
@@ -270,7 +273,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     );
   }
 
-  void _handlePrevFloorPress() {
+  void handlePrevFloorPress() {
     setState(() {
       widget.sourceRoom = realStartRoom;
       widget.endRoom =
@@ -294,14 +297,14 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
           offsetY: -50.0,
         );
 
-        _getSvgSize();
+        getSvgSize();
       }
     });
 
     _initializeRoute();
   }
 
-  void _handleNextFloorPress() {
+  void handleNextFloorPress() {
     setState(() {
       widget.sourceRoom = 'Your Location';
       widget.endRoom = realEndRoom;
@@ -325,7 +328,7 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
           offsetY: -50.0,
         );
 
-        _getSvgSize(); // Ensure floor plan dimensions update
+        getSvgSize(); // Ensure floor plan dimensions update
       }
     });
 

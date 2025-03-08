@@ -102,8 +102,11 @@ class IndoorRoutingService {
     }
   }
 
-  static IndoorRoute _getDifferentBuildingRoute(dynamic yamlData,FloorRoutablePoint origin,
-      FloorRoutablePoint destination, bool isAccessible) {
+  static IndoorRoute _getDifferentBuildingRoute(
+      dynamic yamlData,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      bool isAccessible) {
     final IndoorRoute returnRoute = IndoorRoute(origin.floor.building, null,
         null, null, destination.floor.building, null, null, null);
 
@@ -126,8 +129,8 @@ class IndoorRoutingService {
         .outdoorExitPointsByBuilding[destination.floor.building.abbreviation];
     if (destinationExitPoint != null) {
       dev.log("Dest exit point not null - getting route in dest building");
-      final IndoorRoute destinationPortion =
-          getIndoorRoute(yamlData, destinationExitPoint, destination, isAccessible);
+      final IndoorRoute destinationPortion = getIndoorRoute(
+          yamlData, destinationExitPoint, destination, isAccessible);
       returnRoute.secondIndoorPortionToConnection =
           destinationPortion.firstIndoorPortionToConnection;
       returnRoute.secondIndoorConnection =
@@ -139,8 +142,11 @@ class IndoorRoutingService {
     return returnRoute;
   }
 
-  static IndoorRoute _getDifferentFloorRoute(dynamic yamlData,FloorRoutablePoint origin,
-      FloorRoutablePoint destination, bool isAccessible) {
+  static IndoorRoute _getDifferentFloorRoute(
+      dynamic yamlData,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      bool isAccessible) {
     final possibleConnections = IndoorFeatureRepository
         .connectionsByBuilding[origin.floor.building.abbreviation];
     Connection? bestConnection;
@@ -312,7 +318,7 @@ class IndoorRoutingService {
     return route;
   }
 
-  static IndoorRoute getIndoorRoute(dynamic yamlData,FloorRoutablePoint origin,
+  static IndoorRoute getIndoorRoute(dynamic yamlData, FloorRoutablePoint origin,
       FloorRoutablePoint destination, bool isAccessible) {
     // Points are the same - return a route with no instructions
     if (origin == destination) {
@@ -327,7 +333,8 @@ class IndoorRoutingService {
     if (origin.floor.building.abbreviation !=
         destination.floor.building.abbreviation) {
       dev.log("getIndoorRoute - origin and destination buildings not same");
-      return _getDifferentBuildingRoute(yamlData,origin, destination, isAccessible);
+      return _getDifferentBuildingRoute(
+          yamlData, origin, destination, isAccessible);
     }
 
     // Points are now in the same building but on different floors - find the
@@ -335,7 +342,8 @@ class IndoorRoutingService {
     // routes
     if (origin.floor.floorNumber != destination.floor.floorNumber) {
       dev.log("Origin and destination points on different floors");
-      return _getDifferentFloorRoute(yamlData, origin, destination, isAccessible);
+      return _getDifferentFloorRoute(
+          yamlData, origin, destination, isAccessible);
     }
 
     // Points are now within the same floor - this is where we will do
@@ -355,12 +363,14 @@ class IndoorRoutingService {
     final loadedFloors = loadFloors(yamlData, origin.floor.building);
     final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
     final waypointsByFloor = loadWaypoints(yamlData, floorMap);
-    final waypointNavigabilityGroupsByFloor = loadWaypointNavigability(yamlData);
+    final waypointNavigabilityGroupsByFloor =
+        loadWaypointNavigability(yamlData);
 
     final waypointsOnFloor = waypointsByFloor[origin.floor.floorNumber];
 
-    final waypointNavigability = waypointNavigabilityGroupsByFloor[origin.floor.floorNumber];
-        
+    final waypointNavigability =
+        waypointNavigabilityGroupsByFloor[origin.floor.floorNumber];
+
     if (waypointsOnFloor == null || waypointNavigability == null) {
       // No floor routing data for this floor, need to return the null route
       dev.log("No indoor routing data for floor ${origin.floor.floorNumber}");
@@ -430,40 +440,42 @@ class IndoorRoutingService {
   Future<Size> getSvgDimensions(String svgPath) async {
     // Default size in case we can't determine
     Size defaultSize = const Size(1024, 1024);
-    
+
     try {
       // Load the SVG file
       final String svgString = await rootBundle.loadString(svgPath);
-      
+
       // Parse the SVG to extract width and height
       // This is a simple regex approach - for production you might want a more robust parser
       final RegExp widthRegex = RegExp(r'width="([^"]*)"');
       final RegExp heightRegex = RegExp(r'height="([^"]*)"');
-      
+
       final widthMatch = widthRegex.firstMatch(svgString);
       final heightMatch = heightRegex.firstMatch(svgString);
-      
+
       if (widthMatch != null && heightMatch != null) {
-        final width = double.tryParse(widthMatch.group(1)!) ?? defaultSize.width;
-        final height = double.tryParse(heightMatch.group(1)!) ?? defaultSize.height;
+        final width =
+            double.tryParse(widthMatch.group(1)!) ?? defaultSize.width;
+        final height =
+            double.tryParse(heightMatch.group(1)!) ?? defaultSize.height;
         return Size(width, height);
       }
-      
+
       // Try to get viewBox dimensions if width/height are not specified directly
       final RegExp viewBoxRegex = RegExp(r'viewBox="([^"]*)"');
       final viewBoxMatch = viewBoxRegex.firstMatch(svgString);
-      
+
       if (viewBoxMatch != null) {
         final String viewBox = viewBoxMatch.group(1)!;
         final List<String> parts = viewBox.split(' ');
-        
+
         if (parts.length >= 4) {
           final width = double.tryParse(parts[2]) ?? defaultSize.width;
           final height = double.tryParse(parts[3]) ?? defaultSize.height;
           return Size(width, height);
         }
       }
-      
+
       return defaultSize;
     } catch (e) {
       dev.log('Error getting SVG dimensions: $e');

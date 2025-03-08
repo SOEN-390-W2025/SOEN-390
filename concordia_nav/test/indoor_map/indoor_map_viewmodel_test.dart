@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
@@ -5,12 +7,14 @@ import 'package:concordia_nav/utils/indoor_map_viewmodel.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 
 class TestVSync implements TickerProvider {
   @override
   Ticker createTicker(TickerCallback onTick) => Ticker(onTick);
 }
 
+@GenerateMocks([IndoorMapViewModel])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
@@ -21,6 +25,19 @@ void main() {
   });
 
   group('IndoorMapViewModel', () {
+    testWidgets('centers correctly between points',
+        (WidgetTester tester) async {
+      final mockMapViewModel = IndoorMapViewModel(vsync: TestVSync());
+      const viewportSize = Size(1000, 800);
+      const startLocation = Offset(100, 200);
+      const endLocation = Offset(700, 600);
+
+      mockMapViewModel.centerBetweenPoints(
+          startLocation, endLocation, viewportSize,
+          padding: 50);
+      await tester.pumpAndSettle();
+    });
+
     test('getInitialCameraPositionFloor returns correct camera position',
         () async {
       final viewModel = IndoorMapViewModel(vsync: TestVSync());
