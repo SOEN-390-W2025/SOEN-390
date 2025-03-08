@@ -68,7 +68,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final Finder startButton = find.text('Start');
+      final Finder startButton = find.text('Next');
       expect(startButton, findsOneWidget);
 
       await tester.tap(startButton);

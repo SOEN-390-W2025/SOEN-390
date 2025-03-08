@@ -66,6 +66,9 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
     floorPlanPath =
         'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
 
+    realStartRoom = widget.sourceRoom;
+    realEndRoom = widget.endRoom;
+
     // Check if source and destination are on different floors
     if (!isMultiFloor && !_isSameFloor(widget.sourceRoom, widget.endRoom)) {
       isMultiFloor = true;
@@ -73,8 +76,6 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
       widget.endRoom = 'Your Location';
     } else {
       isMultiFloor = false;
-      realStartRoom = widget.sourceRoom;
-      realEndRoom = widget.endRoom;
     }
 
     _indoorMapViewModel.setInitialCameraPosition(
