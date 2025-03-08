@@ -65,7 +65,7 @@ void main() async {
       expect(route.firstIndoorConnection, isNull);
     });
 
-    test('finding no best neighbors returns null firstIndoorPortionToConnection', () async{
+    test('should return route when origin and destination are on different floors', () async{
       final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
       final origin =
           ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 662, 413);
@@ -75,7 +75,7 @@ void main() async {
       final route =
           IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
 
-      expect(route.firstIndoorPortionToConnection, isNull);
+      expect(route.firstIndoorPortionToConnection, isNotNull);
       expect(route.firstIndoorConnection, isNotNull);
     });
   });
