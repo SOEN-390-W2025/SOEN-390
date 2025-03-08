@@ -10,6 +10,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
 
+  const String yourLocationString = 'Your Location';
+
   late Widget view;
   late IndoorDirectionsViewModel mockDirectionsViewModel;
 
@@ -40,7 +42,7 @@ void main() {
       state.handleNextFloorPress();
       await tester.pump();
 
-      expect(state.widget.sourceRoom, 'Your Location');
+      expect(state.widget.sourceRoom, yourLocationString);
       expect(state.widget.endRoom, 'H 830');
       expect(IndoorDirectionsViewState.isMultiFloor, false);
 
@@ -48,7 +50,7 @@ void main() {
       await tester.pump();
 
       expect(state.widget.sourceRoom, 'H 921');
-      expect(state.widget.endRoom, 'Your Location');
+      expect(state.widget.endRoom, yourLocationString);
       expect(IndoorDirectionsViewState.isMultiFloor, true);
     });
 
@@ -57,7 +59,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: IndoorDirectionsView(
-            sourceRoom: 'Your Location',
+            sourceRoom: yourLocationString,
             building: 'Hall Building',
             floor: '1',
             endRoom: 'H 110',
@@ -77,7 +79,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: IndoorDirectionsView(
-            sourceRoom: 'Your Location',
+            sourceRoom: yourLocationString,
             building: 'Hall Building',
             floor: '1',
             endRoom: 'H110',
@@ -103,7 +105,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: IndoorDirectionsView(
-            sourceRoom: 'Your Location',
+            sourceRoom: yourLocationString,
             building: 'Hall Building',
             floor: '1',
             endRoom: 'H110',

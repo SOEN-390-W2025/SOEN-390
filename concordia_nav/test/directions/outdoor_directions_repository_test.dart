@@ -5,16 +5,20 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  group('outdoor repository tests', () {
 
+  const String mondayThursdayString = 'Monday-Thursday';
+
+  group('outdoor repository tests', () {
     test('loadShuttleRoute', () async {
-      var route = await ShuttleRouteRepository().loadShuttleRoute(ShuttleRouteDirection.SGWtoLOY);
+      var route = await ShuttleRouteRepository()
+          .loadShuttleRoute(ShuttleRouteDirection.SGWtoLOY);
 
       // verify returned route from SGW to LOY
       expect(route, isA<List<LatLng>>());
       expect(route.first, const LatLng(45.49708, -73.5784));
 
-      route = await ShuttleRouteRepository().loadShuttleRoute(ShuttleRouteDirection.LOYtoSGW);
+      route = await ShuttleRouteRepository()
+          .loadShuttleRoute(ShuttleRouteDirection.LOYtoSGW);
 
       // verify returned route from LOY to SGW
       expect(route, isA<List<LatLng>>());
@@ -22,7 +26,8 @@ void main() {
     });
 
     test('loadShuttleSchedule returns schedule', () async {
-      var schedule = await ShuttleRouteRepository().loadShuttleSchedule('Monday-Thursday');
+      var schedule = await ShuttleRouteRepository()
+          .loadShuttleSchedule(mondayThursdayString);
 
       // verify receive schedule from Monday-Thursday
       expect(schedule, isA<Map<String, dynamic>>());
@@ -35,19 +40,24 @@ void main() {
       expect(schedule["LOY_departures"][0], "9:15");
     });
 
-    test('loadShuttleSchedule throws exception if invalid dayType given', () async {
+    test('loadShuttleSchedule throws exception if invalid dayType given',
+        () async {
       // verify it throws an exception
-      expect(ShuttleRouteRepository().loadShuttleSchedule('Sunday'), throwsException);
+      expect(ShuttleRouteRepository().loadShuttleSchedule('Sunday'),
+          throwsException);
     });
 
     test('getDayType returns dayType or null if weekend', () {
-      var dayType = ShuttleRouteRepository().getDayType(DateTime(2025, 2, 24)); // Monday
-      expect(dayType, 'Monday-Thursday');
+      var dayType =
+          ShuttleRouteRepository().getDayType(DateTime(2025, 2, 24)); // Monday
+      expect(dayType, mondayThursdayString);
 
-      dayType = ShuttleRouteRepository().getDayType(DateTime(2025, 2, 28)); // Friday
+      dayType =
+          ShuttleRouteRepository().getDayType(DateTime(2025, 2, 28)); // Friday
       expect(dayType, 'Friday');
 
-      dayType = ShuttleRouteRepository().getDayType(DateTime(2025, 2, 23)); // Sunday
+      dayType =
+          ShuttleRouteRepository().getDayType(DateTime(2025, 2, 23)); // Sunday
       expect(dayType, null);
     });
   });

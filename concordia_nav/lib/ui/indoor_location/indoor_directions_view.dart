@@ -52,6 +52,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   static const yourLocation = 'Your Location';
 
+  final String regex = r'[^0-9]';
+
   double width = 1024.0;
   double height = 1024.0;
 
@@ -76,7 +78,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     if (!isMultiFloor && !_isSameFloor(widget.sourceRoom, widget.endRoom)) {
       isMultiFloor = true;
       realStartRoom = widget.sourceRoom;
-      widget.endRoom = 'Your Location';
+      widget.endRoom = yourLocation;
     } else {
       isMultiFloor = false;
     }
@@ -86,6 +88,16 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       offsetX: -50.0,
       offsetY: -50.0,
     );
+
+    from = realStartRoom == yourLocation
+        ? yourLocation
+        : (hasFullRoomName(realStartRoom)
+            ? realStartRoom
+            : '$buildingAbbreviation $realStartRoom');
+
+    to = hasFullRoomName(realEndRoom)
+        ? realEndRoom
+        : '$buildingAbbreviation $realEndRoom';
 
     getSvgSize();
 
@@ -122,7 +134,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   bool _isSameFloor(String sourceRoom, String endRoom) {
     // If either sourceRoom or endRoom is "Your Location", return true
-    if (sourceRoom == 'Your Location' || endRoom == 'Your Location') {
+    if (sourceRoom == yourLocation || endRoom == yourLocation) {
       return true;
     }
 
@@ -187,14 +199,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
             body: Column(
               children: [
                 LocationInfoWidget(
-                  from: realStartRoom == yourLocation
-                      ? yourLocation
-                      : (hasFullRoomName(realStartRoom)
-                          ? realStartRoom
-                          : '$buildingAbbreviation $realStartRoom'),
-                  to: (hasFullRoomName(realEndRoom)
-                      ? realEndRoom
-                      : '$buildingAbbreviation $realEndRoom'),
+                  from: from,
+                  to: to,
                   building: widget.building,
                   floor: widget.floor,
                   isDisability: disability,
@@ -290,8 +296,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       isMultiFloor = true; // Mark as multi-floor again
 
       final String newFloor =
-          realStartRoom.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty
-              ? realStartRoom.replaceAll(RegExp(r'[^0-9]'), '').substring(0, 1)
+          realStartRoom.replaceAll(RegExp(regex), '').isNotEmpty
+              ? realStartRoom.replaceAll(RegExp(regex), '').substring(0, 1)
               : widget.floor;
 
       if (widget.floor != newFloor) {
@@ -314,14 +320,14 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   void handleNextFloorPress() {
     setState(() {
-      widget.sourceRoom = 'Your Location';
+      widget.sourceRoom = yourLocation;
       widget.endRoom = realEndRoom;
 
       isMultiFloor = false;
 
       final String newFloor =
-          realEndRoom.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty
-              ? realEndRoom.replaceAll(RegExp(r'[^0-9]'), '').substring(0, 1)
+          realEndRoom.replaceAll(RegExp(regex), '').isNotEmpty
+              ? realEndRoom.replaceAll(RegExp(regex), '').substring(0, 1)
               : widget.floor;
 
       if (widget.floor != newFloor) {
