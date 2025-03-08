@@ -293,7 +293,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Time to destination',
+                'Time',
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               Row(
@@ -318,7 +318,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Distance remaining',
+                'Distance',
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               Row(
