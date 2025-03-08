@@ -3,12 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_room.dart';
-import '../data/domain-model/room_category.dart';
-import '../data/domain-model/concordia_floor_point.dart';
-import '../data/domain-model/concordia_building.dart';
-import '../data/domain-model/concordia_campus.dart';
 import 'map_viewmodel.dart';
 
 import 'dart:developer' as dev;
@@ -17,6 +12,7 @@ class IndoorMapViewModel extends MapViewModel {
   final TransformationController transformationController;
   final AnimationController animationController;
   Animation<Matrix4>? _animation;
+  bool _disposed = false;
 
   IndoorMapViewModel({required TickerProvider vsync})
       : transformationController = TransformationController(),
@@ -29,110 +25,6 @@ class IndoorMapViewModel extends MapViewModel {
 
   final double _maxScale = 1.5;
   final double _minScale = 0.6;
-  //hard code floors for mock
-  final List<ConcordiaFloor> floors = [
-    ConcordiaFloor(
-      '1',
-      const ConcordiaBuilding(
-        45.4972159,
-        -73.5790067,
-        'Hall Building',
-        '1455 Boulevard de Maisonneuve O',
-        'Montreal',
-        'QC',
-        'H3G 1M8',
-        'H',
-        ConcordiaCampus.sgw,
-      ),
-    ),
-    ConcordiaFloor(
-      '2',
-      const ConcordiaBuilding(
-        45.4972159,
-        -73.5790067,
-        'Hall Building',
-        '1455 Boulevard de Maisonneuve O',
-        'Montreal',
-        'QC',
-        'H3G 1M8',
-        'H',
-        ConcordiaCampus.sgw,
-      ),
-    ),
-  ];
-
-  Future<CameraPosition> getInitialCameraPositionFloor(
-      ConcordiaFloor floor) async {
-    return CameraPosition(
-      target: LatLng(floor.lat, floor.lng),
-      zoom: 18.0,
-    );
-  }
-
-  @override
-  Future<void> fetchRoutesForAllModes(
-      String originAddress, String destinationAddress) async {
-    final floor = floors.firstWhere(
-      (floor) =>
-          floor.floorNumber == originAddress ||
-          floor.floorNumber == destinationAddress,
-      orElse: () => floors.first,
-    );
-
-    selectedRoom = ConcordiaRoom(
-      destinationAddress,
-      RoomCategory.classroom,
-      floor,
-      ConcordiaFloorPoint(
-        floor,
-        0.5,
-        0.5,
-      ),
-    );
-
-    updateMarkers();
-    notifyListeners();
-  }
-
-  void calculateDirections() {
-    // Mock directions logic
-    if (selectedRoom == null || selectedRoom!.entrancePoint == null) return;
-
-    final polyline = Polyline(
-      polylineId: const PolylineId('indoor_path'),
-      points: [
-        LatLng(selectedRoom!.floor.lat, selectedRoom!.floor.lng),
-        LatLng(
-          selectedRoom!.floor.lat + 0.0001,
-          selectedRoom!.floor.lng + 0.0001,
-        ),
-      ],
-      color: Colors.blue,
-      width: 5,
-    );
-    polylinesNotifier.value = {polyline};
-    notifyListeners();
-  }
-
-  void updateMarkers() {
-    if (selectedRoom != null && selectedRoom!.entrancePoint != null) {
-      markersNotifier.value = {
-        Marker(
-          markerId: const MarkerId('selected_room'),
-          position: LatLng(
-            selectedRoom!.floor.lat +
-                selectedRoom!.entrancePoint!.positionX * 0.0001,
-            selectedRoom!.floor.lng +
-                selectedRoom!.entrancePoint!.positionY * 0.0001,
-          ),
-          infoWindow: InfoWindow(title: selectedRoom!.roomNumber),
-        ),
-      };
-    } else {
-      markersNotifier.value = {};
-    }
-    notifyListeners();
-  }
 
   /// Sets the initial camera transformation from a given scale and translation.
   void setInitialCameraPosition({
@@ -141,13 +33,14 @@ class IndoorMapViewModel extends MapViewModel {
     double offsetY = 0.0,
   }) {
     final matrix = Matrix4.identity()
-      ..scale(scale)
-      ..translate(offsetX, offsetY);
+      ..translate(offsetX, offsetY)
+      ..scale(scale);
     transformationController.value = matrix;
   }
 
   /// Animates the camera transformation to the provided target matrix.
   void animateTo(Matrix4 targetMatrix) {
+    if (_disposed) return;
     _animation = Matrix4Tween(
       begin: transformationController.value,
       end: targetMatrix,
@@ -157,8 +50,10 @@ class IndoorMapViewModel extends MapViewModel {
         curve: Curves.easeInOut,
       ),
     )..addListener(() {
+      if (!_disposed) {
         transformationController.value = _animation!.value;
-      });
+      }
+    });
     animationController.forward(from: 0);
   }
 
@@ -174,6 +69,31 @@ class IndoorMapViewModel extends MapViewModel {
       ..scale(currentScale)
       ..translate(offsetX, offsetY);
     animateTo(targetMatrix);
+  }
+
+  /// Centers the camera view on a specific point
+  void centerOnPoint(Offset point, Size viewportSize, {double padding = 50.0}) {
+    final double width = viewportSize.width;
+    final double height = viewportSize.height;
+
+    // Calculate viewport dimensions
+    final viewportWidth = width / 2;
+    final viewportHeight = height / 2;
+
+    // Calculate scale and offset to center the point
+    final scale = transformationController.value.getMaxScaleOnAxis(); // Use the current scale
+    final offsetX = -point.dx + viewportWidth / (2.3 * scale);
+    final offsetY = -point.dy + viewportHeight / (2.3 * scale);
+
+    dev.log('Centering on point: offsetX=$offsetX, offsetY=$offsetY, scale=$scale');
+
+    // Create the transformation matrix
+    final matrix = Matrix4.identity()
+      ..translate(offsetX, offsetY)
+      ..scale(scale);
+
+    // Animate to the new position and zoom
+    animateTo(matrix);
   }
 
   /// Centers the camera view between start and end points with appropriate zoom
@@ -234,6 +154,8 @@ class IndoorMapViewModel extends MapViewModel {
 
   @override
   void dispose() {
+    _disposed = true;
+    animationController.stop();
     animationController.dispose();
     transformationController.dispose();
     super.dispose();

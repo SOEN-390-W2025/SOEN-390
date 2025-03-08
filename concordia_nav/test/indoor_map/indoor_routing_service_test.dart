@@ -1,9 +1,10 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
+import 'package:concordia_nav/data/domain-model/connection.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
+import 'package:concordia_nav/data/repositories/building_data.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
-import 'package:concordia_nav/utils/building_viewmodel.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,14 +20,53 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   group('getIndoorRoute', () {
-    test('should return no route if origin and destination are the same', () async {
-      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
-      final origin =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
+    // Create BuildingData for test building H
+    const buildingH = BuildingRepository.h;
+    final floorH1 = ConcordiaFloor("1", buildingH);
+    final floorH8 = ConcordiaFloor("8", buildingH);
+    
+    // Create BuildingData for test building ER
+    const buildingER = BuildingRepository.er;
+    final floorER8 = ConcordiaFloor("8", buildingER);
+    
+    // Mock stairwell/elevator connection between floors
+    final connectionPoints = <String, List<ConcordiaFloorPoint>>{
+      "1": [ConcordiaFloorPoint(floorH1, 10, 10)],
+      "8": [ConcordiaFloorPoint(floorH8, 10, 10)]
+    };
+    
+    final connection = Connection(
+      [floorH1, floorH8],
+      connectionPoints,
+      true,
+      "Test Elevator",
+      5.0, // fixed wait time
+      2.0  // wait time per floor
+    );
+    
+    // Create BuildingData for H building
+    final buildingDataH = BuildingData(
+      building: buildingH,
+      floors: [floorH1, floorH8],
+      roomsByFloor: {},
+      waypointsByFloor: {
+        "1": [ConcordiaFloorPoint(floorH1, 0, 0), ConcordiaFloorPoint(floorH1, 10, 10)],
+        "8": [ConcordiaFloorPoint(floorH8, 0, 0), ConcordiaFloorPoint(floorH8, 10, 10)]
+      },
+      waypointNavigability: {
+        "1": {0: [1], 1: [0]},
+        "8": {0: [1], 1: [0]}
+      },
+      connections: [connection],
+      outdoorExitPoint: ConcordiaFloorPoint(floorH1, 5, 5)
+    );
+
+    test('should return no route if origin and destination are the same', () {
+      final origin = ConcordiaFloorPoint(floorH1, 0, 0);
       final destination = origin;
 
-      final route =
-          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+      final route = IndoorRoutingService.getIndoorRoute(
+          buildingDataH, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNull);
       expect(route.firstIndoorConnection, isNull);
@@ -34,46 +74,37 @@ void main() async {
 
     test(
         'should return route when origin and destination are in different buildings',
-        () async {
-      final yaml = await BuildingViewModel().getYamlDataForBuilding("MB");
-      final origin =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 0, 0);
-      final destination =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.mb), 0, 0);
+        () {
+      final origin = ConcordiaFloorPoint(floorH1, 0, 0);
+      final destination = ConcordiaFloorPoint(floorER8, 0, 0);
 
-      final route =
-          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+      final route = IndoorRoutingService.getIndoorRoute(
+          buildingDataH, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNotNull);
       expect(route.firstIndoorConnection, isNull);
       expect(route.secondIndoorPortionToConnection, isNull);
     });
 
-    test(
-        'getIndoorRoute with valid destinationExitPoint',
-        () async {
-      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
-      final origin =
+    test('getIndoorRoute with valid destinationExitPoint', () async {
+      final origin = 
           ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.mb), 0, 0);
-      final destination =
+      final destination = 
           ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 775, 400);
 
-      final route =
-          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+      final route = 
+          IndoorRoutingService.getIndoorRoute(buildingDataH, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNull);
       expect(route.firstIndoorConnection, isNull);
     });
 
-    test('should return route when origin and destination are on different floors', () async{
-      final yaml = await BuildingViewModel().getYamlDataForBuilding("H");
-      final origin =
-          ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 662, 413);
-      final destination =
-          ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 488, 548);
+    test('should return route when origin and destination are on different floors', () {
+      final origin = ConcordiaFloorPoint(floorH1, 0, 0);
+      final destination = ConcordiaFloorPoint(floorH8, 0, 0);
 
-      final route =
-          IndoorRoutingService.getIndoorRoute(yaml, origin, destination, true);
+      final route = IndoorRoutingService.getIndoorRoute(
+          buildingDataH, origin, destination, true);
 
       expect(route.firstIndoorPortionToConnection, isNotNull);
       expect(route.firstIndoorConnection, isNotNull);

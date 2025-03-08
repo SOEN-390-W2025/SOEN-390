@@ -1,9 +1,8 @@
-// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses
+// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import '../data/domain-model/concordia_floor.dart';
 import '../data/domain-model/concordia_floor_point.dart';
-import '../data/domain-model/concordia_room.dart';
 import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concrete_floor_routable_point.dart';
 import '../data/domain-model/connection.dart';
@@ -11,6 +10,7 @@ import '../data/domain-model/indoor_route.dart';
 import '../data/repositories/building_data.dart';
 import '../data/repositories/building_data_manager.dart';
 import '../data/services/indoor_routing_service.dart';
+import '../data/services/routecalculation_service.dart';
 import 'building_viewmodel.dart';
 
 import 'dart:developer' as dev;
@@ -19,14 +19,14 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
 
   bool _isAccessibilityMode = false;
-  final String _eta = '5 min';
+  String eta = 'Calculating...';
+  String distance = 'Calculating...';
   IndoorRoute? _calculatedRoute;
   Offset _startLocation = Offset.zero;
   Offset _endLocation = Offset.zero;
-
+  
   // Getters
   bool get isAccessibilityMode => _isAccessibilityMode;
-  String get eta => _eta;
   IndoorRoute? get calculatedRoute => _calculatedRoute;
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
@@ -40,21 +40,18 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   Future<ConcordiaFloorPoint?> getPositionPoint(
       String buildingName, String floor, String room) async {
     // Get the building by name
-    final ConcordiaBuilding building =
-        BuildingViewModel().getBuildingByName(buildingName)!;
+    final ConcordiaBuilding building = BuildingViewModel().getBuildingByName(buildingName)!;
+    final String abbreviation = building.abbreviation.toUpperCase();
 
-    // Load YAML data for the building
-    final dynamic yamlData = await BuildingViewModel()
-        .getYamlDataForBuilding(building.abbreviation.toUpperCase());
+    // Use BuildingDataManager instead of direct YAML loading
+    final BuildingData? buildingData = await BuildingDataManager.getBuildingData(abbreviation);
 
-    // Load floors and rooms from the YAML data
-    final loadedFloors = loadFloors(yamlData, building);
-    final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
-    final Map<String, List<ConcordiaRoom>> roomsByFloor =
-        loadRooms(yamlData, floorMap);
+    if (buildingData == null) {
+      return null;
+    }
 
     // Get the list of rooms for the given floor
-    final rooms = roomsByFloor[floor];
+    final rooms = buildingData.roomsByFloor[floor];
 
     // Remove the floor part of the room identifier
     String roomNumber = room.replaceFirst(floor, '');
@@ -78,12 +75,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     if (rooms != null) {
       // Find the room by its number
-      final roomFound = rooms.firstWhere(
-        (room) => room.roomNumber == roomNumber,
-      );
+      try {
+        final roomFound = rooms.firstWhere(
+          (room) => room.roomNumber == roomNumber,
+        );
 
-      // Return the entrancePoint if the room is found
-      return roomFound.entrancePoint;
+        // Return the entrancePoint if the room is found
+        return roomFound.entrancePoint;
+      } catch (e) {
+        // Room not found
+        return null;
+      }
     }
 
     // Return null if the floor or room wasn't found
@@ -175,14 +177,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   Future<void> calculateRoute(String building, String floor, String sourceRoom,
       String endRoom, bool disability) async {
     try {
-      final sourceRoomClean =
-          sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+      final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
       final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
 
-      final buildingAbbreviation =
-          _buildingViewModel.getBuildingAbbreviation(building)!;
-      final dynamic yamlData =
-          await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
+      final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
+
+      // Get the building data using BuildingDataManager
+      final BuildingData? buildingData = await BuildingDataManager.getBuildingData(buildingAbbreviation);
+
+      if (buildingData == null) {
+        throw Exception('Building data not found for $building');
+      }
 
       ConcordiaFloorPoint? startPositionPoint;
 
@@ -200,14 +205,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
           await getPositionPoint(building, floor, endRoomClean);
 
       if (startPositionPoint != null && endPositionPoint != null) {
-        _startLocation =
-            Offset(startPositionPoint.positionX, startPositionPoint.positionY);
-        _endLocation =
-            Offset(endPositionPoint.positionX, endPositionPoint.positionY);
+        _startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
+        _endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
 
-        final ConcordiaBuilding buildingData =
-            _buildingViewModel.getBuildingByName(building)!;
-        final currentFloor = ConcordiaFloor(floor, buildingData);
+        final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByName(building)!;
+        final currentFloor = ConcordiaFloor(floor, buildingObj);
 
         // Create FloorRoutablePoint for start and end
         final startRoutablePoint = ConcreteFloorRoutablePoint(
@@ -223,14 +225,54 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         );
 
         // Calculate route based on accessibility mode
-        _calculatedRoute = IndoorRoutingService.getIndoorRoute(yamlData,
-            startRoutablePoint, endRoutablePoint, _isAccessibilityMode);
+        _calculatedRoute = IndoorRoutingService.getIndoorRoute(
+          buildingData,
+          startRoutablePoint,
+          endRoutablePoint,
+          _isAccessibilityMode
+        );
+
+        // Calculate ETA and distance using the shared service
+        if (_calculatedRoute != null) {
+          double totalDistance = RouteCalculationService.calculateTotalDistanceFromRoute(_calculatedRoute!);
+
+          final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByName(building)!;
+          final currentFloor = ConcordiaFloor(floor, buildingObj);
+
+          // Convert pixels to meters 
+          double conversionFactor = _getPixelToMeterConversionFactor(currentFloor);
+          double distanceInMeters = totalDistance * conversionFactor;
+
+          // Get travel time
+          double travelTimeSeconds = _calculatedRoute!.getIndoorTravelTimeSeconds();
+
+          // Format outputs using the shared service
+          eta = RouteCalculationService.formatDetailedTime(travelTimeSeconds);
+          distance = RouteCalculationService.formatDistance(distanceInMeters);
+        } else {
+          eta = "Unknown";
+          distance = "Unknown";
+        }
 
         notifyListeners();
-      } else {}
+      }
     } catch (e) {
-      rethrow; // Let the view handle the error
+      eta = "Unknown";
+      distance = "Unknown";
+      rethrow;
     }
+  }
+
+  double _getPixelToMeterConversionFactor(ConcordiaFloor floor) {
+    if (floor.pixelsPerSecond > 0) {
+    // Calculate meters per pixel based on pixels per second
+    // Assuming an average walking speed of 1.4 meters per second
+    const double metersPerSecond = 1.4;
+    return metersPerSecond / floor.pixelsPerSecond;
+  }
+  
+  // Default conversion factor if no data is available
+  return 0.05; 
   }
 
   Future<Size> getSvgDimensions(String svgPath) async {

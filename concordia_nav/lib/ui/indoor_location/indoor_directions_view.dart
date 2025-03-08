@@ -76,10 +76,12 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _getSvgSize() async {
     final size = await _directionsViewModel.getSvgDimensions(floorPlanPath);
-    setState(() {
-      width = size.width;
-      height = size.height;
-    });
+    if (mounted) {
+      setState(() {
+        width = size.width;
+        height = size.height;
+      });
+    }
   }
 
   Future<void> _initializeRoute() async {
@@ -155,6 +157,8 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                       viewModel: viewModel,
                       semanticsLabel:
                           'Floor plan of $buildingAbbreviation-${widget.floor}',
+                      width: width,
+                      height: height,
                     ),
                     Positioned(
                       top: 16,
@@ -212,7 +216,15 @@ class _IndoorDirectionsViewState extends State<IndoorDirectionsView>
                   ],
                 ),
               ),
-              BottomInfoWidget(eta: viewModel.eta),
+              BottomInfoWidget(
+                building: widget.building,
+                floor: widget.floor,
+                sourceRoom: widget.sourceRoom,
+                endRoom: widget.endRoom,
+                isDisability: disability,
+                eta: viewModel.eta,
+                distance: viewModel.distance,
+              ),
             ],
           ),
         );

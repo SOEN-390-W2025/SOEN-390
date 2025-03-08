@@ -1,13 +1,11 @@
 // ignore_for_file: prefer_final_fields
 
-import "package:flutter/services.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
-import "package:yaml/yaml.dart";
 import "../data/domain-model/concordia_building.dart";
 import "../data/domain-model/concordia_campus.dart";
-import "../data/domain-model/concordia_floor.dart";
 import "../data/domain-model/concordia_room.dart";
 import "../data/repositories/building_data.dart";
+import "../data/repositories/building_data_manager.dart";
 import "../data/services/building_service.dart";
 
 class BuildingViewModel {
@@ -57,43 +55,34 @@ class BuildingViewModel {
 
   Future<List<String>> getFloorsForBuilding(String buildingName) async {
     final ConcordiaBuilding building = getBuildingByName(buildingName)!;
+    final String abbreviation = building.abbreviation.toUpperCase();
 
-    // Load YAML data for the building
-    final dynamic yamlData = await getYamlDataForBuilding(building.abbreviation.toUpperCase());
+    // Use BuildingDataManager to get the building data
+    final BuildingData? buildingData = await BuildingDataManager.getBuildingData(abbreviation);
 
-    // Load floors based on the YAML data
-    final loadedFloors = loadFloors(yamlData, building);
-    final List<ConcordiaFloor> floors = loadedFloors[0];
+    if (buildingData == null) {
+      return [];
+    }
 
     // Map floors to a list of strings with the floor number
-    return floors.map((floor) => "Floor ${floor.floorNumber}").toList();
+    return buildingData.floors.map((floor) => "Floor ${floor.floorNumber}").toList();
   }
 
-  // Load YAML data for a building
-  Future<dynamic> getYamlDataForBuilding(String abbreviation) async {
-    final String yamlString = await rootBundle.loadString('${BuildingData.dataPath}$abbreviation.yaml');
-
-    final dynamic yamlData = loadYaml(yamlString);
-
-    return yamlData;
-  }
-
-  Future<List<ConcordiaRoom>> getRoomsForFloor(String buildingName, String floorName) async{
+  Future<List<ConcordiaRoom>> getRoomsForFloor(String buildingName, String floorName) async {
     final ConcordiaBuilding building = getBuildingByName(buildingName)!;
+    final String abbreviation = building.abbreviation.toUpperCase();
 
-    // Load YAML data for the building
-    final dynamic yamlData = await getYamlDataForBuilding(building.abbreviation.toUpperCase());
-    final loadedFloors = loadFloors(yamlData, building);
+    // Use BuildingDataManager to get the building data
+    final BuildingData? buildingData = await BuildingDataManager.getBuildingData(abbreviation);
 
-    // Create a map of floors for easier lookup
-    final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
+    if (buildingData == null) {
+      return [];
+    }
 
-    // Load rooms by floor using floorMap
-    final Map<String, List<ConcordiaRoom>> roomsByFloor = loadRooms(yamlData, floorMap);
-
+    // Extract floor number from the floor name
     final String floorNumber = floorName.replaceFirst("Floor ", "");
 
     // Return rooms for the specified floor, or an empty list if not found
-    return roomsByFloor[floorNumber] ?? [];
+    return buildingData.roomsByFloor[floorNumber] ?? [];
   }
 }
