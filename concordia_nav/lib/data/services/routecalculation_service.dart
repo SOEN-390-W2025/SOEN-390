@@ -125,6 +125,15 @@ class RouteCalculationService {
     }
   }
 
+  static String? _getDiagonal(double dx, double dy){
+    // Determine which diagonal
+      if (dx > 0 && dy > 0) return 'SouthEast';
+      if (dx > 0 && dy < 0) return 'NorthEast';
+      if (dx < 0 && dy > 0) return 'SouthWest';
+      if (dx < 0 && dy < 0) return 'NorthWest';
+      return null;
+  }
+
   // Get direction between points
   static String getDetailedDirectionBetweenPoints(Offset point1, Offset point2) {
     final dx = point2.dx - point1.dx;
@@ -139,11 +148,10 @@ class RouteCalculationService {
     final bool isDiagonal = absX > 0.3 && absY > 0.3 && absX / absY < 3 && absY / absX < 3;
 
     if (isDiagonal) {
-      // Determine which diagonal
-      if (dx > 0 && dy > 0) return 'SouthEast';
-      if (dx > 0 && dy < 0) return 'NorthEast';
-      if (dx < 0 && dy > 0) return 'SouthWest';
-      if (dx < 0 && dy < 0) return 'NorthWest';
+      final diagonal = _getDiagonal(dx, dy);
+      if (diagonal != null){
+        return diagonal;
+      }
     }
 
     // For non-diagonal movement
@@ -154,89 +162,94 @@ class RouteCalculationService {
     }
   }
 
+  static const straight = 'Continue straight';
+  static const right = 'Turn right';
+  static const left = 'Turn left';
+  static const uturn = 'Make a U-turn';
+
   // Get turn type
   static String getDetailedTurnType(String fromDirection, String toDirection) {
     // Define a map of direction changes to turn types with more generalized terminology
     final Map<String, Map<String, String>> turnTypes = {
       'North': {
-        'North': 'Continue straight',
-        'East': 'Turn right',
-        'West': 'Turn left',
-        'South': 'Make a U-turn',
-        'NorthEast': 'Turn right',
-        'NorthWest': 'Turn left',
-        'SouthEast': 'Turn right',
-        'SouthWest': 'Turn left',
+        'North': straight,
+        'East': right,
+        'West': left,
+        'South': uturn,
+        'NorthEast': right,
+        'NorthWest': left,
+        'SouthEast': right,
+        'SouthWest': left,
       },
       'South': {
-        'South': 'Continue straight',
-        'East': 'Turn left',
-        'West': 'Turn right',
-        'North': 'Make a U-turn',
-        'SouthEast': 'Turn left',
-        'SouthWest': 'Turn right',
-        'NorthEast': 'Turn left',
-        'NorthWest': 'Turn right',
+        'South': straight,
+        'East': left,
+        'West': right,
+        'North': uturn,
+        'SouthEast': left,
+        'SouthWest': right,
+        'NorthEast': left,
+        'NorthWest': right,
       },
       'East': {
-        'East': 'Continue straight',
-        'North': 'Turn left',
-        'South': 'Turn right',
-        'West': 'Make a U-turn',
-        'NorthEast': 'Turn left',
-        'SouthEast': 'Turn right',
-        'NorthWest': 'Turn left',
-        'SouthWest': 'Turn right',
+        'East': straight,
+        'North': left,
+        'South': right,
+        'West': uturn,
+        'NorthEast': left,
+        'SouthEast': right,
+        'NorthWest': left,
+        'SouthWest': right,
       },
       'West': {
-        'West': 'Continue straight',
-        'North': 'Turn right',
-        'South': 'Turn left',
-        'East': 'Make a U-turn',
-        'NorthWest': 'Turn right',
-        'SouthWest': 'Turn left',
-        'NorthEast': 'Turn right',
-        'SouthEast': 'Turn left',
+        'West': straight,
+        'North': right,
+        'South': left,
+        'East': uturn,
+        'NorthWest': right,
+        'SouthWest': left,
+        'NorthEast': right,
+        'SouthEast': left,
       },
       'NorthEast': {
-        'NorthEast': 'Continue straight',
-        'North': 'Turn left',
-        'East': 'Turn right',
-        'South': 'Turn right',
-        'West': 'Turn left',
-        'SouthWest': 'Make a U-turn',
-        'NorthWest': 'Turn left',
-        'SouthEast': 'Turn right',
+        'NorthEast': straight,
+        'North': left,
+        'East': right,
+        'South': right,
+        'West': left,
+        'SouthWest': uturn,
+        'NorthWest': left,
+        'SouthEast': right,
       },
       'NorthWest': {
-        'NorthWest': 'Continue straight',
-        'North': 'Turn right',
-        'West': 'Turn left',
-        'South': 'Turn left',
-        'East': 'Turn right',
-        'SouthEast': 'Make a U-turn',
-        'NorthEast': 'Turn right',
-        'SouthWest': 'Turn left',
+        'NorthWest': straight,
+        'North': right,
+        'West': left,
+        'South': left,
+        'East': right,
+        'SouthEast': uturn,
+        'NorthEast': right,
+        'SouthWest': left,
       },
       'SouthEast': {
-        'SouthEast': 'Continue straight',
-        'South': 'Turn left',
-        'East': 'Turn right',
-        'North': 'Turn left',
-        'West': 'Turn right',
-        'NorthWest': 'Make a U-turn',
-        'SouthWest': 'Turn left',
-        'NorthEast': 'Turn right',
+        'SouthEast': straight,
+        'South': left,
+        'East': right,
+        'North': left,
+        'West': right,
+        'NorthWest': uturn,
+        'SouthWest': left,
+        'NorthEast': right,
       },
       'SouthWest': {
-        'SouthWest': 'Continue straight',
-        'South': 'Turn right',
-        'West': 'Turn left',
-        'North': 'Turn right',
-        'East': 'Turn left',
-        'NorthEast': 'Make a U-turn',
-        'SouthEast': 'Turn right',
-        'NorthWest': 'Turn left',
+        'SouthWest': straight,
+        'South': right,
+        'West': left,
+        'North': right,
+        'East': left,
+        'NorthEast': uturn,
+        'SouthEast': right,
+        'NorthWest': left,
       },
     };
 
