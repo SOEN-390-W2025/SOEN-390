@@ -162,6 +162,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           }
         });
       }
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }

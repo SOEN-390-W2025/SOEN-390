@@ -61,7 +61,7 @@ class ShuttleRouteRepository {
     final Map<String, dynamic> schedule;
     try {
       schedule = await loadShuttleSchedule(dayType ?? 'Monday-Thursday');
-    } catch (e) {
+    } on Exception {
       return false; // In case of an error, assume the shuttle is unavailable.
     }
 
