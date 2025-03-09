@@ -123,7 +123,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   Future<ConcordiaFloorPoint?> getStartPoint(
-      String buildingName, String floor, bool disability) async {
+      String buildingName, String floor, bool disability, {String connection = ''}) async {
     // Get the building by name
     final ConcordiaBuilding building =
         BuildingViewModel().getBuildingByName(buildingName)!;
@@ -133,9 +133,10 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         building.abbreviation.toUpperCase());
 
     // If floor is "1", simply return the outdoor exit point
-    if (floor == '1') {
-      return buildingData!.outdoorExitPoint;
+    if (connection != 'connection' && floor == '1') {
+        return buildingData!.outdoorExitPoint;
     }
+
 
     // Find appropriate connection based on accessibility needs
     if (disability) {
@@ -173,74 +174,77 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   Future<void> calculateRoute(String building, String floor, String sourceRoom,
-      String endRoom, bool disability) async {
-    try {
-      final sourceRoomClean =
-          sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
-      final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+    String endRoom, bool disability) async {
+  try {
+    dev.log('Calculating route for $building, $floor, $sourceRoom, $endRoom, $disability');
+    final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+    final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
 
-      final buildingAbbreviation =
-          _buildingViewModel.getBuildingAbbreviation(building)!;
-      final dynamic yamlData =
-          await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
+    final buildingAbbreviation =
+        _buildingViewModel.getBuildingAbbreviation(building)!;
+    final dynamic yamlData =
+        await _buildingViewModel.getYamlDataForBuilding(buildingAbbreviation);
 
-      ConcordiaFloorPoint? startPositionPoint;
-      ConcordiaFloorPoint? endPositionPoint;
+    ConcordiaFloorPoint? startPositionPoint;
+    ConcordiaFloorPoint? endPositionPoint;
 
-      // Get start location (elevator point)
-      if (sourceRoomClean == 'Your Location') {
-        dev.log(disability.toString());
-        startPositionPoint = await getStartPoint(building, floor, disability);
-      } else {
-        startPositionPoint =
-            await getPositionPoint(building, floor, sourceRoomClean);
-      }
+    dev.log('Source room: $sourceRoomClean');
+    dev.log('End room: $endRoomClean');
+    dev.log('Floor: $floor');
 
-      // Get end location (room point), handle "Your Location"
-      if (endRoomClean == 'Your Location') {
-        dev.log('End room is "Your Location", using current position');
-        endPositionPoint = await getStartPoint(
-            building, floor, disability); // Assuming same logic as start
-      } else {
-        endPositionPoint =
-            await getPositionPoint(building, floor, endRoomClean);
-      }
-
-      if (startPositionPoint != null && endPositionPoint != null) {
-        _startLocation =
-            Offset(startPositionPoint.positionX, startPositionPoint.positionY);
-        _endLocation =
-            Offset(endPositionPoint.positionX, endPositionPoint.positionY);
-
-        final ConcordiaBuilding buildingData =
-            _buildingViewModel.getBuildingByName(building)!;
-        final currentFloor = ConcordiaFloor(floor, buildingData);
-
-        // Create FloorRoutablePoint for start and end
-        final startRoutablePoint = ConcreteFloorRoutablePoint(
-          floor: currentFloor,
-          positionX: startPositionPoint.positionX,
-          positionY: startPositionPoint.positionY,
-        );
-
-        final endRoutablePoint = ConcreteFloorRoutablePoint(
-          floor: currentFloor,
-          positionX: endPositionPoint.positionX,
-          positionY: endPositionPoint.positionY,
-        );
-
-        // Calculate route based on accessibility mode
-        _calculatedRoute = IndoorRoutingService.getIndoorRoute(yamlData,
-            startRoutablePoint, endRoutablePoint, _isAccessibilityMode);
-
-        notifyListeners();
-      } else {
-        // Handle case when start or end point is null (you may want to show an error or fallback logic)
-      }
-    } catch (e) {
-      rethrow; // Let the view handle the error
+    // Get start location
+    if (sourceRoomClean == 'Your Location') {
+      startPositionPoint = await getStartPoint(building, floor, disability);
+    } else if (sourceRoomClean == 'connection') {
+      startPositionPoint = await getStartPoint(building, floor, disability, connection: 'connection');
+    } else {
+      startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
     }
+
+    // Get end location
+    if (endRoomClean == 'Your Location') {
+      endPositionPoint = await getStartPoint(building, floor, disability);
+    } else if (endRoomClean == 'connection') {
+      endPositionPoint = await getStartPoint(building, floor, disability, connection: 'connection');
+    } else {
+      endPositionPoint = await getPositionPoint(building, floor, endRoomClean);
+    }
+
+    if (startPositionPoint != null && endPositionPoint != null) {
+      _startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
+      _endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
+
+      final ConcordiaBuilding buildingData = _buildingViewModel.getBuildingByName(building)!;
+      final currentFloor = ConcordiaFloor(floor, buildingData);
+
+      // Create FloorRoutablePoint for start and end
+      final startRoutablePoint = ConcreteFloorRoutablePoint(
+        floor: currentFloor,
+        positionX: startPositionPoint.positionX,
+        positionY: startPositionPoint.positionY,
+      );
+
+      final endRoutablePoint = ConcreteFloorRoutablePoint(
+        floor: currentFloor,
+        positionX: endPositionPoint.positionX,
+        positionY: endPositionPoint.positionY,
+      );
+
+      // Calculate route based on accessibility mode
+      _calculatedRoute = IndoorRoutingService.getIndoorRoute(
+          yamlData, startRoutablePoint, endRoutablePoint, _isAccessibilityMode);
+
+      notifyListeners();
+    } else {
+      dev.log('Failed to find start or end position points');
+      // You might want to add error handling here, such as:
+      // throw Exception('Could not find route start or end points');
+    }
+  } catch (e) {
+    dev.log('Error calculating route: $e');
+    rethrow; // Let the view handle the error
   }
+}
 
   Future<Size> getSvgDimensions(String svgPath) async {
     return await IndoorRoutingService().getSvgDimensions(svgPath);

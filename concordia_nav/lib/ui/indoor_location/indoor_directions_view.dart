@@ -86,7 +86,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     // Check if source and destination are on different floors
     if (startFloor != endFloor) {
       isMultiFloor = true;
-      widget.endRoom = yourLocation;
+      widget.endRoom = 'connection';
     } else {
       isMultiFloor = false;
     }
@@ -111,6 +111,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
+    dev.log('realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
     dev.log('from: $from, to: $to');
     getSvgSize();
 
@@ -153,6 +154,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         widget.sourceRoom,
         widget.endRoom,
         disability,
+
       );
 
       if (_directionsViewModel.startLocation != Offset.zero &&
@@ -287,9 +289,13 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   void handlePrevFloorPress() {
     setState(() {
-      widget.sourceRoom = realStartRoom;
-      widget.endRoom =
-          yourLocation; // Go back to the previous floor's start point
+      if (realStartRoom == yourLocation) {
+        widget.sourceRoom = realStartRoom;
+        widget.endRoom = 'connection';
+      } else {
+        widget.sourceRoom = realStartRoom;
+        widget.endRoom = yourLocation;
+      }
 
       isMultiFloor = true;
 
@@ -313,8 +319,13 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   void handleNextFloorPress() {
     setState(() {
-      widget.sourceRoom = yourLocation;
-      widget.endRoom = realEndRoom;
+      if (realEndRoom == yourLocation) {
+        widget.sourceRoom = 'connection';
+        widget.endRoom = realEndRoom;
+      } else {
+        widget.sourceRoom = yourLocation;
+        widget.endRoom = realEndRoom;
+      }
 
       isMultiFloor = true;
 
