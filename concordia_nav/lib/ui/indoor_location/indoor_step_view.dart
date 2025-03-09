@@ -253,48 +253,51 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     );
   }
 
-  Widget _buildGuidanceBox(VirtualStepGuideViewModel viewModel) {
+    Widget _buildGuidanceBox(VirtualStepGuideViewModel viewModel) {
     if (viewModel.navigationSteps.isEmpty) {
       return _emptyGuidanceBox();
     }
 
-    // Extract the final step condition and button logic
     final bool isFinalStep =
         viewModel.currentStepIndex >= viewModel.navigationSteps.length - 1;
-    String buttonText;
-    VoidCallback buttonOnPressed;
-
-    if (isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted) {
-      buttonText = 'Continue';
-      buttonOnPressed = _proceedToSecondRoute;
-    } else if (isFinalStep) {
-      buttonText = 'Finish';
-      buttonOnPressed = () => Navigator.pop(context);
-    } else {
-      buttonText = 'Next';
-      buttonOnPressed = () => viewModel.nextStep(context);
-    }
-
     final currentStep = viewModel.navigationSteps[viewModel.currentStepIndex];
 
+    // Determine button text and action
+    final buttonConfig = _getButtonConfig(isFinalStep, viewModel);
+
     // Update step titles and descriptions based on multi-floor route conditions
-    if (_isMultiFloorRoute &&
-        !_firstRouteCompleted &&
-        currentStep.title == 'Destination') {
+    _updateStepForMultiFloorRoute(currentStep);
+
+    return _buildGuidanceContainer(currentStep, viewModel, isFinalStep, buttonConfig);
+  }
+
+  ({String text, VoidCallback onPressed}) _getButtonConfig(
+      bool isFinalStep, VirtualStepGuideViewModel viewModel) {
+    if (isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted) {
+      return (text: 'Continue', onPressed: _proceedToSecondRoute);
+    } else if (isFinalStep) {
+      return (text: 'Finish', onPressed: () => Navigator.pop(context));
+    }
+    return (text: 'Next', onPressed: () => viewModel.nextStep(context));
+  }
+
+  void _updateStepForMultiFloorRoute(NavigationStep currentStep) {
+    if (_isMultiFloorRoute && !_firstRouteCompleted && currentStep.title == 'Destination') {
       final endFloor = extractFloor(widget.endRoom);
-      currentStep.title = 'Connection';
-      final transportMethod = widget.isDisability ? 'elevator' : 'escalators';
-      currentStep.description = 'Take the $transportMethod to Floor $endFloor';
+      currentStep
+        ..title = 'Connection'
+        ..description = 'Take the ${widget.isDisability ? 'elevator' : 'escalators'} to Floor $endFloor';
     }
 
-    if (_isMultiFloorRoute &&
-        _firstRouteCompleted &&
-        currentStep.title == 'Start') {
-      currentStep.title = 'Connection';
-      final transportMethod = widget.isDisability ? 'elevator' : 'escalators';
-      currentStep.description = 'Step out of the $transportMethod.';
+    if (_isMultiFloorRoute && _firstRouteCompleted && currentStep.title == 'Start') {
+      currentStep
+        ..title = 'Connection'
+        ..description = 'Step out of the ${widget.isDisability ? 'elevator' : 'escalators'}.';
     }
+  }
 
+  Widget _buildGuidanceContainer(NavigationStep currentStep, VirtualStepGuideViewModel viewModel,
+      bool isFinalStep, ({String text, VoidCallback onPressed}) buttonConfig) {
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(16),
@@ -313,74 +316,81 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          _buildStepDetails(currentStep),
+          const SizedBox(height: 16),
+          _buildNavigationControls(viewModel, isFinalStep, buttonConfig),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepDetails(NavigationStep currentStep) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            currentStep.icon,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  currentStep.icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      currentStep.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      currentStep.description,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Back button logic
-              ElevatedButton(
-                onPressed: () {
-                  if (isFinalStep) {
-                    Navigator.pop(context);
-                  } else {
-                    viewModel.previousStep(context);
-                  }
-                },
-                child: const Text('Back'),
-              ),
               Text(
-                '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
+                currentStep.title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              // Next/Finish/Continue button logic
-              ElevatedButton(
-                onPressed: buttonOnPressed,
-                child: Text(buttonText),
+              const SizedBox(height: 4),
+              Text(
+                currentStep.description,
+                style: const TextStyle(fontSize: 16),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavigationControls(VirtualStepGuideViewModel viewModel, bool isFinalStep,
+      ({String text, VoidCallback onPressed}) buttonConfig) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            if (isFinalStep) {
+              Navigator.pop(context);
+            } else {
+              viewModel.previousStep(context);
+            }
+          },
+          child: const Text('Back'),
+        ),
+        Text(
+          '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        ElevatedButton(
+          onPressed: buttonConfig.onPressed,
+          child: Text(buttonConfig.text),
+        ),
+      ],
     );
   }
 
