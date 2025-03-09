@@ -50,10 +50,10 @@ class IndoorMapViewModel extends MapViewModel {
         curve: Curves.easeInOut,
       ),
     )..addListener(() {
-      if (!_disposed) {
-        transformationController.value = _animation!.value;
-      }
-    });
+        if (!_disposed) {
+          transformationController.value = _animation!.value;
+        }
+      });
     animationController.forward(from: 0);
   }
 
@@ -81,11 +81,13 @@ class IndoorMapViewModel extends MapViewModel {
     final viewportHeight = height / 2;
 
     // Calculate scale and offset to center the point
-    final scale = transformationController.value.getMaxScaleOnAxis(); // Use the current scale
+    final scale = transformationController.value
+        .getMaxScaleOnAxis(); // Use the current scale
     final offsetX = -point.dx + viewportWidth / (2.3 * scale);
     final offsetY = -point.dy + viewportHeight / (2.3 * scale);
 
-    dev.log('Centering on point: offsetX=$offsetX, offsetY=$offsetY, scale=$scale');
+    dev.log(
+        'Centering on point: offsetX=$offsetX, offsetY=$offsetY, scale=$scale');
 
     // Create the transformation matrix
     final matrix = Matrix4.identity()
@@ -167,29 +169,18 @@ class IndoorMapViewModel extends MapViewModel {
     // If the first character is alphabetic, get first two characters
     if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
       // For alphanumeric floors, take the first two characters
-      return cleanedRoom.length >= 2 ? cleanedRoom.substring(0, 2) : cleanedRoom;
+      return cleanedRoom.length >= 2
+          ? cleanedRoom.substring(0, 2)
+          : cleanedRoom;
     }
     // Otherwise if it starts with a digit, just get the first digit
-    else if (cleanedRoom.isNotEmpty && RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
+    else if (cleanedRoom.isNotEmpty &&
+        RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
       return cleanedRoom.substring(0, 1);
     }
 
     // Fallback
     return '1';
-  }
-
-  String extractRoom(String roomName, String floor) {
-    if (roomName == 'Your Location') return roomName;
-
-    // Remove any building prefix if present
-    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
-
-    // Remove the floor prefix from the cleaned room name
-    if (cleanedRoom.startsWith(floor)) {
-      return cleanedRoom.substring(floor.length).trim();
-    }
-
-    return cleanedRoom;
   }
 
   @override
