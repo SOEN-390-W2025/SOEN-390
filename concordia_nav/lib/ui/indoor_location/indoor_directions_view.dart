@@ -34,7 +34,7 @@ class IndoorDirectionsView extends StatefulWidget {
 
 class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     with SingleTickerProviderStateMixin {
-  late bool disability;
+  static late bool disability;
   late String from;
   late String to;
   late String buildingAbbreviation;

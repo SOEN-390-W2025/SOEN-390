@@ -333,22 +333,6 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   );
 
   @override
-  List<dynamic> calculatePortionAfterFirstConnection(
-    _i10.IndoorRoute? route,
-    double? totalDistanceEstimateMeters,
-    int? totalTimeEstimateMinutes,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#calculatePortionAfterFirstConnection, [
-              route,
-              totalDistanceEstimateMeters,
-              totalTimeEstimateMinutes,
-            ]),
-            returnValue: <dynamic>[],
-          )
-          as List<dynamic>);
-
-  @override
   void calculateTimeAndDistanceEstimates() => super.noSuchMethod(
     Invocation.method(#calculateTimeAndDistanceEstimates, []),
     returnValueForMissingStub: null,
@@ -508,15 +492,16 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   _i8.Future<_i11.ConcordiaFloorPoint?> getStartPoint(
     String? buildingName,
     String? floor,
-    bool? disability, {
-    String? connection = '',
-  }) =>
+    bool? disability,
+    String? connection,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #getStartPoint,
-              [buildingName, floor, disability],
-              {#connection: connection},
-            ),
+            Invocation.method(#getStartPoint, [
+              buildingName,
+              floor,
+              disability,
+              connection,
+            ]),
             returnValue: _i8.Future<_i11.ConcordiaFloorPoint?>.value(),
           )
           as _i8.Future<_i11.ConcordiaFloorPoint?>);

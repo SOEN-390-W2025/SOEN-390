@@ -1,0 +1,76 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4895
+    longitude: -73.7797
+- launchApp:
+    clearState: true
+- assertVisible: "Concordia Campus Guide"
+- assertVisible: "SGW Map"
+- tapOn: "SGW Map"
+- assertVisible: "Map Marker"
+- tapOn:
+    point: "45%,51%"
+- assertVisible: "Indoor Map"
+- tapOn: "Indoor Map"
+- assertVisible: "Hall Building"
+- swipe:
+    direction: UP
+    duration: 2000
+- swipe:
+    direction: DOWN
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- swipe:
+    direction: LEFT
+    duration: 2000
+- assertVisible: "1"
+- tapOn: "1"
+- assertVisible: "Floor 2"
+- tapOn: "Floor 2"
+- swipe:
+    direction: UP
+    duration: 2000
+- swipe:
+    direction: DOWN
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- swipe:
+    direction: LEFT
+    duration: 2000
+- assertVisible: "2"
+- tapOn: "2"
+- assertVisible: "Floor 8"
+- tapOn: "Floor 8"
+- swipe:
+    direction: UP
+    duration: 2000
+- swipe:
+    direction: DOWN
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- swipe:
+    direction: LEFT
+    duration: 2000
+- assertVisible: "8"
+- tapOn: "8"
+- assertVisible: "Floor 9"
+- tapOn: "Floor 9"
+- swipe:
+    direction: UP
+    duration: 2000
+- swipe:
+    direction: DOWN
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- swipe:
+    direction: LEFT
+    duration: 2000

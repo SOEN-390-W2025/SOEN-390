@@ -33,6 +33,8 @@ class BottomInfoWidget extends StatefulWidget {
 class _BottomInfoWidgetState extends State<BottomInfoWidget> {
   bool isPrevMode = false; // Track button state
 
+  final String yourLocationString = 'Your Location';
+
   void toggleButton() {
     setState(() {
       isPrevMode = !isPrevMode;
@@ -95,6 +97,9 @@ class _BottomInfoWidgetState extends State<BottomInfoWidget> {
             onPressed: isPrevMode
                 ? null // Disabled when "Prev" is active
                 : () {
+                    final String floor = widget.sourceRoom == yourLocationString
+                        ? extractFloor(widget.endRoom)
+                        : extractFloor(widget.sourceRoom);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -103,7 +108,8 @@ class _BottomInfoWidgetState extends State<BottomInfoWidget> {
                           sourceRoom: widget.sourceRoom,
                           endRoom: widget.endRoom,
                           isDisability: widget.isDisability,
-                          floor: extractFloor(widget.sourceRoom),
+                          floor: floor,
+                          isMultiFloor: widget.isMultiFloor,
                         ),
                       ),
                     );
@@ -125,7 +131,7 @@ class _BottomInfoWidgetState extends State<BottomInfoWidget> {
   }
 
   String extractFloor(String roomName) {
-    if (roomName == 'Your Location') return '1';
+    if (roomName == yourLocationString) return '1';
     final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
     if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
       return cleanedRoom.length >= 2

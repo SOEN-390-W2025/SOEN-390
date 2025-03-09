@@ -38,27 +38,32 @@ void main() {
     expect(point, isA<ConcordiaFloorPoint>());
   });
 
-  test('getStartPoint with accessibility mode active provides elevator point', () async {
+  test('getStartPoint with accessibility mode active provides elevator point',
+      () async {
     final point = await indoorDirectionsViewModel.getStartPoint(
-      'Hall Building', '8', true);
+        'Hall Building', '8', true, '');
 
     expect(point, isA<ConcordiaFloorPoint>());
     expect(point?.floor.floorNumber, '8');
     expect(point?.positionX, 665);
   });
 
-  test('getStartPoint with accessibility mode disabled provides escalator point', () async {
+  test(
+      'getStartPoint with accessibility mode disabled provides escalator point',
+      () async {
     final point = await indoorDirectionsViewModel.getStartPoint(
-      'Hall Building', '8', false);
+        'Hall Building', '8', false, '');
 
     expect(point, isA<ConcordiaFloorPoint>());
     expect(point?.floor.floorNumber, '8');
     expect(point?.positionX, 520);
   });
 
-  test('getStartPoint with accessibility mode disabled provides stairs point if no escalator', () async {
+  test(
+      'getStartPoint with accessibility mode disabled provides stairs point if no escalator',
+      () async {
     final point = await indoorDirectionsViewModel.getStartPoint(
-      'Vanier Library', '1', false);
+        'Vanier Library', '1', false, '');
 
     expect(point, isA<ConcordiaFloorPoint>());
     expect(point?.floor.floorNumber, '1');
@@ -68,8 +73,8 @@ void main() {
   group('ConcreteFloorRoutablePoint Setters', () {
     test('Can create a ConcreteFloorRoutablePoint', () {
       final floor = ConcordiaFloor("1", BuildingRepository.h);
-      final concreteFloorRoutablePoint = ConcreteFloorRoutablePoint(
-        floor: floor, positionX: 0, positionY: 0);
+      final concreteFloorRoutablePoint =
+          ConcreteFloorRoutablePoint(floor: floor, positionX: 0, positionY: 0);
 
       expect(concreteFloorRoutablePoint.floor.floorNumber, "1");
       expect(concreteFloorRoutablePoint.positionX, 0);
@@ -78,11 +83,12 @@ void main() {
 
     test('Can set ConcreteFloorRoutablePoint attributes', () {
       final floor = ConcordiaFloor("1", BuildingRepository.h);
-      final concreteFloorRoutablePoint = ConcreteFloorRoutablePoint(
-        floor: floor, positionX: 0, positionY: 0);
+      final concreteFloorRoutablePoint =
+          ConcreteFloorRoutablePoint(floor: floor, positionX: 0, positionY: 0);
 
       // Verify can change floor
-      concreteFloorRoutablePoint.floor = ConcordiaFloor("2", BuildingRepository.h);
+      concreteFloorRoutablePoint.floor =
+          ConcordiaFloor("2", BuildingRepository.h);
       expect(concreteFloorRoutablePoint.floor.floorNumber, "2");
 
       // Verify can change positionX
@@ -96,13 +102,16 @@ void main() {
   });
 
   group('BuildingViewModel tests', () {
-    test('getFloorsForBuilding returns empty list when cant find yaml', () async {
-      final floors = await BuildingViewModel().getFloorsForBuilding('Administration Building');
+    test('getFloorsForBuilding returns empty list when cant find yaml',
+        () async {
+      final floors = await BuildingViewModel()
+          .getFloorsForBuilding('Administration Building');
       expect(floors, []);
     });
 
     test('getRoomsForFloor returns [] when cant find yaml', () async {
-      final rooms = await BuildingViewModel().getRoomsForFloor('Administration Building', '1');
+      final rooms = await BuildingViewModel()
+          .getRoomsForFloor('Administration Building', '1');
       expect(rooms, []);
     });
   });

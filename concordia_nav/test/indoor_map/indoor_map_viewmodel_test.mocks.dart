@@ -357,17 +357,6 @@ class MockIndoorMapViewModel extends _i1.Mock
           as String);
 
   @override
-  String extractRoom(String? roomName, String? floor) =>
-      (super.noSuchMethod(
-            Invocation.method(#extractRoom, [roomName, floor]),
-            returnValue: _i7.dummyValue<String>(
-              this,
-              Invocation.method(#extractRoom, [roomName, floor]),
-            ),
-          )
-          as String);
-
-  @override
   void dispose() => super.noSuchMethod(
     Invocation.method(#dispose, []),
     returnValueForMissingStub: null,

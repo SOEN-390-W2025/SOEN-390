@@ -60,6 +60,7 @@ void main() {
             building: 'Hall Building',
             floor: 'Floor 1',
             endRoom: 'Room B',
+            isMultiFloor: false,
           ),
         ),
       );
@@ -86,6 +87,7 @@ void main() {
             building: 'Hall Building',
             floor: 'Floor 1',
             endRoom: 'Room B',
+            isMultiFloor: false,
           ),
         ),
       );
@@ -120,6 +122,7 @@ void main() {
             building: 'Hall Building',
             floor: '8',
             endRoom: 'H 830',
+            isMultiFloor: false,
           ),
         ),
       );
@@ -144,6 +147,7 @@ void main() {
             building: 'Hall Building',
             floor: 'Floor 1',
             endRoom: 'Room B',
+            isMultiFloor: false,
           ),
         ),
       );
@@ -229,6 +233,7 @@ void main() {
             building: 'Hall Building',
             floor: '8',
             endRoom: '805',
+            isMultiFloor: false,
           ),
         ),
       );
@@ -263,6 +268,7 @@ void main() {
             building: 'Hall Building',
             floor: '8',
             endRoom: '805',
+            isMultiFloor: false,
           ),
         ),
       );
@@ -294,6 +300,7 @@ void main() {
             building: 'Hall Building',
             floor: '8',
             endRoom: '805',
+            isMultiFloor: false,
           ),
         ),
       );
