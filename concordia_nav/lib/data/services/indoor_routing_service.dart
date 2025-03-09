@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses
+// ignore_for_file: prefer_final_locals, avoid_catches_without_on_clauses, unused_local_variable
 
 import 'dart:developer' as dev;
 
@@ -103,7 +103,7 @@ class IndoorRoutingService {
   }
 
   static IndoorRoute _getDifferentBuildingRoute(
-      dynamic yamlData,
+      BuildingData buildingData,
       FloorRoutablePoint origin,
       FloorRoutablePoint destination,
       bool isAccessible) {
@@ -117,7 +117,7 @@ class IndoorRoutingService {
     if (originExitPoint != null) {
       dev.log("Origin exit point not null - getting route in origin building");
       final IndoorRoute originPortion =
-          getIndoorRoute(yamlData, origin, originExitPoint, isAccessible);
+          getIndoorRoute(buildingData, origin, originExitPoint, isAccessible);
       returnRoute.firstIndoorPortionToConnection =
           originPortion.firstIndoorPortionToConnection;
       returnRoute.firstIndoorConnection = originPortion.firstIndoorConnection;
@@ -130,7 +130,7 @@ class IndoorRoutingService {
     if (destinationExitPoint != null) {
       dev.log("Dest exit point not null - getting route in dest building");
       final IndoorRoute destinationPortion = getIndoorRoute(
-          yamlData, destinationExitPoint, destination, isAccessible);
+          buildingData, destinationExitPoint, destination, isAccessible);
       returnRoute.secondIndoorPortionToConnection =
           destinationPortion.firstIndoorPortionToConnection;
       returnRoute.secondIndoorConnection =
@@ -143,7 +143,7 @@ class IndoorRoutingService {
   }
 
   static IndoorRoute _getDifferentFloorRoute(
-      dynamic yamlData,
+      BuildingData buildingData,
       FloorRoutablePoint origin,
       FloorRoutablePoint destination,
       bool isAccessible) {
@@ -181,8 +181,8 @@ class IndoorRoutingService {
       final ConcordiaFloorPoint closestOriginPoint =
           _findClosestConnectionPoint(origin, originConnectionPoints);
 
-      final originFloorPortion =
-          getIndoorRoute(yamlData, origin, closestOriginPoint, isAccessible);
+      final originFloorPortion = getIndoorRoute(
+          buildingData, origin, closestOriginPoint, isAccessible);
       returnRoute.firstIndoorPortionToConnection =
           originFloorPortion.firstIndoorPortionToConnection;
     }
@@ -197,8 +197,8 @@ class IndoorRoutingService {
       final ConcordiaFloorPoint closestDestPoint =
           _findClosestConnectionPoint(destination, destinationConnectionPoints);
 
-      final destinationFloorPortion =
-          getIndoorRoute(yamlData, closestDestPoint, destination, isAccessible);
+      final destinationFloorPortion = getIndoorRoute(
+          buildingData, closestDestPoint, destination, isAccessible);
       // The mismatch here is deliberate - intra-floor directions always
       // returned in firstIndoorPortionToConnection
       returnRoute.firstIndoorPortionFromConnection =
@@ -318,8 +318,11 @@ class IndoorRoutingService {
     return route;
   }
 
-  static IndoorRoute getIndoorRoute(dynamic yamlData, FloorRoutablePoint origin,
-      FloorRoutablePoint destination, bool isAccessible) {
+  static IndoorRoute getIndoorRoute(
+      BuildingData buildingData,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      bool isAccessible) {
     // Points are the same - return a route with no instructions
     if (origin == destination) {
       dev.log("getIndoorRoute - origin and destination same, returning null");
@@ -334,7 +337,7 @@ class IndoorRoutingService {
         destination.floor.building.abbreviation) {
       dev.log("getIndoorRoute - origin and destination buildings not same");
       return _getDifferentBuildingRoute(
-          yamlData, origin, destination, isAccessible);
+          buildingData, origin, destination, isAccessible);
     }
 
     // Points are now in the same building but on different floors - find the
@@ -343,31 +346,22 @@ class IndoorRoutingService {
     if (origin.floor.floorNumber != destination.floor.floorNumber) {
       dev.log("Origin and destination points on different floors");
       return _getDifferentFloorRoute(
-          yamlData, origin, destination, isAccessible);
+          buildingData, origin, destination, isAccessible);
     }
 
     // Points are now within the same floor - this is where we will do
-    // steepest-ascent hill climbing to find a route. But first there will be
-    // some prep. We want the route to follow waypoints and permitted
-    // navigations to ensure the user doesn't walk through walls. We will start
-    // by finding the closet waypoint to the origin and to the destination.
-    //
-    // If the closest waypoint to the origin and the destination is the same
-    // waypoint, we will have a 3-stop route (origin, waypoint, destination)
-    //
-    // If these waypoints are *not* the same, we will use steepest-ascent hill
-    // climbing to find a route.
+    // steepest-ascent hill climbing to find a route.
     dev.log("getIndoorRoute - finding intra-floor route");
 
-    // Load floors and rooms from the YAML data
-    final loadedFloors = loadFloors(yamlData, origin.floor.building);
-    final Map<String, ConcordiaFloor> floorMap = loadedFloors[1];
-    final waypointsByFloor = loadWaypoints(yamlData, floorMap);
-    final waypointNavigabilityGroupsByFloor =
-        loadWaypointNavigability(yamlData);
+    //use the data directly from buildingData
+    final Map<String, ConcordiaFloor> floorMap = {
+      for (var f in buildingData.floors) f.floorNumber: f
+    };
+
+    final waypointsByFloor = buildingData.waypointsByFloor;
+    final waypointNavigabilityGroupsByFloor = buildingData.waypointNavigability;
 
     final waypointsOnFloor = waypointsByFloor[origin.floor.floorNumber];
-
     final waypointNavigability =
         waypointNavigabilityGroupsByFloor[origin.floor.floorNumber];
 
