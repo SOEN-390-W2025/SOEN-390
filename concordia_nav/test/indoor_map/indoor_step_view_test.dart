@@ -383,4 +383,47 @@ void main() {
       expect(find.text('Indoor Directions'), findsOneWidget);
     });
   });
+
+  testWidgets('VirtualStepGuideView initializes and displays correctly',
+      (WidgetTester tester) async {
+    when(mockViewModel.isLoading).thenReturn(false);
+    when(mockViewModel.navigationSteps).thenReturn([
+      NavigationStep(
+        icon: Icons.arrow_forward,
+        title: 'Go straight',
+        description: 'Walk straight ahead for 20 meters',
+        focusPoint: Offset.zero,
+      ),
+    ]);
+    when(mockViewModel.currentStepIndex).thenReturn(0);
+    when(mockViewModel.getRemainingTimeEstimate()).thenReturn('10 mins');
+    when(mockViewModel.getRemainingDistanceEstimate()).thenReturn('200 meters');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: VirtualStepGuideView(
+          sourceRoom: 'H 827',
+          building: 'Hall Building',
+          floor: '8',
+          endRoom: 'H 830',
+          isMultiFloor: false,
+          viewModel: mockViewModel,
+        ),
+      ),
+    );
+
+    // Get the state and call extractFloor
+    final state = tester.state(find.byType(VirtualStepGuideView))
+        as VirtualStepGuideViewState;
+    final floor = state.extractFloor('H 827');
+    expect(floor, '8');
+
+    // Verify the initial state of the widget
+    expect(find.text('Step-by-Step Guide'), findsOneWidget);
+    expect(find.text('Go straight'), findsOneWidget);
+    expect(find.text('Walk straight ahead for 20 meters'), findsOneWidget);
+    expect(find.text('10 mins'), findsOneWidget);
+    expect(find.text('200 meters'), findsOneWidget);
+    expect(find.text('Finish'), findsOneWidget);
+  });
 }
