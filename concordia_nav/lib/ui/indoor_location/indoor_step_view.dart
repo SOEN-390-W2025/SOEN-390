@@ -38,13 +38,16 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
   late String _temporaryEndRoom;
   late Timer _timer;
 
+  final String yourLocationString = 'Your Location';
+
   @override
   void initState() {
     super.initState();
 
     _isMultiFloorRoute =
         extractFloor(widget.sourceRoom) != extractFloor(widget.endRoom);
-    _temporaryEndRoom = _isMultiFloorRoute ? "Your Location" : widget.endRoom;
+    _temporaryEndRoom =
+        _isMultiFloorRoute ? yourLocationString : widget.endRoom;
 
     _viewModel = widget.viewModel ??
         VirtualStepGuideViewModel(
@@ -67,7 +70,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
   }
 
   String extractFloor(String roomName) {
-    if (roomName == 'Your Location') return '1';
+    if (roomName == yourLocationString) return '1';
 
     // Remove any building prefix if present (like "H " or "MB ")
     final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
@@ -97,7 +100,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ? widget.endRoom.replaceAll(RegExp(r'\D'), '')[0]
               : widget.floor;
       _viewModel = VirtualStepGuideViewModel(
-        sourceRoom: "Your Location",
+        sourceRoom: yourLocationString,
         building: widget.building,
         floor: firstDigit,
         endRoom: widget.endRoom,
@@ -255,8 +258,26 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       return _emptyGuidanceBox();
     }
 
+    // Extract the final step condition and button logic
+    final bool isFinalStep =
+        viewModel.currentStepIndex >= viewModel.navigationSteps.length - 1;
+    String buttonText;
+    VoidCallback buttonOnPressed;
+
+    if (isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted) {
+      buttonText = 'Continue';
+      buttonOnPressed = _proceedToSecondRoute;
+    } else if (isFinalStep) {
+      buttonText = 'Finish';
+      buttonOnPressed = () => Navigator.pop(context);
+    } else {
+      buttonText = 'Next';
+      buttonOnPressed = () => viewModel.nextStep(context);
+    }
+
     final currentStep = viewModel.navigationSteps[viewModel.currentStepIndex];
 
+    // Update step titles and descriptions based on multi-floor route conditions
     if (_isMultiFloorRoute &&
         !_firstRouteCompleted &&
         currentStep.title == 'Destination') {
@@ -271,9 +292,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       currentStep.title = 'Connection';
       currentStep.description = 'Step out of the connection.';
     }
-
-    final bool isFinalStep =
-        viewModel.currentStepIndex >= viewModel.navigationSteps.length - 1;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -334,10 +352,15 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Back button logic
               ElevatedButton(
-                onPressed: () => isFinalStep
-                    ? () => Navigator.pop(context)
-                    : () => viewModel.previousStep(context),
+                onPressed: () {
+                  if (isFinalStep) {
+                    Navigator.pop(context);
+                  } else {
+                    viewModel.previousStep(context);
+                  }
+                },
                 child: const Text('Back'),
               ),
               Text(
@@ -347,19 +370,10 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              // Next/Finish/Continue button logic
               ElevatedButton(
-                onPressed:
-                    isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted
-                        ? _proceedToSecondRoute
-                        : isFinalStep
-                            ? () => Navigator.pop(context)
-                            : () => viewModel.nextStep(context),
-                child: Text(
-                    isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted
-                        ? 'Continue'
-                        : isFinalStep
-                            ? 'Finish'
-                            : 'Next'),
+                onPressed: buttonOnPressed,
+                child: Text(buttonText),
               ),
             ],
           ),
