@@ -150,7 +150,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _initializeRoute() async {
     try {
-      print('${widget.sourceRoom}, ${widget.endRoom}');
       await _directionsViewModel.calculateRoute(
         widget.building,
         displayFloor,
