@@ -127,9 +127,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<ConcordiaFloorPoint?> getStartPoint(
-      String buildingName, String floor, bool disability,
-      {String connection = ''}) async {
+  Future<ConcordiaFloorPoint?> getStartPoint(String buildingName, String floor,
+      bool disability, String connection) async {
     final ConcordiaBuilding building =
         BuildingViewModel().getBuildingByName(buildingName)!;
     final buildingData = await BuildingDataManager.getBuildingData(
@@ -194,10 +193,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
       // Get start location
       if (sourceRoomClean == 'Your Location') {
-        startPositionPoint = await getStartPoint(building, floor, disability);
+        startPositionPoint =
+            await getStartPoint(building, floor, disability, '');
       } else if (sourceRoomClean == 'connection') {
-        startPositionPoint = await getStartPoint(building, floor, disability,
-            connection: 'connection');
+        startPositionPoint =
+            await getStartPoint(building, floor, disability, 'connection');
       } else {
         startPositionPoint =
             await getPositionPoint(building, floor, sourceRoomClean);
@@ -205,10 +205,10 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
       // Get end location
       if (endRoomClean == 'Your Location') {
-        endPositionPoint = await getStartPoint(building, floor, disability);
+        endPositionPoint = await getStartPoint(building, floor, disability, '');
       } else if (endRoomClean == 'connection') {
-        endPositionPoint = await getStartPoint(building, floor, disability,
-            connection: 'connection');
+        endPositionPoint =
+            await getStartPoint(building, floor, disability, 'connection');
       } else {
         endPositionPoint =
             await getPositionPoint(building, floor, endRoomClean);

@@ -14,6 +14,7 @@ class VirtualStepGuideView extends StatefulWidget {
   final String endRoom;
   final String sourceRoom;
   final bool isDisability;
+  final bool isMultiFloor;
   final VirtualStepGuideViewModel? viewModel;
 
   const VirtualStepGuideView({
@@ -22,6 +23,7 @@ class VirtualStepGuideView extends StatefulWidget {
     required this.building,
     required this.floor,
     required this.endRoom,
+    required this.isMultiFloor,
     this.isDisability = false,
     this.viewModel,
   });
@@ -33,21 +35,19 @@ class VirtualStepGuideView extends StatefulWidget {
 class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     with TickerProviderStateMixin {
   late VirtualStepGuideViewModel _viewModel;
-  late bool _isMultiFloorRoute;
   bool _firstRouteCompleted = false;
   late String _temporaryEndRoom;
   late Timer _timer;
 
+  late bool _isMultiFloorRoute;
   final String yourLocationString = 'Your Location';
 
   @override
   void initState() {
     super.initState();
 
-    _isMultiFloorRoute =
-        extractFloor(widget.sourceRoom) != extractFloor(widget.endRoom);
-    _temporaryEndRoom =
-        _isMultiFloorRoute ? yourLocationString : widget.endRoom;
+    _isMultiFloorRoute = widget.isMultiFloor;
+    _temporaryEndRoom = _isMultiFloorRoute ? 'connection' : widget.endRoom;
 
     _viewModel = widget.viewModel ??
         VirtualStepGuideViewModel(
@@ -283,14 +283,16 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         currentStep.title == 'Destination') {
       final endFloor = extractFloor(widget.endRoom);
       currentStep.title = 'Connection';
-      currentStep.description = 'Take the connection to Floor $endFloor';
+      final transportMethod = widget.isDisability ? 'elevator' : 'escalators';
+      currentStep.description = 'Take the $transportMethod to Floor $endFloor';
     }
 
     if (_isMultiFloorRoute &&
         _firstRouteCompleted &&
         currentStep.title == 'Start') {
       currentStep.title = 'Connection';
-      currentStep.description = 'Step out of the connection.';
+      final transportMethod = widget.isDisability ? 'elevator' : 'escalators';
+      currentStep.description = 'Step out of the $transportMethod.';
     }
 
     return Container(
