@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_declarations
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/indoor_step_viewmodel.dart';
@@ -34,7 +36,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
   late bool _isMultiFloorRoute;
   bool _firstRouteCompleted = false;
   late String _temporaryEndRoom;
-  late bool _showPrevButton;
+  late Timer _timer;
 
   @override
   void initState() {
@@ -43,7 +45,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     _isMultiFloorRoute =
         extractFloor(widget.sourceRoom) != extractFloor(widget.endRoom);
     _temporaryEndRoom = _isMultiFloorRoute ? "Your Location" : widget.endRoom;
-    _showPrevButton = false;
 
     _viewModel = widget.viewModel ??
         VirtualStepGuideViewModel(
@@ -57,7 +58,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
 
     _viewModel.initializeRoute().then((_) {
       if (mounted) {
-        Future.delayed(const Duration(milliseconds: 300), () {
+        _timer = Timer(const Duration(milliseconds: 300), () {
           // ignore: use_build_context_synchronously
           _viewModel.focusOnCurrentStep(context);
         });
@@ -91,7 +92,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
   void _proceedToSecondRoute() {
     setState(() {
       _firstRouteCompleted = true;
-      _showPrevButton = true;
       final String firstDigit =
           widget.endRoom.replaceAll(RegExp(r'\D'), '').isNotEmpty
               ? widget.endRoom.replaceAll(RegExp(r'\D'), '')[0]
@@ -106,7 +106,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       );
       _viewModel.initializeRoute().then((_) {
         if (mounted) {
-          Future.delayed(const Duration(milliseconds: 300), () {
+          _timer = Timer(const Duration(milliseconds: 300), () {
             // ignore: use_build_context_synchronously
             _viewModel.focusOnCurrentStep(context);
           });
@@ -117,6 +117,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
 
   @override
   void dispose() {
+    _timer.cancel();
     _viewModel.dispose();
     super.dispose();
   }
@@ -334,9 +335,10 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                onPressed:
-                    _showPrevButton ? () => Navigator.pop(context) : null,
-                child: Text(_showPrevButton ? 'Prev' : 'Start'),
+                onPressed: () => isFinalStep
+                    ? () => Navigator.pop(context)
+                    : () => viewModel.previousStep(context),
+                child: const Text('Back'),
               ),
               Text(
                 '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
@@ -354,7 +356,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                             : () => viewModel.nextStep(context),
                 child: Text(
                     isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted
-                        ? 'Continue to Next Floor'
+                        ? 'Continue'
                         : isFinalStep
                             ? 'Finish'
                             : 'Next'),

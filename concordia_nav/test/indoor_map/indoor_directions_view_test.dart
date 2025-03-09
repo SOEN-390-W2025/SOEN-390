@@ -41,15 +41,15 @@ void main() {
       state.handleNextFloorPress();
       await tester.pump();
 
-      expect(state.widget.sourceRoom, yourLocationString);
-      expect(state.widget.endRoom, 'H 830');
-      expect(IndoorDirectionsViewState.isMultiFloor, false);
+      expect(state.widget.sourceRoom, 'H 921');
+      expect(state.widget.endRoom, yourLocationString);
+      expect(IndoorDirectionsViewState.isMultiFloor, true);
 
       state.handlePrevFloorPress();
       await tester.pump();
 
-      expect(state.widget.sourceRoom, 'H 921');
-      expect(state.widget.endRoom, yourLocationString);
+      expect(state.widget.sourceRoom, yourLocationString);
+      expect(state.widget.endRoom, 'H 830');
       expect(IndoorDirectionsViewState.isMultiFloor, true);
     });
 
@@ -110,7 +110,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final Finder startButton = find.text('Next');
+      final Finder startButton = find.text('Start');
       expect(startButton, findsOneWidget);
 
       await tester.tap(startButton);
