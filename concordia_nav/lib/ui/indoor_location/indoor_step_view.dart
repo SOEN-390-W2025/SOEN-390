@@ -253,7 +253,7 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     );
   }
 
-    Widget _buildGuidanceBox(VirtualStepGuideViewModel viewModel) {
+  Widget _buildGuidanceBox(VirtualStepGuideViewModel viewModel) {
     if (viewModel.navigationSteps.isEmpty) {
       return _emptyGuidanceBox();
     }
@@ -268,7 +268,8 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     // Update step titles and descriptions based on multi-floor route conditions
     _updateStepForMultiFloorRoute(currentStep);
 
-    return _buildGuidanceContainer(currentStep, viewModel, isFinalStep, buttonConfig);
+    return _buildGuidanceContainer(
+        currentStep, viewModel, isFinalStep, buttonConfig);
   }
 
   ({String text, VoidCallback onPressed}) _getButtonConfig(
@@ -282,22 +283,31 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
   }
 
   void _updateStepForMultiFloorRoute(NavigationStep currentStep) {
-    if (_isMultiFloorRoute && !_firstRouteCompleted && currentStep.title == 'Destination') {
+    if (_isMultiFloorRoute &&
+        !_firstRouteCompleted &&
+        currentStep.title == 'Destination') {
       final endFloor = extractFloor(widget.endRoom);
       currentStep
         ..title = 'Connection'
-        ..description = 'Take the ${widget.isDisability ? 'elevator' : 'escalators'} to Floor $endFloor';
+        ..description =
+            'Take the ${widget.isDisability ? 'elevator' : 'escalators'} to Floor $endFloor';
     }
 
-    if (_isMultiFloorRoute && _firstRouteCompleted && currentStep.title == 'Start') {
+    if (_isMultiFloorRoute &&
+        _firstRouteCompleted &&
+        currentStep.title == 'Start') {
       currentStep
         ..title = 'Connection'
-        ..description = 'Step out of the ${widget.isDisability ? 'elevator' : 'escalators'}.';
+        ..description =
+            'Step out of the ${widget.isDisability ? 'elevator' : 'escalators'}.';
     }
   }
 
-  Widget _buildGuidanceContainer(NavigationStep currentStep, VirtualStepGuideViewModel viewModel,
-      bool isFinalStep, ({String text, VoidCallback onPressed}) buttonConfig) {
+  Widget _buildGuidanceContainer(
+      NavigationStep currentStep,
+      VirtualStepGuideViewModel viewModel,
+      bool isFinalStep,
+      ({String text, VoidCallback onPressed}) buttonConfig) {
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(16),
@@ -364,20 +374,20 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     );
   }
 
-  Widget _buildNavigationControls(VirtualStepGuideViewModel viewModel, bool isFinalStep,
-      ({String text, VoidCallback onPressed}) buttonConfig) {
+  Widget _buildNavigationControls(VirtualStepGuideViewModel viewModel,
+      bool isFinalStep, ({String text, VoidCallback onPressed}) buttonConfig) {
+    final bool isFirstStep = viewModel.currentStepIndex == 0;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ElevatedButton(
-          onPressed: () {
-            if (isFinalStep) {
-              Navigator.pop(context);
-            } else {
-              viewModel.previousStep(context);
-            }
-          },
-          child: const Text('Back'),
+        Opacity(
+          opacity: isFirstStep ? 0.5 : 1.0, // Fade when disabled
+          child: ElevatedButton(
+            onPressed:
+                isFirstStep ? null : () => viewModel.previousStep(context),
+            child: const Text('Back'),
+          ),
         ),
         Text(
           '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
