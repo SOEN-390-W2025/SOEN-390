@@ -139,9 +139,6 @@ class IndoorFeatureRepository {
     (BuildingRepository.h.abbreviation): [
       Connection(
           floorsByBuilding[BuildingRepository.h.abbreviation]!,
-          // TODO: these references to floors by integer subscript should be
-          // unit-tested to ensure their meaning doesn't change with future
-          // updates to the list of floors
           {
             "1": [ConcordiaFloorPoint(hallFloors[2], 1730, 2111)],
             "2": [ConcordiaFloorPoint(hallFloors[3], 1565, 1960)],
