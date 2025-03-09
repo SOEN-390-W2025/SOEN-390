@@ -97,10 +97,12 @@ class IndoorMapViewModel extends MapViewModel {
   }
 
   /// Centers the camera view between start and end points with appropriate zoom
-  void centerBetweenPoints(Offset startLocation, Offset endLocation, Size viewportSize, {double padding = 100.0}) {
+  void centerBetweenPoints(
+      Offset startLocation, Offset endLocation, Size viewportSize,
+      {double padding = 100.0}) {
     final double width = viewportSize.width;
     final double height = viewportSize.height;
-    
+
     if (startLocation == Offset.zero || endLocation == Offset.zero) {
       return; // Don't proceed if points aren't set
     }
@@ -115,15 +117,18 @@ class IndoorMapViewModel extends MapViewModel {
 
     // Calculate scale needed to fit the route with padding
     // For horizontal distance
-    final horizontalDistance = (endLocation.dx - startLocation.dx).abs() + padding * 2;
+    final horizontalDistance =
+        (endLocation.dx - startLocation.dx).abs() + padding * 2;
     final horizontalScale = viewportWidth / horizontalDistance;
 
     // For vertical distance
-    final verticalDistance = (endLocation.dy - startLocation.dy).abs() + padding * 2;
+    final verticalDistance =
+        (endLocation.dy - startLocation.dy).abs() + padding * 2;
     final verticalScale = viewportHeight / verticalDistance;
 
     // Use the smaller scale to ensure both points are visible
-    final scale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
+    final scale =
+        horizontalScale < verticalScale ? horizontalScale : verticalScale;
 
     // Clamp scale between min and max allowable values
     final clampedScale = scale.clamp(_minScale, _maxScale);
@@ -132,7 +137,8 @@ class IndoorMapViewModel extends MapViewModel {
     final offsetX = -centerX + viewportWidth / (2.3 * clampedScale);
     final offsetY = -centerY + viewportHeight / (2.3 * clampedScale);
 
-    dev.log('Centering between points: offsetX=$offsetX, offsetY=$offsetY, clampedScale=$clampedScale');
+    dev.log(
+        'Centering between points: offsetX=$offsetX, offsetY=$offsetY, clampedScale=$clampedScale');
 
     // Create the transformation matrix
     final matrix = Matrix4.identity()
@@ -150,6 +156,40 @@ class IndoorMapViewModel extends MapViewModel {
     } catch (e) {
       return false;
     }
+  }
+
+  String extractFloor(String roomName) {
+    if (roomName == 'Your Location') return '1';
+
+    // Remove any building prefix if present (like "H " or "MB ")
+    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+
+    // If the first character is alphabetic, get first two characters
+    if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
+      // For alphanumeric floors, take the first two characters
+      return cleanedRoom.length >= 2 ? cleanedRoom.substring(0, 2) : cleanedRoom;
+    }
+    // Otherwise if it starts with a digit, just get the first digit
+    else if (cleanedRoom.isNotEmpty && RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
+      return cleanedRoom.substring(0, 1);
+    }
+
+    // Fallback
+    return '1';
+  }
+
+  String extractRoom(String roomName, String floor) {
+    if (roomName == 'Your Location') return roomName;
+
+    // Remove any building prefix if present
+    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+
+    // Remove the floor prefix from the cleaned room name
+    if (cleanedRoom.startsWith(floor)) {
+      return cleanedRoom.substring(floor.length).trim();
+    }
+
+    return cleanedRoom;
   }
 
   @override

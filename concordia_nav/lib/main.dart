@@ -49,11 +49,11 @@ class MyApp extends StatelessWidget {
         '/HomePage': (context) => const HomePage(),
         '/CampusMapPage': (context) => CampusMapPage(
             campus:
-                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus
-        ),
+                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
         '/IndoorLocationView': (context) => IndoorLocationView(
-            building: ModalRoute.of(context)!.settings.arguments as ConcordiaBuilding,
-        ),
+              building: ModalRoute.of(context)!.settings.arguments
+                  as ConcordiaBuilding,
+            ),
         '/BuildingSelection': (context) => const BuildingSelection(),
         '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
             campus:
@@ -67,17 +67,17 @@ class MyApp extends StatelessWidget {
         '/SearchView': (context) => const SearchView(),
         '/SelectBuilding': (context) => const BuildingSelection(),
         '/IndoorDirectionsView': (context) {
-
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return IndoorDirectionsView(
-              sourceRoom: args['sourceRoom'] as String,
-              building:args['building'] as String,
-              floor: args['floor'] as String,
-              endRoom: args['endRoom'] as String,
+            sourceRoom: args['sourceRoom'] as String,
+            building: args['building'] as String,
+            endRoom: args['endRoom'] as String,
           );
         },
         '/ClassroomSelection': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
 
           return ClassroomSelection(
             building: args['building'] as String,

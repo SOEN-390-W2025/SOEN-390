@@ -19,7 +19,6 @@ void main() {
             from: 'H 820',
             to: 'H 110',
             building: 'Hall Building',
-            floor: '8',
             isDisability: false,
           ),
         ),

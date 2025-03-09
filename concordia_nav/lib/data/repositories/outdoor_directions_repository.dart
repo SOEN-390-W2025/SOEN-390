@@ -1,13 +1,17 @@
 import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../utils/map_viewmodel.dart';
 
 class ShuttleRouteRepository {
+  final AssetBundle assetBundle;
+
+  final String mondayThursday = 'Monday-Thursday';
+
+  ShuttleRouteRepository({AssetBundle? assetBundle})
+      : assetBundle = assetBundle ?? rootBundle;
+
   /// Loads the shuttle coordinates based on the given [direction].
-  /// The term [direction] corresponds to the given route.
-  ///
-  /// Example: The shuttle bus route between LOY campus to SGW campus.
   Future<List<LatLng>> loadShuttleRoute(ShuttleRouteDirection direction) async {
     String filePath;
 
@@ -20,19 +24,18 @@ class ShuttleRouteRepository {
         break;
     }
 
-    final String jsonString = await rootBundle.loadString(filePath);
+    final String jsonString = await assetBundle.loadString(filePath);
     final List<dynamic> jsonData = json.decode(jsonString);
 
-    final List<LatLng> coordinates = jsonData.map((item) {
+    return jsonData.map((item) {
       return LatLng(
-          (item['lat'] as num).toDouble(), (item['lng'] as num).toDouble());
+        (item['lat'] as num).toDouble(),
+        (item['lng'] as num).toDouble(),
+      );
     }).toList();
-
-    return coordinates;
   }
 
   /// Loads the shuttle schedule based on the given [dayType].
-  /// [dayType] can be 'Monday-Thursday' or 'Friday'.
   Future<Map<String, dynamic>> loadShuttleSchedule(String dayType) async {
     String filePath;
 
@@ -48,7 +51,7 @@ class ShuttleRouteRepository {
         throw Exception('Invalid day type: $dayType');
     }
 
-    final String jsonString = await rootBundle.loadString(filePath);
+    final String jsonString = await assetBundle.loadString(filePath);
     return json.decode(jsonString);
   }
 
@@ -57,16 +60,21 @@ class ShuttleRouteRepository {
     final DateTime now = DateTime.now();
     final String? dayType = getDayType(now);
 
-    // The Concordia shuttle bus does not operate on weekends; it only runs
-    // Monday through Friday, i.e. it does not pass on weekends or holidays.
-    if (dayType == null) return false;
+    final Map<String, dynamic> schedule;
+    try {
+      schedule = await loadShuttleSchedule(dayType ?? mondayThursday);
+    } on Exception {
+      return false; // In case of an error, assume the shuttle is unavailable.
+    }
 
-    final Map<String, dynamic> schedule = await loadShuttleSchedule(dayType);
     final String lastDepartureLOY = schedule['last_departure']['LOY'];
     final String lastDepartureSGW = schedule['last_departure']['SGW'];
 
     final DateTime lastLOYTime = _parseTime(lastDepartureLOY);
     final DateTime lastSGWTime = _parseTime(lastDepartureSGW);
+
+    // If it's the weekend, return false even if times are parsed.
+    if (dayType == null) return false;
 
     // Shuttle is available if the current time is before either last departure.
     return now.isBefore(lastLOYTime) || now.isBefore(lastSGWTime);
@@ -74,8 +82,8 @@ class ShuttleRouteRepository {
 
   /// Helper method to determine the range that maps to today's day of the week.
   String? getDayType(DateTime now) {
-    const weekday = 'Monday-Thursday';
-    const Map<int, String> dayTypeMapping = {
+    final String weekday = mondayThursday;
+    final Map<int, String> dayTypeMapping = {
       DateTime.monday: weekday,
       DateTime.tuesday: weekday,
       DateTime.wednesday: weekday,

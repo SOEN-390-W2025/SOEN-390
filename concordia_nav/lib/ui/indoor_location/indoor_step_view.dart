@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_declarations
 
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/indoor_step_viewmodel.dart';
@@ -32,24 +33,35 @@ class VirtualStepGuideView extends StatefulWidget {
 class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     with TickerProviderStateMixin {
   late VirtualStepGuideViewModel _viewModel;
+  late bool _isMultiFloorRoute;
+  bool _firstRouteCompleted = false;
+  late String _temporaryEndRoom;
+  late Timer _timer;
+
+  final String yourLocationString = 'Your Location';
 
   @override
   void initState() {
     super.initState();
+
+    _isMultiFloorRoute =
+        extractFloor(widget.sourceRoom) != extractFloor(widget.endRoom);
+    _temporaryEndRoom =
+        _isMultiFloorRoute ? yourLocationString : widget.endRoom;
+
     _viewModel = widget.viewModel ??
         VirtualStepGuideViewModel(
           sourceRoom: widget.sourceRoom,
           building: widget.building,
           floor: widget.floor,
-          endRoom: widget.endRoom,
+          endRoom: _temporaryEndRoom,
           isDisability: widget.isDisability,
           vsync: this,
         );
 
     _viewModel.initializeRoute().then((_) {
-      // Add a slight delay to ensure the UI has been laid out
-      if (mounted && !kDebugMode) {
-        Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _timer = Timer(const Duration(milliseconds: 300), () {
           // ignore: use_build_context_synchronously
           _viewModel.focusOnCurrentStep(context);
         });
@@ -57,8 +69,58 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
     });
   }
 
+  String extractFloor(String roomName) {
+    if (roomName == yourLocationString) return '1';
+
+    // Remove any building prefix if present (like "H " or "MB ")
+    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+
+    // If the first character is alphabetic, get first two characters
+    if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
+      // For alphanumeric floors, take the first two characters
+      return cleanedRoom.length >= 2
+          ? cleanedRoom.substring(0, 2)
+          : cleanedRoom;
+    }
+    // Otherwise if it starts with a digit, just get the first digit
+    else if (cleanedRoom.isNotEmpty &&
+        RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
+      return cleanedRoom.substring(0, 1);
+    }
+
+    // Fallback
+    return '1';
+  }
+
+  void _proceedToSecondRoute() {
+    setState(() {
+      _firstRouteCompleted = true;
+      final String firstDigit =
+          widget.endRoom.replaceAll(RegExp(r'\D'), '').isNotEmpty
+              ? widget.endRoom.replaceAll(RegExp(r'\D'), '')[0]
+              : widget.floor;
+      _viewModel = VirtualStepGuideViewModel(
+        sourceRoom: yourLocationString,
+        building: widget.building,
+        floor: firstDigit,
+        endRoom: widget.endRoom,
+        isDisability: widget.isDisability,
+        vsync: this,
+      );
+      _viewModel.initializeRoute().then((_) {
+        if (mounted) {
+          _timer = Timer(const Duration(milliseconds: 300), () {
+            // ignore: use_build_context_synchronously
+            _viewModel.focusOnCurrentStep(context);
+          });
+        }
+      });
+    });
+  }
+
   @override
   void dispose() {
+    _timer.cancel();
     _viewModel.dispose();
     super.dispose();
   }
@@ -82,167 +144,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
                   ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildGuidanceBox(VirtualStepGuideViewModel viewModel) {
-    if (viewModel.navigationSteps.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(25),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Text("No navigation steps available"),
-      );
-    }
-
-    final currentStep = viewModel.navigationSteps[viewModel.currentStepIndex];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(25),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  currentStep.icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      currentStep.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      currentStep.description,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    // Add step metrics
-                    if (viewModel.currentStepIndex > 0 &&
-                        viewModel.currentStepIndex <
-                            viewModel.navigationSteps.length - 1)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            Icon(Icons.timer_outlined,
-                                size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              viewModel.getCurrentStepTimeEstimate(),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Icon(Icons.straighten,
-                                size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              viewModel.getCurrentStepDistanceEstimate(),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Navigation controls
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                onPressed: viewModel.currentStepIndex > 0
-                    ? () => viewModel.previousStep(context)
-                    : null,
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                label: const Text('Back'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.black,
-                ),
-              ),
-              Text(
-                '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: viewModel.currentStepIndex <
-                        viewModel.navigationSteps.length - 1
-                    ? () => viewModel.nextStep(context)
-                    : () {
-                        Navigator.pop(context);
-                      },
-                icon: Icon(
-                    viewModel.currentStepIndex <
-                            viewModel.navigationSteps.length - 1
-                        ? Icons.arrow_forward
-                        : Icons.check,
-                    color: Colors.white),
-                label: Text(viewModel.currentStepIndex <
-                        viewModel.navigationSteps.length - 1
-                    ? 'Next'
-                    : 'Finish'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -349,6 +250,154 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGuidanceBox(VirtualStepGuideViewModel viewModel) {
+    if (viewModel.navigationSteps.isEmpty) {
+      return _emptyGuidanceBox();
+    }
+
+    // Extract the final step condition and button logic
+    final bool isFinalStep =
+        viewModel.currentStepIndex >= viewModel.navigationSteps.length - 1;
+    String buttonText;
+    VoidCallback buttonOnPressed;
+
+    if (isFinalStep && _isMultiFloorRoute && !_firstRouteCompleted) {
+      buttonText = 'Continue';
+      buttonOnPressed = _proceedToSecondRoute;
+    } else if (isFinalStep) {
+      buttonText = 'Finish';
+      buttonOnPressed = () => Navigator.pop(context);
+    } else {
+      buttonText = 'Next';
+      buttonOnPressed = () => viewModel.nextStep(context);
+    }
+
+    final currentStep = viewModel.navigationSteps[viewModel.currentStepIndex];
+
+    // Update step titles and descriptions based on multi-floor route conditions
+    if (_isMultiFloorRoute &&
+        !_firstRouteCompleted &&
+        currentStep.title == 'Destination') {
+      final endFloor = extractFloor(widget.endRoom);
+      currentStep.title = 'Connection';
+      currentStep.description = 'Take the connection to Floor $endFloor';
+    }
+
+    if (_isMultiFloorRoute &&
+        _firstRouteCompleted &&
+        currentStep.title == 'Start') {
+      currentStep.title = 'Connection';
+      currentStep.description = 'Step out of the connection.';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  currentStep.icon,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      currentStep.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      currentStep.description,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Back button logic
+              ElevatedButton(
+                onPressed: () {
+                  if (isFinalStep) {
+                    Navigator.pop(context);
+                  } else {
+                    viewModel.previousStep(context);
+                  }
+                },
+                child: const Text('Back'),
+              ),
+              Text(
+                '${viewModel.currentStepIndex + 1}/${viewModel.navigationSteps.length}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Next/Finish/Continue button logic
+              ElevatedButton(
+                onPressed: buttonOnPressed,
+                child: Text(buttonText),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyGuidanceBox() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Text("No navigation steps available"),
     );
   }
 }

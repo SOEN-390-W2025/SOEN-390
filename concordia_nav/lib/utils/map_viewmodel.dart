@@ -669,9 +669,7 @@ class MapViewModel extends ChangeNotifier {
   void startShuttleBusTimer() {
     shuttleBusTimer?.cancel();
 
-    if (kDebugMode) {
-      shuttleBusTimer = Timer(Duration.zero, () => fetchShuttleBusData());
-    } else {
+    if (!kDebugMode) {
       shuttleBusTimer = Timer.periodic(const Duration(seconds: 15), (_) {
         fetchShuttleBusData();
       });

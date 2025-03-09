@@ -188,7 +188,6 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
           builder: (context) => IndoorDirectionsView(
             sourceRoom: widget.isSource ? classroom : currentRoom,
             building: widget.building,
-            floor: floorNumber,
             endRoom: widget.isSource ? currentRoom : classroom,
             isDisability: widget.isDisability,
           ),

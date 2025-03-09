@@ -102,8 +102,11 @@ class IndoorRoutingService {
     }
   }
 
-  static IndoorRoute _getDifferentBuildingRoute(BuildingData buildingData,FloorRoutablePoint origin,
-      FloorRoutablePoint destination, bool isAccessible) {
+  static IndoorRoute _getDifferentBuildingRoute(
+      BuildingData buildingData,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      bool isAccessible) {
     final IndoorRoute returnRoute = IndoorRoute(origin.floor.building, null,
         null, null, destination.floor.building, null, null, null);
 
@@ -126,8 +129,8 @@ class IndoorRoutingService {
         .outdoorExitPointsByBuilding[destination.floor.building.abbreviation];
     if (destinationExitPoint != null) {
       dev.log("Dest exit point not null - getting route in dest building");
-      final IndoorRoute destinationPortion =
-          getIndoorRoute(buildingData, destinationExitPoint, destination, isAccessible);
+      final IndoorRoute destinationPortion = getIndoorRoute(
+          buildingData, destinationExitPoint, destination, isAccessible);
       returnRoute.secondIndoorPortionToConnection =
           destinationPortion.firstIndoorPortionToConnection;
       returnRoute.secondIndoorConnection =
@@ -139,8 +142,11 @@ class IndoorRoutingService {
     return returnRoute;
   }
 
-  static IndoorRoute _getDifferentFloorRoute(BuildingData buildingData,FloorRoutablePoint origin,
-      FloorRoutablePoint destination, bool isAccessible) {
+  static IndoorRoute _getDifferentFloorRoute(
+      BuildingData buildingData,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      bool isAccessible) {
     final possibleConnections = IndoorFeatureRepository
         .connectionsByBuilding[origin.floor.building.abbreviation];
     Connection? bestConnection;
@@ -175,8 +181,8 @@ class IndoorRoutingService {
       final ConcordiaFloorPoint closestOriginPoint =
           _findClosestConnectionPoint(origin, originConnectionPoints);
 
-      final originFloorPortion =
-          getIndoorRoute(buildingData, origin, closestOriginPoint, isAccessible);
+      final originFloorPortion = getIndoorRoute(
+          buildingData, origin, closestOriginPoint, isAccessible);
       returnRoute.firstIndoorPortionToConnection =
           originFloorPortion.firstIndoorPortionToConnection;
     }
@@ -191,8 +197,8 @@ class IndoorRoutingService {
       final ConcordiaFloorPoint closestDestPoint =
           _findClosestConnectionPoint(destination, destinationConnectionPoints);
 
-      final destinationFloorPortion =
-          getIndoorRoute(buildingData, closestDestPoint, destination, isAccessible);
+      final destinationFloorPortion = getIndoorRoute(
+          buildingData, closestDestPoint, destination, isAccessible);
       // The mismatch here is deliberate - intra-floor directions always
       // returned in firstIndoorPortionToConnection
       returnRoute.firstIndoorPortionFromConnection =
@@ -313,11 +319,10 @@ class IndoorRoutingService {
   }
 
   static IndoorRoute getIndoorRoute(
-    BuildingData buildingData,
-    FloorRoutablePoint origin,
-    FloorRoutablePoint destination,
-    bool isAccessible) {
-
+      BuildingData buildingData,
+      FloorRoutablePoint origin,
+      FloorRoutablePoint destination,
+      bool isAccessible) {
     // Points are the same - return a route with no instructions
     if (origin == destination) {
       dev.log("getIndoorRoute - origin and destination same, returning null");
@@ -331,7 +336,8 @@ class IndoorRoutingService {
     if (origin.floor.building.abbreviation !=
         destination.floor.building.abbreviation) {
       dev.log("getIndoorRoute - origin and destination buildings not same");
-      return _getDifferentBuildingRoute(buildingData, origin, destination, isAccessible);
+      return _getDifferentBuildingRoute(
+          buildingData, origin, destination, isAccessible);
     }
 
     // Points are now in the same building but on different floors - find the
@@ -339,7 +345,8 @@ class IndoorRoutingService {
     // routes
     if (origin.floor.floorNumber != destination.floor.floorNumber) {
       dev.log("Origin and destination points on different floors");
-      return _getDifferentFloorRoute(buildingData, origin, destination, isAccessible);
+      return _getDifferentFloorRoute(
+          buildingData, origin, destination, isAccessible);
     }
 
     // Points are now within the same floor - this is where we will do
@@ -350,13 +357,14 @@ class IndoorRoutingService {
     final Map<String, ConcordiaFloor> floorMap = {
       for (var f in buildingData.floors) f.floorNumber: f
     };
-    
+
     final waypointsByFloor = buildingData.waypointsByFloor;
     final waypointNavigabilityGroupsByFloor = buildingData.waypointNavigability;
 
     final waypointsOnFloor = waypointsByFloor[origin.floor.floorNumber];
-    final waypointNavigability = waypointNavigabilityGroupsByFloor[origin.floor.floorNumber];
-        
+    final waypointNavigability =
+        waypointNavigabilityGroupsByFloor[origin.floor.floorNumber];
+
     if (waypointsOnFloor == null || waypointNavigability == null) {
       // No floor routing data for this floor, need to return the null route
       dev.log("No indoor routing data for floor ${origin.floor.floorNumber}");
@@ -440,8 +448,10 @@ class IndoorRoutingService {
       final heightMatch = heightRegex.firstMatch(svgString);
 
       if (widthMatch != null && heightMatch != null) {
-        final width = double.tryParse(widthMatch.group(1)!) ?? defaultSize.width;
-        final height = double.tryParse(heightMatch.group(1)!) ?? defaultSize.height;
+        final width =
+            double.tryParse(widthMatch.group(1)!) ?? defaultSize.width;
+        final height =
+            double.tryParse(heightMatch.group(1)!) ?? defaultSize.height;
         return Size(width, height);
       }
 
