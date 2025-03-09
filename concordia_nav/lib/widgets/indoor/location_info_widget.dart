@@ -8,7 +8,6 @@ class LocationInfoWidget extends StatelessWidget {
   final String from;
   final String to;
   final String building;
-  final String floor;
   final bool isDisability;
 
   const LocationInfoWidget(
@@ -16,7 +15,6 @@ class LocationInfoWidget extends StatelessWidget {
       required this.from,
       required this.to,
       required this.building,
-      required this.floor,
       required this.isDisability});
 
   @override

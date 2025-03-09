@@ -238,6 +238,40 @@ class IndoorMapViewModel extends MapViewModel {
     }
   }
 
+  String extractFloor(String roomName) {
+    if (roomName == 'Your Location') return '1';
+
+    // Remove any building prefix if present (like "H " or "MB ")
+    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+
+    // If the first character is alphabetic, get first two characters
+    if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
+      // For alphanumeric floors, take the first two characters
+      return cleanedRoom.length >= 2 ? cleanedRoom.substring(0, 2) : cleanedRoom;
+    }
+    // Otherwise if it starts with a digit, just get the first digit
+    else if (cleanedRoom.isNotEmpty && RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
+      return cleanedRoom.substring(0, 1);
+    }
+
+    // Fallback
+    return '1';
+  }
+
+  String extractRoom(String roomName, String floor) {
+    if (roomName == 'Your Location') return roomName;
+
+    // Remove any building prefix if present
+    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+
+    // Remove the floor prefix from the cleaned room name
+    if (cleanedRoom.startsWith(floor)) {
+      return cleanedRoom.substring(floor.length).trim();
+    }
+
+    return cleanedRoom;
+  }
+
   @override
   void dispose() {
     animationController.dispose();

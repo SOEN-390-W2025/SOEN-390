@@ -11,11 +11,11 @@ import '../../widgets/indoor/location_info_widget.dart';
 import '../../widgets/zoom_buttons.dart';
 import 'floor_plan_widget.dart';
 import '../../utils/indoor_map_viewmodel.dart';
+import 'dart:developer' as dev;
 
 // ignore: must_be_immutable
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
-  String floor;
   late String endRoom;
   late String sourceRoom;
   final bool isDisability;
@@ -24,7 +24,6 @@ class IndoorDirectionsView extends StatefulWidget {
     super.key,
     required this.sourceRoom,
     required this.building,
-    required this.floor,
     required this.endRoom,
     this.isDisability = false,
   });
@@ -42,7 +41,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   late String floorPlanPath;
   static late String realStartRoom;
   static late String realEndRoom;
-  late String roomNumber;
+  late String startFloor;
+  late String endFloor;
+  late String displayFloor;
   static bool isMultiFloor = false;
   Timer? _timer;
 
@@ -68,16 +69,23 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     disability = widget.isDisability;
     buildingAbbreviation =
         _buildingViewModel.getBuildingAbbreviation(widget.building)!;
-    floorPlanPath =
-        'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+    if (widget.sourceRoom != yourLocation) {
+      displayFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    } else {
+      displayFloor = '1';
+    }
 
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+
+    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
     realStartRoom = widget.sourceRoom;
     realEndRoom = widget.endRoom;
 
     // Check if source and destination are on different floors
-    if (!isMultiFloor && !_isSameFloor(widget.sourceRoom, widget.endRoom)) {
+    if (startFloor != endFloor) {
       isMultiFloor = true;
-      realStartRoom = widget.sourceRoom;
       widget.endRoom = yourLocation;
     } else {
       isMultiFloor = false;
@@ -103,6 +111,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
+    dev.log('from: $from, to: $to');
     getSvgSize();
 
     _initializeRoute();
@@ -136,26 +145,11 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     }
   }
 
-  bool _isSameFloor(String sourceRoom, String endRoom) {
-    // If either sourceRoom or endRoom is "Your Location", return true
-    if (sourceRoom == yourLocation || endRoom == yourLocation) {
-      return true;
-    }
-
-    // Clean the room strings by removing leading alphabetic characters and spaces
-    final String cleanSourceRoom =
-        sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]+|\s+'), '');
-    final String cleanEndRoom =
-        endRoom.replaceAll(RegExp(r'^[a-zA-Z]+|\s+'), '');
-
-    return cleanSourceRoom[0] == cleanEndRoom[0];
-  }
-
   Future<void> _initializeRoute() async {
     try {
       await _directionsViewModel.calculateRoute(
         widget.building,
-        widget.floor,
+        displayFloor,
         widget.sourceRoom,
         widget.endRoom,
         disability,
@@ -206,7 +200,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                   from: from,
                   to: to,
                   building: widget.building,
-                  floor: widget.floor,
                   isDisability: disability,
                 ),
                 Expanded(
@@ -217,7 +210,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                         floorPlanPath: floorPlanPath,
                         viewModel: viewModel,
                         semanticsLabel:
-                            'Floor plan of $buildingAbbreviation-${widget.floor}',
+                            'Floor plan of $buildingAbbreviation-$displayFloor',
                       ),
                       Positioned(
                         top: 16,
@@ -280,6 +273,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                 ),
                 BottomInfoWidget(
                   eta: viewModel.eta,
+                  isMultiFloor: isMultiFloor,
                   onNextFloor: handleNextFloorPress,
                   onPrevFloor: handlePrevFloorPress,
                 ),
@@ -297,17 +291,12 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       widget.endRoom =
           yourLocation; // Go back to the previous floor's start point
 
-      isMultiFloor = true; // Mark as multi-floor again
+      isMultiFloor = true;
 
-      final String newFloor =
-          realStartRoom.replaceAll(RegExp(regex), '').isNotEmpty
-              ? realStartRoom.replaceAll(RegExp(regex), '').substring(0, 1)
-              : widget.floor;
-
-      if (widget.floor != newFloor) {
-        widget.floor = newFloor;
+      if (displayFloor != startFloor) {
+        displayFloor = startFloor;
         floorPlanPath =
-            'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+            'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
         _indoorMapViewModel.setInitialCameraPosition(
           scale: 1.0,
@@ -327,17 +316,12 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       widget.sourceRoom = yourLocation;
       widget.endRoom = realEndRoom;
 
-      isMultiFloor = false;
+      isMultiFloor = true;
 
-      final String newFloor =
-          realEndRoom.replaceAll(RegExp(regex), '').isNotEmpty
-              ? realEndRoom.replaceAll(RegExp(regex), '').substring(0, 1)
-              : widget.floor;
-
-      if (widget.floor != newFloor) {
-        widget.floor = newFloor;
+      if (displayFloor != endFloor) {
+        displayFloor = endFloor;
         floorPlanPath =
-            'assets/maps/indoor/floorplans/$buildingAbbreviation${widget.floor}.svg';
+            'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
         // Reset the state of _indoorMapViewModel instead of recreating it
         _indoorMapViewModel.setInitialCameraPosition(
@@ -348,6 +332,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
         getSvgSize(); // Ensure floor plan dimensions update
       }
+
     });
 
     _initializeRoute();

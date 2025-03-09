@@ -28,7 +28,6 @@ void main() {
           home: IndoorDirectionsView(
             sourceRoom: 'H 921',
             building: 'Hall Building',
-            floor: '8',
             endRoom: 'H 830',
           ),
         ),
@@ -61,7 +60,6 @@ void main() {
           home: IndoorDirectionsView(
             sourceRoom: yourLocationString,
             building: 'Hall Building',
-            floor: '1',
             endRoom: 'H 110',
           ),
         ),
@@ -81,7 +79,6 @@ void main() {
           home: IndoorDirectionsView(
             sourceRoom: yourLocationString,
             building: 'Hall Building',
-            floor: '1',
             endRoom: 'H110',
           ),
         ),
@@ -107,7 +104,6 @@ void main() {
           home: IndoorDirectionsView(
             sourceRoom: yourLocationString,
             building: 'Hall Building',
-            floor: '1',
             endRoom: 'H110',
           ),
         ),

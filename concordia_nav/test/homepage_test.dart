@@ -268,7 +268,6 @@ void main() async {
       '/IndoorDirectionsView': (context) => IndoorDirectionsView(
           sourceRoom: 'Your location',
           building: 'Hall Building',
-          floor: '1',
           endRoom: '901'),
     };
 

@@ -193,7 +193,6 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
                     builder: (context) => IndoorDirectionsView(
                       sourceRoom: 'Your Location',
                       building: widget.building.name,
-                      floor: widget.floor!,
                       endRoom: widget.room!,
                     ),
                   ),

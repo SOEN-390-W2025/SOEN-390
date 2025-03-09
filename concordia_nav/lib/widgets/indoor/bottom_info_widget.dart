@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class BottomInfoWidget extends StatelessWidget {
   final String eta;
+  final bool isMultiFloor;
   final VoidCallback? onNextFloor;
   final VoidCallback? onPrevFloor;
 
   const BottomInfoWidget({
     super.key,
     required this.eta,
+    required this.isMultiFloor,
     this.onNextFloor,
     this.onPrevFloor,
   });
@@ -30,13 +32,15 @@ class BottomInfoWidget extends StatelessWidget {
               ),
             ],
           ),
-          Row(
+          !isMultiFloor
+          ? const Offstage()
+          : Row(
             children: [
               if (onPrevFloor != null) // Show button only if available
                 ElevatedButton(
                   onPressed: onPrevFloor,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+                    backgroundColor: const Color.fromARGB(255, 109, 108, 108),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 10),
                   ),
@@ -53,13 +57,29 @@ class BottomInfoWidget extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
                 ),
-                child: Text(
-                  onNextFloor == null ? 'Start' : 'Next',
+                child: const Text(
+                  'Next',
                   style: const TextStyle(fontSize: 15, color: Colors.white),
                 ),
               ),
             ],
           ),
+          Row (
+            children: [
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 255, 51, 0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 10),
+                ),
+                child: const Text(
+                  'Start',
+                  style: TextStyle(fontSize: 15, color: Colors.white),
+                ),
+              ),
+            ]
+          )
         ],
       ),
     );

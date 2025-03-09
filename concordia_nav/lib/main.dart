@@ -72,7 +72,6 @@ class MyApp extends StatelessWidget {
           return IndoorDirectionsView(
             sourceRoom: args['sourceRoom'] as String,
             building: args['building'] as String,
-            floor: args['floor'] as String,
             endRoom: args['endRoom'] as String,
           );
         },
