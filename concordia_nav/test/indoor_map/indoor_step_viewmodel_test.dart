@@ -2,7 +2,6 @@ import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/connection.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
-import 'package:concordia_nav/data/services/routecalculation_service.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
 import 'package:concordia_nav/utils/indoor_step_viewmodel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -13,9 +12,6 @@ import 'package:mockito/mockito.dart';
 
 import '../map/outdoor_location_map_test.dart';
 import '../widgets/indoor/indoor_path_test.mocks.dart';
-
-class MockRouteCalculationService extends Mock
-    implements RouteCalculationService {}
 
 @GenerateMocks([IndoorDirectionsViewModel])
 void main() {
@@ -29,13 +25,32 @@ void main() {
       sourceRoom: 'H 830',
       building: 'Hall Building',
       floor: '8',
-      endRoom: 'H 827',
+      endRoom: 'H 113',
       isDisability: false,
       vsync: const TestVSync(), // Mock this if necessary
     );
   });
 
   group('VirtualStepGuideViewModel tests', () {
+    test('getCurrentStepTimeEstimate should return correct time estimate', () {
+      // Arrange: Set up the mock to return a specific value when the method is called
+      // Act: Call the method
+      final timeEstimate = viewModel.getCurrentStepTimeEstimate();
+
+      // Assert: Verify that the method returns the expected time estimate
+      expect(timeEstimate, isNotNull);
+    });
+
+    test(
+        'getCurrentStepDistanceEstimate should return correct distance estimate',
+        () {
+      // Act: Call the method
+      final distanceEstimate = viewModel.getCurrentStepDistanceEstimate();
+
+      // Assert: Verify that the method returns the expected distance estimate
+      expect(distanceEstimate, isNotNull);
+    });
+
     test('previousStep should decrease currentStepIndex', () {
       viewModel.currentStepIndex = 5; // Set an initial index
       viewModel.navigationSteps = [
