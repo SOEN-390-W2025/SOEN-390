@@ -127,15 +127,16 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   _i5.Future<_i6.ConcordiaFloorPoint?> getStartPoint(
     String? buildingName,
     String? floor,
-    bool? disability, {
-    String? connection = '',
-  }) =>
+    bool? disability,
+    String? connection,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #getStartPoint,
-              [buildingName, floor, disability],
-              {#connection: connection},
-            ),
+            Invocation.method(#getStartPoint, [
+              buildingName,
+              floor,
+              disability,
+              connection,
+            ]),
             returnValue: _i5.Future<_i6.ConcordiaFloorPoint?>.value(),
           )
           as _i5.Future<_i6.ConcordiaFloorPoint?>);
