@@ -19,6 +19,8 @@ class IndoorDirectionsView extends StatefulWidget {
   late String endRoom;
   late String sourceRoom;
   final bool isDisability;
+  final bool hideAppBar;
+  final bool hideIndoorInputs;
 
   IndoorDirectionsView({
     super.key,
@@ -26,6 +28,8 @@ class IndoorDirectionsView extends StatefulWidget {
     required this.building,
     required this.endRoom,
     this.isDisability = false,
+    this.hideAppBar = false,
+    this.hideIndoorInputs = false,
   });
 
   @override
@@ -196,14 +200,19 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       child:
           Consumer<IndoorDirectionsViewModel>(builder: (context, viewModel, _) {
         return Scaffold(
-          appBar: customAppBar(context, 'Indoor Directions'),
+          appBar: (widget.hideAppBar)
+              ? null
+              : customAppBar(context, 'Indoor Directions'),
           body: Column(
             children: [
-              LocationInfoWidget(
-                  from: from,
-                  to: to,
-                  building: widget.building,
-                  isDisability: disability),
+              Visibility(
+                visible: !widget.hideIndoorInputs,
+                child: LocationInfoWidget(
+                    from: from,
+                    to: to,
+                    building: widget.building,
+                    isDisability: disability),
+              ),
               Expanded(
                 child: Stack(
                   children: [
@@ -225,7 +234,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                         disability: disability,
                         onDisabilityChanged: (value) {
                           disability = !disability;
-                          _initializeRoute(); // Recalculate route with new setting
+                          _initializeRoute();
                         },
                       ),
                     ),

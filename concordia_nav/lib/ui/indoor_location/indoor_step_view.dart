@@ -133,13 +133,25 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         builder: (context, viewModel, _) {
           return Scaffold(
             appBar: customAppBar(context, 'Step-by-Step Guide'),
+            backgroundColor: Colors.white,
             body: viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : Column(
+                : Stack(
                     children: [
-                      _buildGuidanceBox(viewModel),
                       _buildFloorPlanView(viewModel),
-                      _buildTravelInfoBox(viewModel),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: _buildGuidanceBox(viewModel),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: _buildTravelInfoBox(viewModel),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
           );
@@ -188,7 +200,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Time estimate column
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -212,8 +223,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ),
             ],
           ),
-
-          // Distance estimate column
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -237,8 +246,6 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ),
             ],
           ),
-
-          // Exit button
           ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.exit_to_app, color: Colors.white),
@@ -262,10 +269,8 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         viewModel.currentStepIndex >= viewModel.navigationSteps.length - 1;
     final currentStep = viewModel.navigationSteps[viewModel.currentStepIndex];
 
-    // Determine button text and action
     final buttonConfig = _getButtonConfig(isFinalStep, viewModel);
 
-    // Update step titles and descriptions based on multi-floor route conditions
     _updateStepForMultiFloorRoute(currentStep);
 
     return _buildGuidanceContainer(
@@ -382,10 +387,20 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Opacity(
-          opacity: isFirstStep ? 0.5 : 1.0, // Fade when disabled
+          opacity: isFirstStep ? 0.5 : 1.0,
           child: ElevatedButton(
             onPressed:
                 isFirstStep ? null : () => viewModel.previousStep(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF962E42),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              textStyle:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             child: const Text('Back'),
           ),
         ),
@@ -398,6 +413,16 @@ class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
         ),
         ElevatedButton(
           onPressed: buttonConfig.onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF962E42),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            textStyle:
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           child: Text(buttonConfig.text),
         ),
       ],
