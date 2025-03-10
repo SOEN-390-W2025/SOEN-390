@@ -140,4 +140,46 @@ class ODSDirectionsService {
         "${destination.latitude},${destination.longitude}";
     return fetchRoute(originString, destinationString);
   }
+
+  /// Fetches a static map URL based on the origin and destination addresses.
+  Future<String?> fetchStaticMapUrl({
+    required String originAddress,
+    required String destinationAddress,
+    required int width,
+    required int height,
+    String sourceLabel = 'S',
+    String destinationLabel = 'D',
+  }) async {
+    final request = gda.DirectionsRequest(
+      origin: originAddress,
+      destination: destinationAddress,
+      travelMode: gda.TravelMode.driving,
+    );
+    final Completer<String?> completer = Completer();
+    await directionsService.route(request,
+        (gda.DirectionsResult result, gda.DirectionsStatus? status) {
+      if (status == gda.DirectionsStatus.ok &&
+          result.routes != null &&
+          result.routes!.isNotEmpty) {
+        final route = result.routes!.first;
+        final encodedPolyline = route.overviewPolyline?.points;
+        if (encodedPolyline != null) {
+          const String baseUrl =
+              "https://maps.googleapis.com/maps/api/staticmap";
+          final String sizeParam = "${width}x$height";
+          final String markers =
+              "markers=color:green|label:$sourceLabel|$originAddress"
+              "&markers=color:red|label:$destinationLabel|$destinationAddress";
+          final String path = "path=color:2c99f3|weight:5|enc:$encodedPolyline";
+          final String? apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
+          final staticMapUrl =
+              "$baseUrl?size=$sizeParam&$markers&$path&key=$apiKey";
+          completer.complete(staticMapUrl);
+          return;
+        }
+      }
+      completer.complete(null);
+    });
+    return completer.future;
+  }
 }
