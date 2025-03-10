@@ -654,14 +654,6 @@ class MapViewModel extends ChangeNotifier {
     return hasPermission;
   }
 
-  Future<void> zoomIn() async {
-    await _mapService.zoomIn();
-  }
-
-  Future<void> zoomOut() async {
-    await _mapService.zoomOut();
-  }
-
   double getDistance(LatLng point1, LatLng point2) {
     return _mapService.calculateDistance(point1, point2);
   }
