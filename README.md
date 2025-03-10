@@ -40,7 +40,7 @@
 
 ## Environment Variables
 
-Secrets and other configuration values are managed through environment variables. When developing locally, they can be configured by creating a `.env` file in the project's root (concordia_nav), the same location where `pubspec.yaml` is found.
+Secrets and other configuration values are managed through environment variables. When developing locally, they can be configured by creating a `.env` file in the project's root (`../concordia_nav`), the same location where `pubspec.yaml` is found.
 
 > **Note**: Default values should be optimized for local development, such that
 > a developer can clone and run the project successfully without having to
@@ -82,3 +82,34 @@ APPLE_TEAM_ID=A1B2C3D4E5
 CONNAV_APP_NAME=Concordia Nav
 ```
 
+## Running the CI Pipeline Locally
+
+### Formatting, Linting, and Tests 
+The following table outlines all of the individual commands run by the ci pipeline.
+
+You can use the `rps ci` command to run all of them sequentially.
+
+| Step                        | Command                     | Fixes            |
+| --------------------------- | --------------------------- | ---------------- |
+| Clean the Project           | `rps clean`                 |                  |
+| Check formatting            | `rps format check`          | `rps format fix` |
+| Run the Linter              | `rps lint check`            | `rps lint fix`   |
+| Run the Unit Tests          | `rps test unit`             |                  |
+| Build the Android Project   | `rps build android --debug` |                  |
+| Calculate the Test Coverage | `rps coverage`              |                  |
+
+> If you don't have `rps`, you can find the full commands in the [`pubspec.yaml`](./concordia_nav/pubspec.yaml)
+
+### Uploading Code Coverage to Codecov
+
+1. Install the python based [codecov cli tool](https://docs.codecov.com/docs/codecov-uploader#download-using-pip).
+2. Use one of the following command to upload your coverage report based on your OS:
+   - Windows: `rps codecov windows`
+   - Mac: `rps codecov mac`
+
+> Note: In order for Local Upload to work, it must be used against a commit on the origin repository. Local Upload does not work for arbitrary diffs or uncommitted changes on your local machine.
+
+#### Visualizing the Code Coverage Locally
+You can use the [codecov VsCode Extension](https://docs.codecov.com/docs/vscode-extension) to visualize the code coverage.
+
+> Make sure to upload the most recent coverage report to get the latest reporting.

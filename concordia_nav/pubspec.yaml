@@ -26,24 +26,35 @@ scripts:
     fix: dart format .
     check: dart format --output=none --set-exit-if-changed .
   test:
-    unit: flutter test -r expanded
-    integration: flutter test integration_test
+    unit: rps gen && flutter test -r expanded
+    integration:
+      $script: maestro test --format html --output ../pages/integration-test-report.html maestro/*.yaml
+      $description: Generates a report of the integration test results in HTML format. Does not record the tests.
     all: rps test unit && rps test integration
+    record:
+      $script: bash ./maestro/record.sh
+      $description: Records the integrations tests. Does not generate a html report of the tests. You can pass in a regex parameter to specify what files you want run. Example; rps test record "^1_1" (This will select all files who's names start with "1_1"). Default regex is to select all files.
   lint:
     check: flutter analyze
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
-  coverage: flutter test --coverage --branch-coverage
-  run: flutter run --dart-define-from-file=../.env
+  coverage: flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
+  codecov:
+    windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
+    mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
+  run: flutter run --dart-define-from-file=./.env
   clean: flutter clean
-  build: 
-    android: 
-      $script: flutter build apk --dart-define-from-file=../.env
+  build:
+    android:
+      $script: flutter build apk --dart-define-from-file=./.env
       $description: Build the android app. Can pass --debug or --release flag. (Default --release)
     ios: flutter build ipa
-  install: 
+  install:
     $script: flutter install
     $description: Install the app on the connected device. Can pass --release or --debug flags. (Default --release)
+  ci:
+    $script: rps clean && rps format check && rps lint check && rps test unit && rps build android --debug && rps coverage
+    $description: Run all of the commands that are part of the ci pipeline
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -61,6 +72,14 @@ dependencies:
   device_calendar: ^4.3.3
   google_maps_flutter: ^2.10.0
   flutter_env_native: ^0.1.0
+  geolocator: ^13.0.2
+  google_directions_api: ^0.10.0
+  flutter_polyline_points: ^2.1.0
+  flutter_dotenv: ^5.2.1
+  url_launcher: ^6.3.1
+  geocoding: ^3.0.0
+  yaml: ^3.1.3
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +90,8 @@ dev_dependencies:
   test: ^1.25.8
   mockito: ^5.4.5
   build_runner: ^2.4.14
+  mockingjay: ^0.6.0
+  test_cov_console: ^0.2.2
 
 plugin:
   platforms:
@@ -91,8 +112,70 @@ flutter:
   # Note: any other .env files, ex. a file named .env.prod, should be declared
   # under assets as well.
   assets:
+    - .env
+    - assets/config/
+    - assets/icons/
     - assets/images/
-    - ../.env
+    - assets/maps/outdoor/all/polygons.json
+    - assets/maps/outdoor/sgw/polygons.json
+    - assets/maps/outdoor/loy/polygons.json
+    - assets/maps/outdoor/shuttle_bus_routes/loy_to_sgw.json
+    - assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json
+    - assets/maps/outdoor/shuttle_bus_schedules/monday_thursday.json
+    - assets/maps/outdoor/shuttle_bus_schedules/friday.json
+    - assets/maps/indoor/floorplans/CC1.svg
+    - assets/maps/indoor/floorplans/H1.svg
+    - assets/maps/indoor/floorplans/H2.svg
+    - assets/maps/indoor/floorplans/H8.svg
+    - assets/maps/indoor/floorplans/H9.svg
+    - assets/maps/indoor/floorplans/MB1.svg
+    - assets/maps/indoor/floorplans/MBS2.svg
+    - assets/maps/indoor/floorplans/VL1.svg
+    - assets/maps/indoor/floorplans/VL2.svg
+    - assets/icons/default.png
+    - assets/icons/destination.png
+    - assets/icons/origin.png
+    - assets/icons/shuttle_bus.png
+    - assets/icons/shuttle_bus_station.png
+    - assets/icons/AD.png
+    - assets/icons/CC.png
+    - assets/icons/CJ.png
+    - assets/icons/CL.png
+    - assets/icons/EV.png
+    - assets/icons/ER.png
+    - assets/icons/FB.png
+    - assets/icons/FC.png
+    - assets/icons/FG.png
+    - assets/icons/GE.png
+    - assets/icons/GM.png
+    - assets/icons/HA.png
+    - assets/icons/H.png
+    - assets/icons/HU.png
+    - assets/icons/LB.png
+    - assets/icons/LS.png
+    - assets/icons/MB.png
+    - assets/icons/PC.png
+    - assets/icons/PS.png
+    - assets/icons/PT.png
+    - assets/icons/PY.png
+    - assets/icons/RA.png
+    - assets/icons/RF.png
+    - assets/icons/SC.png
+    - assets/icons/SP.png
+    - assets/icons/TD.png
+    - assets/icons/VA.png
+    - assets/icons/VE.png
+    - assets/icons/VL.png
+    - assets/maps/outdoor/all/
+    - assets/maps/outdoor/loy/
+    - assets/maps/outdoor/sgw/
+    - assets/maps/outdoor/shuttle_bus_routes/
+    - assets/maps/outdoor/shuttle_bus_schedules/
+    - assets/maps/indoor/data/CC.yaml
+    - assets/maps/indoor/data/H.yaml
+    - assets/maps/indoor/data/VL.yaml
+    - assets/maps/indoor/data/MB.yaml
+    - assets/maps/indoor/floorplans/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

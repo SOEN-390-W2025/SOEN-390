@@ -1,7 +1,7 @@
 appId: com.example.concordia_nav
 ---
-- tapOn: "ConU Nav"
+- launchApp:
+    clearState: true
 - assertVisible: "Indoor directions"
 - tapOn: "Indoor directions"
-- assertVisible: "Search location ..."
-- assertVisible: "Indoor Map"
+- assertVisible: "Indoor Directions"

@@ -1,0 +1,1071 @@
+floors:
+  - number: "1"
+    pixelsPerSecond: 65
+  - number: "2"
+    pixelsPerSecond: 65
+  - number: "8"
+    pixelsPerSecond: 65
+  - number: "9"
+    pixelsPerSecond: 65
+
+# Rooms that don't have a number start from 0001
+rooms:
+  "1":
+    - roomNumber: "2-3"
+      category: police
+      floor: "1"
+      entrancePoint: { x: 815, y: 915 }
+    - roomNumber: "9-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 55, y: 552 }
+    - roomNumber: "9-2"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 55, y: 552 }
+    - roomNumber: "9-3"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 55, y: 552 }
+    - roomNumber: "10"
+      category: auditorium
+      floor: "1"
+      entrancePoint: { x: 270, y: 791 }
+    - roomNumber: "12"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 487, y: 678 }
+    - roomNumber: "14"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 519, y: 612 }
+    - roomNumber: "15"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 609, y: 463 }
+    - roomNumber: "16-4"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 633, y: 727 }
+    - roomNumber: "18"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 817, y: 727 }
+    - roomNumber: "18-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 706, y: 727 }
+    - roomNumber: "18-2"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 768, y: 683 }
+    - roomNumber: "18-3"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 798, y: 683 }
+    - roomNumber: "18-4"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 856, y: 683 }
+    - roomNumber: "18-5"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 831, y: 695 }
+    - roomNumber: "18-13"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 660, y: 683 }
+    - roomNumber: "18-14"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 718, y: 683 }
+    - roomNumber: "20"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 545, y: 470 }
+    - roomNumber: "22"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 582, y: 413 }
+    - roomNumber: "24"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 622, y: 413 }
+    - roomNumber: "25"
+      category: unknown
+      floor: "1"
+      entrancePoint: null
+    - roomNumber: "26"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 662, y: 413 }
+    - roomNumber: "27"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 116, y: 179 }
+    - roomNumber: "27-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 102, y: 306 }
+    - roomNumber: "31"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 578, y: 156 }
+    - roomNumber: "31-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 437, y: 158 }
+    - roomNumber: "31-2"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 547, y: 72 }
+    - roomNumber: "31-3"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 575, y: 72 }
+    - roomNumber: "31-4"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 491, y: 72 }
+    - roomNumber: "33"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 661, y: 156 }
+    - roomNumber: "35"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 760, y: 106 }
+    - roomNumber: "35-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 768, y: 156 }
+    - roomNumber: "37"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 819, y: 156 }
+    - roomNumber: "37-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 819, y: 125 }
+    - roomNumber: "39"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 871, y: 156 }
+    - roomNumber: "39-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 884, y: 48 }
+    - roomNumber: "39-2"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 912, y: 126 }
+    - roomNumber: "41"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 921, y: 126 }
+    - roomNumber: "50"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 916, y: 635 }
+    - roomNumber: "99-70"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 971, y: 221 }
+    - roomNumber: "30-1"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 332, y: 191 }
+    - roomNumber: "52"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 952, y: 264 }
+    - roomNumber: "023"
+      category: unknown
+      floor: "1"
+      entrancePoint: { x: 332, y: 154 }
+  "2":
+    - roomNumber: "22"
+      category: office
+      floor: "2"
+      entrancePoint: { x: 815, y: 427 }
+    - roomNumber: "31"
+      category: restaurant
+      floor: "2"
+      entrancePoint: { x: 242, y: 359 }
+    - roomNumber: "39"
+      category: restaurant
+      floor: "2"
+      entrancePoint: { x: 402, y: 359 }
+    - roomNumber: "44"
+      category: office
+      floor: "2"
+      entrancePoint: { x: 488, y: 548 }
+    - roomNumber: "60"
+      category: unknown
+      floor: "2"
+      entrancePoint: { x: 880, y: 595 }
+  "8":
+    - roomNumber: "1"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 880, y: 885 }
+    - roomNumber: "2"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 645, y: 810 }
+    - roomNumber: "3"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 788, y: 866 }
+    - roomNumber: "5"
+      category: office
+      floor: "8"
+      entrancePoint: { x: 680, y: 875 }
+    - roomNumber: "6"
+      category: office
+      floor: "8"
+      entrancePoint: { x: 507, y: 747 }
+    - roomNumber: "7"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 518, y: 855 }
+    - roomNumber: "10"
+      category: office
+      floor: "8"
+      entrancePoint: { x: 423, y: 819 }
+    - roomNumber: "11"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 331, y: 870 }
+    - roomNumber: "13"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 251, y: 870 }
+    - roomNumber: "15"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 161, y: 870 }
+    - roomNumber: "17"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 161, y: 870 }
+    - roomNumber: "19"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 146, y: 870 }
+    - roomNumber: "20"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 230, y: 641 }
+    - roomNumber: "21"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 150, y: 688 }
+    - roomNumber: "22"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 203, y: 396 }
+    - roomNumber: "23"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 150, y: 657 }
+    - roomNumber: "25"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 150, y: 482 }
+    - roomNumber: "27"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 150, y: 455 }
+    - roomNumber: "29"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 150, y: 350 }
+    - roomNumber: "31"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 145, y: 162 }
+    - roomNumber: "32"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 380, y: 228 }
+    - roomNumber: "33"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 224, y: 157 }
+    - roomNumber: "35"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 318, y: 157 }
+    - roomNumber: "37"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 343, y: 157 }
+    - roomNumber: "38"
+      category: office
+      floor: "8"
+      entrancePoint: { x: 511, y: 272 }
+    - roomNumber: "40"
+      category: maintenance
+      floor: "8"
+      entrancePoint: { x: 586, y: 609 }
+    - roomNumber: "41"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 519, y: 165 }
+    - roomNumber: "42"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 621, y: 310 }
+    - roomNumber: "43"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 670, y: 165 }
+    - roomNumber: "45"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 770, y: 165 }
+    - roomNumber: "47"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 808, y: 165 }
+    - roomNumber: "49"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 902, y: 165 }
+    - roomNumber: "51"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 884, y: 187 }
+    - roomNumber: "52"
+      category: unknown
+      floor: "8"
+      entrancePoint: { x: 815, y: 356 }
+    - roomNumber: "53"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 876, y: 269 }
+    - roomNumber: "54"
+      category: unknown
+      floor: "8"
+      entrancePoint: { x: 818, y: 380 }
+    - roomNumber: "55"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 876, y: 377 }
+    - roomNumber: "57"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 876, y: 556 }
+    - roomNumber: "59"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 876, y: 662 }
+    - roomNumber: "60"
+      category: lab
+      floor: "8"
+      entrancePoint: { x: 758, y: 610 }
+    - roomNumber: "61"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 876, y: 679 }
+    - roomNumber: "62"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 680, y: 614 }
+    - roomNumber: "63"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 895, y: 863 }
+    - roomNumber: "65"
+      category: unknown
+      floor: "8"
+      entrancePoint: { x: 895, y: 863 }
+    - roomNumber: "67"
+      category: classroom
+      floor: "8"
+      entrancePoint: { x: 895, y: 863 }
+    - roomNumber: "92"
+      category: unknown
+      floor: "8"
+      entrancePoint: { x: 579, y: 672 }
+  "9":
+    - roomNumber: "0001"
+      category: washroom
+      floor: "9"
+      entrancePoint: { x: 593, y: 778 }
+    - roomNumber: "0002"
+      category: washroom
+      floor: "9"
+      entrancePoint: { x: 378, y: 805 }
+    - roomNumber: "2-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 600, y: 800 }
+    - roomNumber: "3"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 860, y: 856 }
+    - roomNumber: "4"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 510, y: 706 }
+    - roomNumber: "6"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 510, y: 787 }
+    - roomNumber: "7"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 536, y: 856 }
+    - roomNumber: "8"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 510, y: 719 }
+    - roomNumber: "9"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 500, y: 865 }
+    - roomNumber: "11"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 409, y: 865 }
+    - roomNumber: "13"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 314, y: 865 }
+    - roomNumber: "15"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 174, y: 869 }
+    - roomNumber: "17"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 147, y: 871 }
+    - roomNumber: "18"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 207, y: 616 }
+    - roomNumber: "19"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 147, y: 776 }
+    - roomNumber: "20"
+      category: classroom
+      floor: "9"
+      entrancePoint: { x: 294, y: 555 }
+    - roomNumber: "20-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 209, y: 534 }
+    - roomNumber: "20-2"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 209, y: 534 }
+    - roomNumber: "21"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 147, y: 677 }
+    - roomNumber: "23"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 147, y: 658 }
+    - roomNumber: "25-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 96, y: 455 }
+    - roomNumber: "25-2"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 87, y: 532 }
+    - roomNumber: "25-3"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 103, y: 409 }
+    - roomNumber: "27"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 184, y: 256 }
+    - roomNumber: "27-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 63, y: 317 }
+    - roomNumber: "27-3"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 63, y: 369 }
+    - roomNumber: "27-4"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 192, y: 370 }
+    - roomNumber: "28"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 202, y: 217 }
+    - roomNumber: "29"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 197, y: 129 }
+    - roomNumber: "31"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 184, y: 183 }
+    - roomNumber: "32"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 261, y: 154 }
+    - roomNumber: "32-1"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 300, y: 213 }
+    - roomNumber: "33"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 208, y: 127 }
+    - roomNumber: "33-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 301, y: 46 }
+    - roomNumber: "33-2"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 332, y: 29 }
+    - roomNumber: "33-11"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 342, y: 89 }
+    - roomNumber: "37"
+      category: classroom
+      floor: "9"
+      entrancePoint: { x: 381, y: 252 }
+    - roomNumber: "37-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 422, y: 273 }
+    - roomNumber: "37-3"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 584, y: 275 }
+    - roomNumber: "41"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 650, y: 70 }
+    - roomNumber: "43"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 650, y: 99 }
+    - roomNumber: "45"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 637, y: 215 }
+    - roomNumber: "60"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 596, y: 615 }
+    - roomNumber: "61-1"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 961, y: 490 }
+    - roomNumber: "61-2"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 941, y: 533 }
+    - roomNumber: "61-3"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 961, y: 474 }
+    - roomNumber: "61-4"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 941, y: 446 }
+    - roomNumber: "61-6"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 941, y: 433 }
+    - roomNumber: "61-7"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 961, y: 382 }
+    - roomNumber: "61-8"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 878, y: 329 }
+    - roomNumber: "61-9"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 961, y: 296 }
+    - roomNumber: "61-10"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 941, y: 294 }
+    - roomNumber: "61-11"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 961, y: 280 }
+    - roomNumber: "61-12"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 941, y: 266 }
+    - roomNumber: "61-13"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 966, y: 228 }
+    - roomNumber: "61-14"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 834, y: 155 }
+    - roomNumber: "61-15"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 966, y: 179 }
+    - roomNumber: "61-17"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 966, y: 131 }
+    - roomNumber: "61-19"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 966, y: 80 }
+    - roomNumber: "61-21"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 938, y: 70 }
+    - roomNumber: "61-23"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 923, y: 70 }
+    - roomNumber: "61-25"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 875, y: 70 }
+    - roomNumber: "61-26"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 836, y: 94 }
+    - roomNumber: "61-27"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 830, y: 70 }
+    - roomNumber: "61-28"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 820, y: 94 }
+    - roomNumber: "61-29"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 785, y: 70 }
+    - roomNumber: "61-30"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 750, y: 94 }
+    - roomNumber: "61-31"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 740, y: 70 }
+    - roomNumber: "61-33"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 694, y: 70 }
+    - roomNumber: "61-97"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 942, y: 382 }
+    - roomNumber: "62"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 613, y: 614 }
+    - roomNumber: "62-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 613, y: 614 }
+    - roomNumber: "63"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 864, y: 615 }
+    - roomNumber: "64"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 780, y: 614 }
+    - roomNumber: "64-1"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 798, y: 562 }
+    - roomNumber: "64-2"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 787, y: 558 }
+    - roomNumber: "64-3"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 869, y: 456 }
+    - roomNumber: "65"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 873, y: 704 }
+    - roomNumber: "66"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 613, y: 356 }
+    - roomNumber: "66-1"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 613, y: 356 }
+    - roomNumber: "66-2"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 613, y: 356 }
+    - roomNumber: "67"
+      category: lab
+      floor: "9"
+      entrancePoint: { x: 871, y: 811 }
+    - roomNumber: "68"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 727, y: 356 }
+    - roomNumber: "77"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 677, y: 331 }
+    - roomNumber: "80"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 452, y: 814 }
+    - roomNumber: "81"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 636, y: 240 }
+    - roomNumber: "83"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 614, y: 232 }
+    - roomNumber: "92"
+      category: unknown
+      floor: "9"
+      entrancePoint: { x: 576, y: 656 }
+
+waypoints:
+  "1":
+    - { x: 310, y: 940 }
+    - { x: 310, y: 806 }
+    - { x: 18, y: 806 }
+    - { x: 18, y: 519 }
+    - { x: 442, y: 940 }
+    - { x: 442, y: 1000 }
+    - { x: 585, y: 1000 }
+    - { x: 699, y: 1000 }
+    - { x: 728, y: 946 }
+    - { x: 815, y: 946 }
+    - { x: 884, y: 946 }
+    - { x: 884, y: 754 }
+    - { x: 976, y: 754 }
+    - { x: 976, y: 611 }
+    - { x: 1014, y: 611 }
+    - { x: 1014, y: 302 }
+    - { x: 1014, y: 174 }
+    - { x: 820, y: 174 }
+    - { x: 578, y: 174 }
+    - { x: 331, y: 174 }
+    - { x: 141, y: 174 }
+    - { x: 442, y: 806 }
+    - { x: 544, y: 806 }
+    - { x: 544, y: 754 }
+    - { x: 544, y: 667 }
+    - { x: 544, y: 492 }
+    - { x: 544, y: 438 }
+    - { x: 611, y: 438 }
+    - { x: 585, y: 754 }
+    - { x: 688, y: 754 }
+    - { x: 787, y: 754 }
+  "2":
+    - { x: 310, y: 400 }
+    - { x: 460, y: 400 }
+    - { x: 612, y: 435 }
+    - { x: 680, y: 435 }
+    - { x: 680, y: 595 }
+    - { x: 680, y: 715 }
+    - { x: 567, y: 784 }
+    - { x: 784, y: 784 }
+  "8":
+    - { x: 169, y: 194 }
+    - { x: 295, y: 194 }
+    - { x: 457, y: 194 }
+    - { x: 600, y: 194 }
+    - { x: 736, y: 194 }
+    - { x: 845, y: 194 }
+    - { x: 845, y: 379 }
+    - { x: 845, y: 550 }
+    - { x: 845, y: 636 }
+    - { x: 845, y: 840 }
+    - { x: 668, y: 840 }
+    - { x: 457, y: 840 }
+    - { x: 374, y: 840 }
+    - { x: 169, y: 840 }
+    - { x: 169, y: 660 }
+    - { x: 169, y: 468 }
+    - { x: 169, y: 355 }
+    - { x: 457, y: 310 }
+    - { x: 457, y: 424 }
+    - { x: 457, y: 526 }
+    - { x: 457, y: 636 }
+    - { x: 457, y: 720 }
+    - { x: 587, y: 636 }
+    - { x: 752, y: 636 }
+  "9":
+    - { x: 846, y: 832 }
+    - { x: 774, y: 832 }
+    - { x: 696, y: 832 }
+    - { x: 592, y: 832 }
+    - { x: 536, y: 832 }
+    - { x: 494, y: 832 }
+    - { x: 444, y: 832 }
+    - { x: 379, y: 832 }
+    - { x: 304, y: 832 }
+    - { x: 229, y: 832 }
+    - { x: 172, y: 832 }
+    - { x: 172, y: 759 }
+    - { x: 172, y: 684 }
+    - { x: 172, y: 612 }
+    - { x: 172, y: 524 }
+    - { x: 172, y: 447 }
+    - { x: 212, y: 447 }
+    - { x: 212, y: 363 }
+    - { x: 286, y: 363 }
+    - { x: 352, y: 363 }
+    - { x: 446, y: 363 }
+    - { x: 494, y: 363 }
+    - { x: 539, y: 363 }
+    - { x: 212, y: 337 }
+    - { x: 193, y: 337 }
+    - { x: 193, y: 289 }
+    - { x: 193, y: 215 }
+    - { x: 193, y: 143 }
+    - { x: 254, y: 143 }
+    - { x: 312, y: 143 }
+    - { x: 352, y: 224 }
+    - { x: 352, y: 300 }
+    - { x: 846, y: 774 }
+    - { x: 846, y: 703 }
+    - { x: 846, y: 633 }
+    - { x: 780, y: 633 }
+    - { x: 724, y: 633 }
+    - { x: 664, y: 633 }
+    - { x: 609, y: 633 }
+    - { x: 548, y: 633 }
+    - { x: 494, y: 633 }
+    - { x: 494, y: 694 }
+    - { x: 494, y: 762 }
+    - { x: 494, y: 571 }
+    - { x: 494, y: 506 }
+    - { x: 494, y: 433 }
+    - { x: 539, y: 304 }
+    - { x: 619, y: 304 }
+    - { x: 619, y: 339 }
+    - { x: 674, y: 339 }
+    - { x: 738, y: 339 }
+    - { x: 799, y: 339 }
+    - { x: 863, y: 339 }
+    - { x: 950, y: 339 }
+    - { x: 950, y: 396 }
+    - { x: 950, y: 450 }
+    - { x: 950, y: 519 }
+    - { x: 950, y: 281 }
+    - { x: 950, y: 223 }
+    - { x: 950, y: 162 }
+    - { x: 950, y: 81 }
+    - { x: 894, y: 81 }
+    - { x: 831, y: 81 }
+    - { x: 765, y: 81 }
+    - { x: 701, y: 81 }
+    - { x: 646, y: 81 }
+    - { x: 619, y: 138 }
+    - { x: 619, y: 189 }
+    - { x: 619, y: 242 }
+
+waypointNavigability:
+  "1":
+    "0": [1, 4]
+    "1": [0, 2, 21]
+    "2": [1, 3]
+    "3": [2]
+    "4": [0, 5, 21]
+    "5": [4, 6]
+    "6": [5, 7, 28]
+    "7": [6, 8]
+    "8": [7, 9]
+    "9": [8, 10]
+    "10": [9, 11]
+    "11": [10, 12, 30]
+    "12": [11, 13]
+    "13": [12, 14]
+    "14": [13, 15]
+    "15": [14, 16]
+    "16": [15, 17]
+    "17": [16, 18]
+    "18": [17, 19]
+    "19": [18, 20]
+    "20": [19]
+    "21": [1, 4, 22]
+    "22": [21, 23]
+    "23": [22, 24, 28]
+    "24": [23, 25]
+    "25": [24, 26]
+    "26": [25, 27]
+    "27": [26]
+    "28": [23, 29]
+    "29": [28, 30]
+    "30": [29, 11]
+  "2":
+    "0": [1]
+    "1": [0, 2]
+    "2": [1, 3]
+    "3": [2, 4]
+    "4": [3, 5]
+    "5": [4, 6, 7]
+    "6": [5]
+    "7": [7]
+  "8":
+    "0": [1, 16]
+    "1": [0, 2]
+    "2": [1, 3, 17]
+    "3": [2, 4]
+    "4": [3, 5]
+    "5": [4, 6]
+    "6": [5, 7]
+    "7": [6, 8]
+    "8": [7, 9, 23]
+    "9": [8, 10]
+    "10": [9, 11]
+    "11": [10, 12, 21]
+    "12": [11, 13]
+    "14": [13, 15]
+    "15": [14, 16]
+    "16": [15, 0]
+    "17": [2, 18]
+    "18": [17, 19]
+    "19": [18, 20]
+    "20": [19, 21, 22]
+    "21": [20, 11]
+    "22": [20, 23]
+    "23": [22, 8]
+  "9":
+    "0": [1, 32]
+    "1": [0, 2]
+    "2": [1, 3]
+    "3": [2, 4]
+    "4": [3, 5]
+    "5": [4, 6, 42]
+    "6": [5, 7]
+    "7": [6, 8]
+    "8": [7, 9]
+    "9": [8, 10]
+    "10": [9, 11]
+    "11": [10, 12]
+    "12": [11, 13]
+    "13": [12, 14]
+    "14": [13, 15]
+    "15": [14, 16]
+    "16": [15, 17]
+    "17": [16, 18, 23]
+    "18": [17, 19]
+    "19": [18, 20, 31]
+    "20": [19, 21]
+    "21": [20, 22, 45]
+    "22": [21, 46]
+    "23": [17, 24]
+    "24": [23, 25]
+    "25": [24, 26]
+    "26": [25, 27]
+    "27": [26, 28]
+    "28": [27, 29]
+    "29": [28, 30]
+    "30": [29, 31]
+    "31": [30, 19]
+    "32": [0, 33]
+    "33": [32, 34]
+    "34": [33, 35]
+    "35": [34, 36]
+    "36": [35, 37]
+    "37": [36, 38]
+    "38": [37, 39]
+    "39": [38, 40]
+    "40": [39, 41, 43]
+    "41": [40, 42]
+    "42": [41, 5]
+    "43": [40, 44]
+    "44": [43, 45]
+    "45": [44, 21]
+    "46": [22, 47]
+    "47": [46, 48, 68]
+    "48": [47, 49]
+    "49": [48, 50]
+    "50": [49, 51]
+    "51": [50, 52]
+    "52": [51, 53]
+    "53": [52, 54, 57]
+    "54": [53, 55]
+    "55": [54, 56]
+    "56": [55]
+    "57": [53, 58]
+    "58": [57, 59]
+    "59": [58, 60]
+    "60": [59, 61]
+    "61": [60, 62]
+    "62": [61, 63]
+    "63": [62, 64]
+    "64": [63, 65]
+    "65": [64, 66]
+    "66": [65, 67]
+    "67": [66, 68]
+    "68": [67, 47]
+
+connections:
+  - name: "Main Elevators"
+    accessible: true
+    fixedWaitTimeSeconds: 60
+    waitTimePerFloorSeconds: 8
+    floors: ["1", "2", "8", "9"]
+    floorPoints:
+      "1": { x: 730, y: 827, floor: "1" }
+      "2": { x: 680, y: 786, floor: "2" }
+      "8": { x: 665, y: 667, floor: "8" }
+      "9": { x: 669, y: 656, floor: "9" }
+  - name: "Escalators"
+    accessible: false
+    fixedWaitTimeSeconds: 0
+    waitTimePerFloorSeconds: 15
+    floors: ["1", "2", "4", "5", "6", "7", "8", "9", "10"]
+    floorPoints:
+      "1":
+        - { x: 483, y: 903, floor: "1" }
+        - { x: 635, y: 903, floor: "1" }
+      "2": { x: 537, y: 449, floor: "2" }
+      "8": { x: 520, y: 602, floor: "8" }
+      "9": { x: 544, y: 524, floor: "9" }
+  - name: "Stairs"
+    accessible: false
+    fixedWaitTimeSeconds: 0
+    waitTimePerFloorSeconds: 25
+    floors: ["1", "2", "4", "5", "6", "7", "8", "9", "10"]
+    floorPoints:
+      "1":
+        - { x: 553, y: 903, floor: "1" }
+        - { x: 684, y: 903, floor: "1" }
+        - { x: 846, y: 1002, floor: "1" }
+        - { x: 955, y: 817, floor: "1" }
+        - { x: 76, y: 516, floor: "1" }
+        - { x: 975, y: 680, floor: "1" }
+        - { x: 975, y: 495, floor: "1" }
+        - { x: 975, y: 331, floor: "1" }
+        - { x: 1007, y: 175, floor: "1" }
+        - { x: 145, y: 185, floor: "1" }
+      "8": { x: 100, y: 100, floor: "8" } # TODO: NOT ACCURATE, UPDATE WITH REAL VALUE OR REMOVE
+      "9":
+        - { x: 742, y: 656, floor: "9" }
+        - { x: 301, y: 814, floor: "9" }
+        - { x: 727, y: 328, floor: "9" }
+        - { x: 304, y: 328, floor: "9" }
+
+outdoorExitPoint:
+  floor: "1"
+  x: 310
+  y: 1000

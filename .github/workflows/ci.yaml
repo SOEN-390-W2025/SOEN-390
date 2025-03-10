@@ -7,6 +7,9 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+permissions:
+  actions: write
+
 jobs:
   test:
     name: 🧪 Run Tests
@@ -33,26 +36,17 @@ jobs:
     
     - name: Run unit tests
       run: rps test unit
-    
-    # - name: Enable KVM group perms
-    #   if: ${{ runner.os == 'Linux' }}
-    #   run: |
-    #     if [ -e /dev/kvm ]; then
-    #       sudo sh -c 'echo "KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0666\", OPTIONS+=\"static_node=kvm\"" > /etc/udev/rules.d/99-kvm4all.rules'
-    #       sudo udevadm control --reload-rules
-    #       sudo udevadm trigger --name-match=kvm
-    #     else
-    #       echo "Skipping KVM setup as /dev/kvm is not available."
-    #     fi
 
-    # - name: Run Integration Tests
-    #   uses: reactivecircus/android-emulator-runner@v2
-    #   with:
-    #     api-level: 35
-    #     script: rps test integration
+    - name: Cancel workflow on failure
+      if: failure()
+      uses: vishnudxb/cancel-workflow@v1.2
+      with:
+        repo: ${{ github.repository }}
+        workflow_id: ${{ github.run_id }}
+        access_token: ${{ github.token }}
 
   build:
-    name: 📦 Build
+    name: 📦 Build & 🔬 Integration Test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -82,6 +76,75 @@ jobs:
         keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
         key-password: ${{ secrets.KEY_PASSWORD }}
         key-alias: ${{ secrets.KEY_ALIAS }}
+    
+    - name: Enable KVM Group Perms
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Install libpulse Dependency 
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpulse0
+
+    - name: Install Maestro CLI
+      run: |
+        curl -Ls https://get.maestro.mobile.dev | bash
+        echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+      
+    - name: AVD Cache
+      uses: actions/cache@v4
+      id: avd-cache
+      with:
+        path: |
+          ~/.android/avd/*
+          ~/.android/adb*
+        key: ${{ runner.os }}-avd-35
+
+    - name: Create AVD and Generate Snapshot for Caching
+      if: steps.avd-cache.outputs.cache-hit != 'true'
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 35
+        target: default
+        arch: x86_64
+        profile: pixel_7
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+        disable-animations: false
+        script: echo "Generated AVD snapshot for caching."
+
+    # TODO: Change the first script from integration to record when the android emulation is fixed.
+    - name: Set Integration Test Script Variable
+      id: set-script
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/main" ] || ( [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.base_ref }}" == "main" ] ); then
+          echo "integration-test-script=bash -c \"set -o pipefail && rps install --release && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
+        else
+          echo "integration-test-script=bash -c \"set -o pipefail && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
+        fi
+
+    - name: Run Integration Tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 35
+        target: default
+        arch: x86_64
+        profile: pixel_7
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+        disable-animations: true
+        working-directory: concordia_nav
+        script: ${{ env.integration-test-script }}
+
+    # - name: Upload Test Recording Artifacts
+    #   uses: actions/upload-artifact@v4
+    #   if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    #   with:
+    #     name: integration-test-recordings
+    #     path: concordia_nav/maestro/recordings/*.mp4
+    #     retention-days: 90
 
   coverage:
     name: 📊 Coverage
