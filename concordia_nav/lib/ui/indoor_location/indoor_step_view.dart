@@ -29,10 +29,10 @@ class VirtualStepGuideView extends StatefulWidget {
   });
 
   @override
-  State<VirtualStepGuideView> createState() => _VirtualStepGuideViewState();
+  State<VirtualStepGuideView> createState() => VirtualStepGuideViewState();
 }
 
-class _VirtualStepGuideViewState extends State<VirtualStepGuideView>
+class VirtualStepGuideViewState extends State<VirtualStepGuideView>
     with TickerProviderStateMixin {
   late VirtualStepGuideViewModel _viewModel;
   bool _firstRouteCompleted = false;
