@@ -1,5 +1,4 @@
 import 'dart:developer' as dev;
-
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import 'data/domain-model/concordia_building.dart';
@@ -10,6 +9,7 @@ import 'ui/indoor_location/indoor_directions_view.dart';
 import 'ui/indoor_location/indoor_location_view.dart';
 import 'ui/indoor_map/building_selection.dart';
 import 'ui/indoor_map/classroom_selection.dart';
+import 'ui/next_class/next_class_directions_preview.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
 import 'ui/poi/poi_choice_view.dart';
 import 'ui/poi/poi_map_view.dart';
@@ -36,7 +36,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +78,6 @@ class MyApp extends StatelessWidget {
         '/ClassroomSelection': (context) {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>;
-
           return ClassroomSelection(
             building: args['building'] as String,
             floor: args['floor'] as String,
@@ -86,6 +85,22 @@ class MyApp extends StatelessWidget {
             isSource: args['isSource'] as bool? ?? false,
             isSearch: args['isSearch'] as bool? ?? false,
             isDisability: args['isDisability'] as bool? ?? false,
+            routeType: args['routeType'] as NavigationRouteType? ??
+                NavigationRouteType.indoor,
+          );
+        },
+        '/NextClassDirectionsPreview': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+          return NextClassDirectionsPreview(
+            sourceRoom: args['sourceRoom'] as String,
+            sourceBuilding: args['sourceBuilding'] as String,
+            sourceFloor: args['sourceFloor'] as String,
+            destRoom: args['destRoom'] as String,
+            destBuilding: args['destBuilding'] as String,
+            destFloor: args['destFloor'] as String,
+            routeType: args['routeType'] as NavigationRouteType? ??
+                NavigationRouteType.indoor,
           );
         },
       },
