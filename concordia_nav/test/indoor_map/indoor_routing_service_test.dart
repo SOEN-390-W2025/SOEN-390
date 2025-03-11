@@ -127,7 +127,7 @@ void main() async {
   });
 
   group('IndoorRoutingService', () {
-    test('should return H building when Geolocator throws an exception', () async {
+    test('should return null when Geolocator throws an exception', () async {
       // Arrange
       final mockGeolocator = MockGeolocatorPlatform();
       when(mockGeolocator.getCurrentPosition(
@@ -138,7 +138,7 @@ void main() async {
       final result = await IndoorRoutingService.getRoundedLocation();
 
       // Assert
-      expect(result, BuildingRepository.h);
+      expect(result, isNull);
     });
   });
 
@@ -238,7 +238,7 @@ void main() async {
         expect(res?.name, "Richard J. Renaud Science Complex");
       });
 
-      test('returns Hall building when accuracy > 50', () async {
+      test('returns null when accuracy > 50', () async {
         // position with accuracy > 50
         testPosition = Position(
             longitude: -73.5788992164221,
@@ -252,20 +252,22 @@ void main() async {
             altitudeAccuracy: 0.0,
             headingAccuracy: 0.0);
         final res = await IndoorRoutingService.getRoundedLocation();
-        expect(res, BuildingRepository.h);
+        expect(res, null); // should return null
       });
 
-      test('returns Hall building if service disabled', () async {
+      test('returns error message if service disabled', () async {
         service = false;
-        final res = await IndoorRoutingService.getRoundedLocation();
-        expect(res, BuildingRepository.h); 
+        // should return an error
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location services are disabled.'));
       });
 
       test('returns error message if service disabled', () async {
         service = true;
         permission = 1;
-        final res = await IndoorRoutingService.getRoundedLocation();
-        expect(res, BuildingRepository.h);
+        // should return an error
+        expect(IndoorRoutingService.getRoundedLocation(),
+            throwsA('Location permissions are denied.'));
       });
     });
   });

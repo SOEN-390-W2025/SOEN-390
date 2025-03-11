@@ -19,7 +19,6 @@ import 'map_service.dart';
 
 class IndoorRoutingService {
   static const roundingMinimumProximityMeters = 30.0;
-  static const defaultLocation = BuildingRepository.h;
 
   /// Returns at minimum a Location object with latitide and longitude based on
   /// the device location. If the device is within the minimum rounding
@@ -39,11 +38,11 @@ class IndoorRoutingService {
           await mapService.checkAndRequestLocationPermission();
       // check if location services are enabled
       if (!serviceEnabled) {
-        return defaultLocation;
+        return Future.error('Location services are disabled.');
       }
       // check if location permissions are granted
       if (!hasPermission) {
-        return defaultLocation;
+        return Future.error('Location permissions are denied.');
       }
 
       // Get the user's current location
@@ -51,11 +50,11 @@ class IndoorRoutingService {
           locationSettings: const LocationSettings(
               accuracy: LocationAccuracy.bestForNavigation));
     } on Exception {
-      return defaultLocation;
+      return null;
     }
 
     // Discard location if wildly inaccurate
-    if (userPosition.accuracy > 50.0) return defaultLocation;
+    if (userPosition.accuracy > 50.0) return null;
 
     // Search through the appropriate list of buildings if the user is close to
     // either campus
