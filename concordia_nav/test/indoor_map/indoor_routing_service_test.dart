@@ -135,7 +135,7 @@ void main() async {
       )).thenThrow(Exception());
 
       // Act
-      final result = await IndoorRoutingService.getRoundedLocation();
+      final result = await IndoorRoutingService.getRoundedGeolocation();
 
       // Assert
       expect(result, isNull);
@@ -191,7 +191,7 @@ void main() async {
       });
 
       test('return current location when located far from campuses', () async {
-        final res = await IndoorRoutingService.getRoundedLocation();
+        final res = await IndoorRoutingService.getRoundedGeolocation();
 
         expect(res, isA<Location>());
         expect(res?.lat, 100.0);
@@ -211,7 +211,7 @@ void main() async {
             speedAccuracy: 0.0,
             altitudeAccuracy: 0.0,
             headingAccuracy: 0.0);
-        final res = await IndoorRoutingService.getRoundedLocation();
+        final res = await IndoorRoutingService.getRoundedGeolocation();
         // should return MB building
         expect(res, isA<ConcordiaBuilding>());
         expect(res?.lat, BuildingRepository.mb.lat);
@@ -231,7 +231,7 @@ void main() async {
             speedAccuracy: 0.0,
             altitudeAccuracy: 0.0,
             headingAccuracy: 0.0);
-        final res = await IndoorRoutingService.getRoundedLocation();
+        final res = await IndoorRoutingService.getRoundedGeolocation();
         // should return SP building
         expect(res, isA<ConcordiaBuilding>());
         expect(res?.lng, BuildingRepository.sp.lng);
@@ -251,23 +251,21 @@ void main() async {
             speedAccuracy: 0.0,
             altitudeAccuracy: 0.0,
             headingAccuracy: 0.0);
-        final res = await IndoorRoutingService.getRoundedLocation();
+        final res = await IndoorRoutingService.getRoundedGeolocation();
         expect(res, null); // should return null
       });
 
-      test('returns error message if service disabled', () async {
+      test('returns null when service disabled', () async {
         service = false;
-        // should return an error
-        expect(IndoorRoutingService.getRoundedLocation(),
-            throwsA('Location services are disabled.'));
+        final res = await IndoorRoutingService.getRoundedGeolocation();
+        expect(res, null); // should return null
       });
 
       test('returns error message if service disabled', () async {
         service = true;
         permission = 1;
-        // should return an error
-        expect(IndoorRoutingService.getRoundedLocation(),
-            throwsA('Location permissions are denied.'));
+        final res = await IndoorRoutingService.getRoundedGeolocation();
+        expect(res, null);
       });
     });
   });
