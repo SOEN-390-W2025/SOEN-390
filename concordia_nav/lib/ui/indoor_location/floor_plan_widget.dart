@@ -47,6 +47,8 @@ class FloorPlanWidget extends StatelessWidget {
         panEnabled: true,
         boundaryMargin: const EdgeInsets.all(50.0),
         transformationController: indoorMapViewModel.transformationController,
+        minScale: 0.6,
+        maxScale: 1.5,
         child: SizedBox(
           width: width,
           height: height,

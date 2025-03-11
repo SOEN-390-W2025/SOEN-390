@@ -3,7 +3,6 @@ import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:concordia_nav/widgets/floor_button.dart';
-import 'package:concordia_nav/widgets/zoom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -72,23 +71,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Select a floor'), findsOneWidget);
-    });
-
-    testWidgets('Tapping zoombuttons adjust zoom of svg', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: IndoorLocationView(building: building, floor: '1'),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.byType(ZoomButton), findsNWidgets(2));
-
-      await tester.tap(find.byType(ZoomButton).first);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byType(ZoomButton).last);
-      await tester.pumpAndSettle();
     });
 
     testWidgets('Tapping Directions button navigates to IndoorDirectionsView',

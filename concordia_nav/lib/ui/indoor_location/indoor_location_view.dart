@@ -5,7 +5,6 @@ import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/zoom_buttons.dart';
 import 'floor_plan_widget.dart';
 import 'indoor_directions_view.dart';
 import 'dart:developer' as dev;
@@ -31,8 +30,6 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   late String floorPlanPath;
   double width = 1024.0;
   double height = 1024.0;
-  final double _maxScale = 1.5;
-  final double _minScale = 0.6;
   bool _floorPlanExists = true;
   bool _isLoading = true;
   late IndoorDirectionsViewModel _directionsViewModel;
@@ -128,44 +125,6 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
             child: FloorButton(
               floor: widget.floor!,
               building: widget.building,
-            ),
-          ),
-          Positioned(
-            top: 140,
-            right: 16,
-            child: Column(
-              children: [
-                ZoomButton(
-                  onTap: () {
-                    final Matrix4 currentMatrix = _indoorMapViewModel
-                        .transformationController.value
-                        .clone();
-                    final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                    if (currentScale < _maxScale) {
-                      final Matrix4 zoomedInMatrix = currentMatrix
-                        ..scale(1.2);
-                      _indoorMapViewModel.animateTo(zoomedInMatrix);
-                    }
-                  },
-                  icon: Icons.add,
-                  isZoomInButton: true,
-                ),
-                ZoomButton(
-                  onTap: () {
-                    final Matrix4 currentMatrix = _indoorMapViewModel
-                        .transformationController.value
-                        .clone();
-                    final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                    if (currentScale > _minScale) {
-                      final Matrix4 zoomedOutMatrix = currentMatrix
-                        ..scale(0.8);
-                      _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                    }
-                  },
-                  icon: Icons.remove,
-                  isZoomInButton: false,
-                ),
-              ],
             ),
           ),
           if (widget.room != null) _buildFooter(),

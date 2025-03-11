@@ -67,18 +67,6 @@ class MapService {
     return IconLoader.loadBitmapDescriptor(iconPath);
   }
 
-  /// Zoom in function
-  Future<void> zoomIn() async {
-    final currentZoom = await _mapController.getZoomLevel();
-    await _mapController.animateCamera(CameraUpdate.zoomTo(currentZoom + 1));
-  }
-
-  /// Zoom out function
-  Future<void> zoomOut() async {
-    final currentZoom = await _mapController.getZoomLevel();
-    await _mapController.animateCamera(CameraUpdate.zoomTo(currentZoom - 1));
-  }
-
   /// Checks if location services are enabled.
   Future<bool> isLocationServiceEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
