@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:provider/provider.dart';
+import '../../../data/domain-model/concordia_building.dart';
 import '../../../data/repositories/calendar.dart';
+import '../../../utils/building_viewmodel.dart';
 import '../../../utils/calendar_viewmodel.dart';
 import '../../../utils/event_controller_ex.dart';
 import '../../../utils/indoor_directions_viewmodel.dart';
@@ -21,8 +23,10 @@ class _CalendarViewState extends State<CalendarView> {
   final EventController eventController = EventController();
   late CalendarViewModel _calendarViewModel;
   late IndoorDirectionsViewModel _indoorDirectionsViewModel;
+  late BuildingViewModel _buildingViewModel;
 
   UserCalendarEvent? _selectedEvent;
+  String building = '';
   bool _floorPlanExists = false;
   bool _checkingFloorPlan = false;
   
@@ -32,6 +36,7 @@ class _CalendarViewState extends State<CalendarView> {
     dev.log('CalendarView: widget.selectedCalendar: ${widget.selectedCalendar?.displayName ?? "null"}');
     _calendarViewModel = CalendarViewModel();
     _indoorDirectionsViewModel = IndoorDirectionsViewModel();
+    _buildingViewModel = BuildingViewModel();
     _initialize();
   }
   
@@ -61,7 +66,6 @@ class _CalendarViewState extends State<CalendarView> {
   // Start checking if floor plan exists asynchronously
   bool floorPlanExists = false;
   if (event.locationField != null) {
-    dev.log('CalendarView: Checking floor plan: ${_getFloorPlanName(event.locationField!)}');
     final String floorPlanPath = 'assets/maps/indoor/floorplans/${_getFloorPlanName(event.locationField!)}.svg';
     floorPlanExists = await _indoorDirectionsViewModel.checkFloorPlanExists(floorPlanPath);
   }
@@ -89,28 +93,6 @@ class _CalendarViewState extends State<CalendarView> {
         _selectedEvent = null;
       });
     });
-
-    if (event.locationField != null) {
-      dev.log('CalendarView: Checking floor plan: ${_getFloorPlanName(event.locationField!)}');
-      final String floorPlanPath = 'assets/maps/indoor/floorplans/${_getFloorPlanName(event.locationField!)}.svg';
-      final bool exists = await _indoorDirectionsViewModel.checkFloorPlanExists(floorPlanPath);
-
-      // Update state with the result if the component is still mounted
-      if (mounted) {
-        setState(() {
-          _floorPlanExists = exists;
-          _checkingFloorPlan = false;
-        });
-      }
-    } else {
-      // If no location field, update state to not checking anymore
-      if (mounted) {
-        setState(() {
-          _floorPlanExists = false;
-          _checkingFloorPlan = false;
-        });
-      }
-    }
   }
 }
 
@@ -240,11 +222,12 @@ class _CalendarViewState extends State<CalendarView> {
                   label: const Text('Direction', style: TextStyle(color: Colors.white)),
                   onPressed: _floorPlanExists
                     ? () {
+                        final building = _building(_selectedEvent!.locationField!);
                         Navigator.pushNamed(
                           context,
                           '/IndoorDirectionsView',
                           arguments:{
-                            'building': 'Hall Building',
+                            'building': building?.name,
                             'sourceRoom': 'Your Location',
                             'endRoom': _selectedEvent?.locationField,
                           }
@@ -383,7 +366,7 @@ class _CalendarViewState extends State<CalendarView> {
       return name; // Return original if no space found
     }
     
-    final String building = parts[0];
+    building = parts[0];
     final String roomNumber = parts[1];
     
     // Check if roomNumber starts with a letter
@@ -402,5 +385,15 @@ class _CalendarViewState extends State<CalendarView> {
     }
     
     return building; // Fallback if roomNumber is empty
+  }
+
+
+  ConcordiaBuilding? _building(String name) {
+    // Split the string by spaces
+    final List<String> parts = name.split(" ");
+
+    building = parts[0];
+
+    return _buildingViewModel.getBuildingByAbbreviation(building);
   }
 }

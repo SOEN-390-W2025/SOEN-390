@@ -114,8 +114,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
-    dev.log('realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
-    dev.log('from: $from, to: $to');
+    dev.log('IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
+    dev.log('IndoorDirectionsView: from: $from, to: $to');
     getSvgSize();
 
     _initializeRoute();
