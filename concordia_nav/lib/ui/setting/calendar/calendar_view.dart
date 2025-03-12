@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Simform Solutions
+// This code uses the calendar_view library, which is licensed under the MIT License.
+// See LICENSE file for details.
+
 import 'package:flutter/material.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:provider/provider.dart';
