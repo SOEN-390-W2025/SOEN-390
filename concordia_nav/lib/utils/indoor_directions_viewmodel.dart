@@ -289,6 +289,10 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return 0.05;
   }
 
+  Future<bool> checkFloorPlanExists(String floorPlanPath) async {
+    return await IndoorRoutingService().checkFloorPlanExists(floorPlanPath);
+  }
+
   Future<Size> getSvgDimensions(String svgPath) async {
     return await IndoorRoutingService().getSvgDimensions(svgPath);
   }

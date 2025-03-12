@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 import '../../../data/repositories/calendar.dart';
@@ -104,9 +106,8 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
           ),
         ),
         onPressed: () {
-          
           // Navigate with only this specific calendar
-          navigateToCalendarView([calendar]);
+          navigateToCalendarView(calendar);
         },
         child: Row(
           children: [
@@ -144,8 +145,7 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
         : '?';
   }
   
-  void navigateToCalendarView(List<UserCalendar> selectedCalendars) {
-     dev.log('CalendarViewModel: Navigating to CalendarView with ${selectedCalendars.length} calendars');
+  void navigateToCalendarView(UserCalendar selectedCalendars) {
     Navigator.pushNamed(
       context,
       '/CalendarView',
