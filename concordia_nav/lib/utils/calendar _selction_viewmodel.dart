@@ -1,9 +1,11 @@
+// ignore_for_file: prefer_final_locals
+
 import 'dart:developer' as dev;
 
 import '../data/repositories/calendar.dart';
 
 class CalendarSelectionViewModel {
-  final CalendarRepository _repository = CalendarRepository();
+  final CalendarRepository _calendarRepository = CalendarRepository();
   final List<UserCalendar> _calendars = [];
   final Set<String> _selectedCalendarIds = {}; // Store IDs instead of objects
 
@@ -16,12 +18,12 @@ class CalendarSelectionViewModel {
     _calendars.clear();
     _selectedCalendarIds.clear();
 
-    bool hasPermission = await _repository.checkPermissions();
+    bool hasPermission = await _calendarRepository.checkPermissions();
     if (!hasPermission) {
       throw Exception('Calendar permissions not granted');
     }
 
-    final loadedCalendars = await _repository.getUserCalendars();
+    final loadedCalendars = await _calendarRepository.getUserCalendars();
     _calendars.addAll(loadedCalendars);
   }
 

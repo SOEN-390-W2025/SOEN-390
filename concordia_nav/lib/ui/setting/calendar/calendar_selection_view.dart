@@ -6,6 +6,8 @@ import '../../../data/repositories/calendar.dart';
 import '../../../utils/calendar _selction_viewmodel.dart';
 import '../../../widgets/custom_appbar.dart';
 
+/// A view that allows users to select from available calendars.
+/// Displays a list of all user calendars with a location format guide at the bottom.
 class CalendarSelectionView extends StatefulWidget {
   const CalendarSelectionView({super.key});
 
@@ -14,7 +16,7 @@ class CalendarSelectionView extends StatefulWidget {
 }
 
 class _CalendarSelectionViewState extends State<CalendarSelectionView> {
-  final CalendarSelectionViewModel _viewModel = CalendarSelectionViewModel();
+  final CalendarSelectionViewModel _calendarViewModel = CalendarSelectionViewModel();
   bool _isLoading = true;
 
   @override
@@ -23,13 +25,15 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
     _loadCalendars();
   }
 
+  /// Loads available calendars from the device.
+  /// Shows an error message if permissions are not granted.
   Future<void> _loadCalendars() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      await _viewModel.loadCalendars();
+      await _calendarViewModel.loadCalendars();
     } catch (e) {
       dev.log('Error loading calendars: $e');
       if (mounted) {
@@ -55,27 +59,55 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
       appBar: customAppBar(context, 'Calendar Selection'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Select a calendar category',
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                Expanded(child: _buildCalendarList()),
-              ],
-            ),
+          : _buildContent(),
     );
   }
 
+  /// Builds the main content of the screen.
+  /// Includes the header, scrollable calendar list, and location guide.
+  Widget _buildContent() {
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header section
+          _buildHeader(),
+          
+          // Calendar list - takes available space and scrolls if needed
+          Expanded(
+            child: _buildCalendarList(),
+          ),
+          
+          // Location guide - fixed at bottom
+          _buildLocationGuide(),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the header section with title text.
+  Widget _buildHeader() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 12),
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'Select a calendar category',
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the scrollable list of calendars.
+  /// Shows a message if no calendars are found.
   Widget _buildCalendarList() {
-    if (_viewModel.calendars.isEmpty) {
+    if (_calendarViewModel.calendars.isEmpty) {
       return const Center(
         child: Text('No calendars found. Please check your device settings.'),
       );
@@ -83,14 +115,16 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _viewModel.calendars.length,
+      itemCount: _calendarViewModel.calendars.length,
       itemBuilder: (context, index) {
-        final calendar = _viewModel.calendars[index];
+        final calendar = _calendarViewModel.calendars[index];
         return _buildCalendarButton(calendar, index);
       },
     );
   }
 
+  /// Builds a button for a specific calendar.
+  /// Each button has a unique color and displays the calendar name.
   Widget _buildCalendarButton(UserCalendar calendar, int index) {
     final color = _getCalendarColor(index);
     
@@ -105,12 +139,10 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: () {
-          // Navigate with only this specific calendar
-          navigateToCalendarView(calendar);
-        },
+        onPressed: () => navigateToCalendarView(calendar),
         child: Row(
           children: [
+            // Calendar initial avatar
             CircleAvatar(
               backgroundColor: Colors.white.withAlpha(25),
               child: Text(
@@ -123,6 +155,8 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
               ),
             ),
             const SizedBox(width: 16),
+            
+            // Calendar name
             Expanded(
               child: Text(
                 calendar.displayName ?? 'Unnamed Calendar',
@@ -139,12 +173,67 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
     );
   }
 
+  /// Builds the location format guide that appears at the bottom of the screen.
+  /// Provides instructions on how to format location information for navigation.
+  Widget _buildLocationGuide() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Text(
+            'Location Format Guide',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+
+          // Introduction
+          const Text(
+            'To enable accurate directions for your calendar events, ensure the location field follows this format:',
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 6),
+
+          // Format instructions
+          const Text(
+            'Format: [Building Code] ␣ [Floor] [Room]',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Example
+          const Text(
+            'Example: Hall Building, Floor 9, Room 27 → H 927',
+            style: TextStyle(fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Gets the first character of the calendar name to use as an initial.
+  /// Returns '?' if the calendar has no name.
   String _getCalendarInitial(UserCalendar calendar) {
     return (calendar.displayName?.isNotEmpty == true)
         ? calendar.displayName![0]
         : '?';
   }
   
+  /// Navigates to the calendar view screen with the selected calendar.
   void navigateToCalendarView(UserCalendar selectedCalendars) {
     Navigator.pushNamed(
       context,
@@ -153,6 +242,8 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
     );
   }
 
+  /// Returns a color for a calendar based on its index.
+  /// Creates a repeating pattern of colors for visual distinction.
   Color _getCalendarColor(int index) {
     // Generate a different color for each calendar
     final colors = [
