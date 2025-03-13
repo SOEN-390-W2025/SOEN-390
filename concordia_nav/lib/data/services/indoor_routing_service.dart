@@ -24,7 +24,8 @@ class IndoorRoutingService {
   static const roundingMinimumProximityMeters = 30.0;
 
   static final firstRoomNumberParsingExp = RegExp(r'([A-Za-z -]+)(.+)');
-  static final calendarRepository = CalendarRepository();
+  static CalendarRepository calendarRepository = CalendarRepository();
+  static MapService mapService = MapService();
 
   /// Takes a string (as might appear in a calendar event location field) and parse it
   /// into a room number.
@@ -53,16 +54,24 @@ class IndoorRoutingService {
   ///   "H6.55", "H655", "H 655" -> H, 6, 55
   ///   "EV2260" -> EV (building level precision only, no floor 22 exists)
   static Future<Location?> parseRoomNumber(String input) async {
-    // Split the input into alphabetic and numeric portions
     Location? returnLocation;
     var trimmed = input.trim();
-    var firstLevelMatch =
-        firstRoomNumberParsingExp.allMatches(trimmed).elementAt(0);
+
+    // Check if the regex matches the input
+    var matches = firstRoomNumberParsingExp.allMatches(trimmed);
+
+    if (matches.isEmpty) {
+      return returnLocation; // Return null or handle this case differently if needed
+    }
+
+    // Now, it's safe to access the first match
+    var firstLevelMatch = matches.elementAt(0);
+
     var buildingAbbrPortion = firstLevelMatch.group(1);
-    // If no alphabetic portion, can't give a location
     if (buildingAbbrPortion == null) {
       return returnLocation;
     }
+
     buildingAbbrPortion = buildingAbbrPortion.trim().toUpperCase();
     returnLocation =
         BuildingRepository.buildingByAbbreviation[buildingAbbrPortion];
@@ -70,8 +79,6 @@ class IndoorRoutingService {
       return returnLocation;
     }
 
-    // Deal with the floor - check we have a second portion of the input and building
-    // data for that building.
     var buildingData =
         await BuildingDataManager.getBuildingData(buildingAbbrPortion);
     var floorAndRoomPortion = firstLevelMatch.group(2);
@@ -128,7 +135,6 @@ class IndoorRoutingService {
   static Future<Location?> getRoundedGeolocation() async {
     List<ConcordiaBuilding>? searchCandidates;
     final Position userPosition;
-    final MapService mapService = MapService();
 
     try {
       final bool serviceEnabled = await mapService.isLocationServiceEnabled();
@@ -252,7 +258,8 @@ class IndoorRoutingService {
             currentBuilding, now, eventsToday, 0) ??
         await _iterateEventListWithTolerance(
             currentBuilding, now, eventsToday, -15) ??
-        await _iterateEventListWithTolerance(currentBuilding, now, eventsToday, 15);
+        await _iterateEventListWithTolerance(
+            currentBuilding, now, eventsToday, 15);
   }
 
   /// This method uses geolocation and calendar data to decide where the user is to the

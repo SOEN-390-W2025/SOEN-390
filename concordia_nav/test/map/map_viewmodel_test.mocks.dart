@@ -163,24 +163,6 @@ class MockMapService extends _i1.Mock implements _i4.MapService {
           as _i10.Future<_i2.BitmapDescriptor>);
 
   @override
-  _i10.Future<void> zoomIn() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomIn, []),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
-          )
-          as _i10.Future<void>);
-
-  @override
-  _i10.Future<void> zoomOut() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomOut, []),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
-          )
-          as _i10.Future<void>);
-
-  @override
   _i10.Future<bool> isLocationServiceEnabled() =>
       (super.noSuchMethod(
             Invocation.method(#isLocationServiceEnabled, []),
@@ -536,24 +518,6 @@ class MockMapViewModel extends _i1.Mock implements _i11.MapViewModel {
             returnValue: _i10.Future<bool>.value(false),
           )
           as _i10.Future<bool>);
-
-  @override
-  _i10.Future<void> zoomIn() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomIn, []),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
-          )
-          as _i10.Future<void>);
-
-  @override
-  _i10.Future<void> zoomOut() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomOut, []),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
-          )
-          as _i10.Future<void>);
 
   @override
   double getDistance(_i2.LatLng? point1, _i2.LatLng? point2) =>

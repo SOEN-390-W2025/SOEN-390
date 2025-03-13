@@ -359,24 +359,6 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as _i8.Future<bool>);
 
   @override
-  _i8.Future<void> zoomIn() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomIn, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> zoomOut() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomOut, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
   double getDistance(_i4.LatLng? point1, _i4.LatLng? point2) =>
       (super.noSuchMethod(
             Invocation.method(#getDistance, [point1, point2]),
