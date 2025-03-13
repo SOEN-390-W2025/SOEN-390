@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:provider/provider.dart';
-import '../../../data/domain-model/concordia_building.dart';
+import '../../../data/domain-model/concordia_campus.dart';
 import '../../../data/repositories/calendar.dart';
 import '../../../utils/building_viewmodel.dart';
 import '../../../utils/calendar_viewmodel.dart';
@@ -30,7 +30,6 @@ class _CalendarViewState extends State<CalendarView> {
   late BuildingViewModel _buildingViewModel;
 
   UserCalendarEvent? _selectedEvent;
-  String building = '';
   bool _floorPlanExists = false;
   bool _checkingFloorPlan = false;
   
@@ -60,50 +59,87 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   Future<void> _showEventBottomDrawer(UserCalendarEvent event) async {
-  // Set selected event first
-  setState(() {
-    _selectedEvent = event;
-    _checkingFloorPlan = true;
-    _floorPlanExists = false; // Reset initially
-  });
-  
-  // Start checking if floor plan exists asynchronously
-  bool floorPlanExists = false;
-  if (event.locationField != null) {
-    final String floorPlanPath = 'assets/maps/indoor/floorplans/${_getFloorPlanName(event.locationField!)}.svg';
-    floorPlanExists = await _indoorDirectionsViewModel.checkFloorPlanExists(floorPlanPath);
-  }
-  
-  // Update state before showing the bottom sheet
-  if (mounted) {
+    // Set selected event first
     setState(() {
-      _floorPlanExists = floorPlanExists;
-      _checkingFloorPlan = false;
+      _selectedEvent = event;
+      _checkingFloorPlan = true;
+      _floorPlanExists = false; // Reset initially
     });
-  }
-  
-  // Now show bottom sheet with the updated state
-  if (mounted) {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => _buildEventDetailsDrawer(),
-    ).then((_) {
-      // When the bottom sheet is closed, clear the selection
+    
+    // Start checking if floor plan exists asynchronously
+    bool floorPlanExists = false;
+    if (event.locationField != null) {
+      floorPlanExists = await _indoorDirectionsViewModel.areDirectionsAvailableForLocation(event.locationField);
+    }
+    
+    // Update state before showing the bottom sheet
+    if (mounted) {
       setState(() {
-        _selectedEvent = null;
+        _floorPlanExists = floorPlanExists;
+        _checkingFloorPlan = false;
       });
-    });
+    }
+    
+    // Now show bottom sheet with the updated state
+    if (mounted) {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (context) => _buildEventDetailsDrawer(),
+      ).then((_) {
+        // When the bottom sheet is closed, clear the selection
+        setState(() {
+          _selectedEvent = null;
+        });
+      });
+    }
   }
-}
+
+  // Navigate to appropriate directions view
+  void _navigateToDirections() {
+    if (_selectedEvent?.locationField == null) return;
+    
+    final building = _buildingViewModel.getBuildingFromLocation(_selectedEvent!.locationField!);
+    if (building == null) return; // Don't navigate if building is null
+    
+    dev.log('Navigating to directions for ${_selectedEvent?.locationField}');
+    
+    if (_floorPlanExists) {
+      // Navigate to indoor directions
+      Navigator.pushNamed(
+        context,
+        '/IndoorDirectionsView',
+        arguments: {
+          'building': building.name,
+          'sourceRoom': 'Your Location',
+          'endRoom': _selectedEvent?.locationField,
+        }
+      );
+    } else {
+      // Navigate to outdoor map
+      Navigator.pushNamed(
+        context,
+        '/OutdoorLocationMapView',
+        arguments: {
+          'campus': building.campus,
+          'building': building,
+        },
+      );
+    }
+  }
 
   Widget _buildEventDetailsDrawer() {
     // Calculate the height as a percentage of screen height
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomSheetHeight = screenHeight * 0.22;
+    
+    // Get building information early to use it for button state
+    final building = _selectedEvent?.locationField != null 
+        ? _buildingViewModel.getBuildingFromLocation(_selectedEvent!.locationField!) 
+        : null;
     
     return Container(
       height: bottomSheetHeight,
@@ -166,7 +202,7 @@ class _CalendarViewState extends State<CalendarView> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _formatEventTime(_selectedEvent),
+                            _calendarViewModel.formatEventTime(_selectedEvent),
                             style: Theme.of(context).textTheme.bodyLarge,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -193,7 +229,7 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Direction button with three states: loading, enabled, disabled
+              // Direction button with states: loading, enabled, disabled
               if (_checkingFloorPlan)
                 // Loading state
                 const SizedBox(
@@ -204,40 +240,28 @@ class _CalendarViewState extends State<CalendarView> {
                     child: CircularProgressIndicator(),
                   ),
                 )
-              else if (_selectedEvent?.locationField == null)
-                // No location state - disabled button
+              else if (_selectedEvent?.locationField == null || building == null)
+                // No location or building - disabled button
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
                   ),
                   icon: const Icon(Icons.directions, color: Colors.white),
                   label: const Text('Not Available', style: TextStyle(color: Colors.white)),
-                  onPressed: null, // No location, so button is disabled
+                  onPressed: null, // Disabled button
                 )
               else
-                // Normal state - enabled or disabled based on floor plan existence
+                // Enabled button
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _floorPlanExists 
-                      ? Theme.of(context).primaryColor 
-                      : Colors.grey,
+                    backgroundColor: Theme.of(context).primaryColor,
                   ),
                   icon: const Icon(Icons.directions, color: Colors.white),
-                  label: const Text('Direction', style: TextStyle(color: Colors.white)),
-                  onPressed: _floorPlanExists
-                    ? () {
-                        final building = _building(_selectedEvent!.locationField!);
-                        Navigator.pushNamed(
-                          context,
-                          '/IndoorDirectionsView',
-                          arguments:{
-                            'building': building?.name,
-                            'sourceRoom': 'Your Location',
-                            'endRoom': _selectedEvent?.locationField,
-                          }
-                        );
-                      }
-                    : null, // Button is disabled when floor plan doesn't exist
+                  label: const Text(
+                    'Directions',
+                    style: const TextStyle(color: Colors.white)
+                  ),
+                  onPressed: _navigateToDirections,
                 ),
             ],
           ),
@@ -348,56 +372,5 @@ class _CalendarViewState extends State<CalendarView> {
         ),
       ),
     );
-  }
-
-  // Helper functions
-  String _formatEventTime(UserCalendarEvent? event) {
-    if (event == null) return 'No time specified';
-
-    final startTime = event.localStart;
-    final endTime = event.localEnd;
-
-    final startFormat = '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}';
-    final endFormat = '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}';
-
-    return '$startFormat - $endFormat';
-  }
-
-  String _getFloorPlanName(String name) {
-    // Split the string by spaces
-    final List<String> parts = name.split(" ");
-    if (parts.length < 2) {
-      return name; // Return original if no space found
-    }
-    
-    building = parts[0];
-    final String roomNumber = parts[1];
-    
-    // Check if roomNumber starts with a letter
-    if (roomNumber.isNotEmpty && RegExp(r'[A-Za-z]').hasMatch(roomNumber[0])) {
-      // If roomNumber starts with a letter, return building + first two characters
-      if (roomNumber.length > 1) {
-        return building + roomNumber[0] + roomNumber[1];
-      } else {
-        return building + roomNumber[0];
-      }
-    } else {
-      // For regular cases, return building + first character of roomNumber
-      if (roomNumber.isNotEmpty) {
-        return building + roomNumber[0];
-      }
-    }
-    
-    return building; // Fallback if roomNumber is empty
-  }
-
-
-  ConcordiaBuilding? _building(String name) {
-    // Split the string by spaces
-    final List<String> parts = name.split(" ");
-
-    building = parts[0];
-
-    return _buildingViewModel.getBuildingByAbbreviation(building);
   }
 }

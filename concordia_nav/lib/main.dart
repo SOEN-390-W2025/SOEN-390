@@ -60,9 +60,14 @@ class MyApp extends StatelessWidget {
                       as ConcordiaBuilding,
                 ),
             '/BuildingSelection': (context) => const BuildingSelection(),
-            '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
-                campus:
-                    ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+            '/OutdoorLocationMapView': (context) {
+                final args = ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>;
+                return OutdoorLocationMapView(
+                  campus: args['campus'] as ConcordiaCampus,
+                  building: args['building'] as ConcordiaBuilding?,
+                );
+            },
             '/POIChoiceView': (context) => const POIChoiceView(),
             '/POIMapView': (context) => const POIMapView(),
             '/AccessibilityPage': (context) => const AccessibilityPage(),
