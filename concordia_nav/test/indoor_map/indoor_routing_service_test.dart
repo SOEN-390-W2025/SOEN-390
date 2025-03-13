@@ -134,7 +134,7 @@ void main() async {
     test('returns event location if there is an in-progress event', () async {
       // Arrange
       const mockBuilding = BuildingRepository.h;
-      var mockEventLocation = ConcordiaFloor("1", BuildingRepository.h);
+      final mockEventLocation = ConcordiaFloor("1", BuildingRepository.h);
       final now = DateTime.now();
       final eventsToday = [
         UserCalendarEvent(
@@ -217,17 +217,6 @@ void main() async {
           .thenAnswer((_) async => true);
       when(mockMapService.checkAndRequestLocationPermission())
           .thenAnswer((_) async => true);
-
-      // Arrange
-      const mockCalendarLocation = Location(
-        45.4971,
-        -73.5788,
-        'Room 101',
-        null,
-        null,
-        null,
-        null,
-      );
 
       // Act
       final result = await IndoorRoutingService.getCurrentClassroom();
