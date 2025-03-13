@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:provider/provider.dart';
-import '../../../data/domain-model/concordia_campus.dart';
 import '../../../data/repositories/calendar.dart';
 import '../../../utils/building_viewmodel.dart';
 import '../../../utils/calendar_viewmodel.dart';
