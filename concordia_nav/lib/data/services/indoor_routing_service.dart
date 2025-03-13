@@ -27,6 +27,50 @@ class IndoorRoutingService {
   static CalendarRepository calendarRepository = CalendarRepository();
   static MapService mapService = MapService();
 
+  static List<String?> _getFloorAndRoomNumber(String floorAndRoomPortion){
+    String? floorNumber;
+    String? roomNumber;
+    if (floorAndRoomPortion.contains('.')) {
+      var parts = floorAndRoomPortion.split('.');
+      floorNumber = parts[0].trim().toUpperCase();
+      roomNumber = parts.elementAtOrNull(1)?.trim();
+    } else {
+      if (floorAndRoomPortion.length == 3) {
+        floorNumber = floorAndRoomPortion.substring(0, 1);
+        roomNumber = floorAndRoomPortion.substring(1, 3);
+      } else if (floorAndRoomPortion.length == 4) {
+        floorNumber = floorAndRoomPortion.substring(0, 2);
+        roomNumber = floorAndRoomPortion.substring(2, 4);
+      }
+    }
+    return [floorNumber, roomNumber];
+  }
+
+  static ConcordiaFloor? _findConcordiaFloorCandidate(
+      BuildingData buildingData, String floorNumber) {
+    ConcordiaFloor? location;
+    for (ConcordiaFloor candidate in buildingData.floors) {
+      if (candidate.floorNumber == floorNumber) {
+        location = candidate;
+        break;
+      }
+    }
+    return location;
+  } 
+
+  static ConcordiaRoom? _findConcordiaRoomCandidate(
+      BuildingData buildingData, String floorNumber, String roomNumber){
+    ConcordiaRoom? room;
+    for (ConcordiaRoom candidate
+        in buildingData.roomsByFloor[floorNumber] ?? []) {
+      if (candidate.roomNumber == roomNumber) {
+        room = candidate;
+        break;
+      }
+    }
+    return room;
+  } 
+
   /// Takes a string (as might appear in a calendar event location field) and parse it
   /// into a room number.
   ///
@@ -86,40 +130,19 @@ class IndoorRoutingService {
       return returnLocation;
     }
 
-    String? floorNumber;
-    String? roomNumber;
-    if (floorAndRoomPortion.contains('.')) {
-      var parts = floorAndRoomPortion.split('.');
-      floorNumber = parts[0].trim().toUpperCase();
-      roomNumber = parts.elementAtOrNull(1)?.trim();
-    } else {
-      if (floorAndRoomPortion.length == 3) {
-        floorNumber = floorAndRoomPortion.substring(0, 1);
-        roomNumber = floorAndRoomPortion.substring(1, 3);
-      } else if (floorAndRoomPortion.length == 4) {
-        floorNumber = floorAndRoomPortion.substring(0, 2);
-        roomNumber = floorAndRoomPortion.substring(2, 4);
-      }
-    }
+    final floorRoomNumbers = _getFloorAndRoomNumber(floorAndRoomPortion);
+    String? floorNumber = floorRoomNumbers[0];
+    String? roomNumber = floorRoomNumbers[1];
 
     if (floorNumber != null) {
-      for (ConcordiaFloor candidate in buildingData.floors) {
-        if (candidate.floorNumber == floorNumber) {
-          returnLocation = candidate;
-          break;
-        }
-      }
+      ConcordiaFloor? floorLocation = _findConcordiaFloorCandidate(buildingData, floorNumber);
+      if (floorLocation != null){returnLocation = floorLocation;}
     }
 
     if (roomNumber != null &&
         buildingData.roomsByFloor.containsKey(floorNumber)) {
-      for (ConcordiaRoom candidate
-          in buildingData.roomsByFloor[floorNumber] ?? []) {
-        if (candidate.roomNumber == roomNumber) {
-          returnLocation = candidate;
-          break;
-        }
-      }
+      ConcordiaRoom? roomLocation = _findConcordiaRoomCandidate(buildingData, floorNumber!, roomNumber);
+      if (roomLocation != null){returnLocation = roomLocation;}
     }
 
     return returnLocation;
