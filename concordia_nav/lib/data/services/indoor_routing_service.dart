@@ -8,17 +8,145 @@ import '../domain-model/concordia_building.dart';
 import '../domain-model/concordia_campus.dart';
 import '../domain-model/concordia_floor.dart';
 import '../domain-model/concordia_floor_point.dart';
+import '../domain-model/concordia_room.dart';
 import '../domain-model/connection.dart';
 import '../domain-model/floor_routable_point.dart';
 import '../domain-model/indoor_route.dart';
 import '../domain-model/location.dart';
 import '../repositories/building_data.dart';
+import '../repositories/building_data_manager.dart';
 import '../repositories/building_repository.dart';
+import '../repositories/calendar.dart';
 import '../repositories/indoor_feature_repository.dart';
 import 'map_service.dart';
 
 class IndoorRoutingService {
   static const roundingMinimumProximityMeters = 30.0;
+
+  static final firstRoomNumberParsingExp = RegExp(r'([A-Za-z -]+)(.+)');
+  static CalendarRepository calendarRepository = CalendarRepository();
+  static MapService mapService = MapService();
+
+  static List<String?> _getFloorAndRoomNumber(String floorAndRoomPortion){
+    String? floorNumber;
+    String? roomNumber;
+    if (floorAndRoomPortion.contains('.')) {
+      var parts = floorAndRoomPortion.split('.');
+      floorNumber = parts[0].trim().toUpperCase();
+      roomNumber = parts.elementAtOrNull(1)?.trim();
+    } else {
+      if (floorAndRoomPortion.length == 3) {
+        floorNumber = floorAndRoomPortion.substring(0, 1);
+        roomNumber = floorAndRoomPortion.substring(1, 3);
+      } else if (floorAndRoomPortion.length == 4) {
+        floorNumber = floorAndRoomPortion.substring(0, 2);
+        roomNumber = floorAndRoomPortion.substring(2, 4);
+      }
+    }
+    return [floorNumber, roomNumber];
+  }
+
+  static ConcordiaFloor? _findConcordiaFloorCandidate(
+      BuildingData buildingData, String floorNumber) {
+    ConcordiaFloor? location;
+    for (ConcordiaFloor candidate in buildingData.floors) {
+      if (candidate.floorNumber == floorNumber) {
+        location = candidate;
+        break;
+      }
+    }
+    return location;
+  } 
+
+  static ConcordiaRoom? _findConcordiaRoomCandidate(
+      BuildingData buildingData, String floorNumber, String roomNumber){
+    ConcordiaRoom? room;
+    for (ConcordiaRoom candidate
+        in buildingData.roomsByFloor[floorNumber] ?? []) {
+      if (candidate.roomNumber == roomNumber) {
+        room = candidate;
+        break;
+      }
+    }
+    return room;
+  } 
+
+  /// Takes a string (as might appear in a calendar event location field) and parse it
+  /// into a room number.
+  ///
+  /// - first trim whitespace
+  /// - take all the letters and space characters off the left, trim, and match to a
+  ///   building abbreviation (null will be returned if this fails)
+  /// - then, if the rest of the string has a dot:
+  ///   - split the string on the first dot (only)
+  ///   - the left portion of the split is the floor and the right portion is the room
+  ///     number
+  /// - else (no dot):
+  ///   - if the rest of the string is 3 chars, first char is the floor and right 2
+  ///     chars are the room number
+  ///   - if the rest of the string is 4 chars, first 2 chars is the floor and right 2
+  ///     chars are the room number
+  ///
+  /// The canonical format is BBX.Y where BB is building abbreviation, X is floorNo
+  /// and Y is roomNumber. But this supports some other common formats.
+  ///
+  /// If there is room-level data for the floor, this will be returned, if not, only
+  /// the floor will be returned
+  ///
+  /// Examples:
+  ///   "EV2.260", "ev 2.260", "EV-2.260" -> EV, 2, 260
+  ///   "H6.55", "H655", "H 655" -> H, 6, 55
+  ///   "EV2260" -> EV (building level precision only, no floor 22 exists)
+  static Future<Location?> parseRoomNumber(String input) async {
+    Location? returnLocation;
+    var trimmed = input.trim();
+
+    // Check if the regex matches the input
+    var matches = firstRoomNumberParsingExp.allMatches(trimmed);
+
+    if (matches.isEmpty) {
+      return returnLocation; // Return null or handle this case differently if needed
+    }
+
+    // Now, it's safe to access the first match
+    var firstLevelMatch = matches.elementAt(0);
+
+    var buildingAbbrPortion = firstLevelMatch.group(1);
+    if (buildingAbbrPortion == null) {
+      return returnLocation;
+    }
+
+    buildingAbbrPortion = buildingAbbrPortion.trim().toUpperCase();
+    returnLocation =
+        BuildingRepository.buildingByAbbreviation[buildingAbbrPortion];
+    if (returnLocation == null) {
+      return returnLocation;
+    }
+
+    var buildingData =
+        await BuildingDataManager.getBuildingData(buildingAbbrPortion);
+    var floorAndRoomPortion = firstLevelMatch.group(2);
+    if (floorAndRoomPortion == null || buildingData == null) {
+      return returnLocation;
+    }
+
+    final floorRoomNumbers = _getFloorAndRoomNumber(floorAndRoomPortion);
+    String? floorNumber = floorRoomNumbers[0];
+    String? roomNumber = floorRoomNumbers[1];
+
+    if (floorNumber != null) {
+      ConcordiaFloor? floorLocation = _findConcordiaFloorCandidate(buildingData, floorNumber);
+      if (floorLocation != null){returnLocation = floorLocation;}
+    }
+
+    if (roomNumber != null &&
+        buildingData.roomsByFloor.containsKey(floorNumber)) {
+      ConcordiaRoom? roomLocation = _findConcordiaRoomCandidate(buildingData, floorNumber!, roomNumber);
+      if (roomLocation != null){returnLocation = roomLocation;}
+    }
+
+    return returnLocation;
+  }
 
   /// Returns at minimum a Location object with latitide and longitude based on
   /// the device location. If the device is within the minimum rounding
@@ -27,10 +155,9 @@ class IndoorRoutingService {
   ///
   /// Returns null if permission is denied or location services are not
   /// available.
-  static Future<Location?> getRoundedLocation() async {
+  static Future<Location?> getRoundedGeolocation() async {
     List<ConcordiaBuilding>? searchCandidates;
     final Position userPosition;
-    final MapService mapService = MapService();
 
     try {
       final bool serviceEnabled = await mapService.isLocationServiceEnabled();
@@ -38,11 +165,11 @@ class IndoorRoutingService {
           await mapService.checkAndRequestLocationPermission();
       // check if location services are enabled
       if (!serviceEnabled) {
-        return Future.error('Location services are disabled.');
+        return null;
       }
       // check if location permissions are granted
       if (!hasPermission) {
-        return Future.error('Location permissions are denied.');
+        return null;
       }
 
       // Get the user's current location
@@ -100,6 +227,95 @@ class IndoorRoutingService {
       return Location(userPosition.latitude, userPosition.longitude,
           "Current Location", null, null, null, null);
     }
+  }
+
+  /// Iterates the events list. Returns a location if there is an event happening now or
+  /// within the specified tolerance of minutes and it has a parseable location. Takes
+  /// a now parameter to avoid inconsistent behaviour due to the clock ticking during
+  /// the execution of the method.
+  /// Otherwise returns null.
+  static Future<Location?> _iterateEventListWithTolerance(
+      ConcordiaBuilding? currentBuilding,
+      DateTime now,
+      List<UserCalendarEvent> eventsToday,
+      int minutesTolerance) async {
+    for (UserCalendarEvent event in eventsToday) {
+      var startTime = event.localStart;
+      var endTime = event.localEnd;
+      if (minutesTolerance > 0) {
+        startTime = startTime.subtract(Duration(minutes: minutesTolerance));
+      }
+      if (minutesTolerance < 0) {
+        endTime = endTime.add(Duration(minutes: minutesTolerance));
+      }
+      if (startTime.isBefore(now) &&
+          endTime.isAfter(now) &&
+          event.locationField != null) {
+        var eventLocation = await parseRoomNumber(event.locationField!);
+        if (eventLocation != null) return eventLocation;
+      }
+    }
+    return null;
+  }
+
+  /// If there is an in-progress calendar event, this will return the location of that
+  /// event if there is a parseable one (as above) or null if not.
+  ///
+  /// If there is no in-progress calendar event, it will first look back 15 minutes to
+  /// see if that event is parseable (eg. class ran overtime).
+  ///
+  /// If no previous event location was found, it will then look ahead 15 minutes to
+  /// see if that event is parseable for a location.
+  ///
+  /// If no location is found from these events, it will return null.
+  ///
+  /// If a ConcordiaBuilding is passed, only locations in this building will be accepted
+  /// in doing the evaluation.
+  static Future<Location?> getProximalCalendarEventLocation(
+      ConcordiaBuilding? currentBuilding) async {
+    // TODO we need to maintain some state for which calendars the user has selected
+    // in the settings. Right now we are looking at all calendars.
+    var eventsToday = await calendarRepository.getEventsOnLocalDate(null, 0);
+    var now = DateTime.now();
+    return await _iterateEventListWithTolerance(
+            currentBuilding, now, eventsToday, 0) ??
+        await _iterateEventListWithTolerance(
+            currentBuilding, now, eventsToday, -15) ??
+        await _iterateEventListWithTolerance(
+            currentBuilding, now, eventsToday, 15);
+  }
+
+  /// This method uses geolocation and calendar data to decide where the user is to the
+  /// room level.
+  ///
+  /// If both geolocation and calendar are available/return a location, and the calendar
+  /// location is in the same building as the geolocation, it will return the calendar
+  /// event location.
+  ///
+  /// If both geolocation and calendar are available but disagree, it will return the
+  /// building-rounded geolocation.
+  ///
+  /// If either of the two sources are not available, it will return from the other
+  /// source.
+  ///
+  /// If neither of the two sources are available, it will return null.
+  static Future<Location?> getCurrentClassroom() async {
+    Location? geolocation = await getRoundedGeolocation();
+
+    if (geolocation != null && geolocation.runtimeType == ConcordiaBuilding) {
+      var calendarLocation = await getProximalCalendarEventLocation(
+          geolocation as ConcordiaBuilding);
+      if (calendarLocation != null) {
+        return calendarLocation;
+      }
+    }
+
+    if (geolocation != null) return geolocation;
+
+    var calendarLocation = await getProximalCalendarEventLocation(null);
+    if (calendarLocation != null) return calendarLocation;
+
+    return null;
   }
 
   static IndoorRoute _getDifferentBuildingRoute(
