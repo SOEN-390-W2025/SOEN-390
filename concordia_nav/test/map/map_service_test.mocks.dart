@@ -268,24 +268,6 @@ class MockMapService extends _i1.Mock implements _i7.MapService {
           as _i5.Future<_i2.BitmapDescriptor>);
 
   @override
-  _i5.Future<void> zoomIn() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomIn, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> zoomOut() =>
-      (super.noSuchMethod(
-            Invocation.method(#zoomOut, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
   _i5.Future<bool> isLocationServiceEnabled() =>
       (super.noSuchMethod(
             Invocation.method(#isLocationServiceEnabled, []),

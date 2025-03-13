@@ -51,7 +51,7 @@ class CalendarViewModel extends ChangeNotifier {
       }
       
       // Directly load events for the selected calendars
-      final startDate = DateTime.now().toUtc().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final startDate = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
       _events = await _calendarRepository.getEvents(
         _selectedCalendars, 
         const Duration(days: 7),

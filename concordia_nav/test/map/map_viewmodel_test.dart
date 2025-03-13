@@ -799,22 +799,6 @@ void main() {
       verify(mockMapService.setMapController(mockController)).called(1);
     });
 
-    test('zoomIn should be called', () async {
-      // Act
-      await mapViewModel.zoomIn();
-
-      // Assert
-      verify(mockMapService.zoomIn()).called(1);
-    });
-
-    test('zoomOut should be called', () async {
-      // Act
-      await mapViewModel.zoomOut();
-
-      // Assert
-      verify(mockMapService.zoomOut()).called(1);
-    });
-
     test('getCampusPolygonsAndLabels should return values from map service',
         () async {
       // Arrange
