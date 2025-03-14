@@ -1,6 +1,8 @@
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
+import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
+import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart';
 import 'package:device_calendar/src/models/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,8 +10,9 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'calendar_repository_test.mocks.dart';
+import 'calendar_viewmdeol_test.mocks.dart';
 
-@GenerateMocks([CalendarRepository])
+@GenerateMocks([CalendarRepository, CalendarSelectionViewModel])
 void main() {
   late CalendarRepository calendarRepository;
   late MockDeviceCalendarPlugin mockPlugin;
@@ -84,18 +87,25 @@ void main() {
       },
     );
 
-    testWidgets('navigates to CalendarView when permission is granted',
+    testWidgets('navigates to CalendarSelectionView when permission is granted',
         (WidgetTester tester) async {
+      final mockSelectionViewModel = MockCalendarSelectionViewModel(); 
+      final calendar1 = UserCalendar('1', 'Calendar 1');
+      final calendar2 = UserCalendar('2', 'Calendar 2');
+      final calendars = [calendar1, calendar2];
       when(mockPlugin.hasPermissions())
           .thenAnswer((_) async => Result<bool>()..data = true);
       when(mockPlugin.requestPermissions())
           .thenAnswer((_) async => Result<bool>()..data = true);
+      when(mockSelectionViewModel.loadCalendars()).thenAnswer((_) async => {});
+      when(mockSelectionViewModel.calendars).thenReturn(calendars);
 
       // define routes needed for this test
       final routes = {
         '/': (context) =>
             CalendarLinkView(calendarRepository: calendarRepository),
-        '/CalendarView': (context) => const CalendarView(),
+        '/CalendarSelectionView': (context) => CalendarSelectionView(
+              calendarViewModel: mockSelectionViewModel),
       };
 
       // Build the CalendarLinkView widget
@@ -107,7 +117,7 @@ void main() {
       await tester.tap(find.text('Link'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(CalendarView), findsOneWidget);
+      expect(find.text('Calendar Selection'), findsOneWidget);
     });
 
     testWidgets('displays message when there is currently no calendar',

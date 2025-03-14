@@ -1,6 +1,7 @@
+import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
-import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
+import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
 
 import '../calendar/calendar_repository_test.mocks.dart';
+import '../calendar/calendar_viewmdeol_test.mocks.dart';
 
 void main() {
   group('SettingsPage', () {
@@ -19,7 +21,7 @@ void main() {
     });
 
     testWidgets(
-      'navigates to CalendarView when permissions are granted',
+      'navigates to CalendarSelectionView when permissions are granted',
       (WidgetTester tester) async {
         // Arrange: Mock hasPermissions to return true
         when(mockPlugin.hasPermissions())
@@ -27,10 +29,19 @@ void main() {
         when(mockPlugin.requestPermissions())
             .thenAnswer((_) async => Result<bool>()..data = true);
 
+        // Arrange: CalendarSelectionViewModel mock
+        final mockSelectionViewModel = MockCalendarSelectionViewModel(); 
+        final calendar1 = UserCalendar('1', 'Calendar 1');
+        final calendar2 = UserCalendar('2', 'Calendar 2');
+        final calendars = [calendar1, calendar2];
+        when(mockSelectionViewModel.loadCalendars()).thenAnswer((_) async => {});
+        when(mockSelectionViewModel.calendars).thenReturn(calendars);
+
         // define routes needed for this test
         final routes = {
           '/': (context) => SettingsPage(plugin: mockPlugin),
-          '/CalendarView': (context) => const CalendarView(),
+          '/CalendarSelectionView': (context) => CalendarSelectionView(
+              calendarViewModel: mockSelectionViewModel),
         };
 
         // Build the SettingsPage widget
@@ -43,9 +54,9 @@ void main() {
         await tester.tap(find.text('My calendar'));
         await tester.pumpAndSettle(); // Wait for the navigation to complete
 
-        // Assert that Navigator.push was called and navigated to CalendarView
+        // Assert that Navigator.push was called and navigated to CalendarSelectionView
         verify(mockPlugin.hasPermissions()).called(1);
-        expect(find.byType(CalendarView), findsOneWidget);
+        expect(find.byType(CalendarSelectionView), findsOneWidget);
       },
     );
 

@@ -3,25 +3,27 @@
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 import '../../../data/repositories/calendar.dart';
-import '../../../utils/calendar_selction_viewmodel.dart';
+import '../../../utils/calendar_selection_viewmodel.dart';
 import '../../../widgets/custom_appbar.dart';
 
 /// A view that allows users to select from available calendars.
 /// Displays a list of all user calendars with a location format guide at the bottom.
 class CalendarSelectionView extends StatefulWidget {
-  const CalendarSelectionView({super.key});
+  final CalendarSelectionViewModel? calendarViewModel;
+  const CalendarSelectionView({super.key, this.calendarViewModel});
 
   @override
   State<CalendarSelectionView> createState() => _CalendarSelectionViewState();
 }
 
 class _CalendarSelectionViewState extends State<CalendarSelectionView> {
-  final CalendarSelectionViewModel _calendarViewModel = CalendarSelectionViewModel();
+  late CalendarSelectionViewModel _calendarViewModel;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _calendarViewModel = widget.calendarViewModel ?? CalendarSelectionViewModel();
     _loadCalendars();
   }
 
