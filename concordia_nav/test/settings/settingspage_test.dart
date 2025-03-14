@@ -30,7 +30,7 @@ void main() {
             .thenAnswer((_) async => Result<bool>()..data = true);
 
         // Arrange: CalendarSelectionViewModel mock
-        final mockSelectionViewModel = MockCalendarSelectionViewModel(); 
+        final MockCalendarSelectionViewModel mockSelectionViewModel = MockCalendarSelectionViewModel(); 
         final calendar1 = UserCalendar('1', 'Calendar 1');
         final calendar2 = UserCalendar('2', 'Calendar 2');
         final calendars = [calendar1, calendar2];
