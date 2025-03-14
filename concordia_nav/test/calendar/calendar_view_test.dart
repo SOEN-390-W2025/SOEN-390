@@ -10,7 +10,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'calendar_repository_test.mocks.dart';
-import 'calendar_selection_viewmodel_test.mocks.dart';
+import 'calendar_view_test.mocks.dart';
 
 @GenerateMocks([CalendarRepository, CalendarSelectionViewModel])
 void main() {

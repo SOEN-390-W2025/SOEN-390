@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
 
 import '../calendar/calendar_repository_test.mocks.dart';
-import '../calendar/calendar_selection_viewmodel_test.mocks.dart';
+import '../calendar/calendar_view_test.mocks.dart';
 
 void main() {
   group('SettingsPage', () {
