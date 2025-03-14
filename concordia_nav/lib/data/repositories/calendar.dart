@@ -73,14 +73,16 @@ class CalendarRepository {
   /// Retrieves events from the list of selected calendars for the given
   /// duration.
   Future<List<UserCalendarEvent>> getEvents(
-      List<UserCalendar> selectedCalendars,
+      List<UserCalendar>? selectedCalendars,
       Duration timeSpan,
       DateTime? utcStart) async {
+    // If selected calendars not passed, use all calendars
+    final calendars = selectedCalendars ?? await getUserCalendars();
     final List<UserCalendarEvent> returnData = [];
     final startDate = (utcStart ?? DateTime.now().toUtc());
     final endDate = startDate.add(timeSpan);
 
-    for (var userCalendar in selectedCalendars) {
+    for (var userCalendar in calendars) {
       final systemCalendarEvents = await plugin.retrieveEvents(
           userCalendar.calendarId,
           RetrieveEventsParams(startDate: startDate, endDate: endDate));
@@ -111,7 +113,7 @@ class CalendarRepository {
   /// Helper method to get events on a given local date from today. Pass 0 to
   /// get today's events.
   Future<List<UserCalendarEvent>> getEventsOnLocalDate(
-      List<UserCalendar> selectedCalendars, int offset) async {
+      List<UserCalendar>? selectedCalendars, int offset) async {
     var startDate = DateTime.now().add(Duration(days: offset));
     startDate =
         DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0, 0, 0);

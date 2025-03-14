@@ -72,31 +72,6 @@ void main() {
       expect(find.byType(SvgPicture), findsOneWidget);
     });
 
-    testWidgets('Tapping zoom buttons changes scale',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: yourLocationString,
-            building: 'Hall Building',
-            endRoom: 'H110',
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final Finder zoomInButton = find.byIcon(Icons.add);
-      final Finder zoomOutButton = find.byIcon(Icons.remove);
-
-      await tester.tap(zoomInButton);
-      await tester.pumpAndSettle();
-
-      await tester.tap(zoomOutButton);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(SvgPicture), findsOneWidget);
-    });
-
     testWidgets('Start button exists and can be tapped',
         (WidgetTester tester) async {
       await tester.pumpWidget(

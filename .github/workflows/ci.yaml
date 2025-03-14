@@ -114,13 +114,13 @@ jobs:
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
-      
+
     # TODO: Change the first script from integration to record when the android emulation is fixed.
     - name: Set Integration Test Script Variable
       id: set-script
       run: |
-        if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
-          echo "integration-test-script=bash -c \"set -o pipefail && rps install --release && rps test record 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
+        if [ "${{ github.ref }}" == "refs/heads/main" ] || ( [ "${{ github.event_name }}" == "pull_request" ] && [ "${{ github.base_ref }}" == "main" ] ); then
+          echo "integration-test-script=bash -c \"set -o pipefail && rps install --release && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
         else
           echo "integration-test-script=bash -c \"set -o pipefail && rps install --debug && rps test integration 2>&1 | grep -v -E '(UNSUPPORTED: curExtension->sType|VkDevice|VkInstance)'\"" >> $GITHUB_ENV
         fi

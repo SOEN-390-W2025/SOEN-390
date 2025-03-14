@@ -8,7 +8,6 @@ import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
 import '../../widgets/indoor/location_info_widget.dart';
-import '../../widgets/zoom_buttons.dart';
 import 'floor_plan_widget.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import 'dart:developer' as dev;
@@ -50,9 +49,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   late String displayFloor;
   static bool isMultiFloor = false;
   Timer? _timer;
-
-  final _maxScale = 1.5;
-  final _minScale = 0.6;
 
   late IndoorMapViewModel _indoorMapViewModel;
   late IndoorDirectionsViewModel _directionsViewModel;
@@ -236,46 +232,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                           disability = !disability;
                           _initializeRoute();
                         },
-                      ),
-                    ),
-                    Positioned(
-                      top: 76,
-                      right: 16,
-                      child: Column(
-                        children: [
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final double currentScale =
-                                  currentMatrix.getMaxScaleOnAxis();
-                              if (currentScale < _maxScale) {
-                                final Matrix4 zoomedInMatrix = currentMatrix
-                                  ..scale(1.2);
-                                _indoorMapViewModel.animateTo(zoomedInMatrix);
-                              }
-                            },
-                            icon: Icons.add,
-                            isZoomInButton: true,
-                          ),
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final double currentScale =
-                                  currentMatrix.getMaxScaleOnAxis();
-                              if (currentScale > _minScale) {
-                                final Matrix4 zoomedOutMatrix = currentMatrix
-                                  ..scale(0.8);
-                                _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                              }
-                            },
-                            icon: Icons.remove,
-                            isZoomInButton: false,
-                          ),
-                        ],
                       ),
                     ),
                   ],

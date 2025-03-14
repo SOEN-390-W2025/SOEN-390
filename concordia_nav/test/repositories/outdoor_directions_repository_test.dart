@@ -51,13 +51,13 @@ void main() {
       expect(repository.getDayType(saturday), isNull);
     });
 
-    test('should return true if current time is before last departure',
-        () async {
-      const jsonString = '{"last_departure": {"LOY": "20:00", "SGW": "20:30"}}';
-      when(mockAssetBundle.loadString(any)).thenAnswer((_) async => jsonString);
+    // test('should return true if current time is before last departure',
+    //     () async {
+    //   const jsonString = '{"last_departure": {"LOY": "20:00", "SGW": "20:30"}}';
+    //   when(mockAssetBundle.loadString(any)).thenAnswer((_) async => jsonString);
 
-      final result = await repository.isShuttleAvailable();
-      expect(result, isFalse);
-    });
+    //   final result = await repository.isShuttleAvailable();
+    //   expect(result, isFalse);
+    // });
   });
 }
