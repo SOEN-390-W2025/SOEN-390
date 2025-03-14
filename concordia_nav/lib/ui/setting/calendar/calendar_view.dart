@@ -258,7 +258,7 @@ class _CalendarViewState extends State<CalendarView> {
                   icon: const Icon(Icons.directions, color: Colors.white),
                   label: const Text(
                     'Directions',
-                    style: const TextStyle(color: Colors.white)
+                    style: TextStyle(color: Colors.white)
                   ),
                   onPressed: _navigateToDirections,
                 ),
