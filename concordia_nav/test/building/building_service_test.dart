@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/data/services/building_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-void main () {
+void main() {
   group('test building service', () {
     final BuildingService buildingService = BuildingService();
     test('getAllBuildings retrieves all buildings', () {
@@ -52,9 +52,12 @@ void main () {
       expect(result, BuildingRepository.cc);
     });
 
-    test('getBuildingNamesForCampus returns list of names of buildings in campus', () {
+    test(
+        'getBuildingNamesForCampus returns list of names of buildings in campus',
+        () {
       // get a list of names of buildings in sgw campus
-      var result = buildingService.getBuildingNamesForCampus(ConcordiaCampus.sgw);
+      var result =
+          buildingService.getBuildingNamesForCampus(ConcordiaCampus.sgw);
 
       // check that we got the right names of buildings in sgw
       expect(result, isA<List<String>>());
@@ -64,13 +67,14 @@ void main () {
       // get a list of names of buildings in loy campus
       result = buildingService.getBuildingNamesForCampus(ConcordiaCampus.loy);
 
-     // check that we got the right names of buildings in loy
+      // check that we got the right names of buildings in loy
       expect(result, isA<List<String>>());
       expect(result.contains('Faubourg Tower'), false);
       expect(result.contains('Loyola Chapel'), true);
 
       // get empty list for invalid campus
-      const downtown = ConcordiaCampus(45.50633503668689, -73.57066983419425, "downtown", null, null, null, null, 'dtn');
+      const downtown = ConcordiaCampus(45.50633503668689, -73.57066983419425,
+          "downtown", null, null, null, null, 'dtn');
       result = buildingService.getBuildingNamesForCampus(downtown);
 
       // check that we get empty list
@@ -83,33 +87,36 @@ void main () {
 
       // check that we got the right location
       expect(result, isA<LatLng>());
-      expect(result, LatLng(BuildingRepository.mb.lat, BuildingRepository.mb.lng));
+      expect(
+          result, LatLng(BuildingRepository.mb.lat, BuildingRepository.mb.lng));
 
       // get location of FC building
       result = buildingService.getBuildingLocationByAbbreviation('FC');
 
       // check that we got the right location
       expect(result, isA<LatLng>());
-      expect(result, LatLng(BuildingRepository.fc.lat, BuildingRepository.fc.lng));
+      expect(
+          result, LatLng(BuildingRepository.fc.lat, BuildingRepository.fc.lng));
     });
 
     test('getbuildingByName returns a building by its name', () {
       // get VL building by its name
-      var result = BuildingService.getbuildingByName('Vanier Library');
+      var result = BuildingService.getBuildingByName('Vanier Library');
 
       // check that we got the right building
       expect(result, isA<ConcordiaBuilding>());
-      expect(result,BuildingRepository.vl);
+      expect(result, BuildingRepository.vl);
 
       // get GM builing by its name
-      result = BuildingService.getbuildingByName('GM Building');
+      result = BuildingService.getBuildingByName('GM Building');
 
       // check that we got the right building
       expect(result, isA<ConcordiaBuilding>());
       expect(result, BuildingRepository.gm);
     });
 
-    test('getbuildingByAbbreviation returns a building by its abbreviation', () {
+    test('getbuildingByAbbreviation returns a building by its abbreviation',
+        () {
       // get VL building by its abbreviation
       var result = BuildingService.getbuildingByAbbreviation('VL');
 

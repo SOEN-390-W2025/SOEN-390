@@ -16,9 +16,17 @@ class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
   final ConcordiaBuilding? building;
   final MapViewModel? mapViewModel;
+  final bool hideAppBar;
+  final bool hideInputs;
 
-  const OutdoorLocationMapView(
-      {super.key, required this.campus, this.building, this.mapViewModel});
+  const OutdoorLocationMapView({
+    super.key,
+    required this.campus,
+    this.building,
+    this.mapViewModel,
+    this.hideAppBar = false,
+    this.hideInputs = false,
+  });
 
   @override
   State<OutdoorLocationMapView> createState() => OutdoorLocationMapViewState();
@@ -39,6 +47,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   double? bottomInset = 0;
   bool first = false;
 
+  final _yourLocationString = "Your Location";
+
   void getSearchList() {
     final buildings = _buildingViewModel.getBuildings();
     for (var building in buildings) {
@@ -47,8 +57,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       }
     }
   }
-
-  final _yourLocationString = "Your Location";
 
   void checkLocationPermission() {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
@@ -80,19 +88,16 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     _destinationController =
         TextEditingController(text: widget.building?.name ?? '');
     _currentCampus = widget.campus;
-
     _initialCameraPosition =
         _mapViewModel.getInitialCameraPosition(_currentCampus);
-
-    // Check for location permission
     checkLocationPermission();
-
-    // Populate search list with buildings
     getSearchList();
-
     WidgetsBinding.instance.addObserver(this);
-    if (_destinationController.text != '') {
-      first = true;
+
+    if (_destinationController.text.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updatePath();
+      });
     }
   }
 
@@ -176,16 +181,17 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CompactSearchCardWidget(
-              originController: _sourceController,
-              destinationController: _destinationController,
-              mapViewModel: _mapViewModel,
-              searchList: searchList,
-              onDirectionFetched: () {
-                first = false;
-                setState(() {}); // Refresh the page
-              },
-            ),
+            if (!widget.hideInputs)
+              CompactSearchCardWidget(
+                originController: _sourceController,
+                destinationController: _destinationController,
+                mapViewModel: _mapViewModel,
+                searchList: searchList,
+                onDirectionFetched: () {
+                  first = false;
+                  setState(() {});
+                },
+              ),
             if (showModeChips)
               Container(
                 color: Colors.white,
@@ -273,15 +279,17 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(
-        context,
-        widget.building == null ? 'Outdoor Location' : widget.campus.name,
-      ),
+      appBar: (widget.hideAppBar)
+          ? null
+          : customAppBar(
+              context,
+              widget.building == null ? widget.campus.name : widget.campus.name,
+            ),
       body: Stack(
         children: [
           _buildMap(),
           _buildTopPanel(),
-          if (first) _visibleKeyboardWidget(),
+          _visibleKeyboardWidget(),
           _buildBuildingInfoDrawer(),
         ],
       ),

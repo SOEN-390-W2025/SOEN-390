@@ -6,6 +6,7 @@ import '../../widgets/select_indoor_destination.dart';
 import '../../widgets/selectable_list.dart';
 import '../indoor_location/indoor_location_view.dart';
 import 'classroom_selection.dart';
+import '../next_class/next_class_directions_preview.dart';
 
 class FloorSelection extends StatefulWidget {
   final String building;
@@ -13,7 +14,17 @@ class FloorSelection extends StatefulWidget {
   final bool isSource;
   final bool isSearch;
   final bool isDisability;
-  const FloorSelection({super.key, required this.building, this.endRoom,  this.isSource = false, this.isSearch = false , this.isDisability = false});
+  final NavigationRouteType routeType;
+
+  const FloorSelection({
+    super.key,
+    required this.building,
+    this.endRoom,
+    this.isSource = false,
+    this.isSearch = false,
+    this.isDisability = false,
+    this.routeType = NavigationRouteType.indoor,
+  });
 
   @override
   FloorSelectionState createState() => FloorSelectionState();
@@ -32,7 +43,6 @@ class FloorSelectionState extends State<FloorSelection> {
     searchController.addListener(filterFloors);
   }
 
-  // Filter the list of floors based on the search text
   void filterFloors() {
     setState(() {
       filteredFloors = allFloors
@@ -61,7 +71,12 @@ class FloorSelectionState extends State<FloorSelection> {
             iconColor: Theme.of(context).primaryColor,
           ),
           if (!widget.isSearch)
-            SelectIndoorDestination(building: widget.building, isSource: widget.isSource, endRoom: widget.endRoom, isDisability: widget.isDisability),
+            SelectIndoorDestination(
+              building: widget.building,
+              isSource: widget.isSource,
+              endRoom: widget.endRoom,
+              isDisability: widget.isDisability,
+            ),
           FutureBuilder<List<String>>(
             future: floorsFuture,
             builder: (context, snapshot) {
@@ -69,18 +84,11 @@ class FloorSelectionState extends State<FloorSelection> {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return const Expanded(
-                  child: Center(
-                    child: Text('Not available')
-                  )
-                );
+                    child: Center(child: Text('Not available')));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Expanded(
-                  child: Center(
-                    child: Text("No floors available")
-                  )
-                );
+                    child: Center(child: Text("No floors available")));
               } else {
-                // Update the floors list only once
                 if (allFloors.isEmpty) {
                   allFloors = snapshot.data!;
                   filteredFloors = List.from(allFloors);
@@ -91,18 +99,19 @@ class FloorSelectionState extends State<FloorSelection> {
                   title: 'Select a floor',
                   searchController: searchController,
                   onItemSelected: (floor) {
-                     if (widget.isSearch) {
+                    if (widget.isSearch) {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => IndoorLocationView(
-                            building: BuildingViewModel().getBuildingByName(widget.building)!,
+                            building: BuildingViewModel()
+                                .getBuildingByName(widget.building)!,
                             floor: floor.replaceAll('Floor ', ''),
                           ),
                         ),
                         (route) => route.isFirst,
                       );
-                     } else {
+                    } else {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -111,7 +120,8 @@ class FloorSelectionState extends State<FloorSelection> {
                             floor: floor.toString(),
                             currentRoom: widget.endRoom,
                             isSource: widget.isSource,
-                            isDisability: widget.isDisability
+                            isDisability: widget.isDisability,
+                            routeType: widget.routeType,
                           ),
                         ),
                       );
@@ -121,7 +131,7 @@ class FloorSelectionState extends State<FloorSelection> {
               }
             },
           ),
-        ]
+        ],
       ),
     );
   }
