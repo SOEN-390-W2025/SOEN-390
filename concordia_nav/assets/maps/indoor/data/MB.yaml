@@ -108,6 +108,10 @@ rooms:
       category: waterFountain
       floor: "1"
       entrancePoint: { x: 751, y: 835 }
+    - roomNumber: "0004"
+      category: restaurant # Sushi (a.k.a a Point of Interest)
+      floor: "1"
+      entrancePoint: { x: 728, y: 968 }
     - roomNumber: "210"
       category: auditorium
       floor: "1"
