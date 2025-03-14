@@ -3,18 +3,15 @@ import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
-import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../calendar/calendar_repository_test.mocks.dart';
-import '../calendar/calendar_viewmodel_test.mocks.dart';
+import '../calendar/calendar_selection_viewmodel_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<CalendarSelectionViewModel>()])
 void main() {
   group('SettingsPage', () {
     late MockDeviceCalendarPlugin mockPlugin;

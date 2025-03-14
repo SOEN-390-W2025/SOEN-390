@@ -6,6 +6,7 @@
 import 'dart:async' as _i4;
 
 import 'package:concordia_nav/data/repositories/calendar.dart' as _i3;
+import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart' as _i5;
 import 'package:device_calendar/device_calendar.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -106,4 +107,90 @@ class MockCalendarRepository extends _i1.Mock
             ),
           )
           as _i4.Future<List<_i3.UserCalendarEvent>>);
+}
+
+/// A class which mocks [CalendarSelectionViewModel].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockCalendarSelectionViewModel extends _i1.Mock
+    implements _i5.CalendarSelectionViewModel {
+  MockCalendarSelectionViewModel() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  set calendarRepository(_i3.CalendarRepository? repo) => super.noSuchMethod(
+    Invocation.setter(#calendarRepository, repo),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  List<_i3.UserCalendar> get calendars =>
+      (super.noSuchMethod(
+            Invocation.getter(#calendars),
+            returnValue: <_i3.UserCalendar>[],
+          )
+          as List<_i3.UserCalendar>);
+
+  @override
+  _i4.Future<void> loadCalendars() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadCalendars, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  bool isCalendarSelected(_i3.UserCalendar? calendar) =>
+      (super.noSuchMethod(
+            Invocation.method(#isCalendarSelected, [calendar]),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  void selectCalendar(_i3.UserCalendar? calendar) => super.noSuchMethod(
+    Invocation.method(#selectCalendar, [calendar]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void unselectCalendar(_i3.UserCalendar? calendar) => super.noSuchMethod(
+    Invocation.method(#unselectCalendar, [calendar]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void toggleCalendarSelection(_i3.UserCalendar? calendar) =>
+      super.noSuchMethod(
+        Invocation.method(#toggleCalendarSelection, [calendar]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  List<_i3.UserCalendar> getSelectedCalendars() =>
+      (super.noSuchMethod(
+            Invocation.method(#getSelectedCalendars, []),
+            returnValue: <_i3.UserCalendar>[],
+          )
+          as List<_i3.UserCalendar>);
+
+  @override
+  void selectCalendarsByDisplayName(String? displayName) => super.noSuchMethod(
+    Invocation.method(#selectCalendarsByDisplayName, [displayName]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  List<_i3.UserCalendar> getSelectedCalendarsByDisplayName(
+    String? displayName,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getSelectedCalendarsByDisplayName, [
+              displayName,
+            ]),
+            returnValue: <_i3.UserCalendar>[],
+          )
+          as List<_i3.UserCalendar>);
 }
