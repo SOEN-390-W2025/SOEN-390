@@ -114,5 +114,15 @@ void main() {
           .getRoomsForFloor('Administration Building', '1');
       expect(rooms, []);
     });
+
+    test('getBuildingFromLocation returns a building from its location string', () async{
+      final building = BuildingViewModel().getBuildingFromLocation('H 937');
+      expect(building?.abbreviation, 'H');
+    });
+
+    test('getBuildingFromLocation returns null if location has invalid format', () {
+      final building = BuildingViewModel().getBuildingFromLocation('937');
+      expect(building, isNull);
+    });
   });
 }

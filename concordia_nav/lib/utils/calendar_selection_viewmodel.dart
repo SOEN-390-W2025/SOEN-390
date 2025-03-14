@@ -5,9 +5,14 @@ import 'dart:developer' as dev;
 import '../data/repositories/calendar.dart';
 
 class CalendarSelectionViewModel {
-  final CalendarRepository _calendarRepository = CalendarRepository();
+  CalendarRepository _calendarRepository = CalendarRepository();
   final List<UserCalendar> _calendars = [];
   final Set<String> _selectedCalendarIds = {}; // Store IDs instead of objects
+
+  // Allows setting a custom calendar repository (for testing)
+  set calendarRepository(CalendarRepository repo) {
+    _calendarRepository = repo;
+  }
 
   // Getter for calendars
   List<UserCalendar> get calendars => List.unmodifiable(_calendars);

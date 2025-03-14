@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../data/repositories/calendar.dart';
 
 class CalendarViewModel extends ChangeNotifier {
-  final CalendarRepository _calendarRepository = CalendarRepository();
+  CalendarRepository _calendarRepository = CalendarRepository();
   List<UserCalendar> _allCalendars = [];
   List<UserCalendar> _selectedCalendars = [];
   List<UserCalendarEvent> _events = [];
@@ -18,6 +18,11 @@ class CalendarViewModel extends ChangeNotifier {
   List<UserCalendarEvent> get events => _events;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  // Allows setting a custom calendar repository (for testing)
+  set calendarRepository(CalendarRepository repo) {
+    _calendarRepository = repo;
+  }
 
   // Initialize the view model with optional selected calendar
   Future<void> initialize({UserCalendar? selectedCalendar}) async {
@@ -137,6 +142,6 @@ class CalendarViewModel extends ChangeNotifier {
   // Extract building abbreviation from location
   String getBuildingAbbreviation(String location) {
     final List<String> parts = location.split(" ");
-    return parts.isNotEmpty ? parts[0] : '';
+    return parts[0] != location ? parts[0] : '';
   }
 }
