@@ -68,6 +68,20 @@ void main() {
       expect(calendarViewModel.selectedCalendars, [calendar1]);
     });
 
+    test('initialize returns error if permissions denied', () async {
+      // Arrange: checkPermissions denied mock
+      when(mockCalendarRepository.checkPermissions())
+          .thenAnswer((_) async => false);
+
+      // Act
+      final calendarViewModel = CalendarViewModel();
+      calendarViewModel.calendarRepository = mockCalendarRepository;
+
+      await calendarViewModel.initialize();
+
+      expect(calendarViewModel.errorMessage, 'Calendar permission denied');
+    });
+
     test('formatEventTime formats event time', () {
       final calendar = UserCalendar('1', 'Calendar 1');
       final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);

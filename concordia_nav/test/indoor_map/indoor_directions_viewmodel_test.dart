@@ -70,6 +70,36 @@ void main() {
     expect(point?.positionX, 519);
   });
 
+  test('areDirectionsAvailableForLocation checks if directions available', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H 937');
+
+    expect(available, true);
+  });
+
+  test('areDirectionsAvailableForLocation returns false if location has no space', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H937');
+
+    expect(available, false);
+  });
+
+  test('areDirectionsAvailableForLocation returns true with valid location', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('MB S2115');
+
+    expect(available, true);
+  });
+
+  test('areDirectionsAvailableForLocation returns false if roomNumber empty', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H ');
+
+    expect(available, false);
+  });
+
+  test('areDirectionsAvailableForLocation returns true with building abb and floor nb', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H 1');
+
+    expect(available, true);
+  });
+
   group('ConcreteFloorRoutablePoint Setters', () {
     test('Can create a ConcreteFloorRoutablePoint', () {
       final floor = ConcordiaFloor("1", BuildingRepository.h);

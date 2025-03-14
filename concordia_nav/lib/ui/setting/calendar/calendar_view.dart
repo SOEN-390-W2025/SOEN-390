@@ -16,7 +16,8 @@ import 'dart:developer' as dev;
 
 class CalendarView extends StatefulWidget {
   final UserCalendar? selectedCalendar;
-  const CalendarView({super.key, this.selectedCalendar});
+  final CalendarViewModel? calendarViewModel;
+  const CalendarView({super.key, this.selectedCalendar, this.calendarViewModel});
 
   @override
   State<CalendarView> createState() => _CalendarViewState();
@@ -36,7 +37,7 @@ class _CalendarViewState extends State<CalendarView> {
   void initState() {
     super.initState();
     dev.log('CalendarView: widget.selectedCalendar: ${widget.selectedCalendar?.displayName ?? "null"}');
-    _calendarViewModel = CalendarViewModel();
+    _calendarViewModel = widget.calendarViewModel ?? CalendarViewModel();
     _indoorDirectionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
     _initialize();
