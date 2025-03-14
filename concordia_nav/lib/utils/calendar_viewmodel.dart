@@ -110,35 +110,6 @@ class CalendarViewModel extends ChangeNotifier {
     return '$startFormat - $endFormat';
   }
   
-  // Extract building information from location string
-  String getFloorPlanName(String location) {
-    // Split the string by spaces
-    final List<String> parts = location.split(" ");
-    if (parts.length < 2) {
-      return location; // Return original if no space found
-    }
-    
-    final String building = parts[0];
-    final String roomNumber = parts[1];
-    
-    // Check if roomNumber starts with a letter
-    if (roomNumber.isNotEmpty && RegExp(r'[A-Za-z]').hasMatch(roomNumber[0])) {
-      // If roomNumber starts with a letter, return building + first two characters
-      if (roomNumber.length > 1) {
-        return building + roomNumber[0] + roomNumber[1];
-      } else {
-        return building + roomNumber[0];
-      }
-    } else {
-      // For regular cases, return building + first character of roomNumber
-      if (roomNumber.isNotEmpty) {
-        return building + roomNumber[0];
-      }
-    }
-    
-    return building; // Fallback if roomNumber is empty
-  }
-  
   // Extract building abbreviation from location
   String getBuildingAbbreviation(String location) {
     final List<String> parts = location.split(" ");

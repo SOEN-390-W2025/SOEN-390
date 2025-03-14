@@ -10,6 +10,10 @@ import 'dart:async' as _i4;
 class MockCalendarSelectionViewModel extends _i1.Mock
     implements _i2.CalendarSelectionViewModel {
 
+  MockCalendarSelectionViewModel() {
+    _i1.throwOnMissingStub(this);
+  }    
+
   @override
   List<_i3.UserCalendar> get calendars => 
     (super.noSuchMethod(
