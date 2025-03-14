@@ -29,8 +29,8 @@ class CalendarLinkViewState extends State<CalendarLinkView> {
     if (context.mounted) {
       if (permissionsGranted) {
         // Assume there is no error
-        // Navigate to calendar view
-        await Navigator.pushReplacementNamed(context, '/CalendarView');
+        // Navigate to calendar selection view
+        await Navigator.pushReplacementNamed(context, '/CalendarSelectionView');
       } else {
         // Show an error if permission is denied
         ScaffoldMessenger.of(context).showSnackBar(
