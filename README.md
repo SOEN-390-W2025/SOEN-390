@@ -113,3 +113,8 @@ You can use the `rps ci` command to run all of them sequentially.
 You can use the [codecov VsCode Extension](https://docs.codecov.com/docs/vscode-extension) to visualize the code coverage.
 
 > Make sure to upload the most recent coverage report to get the latest reporting.
+
+### Third-Party Libraries
+This project uses the following third-party libraries:
+
+- calendar_view by Simform Solutions (MIT License)

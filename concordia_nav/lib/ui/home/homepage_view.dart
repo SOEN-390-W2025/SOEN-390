@@ -68,7 +68,11 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.maps_home_work),
                       onPress: () => Navigator.pushNamed(
                           context, '/OutdoorLocationMapView',
-                          arguments: ConcordiaCampus.sgw)),
+                          arguments: {
+                            'campus': ConcordiaCampus.sgw
+                          }
+                        )
+                      ),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'Next class directions',
