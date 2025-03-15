@@ -100,8 +100,8 @@ class CalendarRepository {
             userCalendar,
             systemCalendarEvent.eventId!,
             systemCalendarEvent.description,
-            systemCalendarEvent.start!.toLocal(),
-            systemCalendarEvent.end!.toLocal(),
+            systemCalendarEvent.start!,
+            systemCalendarEvent.end!,
             systemCalendarEvent.title!,
             systemCalendarEvent.location));
       }
