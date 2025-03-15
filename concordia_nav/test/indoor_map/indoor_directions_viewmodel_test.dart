@@ -20,6 +20,10 @@ void main() {
     expect(indoorDirectionsViewModel.isAccessibilityMode, false);
   });
 
+  test('Getter for isLoading is false by default', () {
+    expect(indoorDirectionsViewModel.isLoading, false);
+  });
+
   test('Toggling accessibility mode updates value', () {
     indoorDirectionsViewModel.toggleAccessibilityMode(true);
     expect(indoorDirectionsViewModel.isAccessibilityMode, true);
@@ -84,6 +88,12 @@ void main() {
 
   test('areDirectionsAvailableForLocation returns true with valid location', () async {
     final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('MB S2115');
+
+    expect(available, true);
+  });
+
+  test('areDirectionsAvailableForLocation returns true with MB S2', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('MB S2');
 
     expect(available, true);
   });

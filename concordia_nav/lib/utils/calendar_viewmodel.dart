@@ -24,6 +24,11 @@ class CalendarViewModel extends ChangeNotifier {
     _calendarRepository = repo;
   }
 
+  // Allows settings a custom events list (for testing)
+  set eventsList(List<UserCalendarEvent> events){
+    _events = events;
+  }
+
   // Initialize the view model with optional selected calendar
   Future<void> initialize({UserCalendar? selectedCalendar}) async {
     _isLoading = true;

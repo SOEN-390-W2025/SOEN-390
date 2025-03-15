@@ -82,6 +82,43 @@ void main() {
       expect(calendarViewModel.errorMessage, 'Calendar permission denied');
     });
 
+    test('getCalendarEventData converts UserCalendarEvents to CalendarEventdata', () async {
+      // Arrange: checkPermissions accepted mock
+      when(mockCalendarRepository.checkPermissions())
+          .thenAnswer((_) async => true);
+      // Arrange: getUserCalendars mock
+      final calendar1 = UserCalendar('1', 'Calendar 1');
+      final calendar2 = UserCalendar('2', 'Calendar 2');
+      final calendars = [calendar1, calendar2];
+      when(mockCalendarRepository.getUserCalendars())
+          .thenAnswer((_) async => calendars);
+      final startDate = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      when(mockCalendarRepository.getEvents(
+          calendars, const Duration(days: 7), startDate))
+        .thenAnswer((_) async => []);
+
+      final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now().copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
+      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+      final calendarEvent = UserCalendarEvent(
+        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+      final calendarEvent2 = UserCalendarEvent(
+        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+      final calendarEvents = [calendarEvent, calendarEvent2];
+
+      final calendarViewModel = CalendarViewModel();
+      calendarViewModel.calendarRepository = mockCalendarRepository;
+      await calendarViewModel.initialize();
+
+      calendarViewModel.eventsList = calendarEvents;
+
+      final eventDataList = calendarViewModel.getCalendarEventData();
+
+      expect(eventDataList, isNotEmpty);
+      expect(eventDataList[0].title, calendarEvent.title);
+    });
+
     test('formatEventTime formats event time', () {
       final calendar = UserCalendar('1', 'Calendar 1');
       final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
