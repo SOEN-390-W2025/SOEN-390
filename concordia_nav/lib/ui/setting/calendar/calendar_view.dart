@@ -71,7 +71,7 @@ class _CalendarViewState extends State<CalendarView> {
     if (event.locationField != null) {
       floorPlanExists = await _indoorDirectionsViewModel.areDirectionsAvailableForLocation(event.locationField);
     }
-    
+
     // Update state before showing the bottom sheet
     if (mounted) {
       setState(() {
@@ -79,7 +79,7 @@ class _CalendarViewState extends State<CalendarView> {
         _checkingFloorPlan = false;
       });
     }
-    
+
     // Now show bottom sheet with the updated state
     if (mounted) {
       await showModalBottomSheet(
@@ -134,7 +134,7 @@ class _CalendarViewState extends State<CalendarView> {
   Widget _buildEventDetailsDrawer() {
     // Calculate the height as a percentage of screen height
     final screenHeight = MediaQuery.of(context).size.height;
-    final bottomSheetHeight = screenHeight * 0.22;
+    final bottomSheetHeight = screenHeight * 0.26;
     
     // Get building information early to use it for button state
     final building = _selectedEvent?.locationField != null 
@@ -332,9 +332,9 @@ class _CalendarViewState extends State<CalendarView> {
     final UserCalendarEvent? userEvent = events.first.event as UserCalendarEvent?;
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (userEvent != null) {
-          _showEventBottomDrawer(userEvent);
+          await _showEventBottomDrawer(userEvent);
         }
       },
       child: Container(
