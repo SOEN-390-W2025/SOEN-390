@@ -26,9 +26,9 @@ void main() {
       altitudeAccuracy: 0.0,
       headingAccuracy: 0.0);
   // ref to permission integers: https://github.com/Baseflow/flutter-geolocator/blob/main/geolocator_platform_interface/lib/src/extensions/integer_extensions.dart
-  var permission = 3; // permission set to accept
-  var request = 3; // request permission set to accept
-  var service = true; // locationService set to true
+  const permission = 3; // permission set to accept
+  const request = 3; // request permission set to accept
+  const service = true; // locationService set to true
 
   const MethodChannel locationChannel =
       MethodChannel('flutter.baseflow.com/geolocator');

@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../data/domain-model/concordia_building.dart';
@@ -85,16 +87,16 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
 
       setState(() {
         if (nearestBuilding != null && bestDistance <= 1000) {
-          _sourceController.text = nearestBuilding!.name;
+          _sourceController.text = nearestBuilding.name;
           useCurrentLocation = false;
         } else {
           _sourceController.text = "Your location";
           useCurrentLocation = true;
         }
       });
-    } catch (e) {
+    } on Exception catch (e, stackTrace) {
       // Optionally handle any errors like permission denial here
-      print("Error getting location: $e");
+      dev.log("Error getting location", error: e, stackTrace: stackTrace);
     } finally {
       setState(() {
         isFetchingNearestBuilding = false;
