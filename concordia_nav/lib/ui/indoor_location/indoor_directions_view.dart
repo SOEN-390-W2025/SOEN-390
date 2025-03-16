@@ -66,13 +66,19 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     super.initState();
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
-
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
 
     disability = widget.isDisability;
     buildingAbbreviation =
-        _buildingViewModel.getBuildingAbbreviation(widget.building)!;
-    if (widget.sourceRoom != yourLocation) {
+        _buildingViewModel.getBuildingByName(widget.building)!.abbreviation;
+
+    // extractFloor() returns "1" for "main entrance" or "Your Location"
+    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
+
+    final String originalEndRoom = widget.endRoom;
+
+    if (widget.sourceRoom.trim().toLowerCase() != 'your location') {
       displayFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
     } else {
       displayFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
@@ -81,13 +87,11 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     floorPlanPath =
         'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
-    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
-    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
     realStartRoom = widget.sourceRoom;
-    realEndRoom = widget.endRoom;
+    realEndRoom = originalEndRoom;
 
     // Check if source and destination are on different floors
-    if (widget.sourceRoom != 'Your Location' && startFloor != endFloor) {
+    if (startFloor != endFloor) {
       isMultiFloor = true;
       widget.endRoom = 'connection';
     } else {
@@ -101,7 +105,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     );
 
     from = realStartRoom;
-
     if (realStartRoom == yourLocation) {
       from = yourLocation;
     } else if (hasFullRoomName(realStartRoom)) {
@@ -114,7 +117,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
-    dev.log('IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
+    dev.log(
+        'IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
     dev.log('IndoorDirectionsView: from: $from, to: $to');
     getSvgSize();
 
