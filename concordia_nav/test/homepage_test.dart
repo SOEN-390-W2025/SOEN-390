@@ -302,11 +302,14 @@ void main() async {
                 ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
             mapViewModel: mockMapViewModel,
           ),
-      '/OutdoorLocationMapView': (context) => OutdoorLocationMapView(
-            campus:
-                ModalRoute.of(context)!.settings.arguments as ConcordiaCampus,
-            mapViewModel: mockMapViewModel,
-          ),
+      '/OutdoorLocationMapView': (context) {
+                final args = ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>;
+                return OutdoorLocationMapView(
+                  campus: args['campus'] as ConcordiaCampus,
+                  mapViewModel: mockMapViewModel,
+                );
+            },
     };
 
     when(mockMapViewModel.selectedBuildingNotifier)

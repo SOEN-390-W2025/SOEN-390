@@ -18,6 +18,8 @@ import 'dart:developer' as dev;
 class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
 
+  bool _isLoading = false;
+  String? _errorMessage;
   bool _isAccessibilityMode = false;
   String eta = 'Calculating...';
   String distance = 'Calculating...';
@@ -26,10 +28,13 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   Offset _endLocation = Offset.zero;
 
   // Getters
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
   bool get isAccessibilityMode => _isAccessibilityMode;
   IndoorRoute? get calculatedRoute => _calculatedRoute;
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
+  
 
   // Method to toggle accessibility mode
   void toggleAccessibilityMode(bool value) {
@@ -287,6 +292,51 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     // Default conversion factor if no data is available
     return 0.05;
+  }
+
+  // A single method to check if directions are available for a location
+  Future<bool> areDirectionsAvailableForLocation(String? location) async {
+    if (location == null) return false;
+
+    // Extract floor plan name from location
+    final String floorPlanName = _getFloorPlanName(location);
+    final String floorPlanPath = 'assets/maps/indoor/floorplans/$floorPlanName.svg';
+ 
+    // Check if floor plan exists
+    return await checkFloorPlanExists(floorPlanPath);
+  }
+
+  // Helper to extract floor plan name - moved from calendar view
+  String _getFloorPlanName(String location) {
+    // Split the string by spaces
+    final List<String> parts = location.split(" ");
+    if (parts.length < 2) {
+      return location; // Return original if no space found
+    }
+
+    final String building = parts[0];
+    final String roomNumber = parts[1];
+
+    // Check if roomNumber starts with a letter
+    if (roomNumber.isNotEmpty && RegExp(r'[A-Za-z]').hasMatch(roomNumber[0])) {
+      // If roomNumber starts with a letter, return building + first two characters
+      if (roomNumber.length > 1) {
+        return building + roomNumber[0] + roomNumber[1];
+      } else {
+        return building + roomNumber[0];
+      }
+    } else {
+      // For regular cases, return building + first character of roomNumber
+      if (roomNumber.isNotEmpty) {
+        return building + roomNumber[0];
+      }
+    }
+
+    return building; // Fallback if roomNumber is empty
+  }
+
+  Future<bool> checkFloorPlanExists(String floorPlanPath) async {
+    return await IndoorRoutingService().checkFloorPlanExists(floorPlanPath);
   }
 
   Future<Size> getSvgDimensions(String svgPath) async {
