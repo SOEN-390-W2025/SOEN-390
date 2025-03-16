@@ -6,27 +6,24 @@ import '../../widgets/select_indoor_destination.dart';
 import '../../widgets/selectable_list.dart';
 import '../indoor_location/indoor_directions_view.dart';
 import '../indoor_location/indoor_location_view.dart';
-import '../next_class/next_class_directions_preview.dart';
 
 class ClassroomSelection extends StatefulWidget {
   final String building;
   final String floor;
+
   final String? currentRoom;
   final bool isSource;
   final bool isSearch;
   final bool isDisability;
-  final NavigationRouteType routeType;
 
-  const ClassroomSelection({
-    super.key,
-    required this.building,
-    required this.floor,
-    this.currentRoom,
-    this.isSource = false,
-    this.isSearch = false,
-    this.isDisability = false,
-    this.routeType = NavigationRouteType.indoor,
-  });
+  const ClassroomSelection(
+      {super.key,
+      required this.building,
+      required this.floor,
+      this.currentRoom,
+      this.isSource = false,
+      this.isSearch = false,
+      this.isDisability = false});
 
   @override
   ClassroomSelectionState createState() => ClassroomSelectionState();
@@ -92,72 +89,6 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
     searchController.removeListener(filterClassrooms);
     searchController.dispose();
     super.dispose();
-  }
-
-  void _onClassroomSelected(String classroom) {
-    if (widget.routeType == NavigationRouteType.preview) {
-      if (widget.isSource) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ClassroomSelection(
-              building: widget.building,
-              floor: widget.floor,
-              currentRoom: classroom,
-              isSource: false,
-              isDisability: widget.isDisability,
-              routeType: widget.routeType,
-            ),
-          ),
-        );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => NextClassDirectionsPreview(
-              sourceRoom: widget.currentRoom ?? 'Your Location',
-              sourceBuilding: widget.building,
-              sourceFloor: widget.floor,
-              destRoom: classroom,
-              destBuilding: widget.building,
-              destFloor: widget.floor,
-              routeType: widget.routeType,
-            ),
-          ),
-          (route) => route.settings.name == '/HomePage',
-        );
-      }
-    } else {
-      if (widget.isSearch) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => IndoorLocationView(
-              building: BuildingViewModel().getBuildingByName(widget.building)!,
-              floor: floorNumber,
-              room: classroom,
-            ),
-          ),
-          (route) {
-            return route.settings.name == '/HomePage' ||
-                route.settings.name == '/CampusMapPage';
-          },
-        );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => IndoorDirectionsView(
-              sourceRoom: widget.isSource ? classroom : currentRoom,
-              building: widget.building,
-              endRoom: widget.isSource ? currentRoom : classroom,
-              isDisability: widget.isDisability,
-            ),
-          ),
-          (route) => route.isFirst,
-        );
-      }
-    }
   }
 
   @override
@@ -232,5 +163,37 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
         }
       },
     );
+  }
+
+  void _onClassroomSelected(String classroom) {
+    if (widget.isSearch) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => IndoorLocationView(
+            building: BuildingViewModel().getBuildingByName(widget.building)!,
+            floor: floorNumber,
+            room: classroom,
+          ),
+        ),
+        (route) {
+          return route.settings.name == '/HomePage' ||
+              route.settings.name == '/CampusMapPage';
+        },
+      );
+    } else {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => IndoorDirectionsView(
+            sourceRoom: widget.isSource ? classroom : currentRoom,
+            building: widget.building,
+            endRoom: widget.isSource ? currentRoom : classroom,
+            isDisability: widget.isDisability,
+          ),
+        ),
+        (route) => route.isFirst,
+      );
+    }
   }
 }

@@ -4,21 +4,16 @@ import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor_search_bar.dart';
 import '../../widgets/selectable_list.dart';
 import 'floor_selection.dart';
-import '../next_class/next_class_directions_preview.dart';
 
 class BuildingSelection extends StatefulWidget {
   final String? endRoom;
   final bool isSource;
   final bool isDisability;
-  final NavigationRouteType routeType;
-
-  const BuildingSelection({
-    super.key,
-    this.endRoom,
-    this.isSource = false,
-    this.isDisability = false,
-    this.routeType = NavigationRouteType.indoor,
-  });
+  const BuildingSelection(
+      {super.key,
+      this.endRoom,
+      this.isSource = false,
+      this.isDisability = false});
 
   @override
   BuildingSelectionState createState() => BuildingSelectionState();
@@ -70,7 +65,6 @@ class BuildingSelectionState extends State<BuildingSelection> {
                     endRoom: widget.endRoom,
                     isSource: widget.isSource,
                     isDisability: widget.isDisability,
-                    routeType: widget.routeType,
                   ),
                 ),
               );
