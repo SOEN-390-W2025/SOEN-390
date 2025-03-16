@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
 
+import 'common_app_bart.dart';
+
 class SettingsPage extends StatefulWidget {
   final DeviceCalendarPlugin?
       plugin; // Optional parameter for dependency injection
@@ -38,26 +40,7 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Settings"),
       body: ListView(
         children: [
           SettingsTile(

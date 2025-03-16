@@ -59,11 +59,13 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
           // If a custom function is provided, use it; otherwise, use the default function
           if (onActionPressed != null) {
             onActionPressed();
+          } else if (isHomePage) {
+            Navigator.pushNamed(context, '/SmartPlannerView');
           }
         },
         icon: actionIcon ??
             const Icon(
-              Icons.menu,
+              Icons.edit_note,
               color: Colors.white,
             ),
       ),
