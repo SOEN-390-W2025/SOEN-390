@@ -147,15 +147,19 @@ class ODSDirectionsService {
     required String destinationAddress,
     required int width,
     required int height,
-    String sourceLabel = 'S',
-    String destinationLabel = 'D',
   }) async {
+    const String baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
+    final String sizeParam = "${width}x$height";
+    final String markers =
+        "markers=icon:http://maps.google.com/mapfiles/kml/shapes/man.png|$originAddress"
+        "&markers=icon:http://maps.google.com/mapfiles/kml/paddle/red-stars.png|$destinationAddress";
+
     final request = gda.DirectionsRequest(
       origin: originAddress,
       destination: destinationAddress,
-      travelMode: gda.TravelMode.driving,
     );
     final Completer<String?> completer = Completer();
+
     await directionsService.route(request,
         (gda.DirectionsResult result, gda.DirectionsStatus? status) {
       if (status == gda.DirectionsStatus.ok &&
@@ -163,23 +167,26 @@ class ODSDirectionsService {
           result.routes!.isNotEmpty) {
         final route = result.routes!.first;
         final encodedPolyline = route.overviewPolyline?.points;
-        if (encodedPolyline != null) {
-          const String baseUrl =
-              "https://maps.googleapis.com/maps/api/staticmap";
-          final String sizeParam = "${width}x$height";
-          final String markers =
-              "markers=color:green|label:$sourceLabel|$originAddress"
-              "&markers=color:red|label:$destinationLabel|$destinationAddress";
-          final String path = "path=color:2c99f3|weight:5|enc:$encodedPolyline";
-          final String? apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
-          final staticMapUrl =
-              "$baseUrl?size=$sizeParam&$markers&$path&key=$apiKey";
-          completer.complete(staticMapUrl);
-          return;
+        String staticMapUrl;
+        if (encodedPolyline != null && encodedPolyline.isNotEmpty) {
+          final String path =
+              "path=color:0xDE3355|weight:5|enc:$encodedPolyline";
+          staticMapUrl =
+              "$baseUrl?size=$sizeParam&$markers&$path&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}";
+        } else {
+          // Fallback: No route available; show markers only.
+          staticMapUrl =
+              "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}";
         }
+        completer.complete(staticMapUrl);
+        return;
+      } else {
+        final String staticMapUrl =
+            "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}";
+        completer.complete(staticMapUrl);
       }
-      completer.complete(null);
     });
+
     return completer.future;
   }
 }
