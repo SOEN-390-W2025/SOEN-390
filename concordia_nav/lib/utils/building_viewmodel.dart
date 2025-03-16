@@ -85,4 +85,13 @@ class BuildingViewModel {
     // Return rooms for the specified floor, or an empty list if not found
     return buildingData.roomsByFloor[floorNumber] ?? [];
   }
+
+  // Get building from a location string (e.g., "H 1140")
+  ConcordiaBuilding? getBuildingFromLocation(String location) {
+    final List<String> parts = location.split(" ");
+    if (parts.isEmpty) return null;
+
+    final String abbreviation = parts[0];
+    return getBuildingByAbbreviation(abbreviation);
+  }
 }

@@ -647,6 +647,16 @@ class IndoorRoutingService {
     return closest;
   }
 
+  Future<bool> checkFloorPlanExists(String floorPlanPath) async {
+    try {
+      await rootBundle.loadString(floorPlanPath);
+      return true;
+    } catch (e) {
+      dev.log('Floor plan not found: $floorPlanPath');
+      return false;
+    }
+  }
+
   Future<Size> getSvgDimensions(String svgPath) async {
     // Default size in case we can't determine
     Size defaultSize = const Size(1024, 1024);
