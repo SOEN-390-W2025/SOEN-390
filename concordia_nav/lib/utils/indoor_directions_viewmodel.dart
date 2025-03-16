@@ -34,7 +34,6 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   IndoorRoute? get calculatedRoute => _calculatedRoute;
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
-  
 
   // Method to toggle accessibility mode
   void toggleAccessibilityMode(bool value) {
@@ -55,6 +54,10 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     if (buildingData == null) {
       return null;
+    }
+
+    if (room.toLowerCase() == 'main entrance') {
+      return buildingData.outdoorExitPoint;
     }
 
     // Get the list of rooms for the given floor
@@ -300,8 +303,9 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     // Extract floor plan name from location
     final String floorPlanName = _getFloorPlanName(location);
-    final String floorPlanPath = 'assets/maps/indoor/floorplans/$floorPlanName.svg';
- 
+    final String floorPlanPath =
+        'assets/maps/indoor/floorplans/$floorPlanName.svg';
+
     // Check if floor plan exists
     return await checkFloorPlanExists(floorPlanPath);
   }
