@@ -20,6 +20,10 @@ void main() {
     expect(indoorDirectionsViewModel.isAccessibilityMode, false);
   });
 
+  test('Getter for isLoading is false by default', () {
+    expect(indoorDirectionsViewModel.isLoading, false);
+  });
+
   test('Toggling accessibility mode updates value', () {
     indoorDirectionsViewModel.toggleAccessibilityMode(true);
     expect(indoorDirectionsViewModel.isAccessibilityMode, true);
@@ -70,6 +74,42 @@ void main() {
     expect(point?.positionX, 519);
   });
 
+  test('areDirectionsAvailableForLocation checks if directions available', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H 937');
+
+    expect(available, true);
+  });
+
+  test('areDirectionsAvailableForLocation returns false if location has no space', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H937');
+
+    expect(available, false);
+  });
+
+  test('areDirectionsAvailableForLocation returns true with valid location', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('MB S2115');
+
+    expect(available, true);
+  });
+
+  test('areDirectionsAvailableForLocation returns true with MB S2', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('MB S2');
+
+    expect(available, true);
+  });
+
+  test('areDirectionsAvailableForLocation returns false if roomNumber empty', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H ');
+
+    expect(available, false);
+  });
+
+  test('areDirectionsAvailableForLocation returns true with building abb and floor nb', () async {
+    final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H 1');
+
+    expect(available, true);
+  });
+
   group('ConcreteFloorRoutablePoint Setters', () {
     test('Can create a ConcreteFloorRoutablePoint', () {
       final floor = ConcordiaFloor("1", BuildingRepository.h);
@@ -113,6 +153,16 @@ void main() {
       final rooms = await BuildingViewModel()
           .getRoomsForFloor('Administration Building', '1');
       expect(rooms, []);
+    });
+
+    test('getBuildingFromLocation returns a building from its location string', () async{
+      final building = BuildingViewModel().getBuildingFromLocation('H 937');
+      expect(building?.abbreviation, 'H');
+    });
+
+    test('getBuildingFromLocation returns null if location has invalid format', () {
+      final building = BuildingViewModel().getBuildingFromLocation('937');
+      expect(building, isNull);
     });
   });
 }

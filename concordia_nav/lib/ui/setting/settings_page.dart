@@ -28,7 +28,7 @@ class SettingsPageState extends State<SettingsPage> {
     if (mounted) {
       if (hasPermissions.isSuccess && hasPermissions.data == true) {
         // If permissions are granted, navigate to CalendarView
-        await Navigator.pushNamed(context, '/CalendarView');
+        await Navigator.pushNamed(context, '/CalendarSelectionView');
       } else {
         await Navigator.pushNamed(context, '/CalendarLinkView');
       }
