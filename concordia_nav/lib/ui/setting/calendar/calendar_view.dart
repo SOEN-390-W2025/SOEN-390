@@ -5,6 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:provider/provider.dart';
+import '../../../data/domain-model/concordia_floor.dart';
+import '../../../data/domain-model/concordia_room.dart';
+import '../../../data/domain-model/room_category.dart';
 import '../../../data/repositories/calendar.dart';
 import '../../../utils/building_viewmodel.dart';
 import '../../../utils/calendar_viewmodel.dart';
@@ -17,7 +20,8 @@ import 'dart:developer' as dev;
 class CalendarView extends StatefulWidget {
   final UserCalendar? selectedCalendar;
   final CalendarViewModel? calendarViewModel;
-  const CalendarView({super.key, this.selectedCalendar, this.calendarViewModel});
+  const CalendarView(
+      {super.key, this.selectedCalendar, this.calendarViewModel});
 
   @override
   State<CalendarView> createState() => _CalendarViewState();
@@ -32,27 +36,29 @@ class _CalendarViewState extends State<CalendarView> {
   UserCalendarEvent? _selectedEvent;
   bool _floorPlanExists = false;
   bool _checkingFloorPlan = false;
-  
+
   @override
   void initState() {
     super.initState();
-    dev.log('CalendarView: widget.selectedCalendar: ${widget.selectedCalendar?.displayName ?? "null"}');
+    dev.log(
+        'CalendarView: widget.selectedCalendar: ${widget.selectedCalendar?.displayName ?? "null"}');
     _calendarViewModel = widget.calendarViewModel ?? CalendarViewModel();
     _indoorDirectionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
     _initialize();
   }
-  
+
   Future<void> _initialize() async {
     // Pass the selectedCalendar to the view model
-    await _calendarViewModel.initialize(selectedCalendar: widget.selectedCalendar);
+    await _calendarViewModel.initialize(
+        selectedCalendar: widget.selectedCalendar);
     _updateEventController();
   }
-  
+
   void _updateEventController() {
     // Clear existing events
     eventController.clearAll();
-    
+
     // Add events from the view model
     final events = _calendarViewModel.getCalendarEventData();
     eventController.addAll(events);
@@ -65,11 +71,12 @@ class _CalendarViewState extends State<CalendarView> {
       _checkingFloorPlan = true;
       _floorPlanExists = false; // Reset initially
     });
-    
+
     // Start checking if floor plan exists asynchronously
     bool floorPlanExists = false;
     if (event.locationField != null) {
-      floorPlanExists = await _indoorDirectionsViewModel.areDirectionsAvailableForLocation(event.locationField);
+      floorPlanExists = await _indoorDirectionsViewModel
+          .areDirectionsAvailableForLocation(event.locationField);
     }
 
     // Update state before showing the bottom sheet
@@ -98,25 +105,48 @@ class _CalendarViewState extends State<CalendarView> {
     }
   }
 
-  // Navigate to appropriate directions view
+  /// Navigates to the appropriate directions view.
   void _navigateToDirections() {
     if (_selectedEvent?.locationField == null) return;
-    
-    final building = _buildingViewModel.getBuildingFromLocation(_selectedEvent!.locationField!);
-    if (building == null) return; // Don't navigate if building is null
-    
-    dev.log('Navigating to directions for ${_selectedEvent?.locationField}');
-    
+
+    final locationField = _selectedEvent!.locationField!;
+    // Ex. take "MB S2.330" which is one of the rooms provided to the users
+    // under "Location Format Guide".
+    // We'll parse out building code = "MB", floor = "S2", room = "330"
+
+    // Parse the building/floor/room from the event location
+    final parsed = _parseCalendarLocation(locationField);
+
+    final buildingCode = parsed['buildingCode'];
+    if (buildingCode == null) return;
+
+    // Lookup the building from the code
+    final building = _buildingViewModel.getBuildingByAbbreviation(buildingCode);
+    if (building == null) {
+      dev.log("Could not find building for code: $buildingCode");
+      return;
+    }
+
+    dev.log('Navigating to directions for $locationField');
+
     if (_floorPlanExists) {
-      // Navigate to indoor directions
+      // Given an indoor floor plan...
+      final floorNumber = parsed['floor'] ?? '1';
+      final roomNumber = parsed['room'] ?? '0001';
+
+      // Initialize Class objects that map to the domain model
+      final floor = ConcordiaFloor(floorNumber, building);
+      final room = ConcordiaRoom(
+        roomNumber,
+        RoomCategory.classroom, // Assume the user's schedule only involves
+        // classrooms, at least for the current point in time of the project.
+        floor,
+        null,
+      );
       Navigator.pushNamed(
         context,
-        '/IndoorDirectionsView',
-        arguments: {
-          'building': building.name,
-          'sourceRoom': 'Your Location',
-          'endRoom': _selectedEvent?.locationField,
-        }
+        '/NextClassDirectionsPreview',
+        arguments: [room],
       );
     } else {
       // Navigate to outdoor map
@@ -131,16 +161,59 @@ class _CalendarViewState extends State<CalendarView> {
     }
   }
 
+  /// Parses a string following our convention, like "MB S2.330", into:
+  /// buildingCode = "MB", floor = "S2", room = "330"
+  Map<String, String> _parseCalendarLocation(String locationField) {
+    // Again, same format that's used in "Location Format Guide" is: "MB S2.330"
+    // We'll split on space -> ["MB", "S2.330"]
+    // Then split the second token on '.' -> ["S2", "330"]
+    // This assumed that the format is never incorrect, given the "Location
+    // Format Guide" section that's presented to the user
+
+    String buildingCode = '';
+    String floorCode = '1';
+    String roomNumber = '';
+
+    final tokens = locationField.trim().split(' ');
+    if (tokens.isEmpty) {
+      return {
+        'buildingCode': buildingCode,
+        'floor': floorCode,
+        'room': roomNumber,
+      };
+    }
+
+    // The first token is the building code, e.g. "MB"
+    buildingCode = tokens[0];
+
+    // The second token (if any) is "S2.330"
+    if (tokens.length > 1) {
+      final floorRoom = tokens[1];
+      final subTokens = floorRoom.split('.');
+      if (subTokens.length == 2) {
+        floorCode = subTokens[0]; // "S2"
+        roomNumber = subTokens[1]; // "330"
+      }
+    }
+
+    return {
+      'buildingCode': buildingCode,
+      'floor': floorCode,
+      'room': roomNumber,
+    };
+  }
+
   Widget _buildEventDetailsDrawer() {
     // Calculate the height as a percentage of screen height
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomSheetHeight = screenHeight * 0.26;
-    
+
     // Get building information early to use it for button state
-    final building = _selectedEvent?.locationField != null 
-        ? _buildingViewModel.getBuildingFromLocation(_selectedEvent!.locationField!) 
+    final building = _selectedEvent?.locationField != null
+        ? _buildingViewModel
+            .getBuildingFromLocation(_selectedEvent!.locationField!)
         : null;
-    
+
     return Container(
       height: bottomSheetHeight,
       padding: const EdgeInsets.all(16.0),
@@ -162,7 +235,7 @@ class _CalendarViewState extends State<CalendarView> {
             ),
           ),
           const SizedBox(height: 6),
-          
+
           // Header with title and close button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,8 +245,8 @@ class _CalendarViewState extends State<CalendarView> {
                 child: Text(
                   _selectedEvent?.title ?? 'No Title',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -211,7 +284,7 @@ class _CalendarViewState extends State<CalendarView> {
                     ),
                     const SizedBox(height: 8),
                     // Event location if available
-                    if (_selectedEvent?.locationField != null) 
+                    if (_selectedEvent?.locationField != null)
                       Row(
                         children: [
                           const Icon(Icons.location_on, size: 20),
@@ -237,17 +310,20 @@ class _CalendarViewState extends State<CalendarView> {
                   width: 36,
                   child: Padding(
                     padding: EdgeInsets.all(4.0),
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                        color: const Color(0xFF962e42)),
                   ),
                 )
-              else if (_selectedEvent?.locationField == null || building == null)
+              else if (_selectedEvent?.locationField == null ||
+                  building == null)
                 // No location or building - disabled button
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
                   ),
                   icon: const Icon(Icons.directions, color: Colors.white),
-                  label: const Text('Not Available', style: TextStyle(color: Colors.white)),
+                  label: const Text('Not Available',
+                      style: TextStyle(color: Colors.white)),
                   onPressed: null, // Disabled button
                 )
               else
@@ -257,10 +333,8 @@ class _CalendarViewState extends State<CalendarView> {
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
                   icon: const Icon(Icons.directions, color: Colors.white),
-                  label: const Text(
-                    'Directions',
-                    style: TextStyle(color: Colors.white)
-                  ),
+                  label: const Text('Directions',
+                      style: TextStyle(color: Colors.white)),
                   onPressed: _navigateToDirections,
                 ),
             ],
@@ -284,9 +358,10 @@ class _CalendarViewState extends State<CalendarView> {
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                        color: const Color(0xFF962e42)),
                   ),
-                  
+
                 if (viewModel.errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -295,7 +370,7 @@ class _CalendarViewState extends State<CalendarView> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
-                
+
                 // Calendar week view
                 Expanded(
                   child: DayView(
@@ -329,7 +404,8 @@ class _CalendarViewState extends State<CalendarView> {
     if (events.isEmpty) return Container();
 
     // Extract the original UserCalendarEvent
-    final UserCalendarEvent? userEvent = events.first.event as UserCalendarEvent?;
+    final UserCalendarEvent? userEvent =
+        events.first.event as UserCalendarEvent?;
 
     return GestureDetector(
       onTap: () async {

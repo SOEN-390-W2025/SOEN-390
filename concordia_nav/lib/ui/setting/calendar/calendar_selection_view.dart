@@ -23,7 +23,8 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
   @override
   void initState() {
     super.initState();
-    _calendarViewModel = widget.calendarViewModel ?? CalendarSelectionViewModel();
+    _calendarViewModel =
+        widget.calendarViewModel ?? CalendarSelectionViewModel();
     _loadCalendars();
   }
 
@@ -41,7 +42,8 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to load calendars. Please check permissions.'),
+            content:
+                Text('Failed to load calendars. Please check permissions.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -74,12 +76,12 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
         children: [
           // Header section
           _buildHeader(),
-          
+
           // Calendar list - takes available space and scrolls if needed
           Expanded(
             child: _buildCalendarList(),
           ),
-          
+
           // Location guide - fixed at bottom
           _buildLocationGuide(),
         ],
@@ -129,7 +131,7 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
   /// Each button has a unique color and displays the calendar name.
   Widget _buildCalendarButton(UserCalendar calendar, int index) {
     final color = _getCalendarColor(index);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: ElevatedButton(
@@ -157,7 +159,7 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
               ),
             ),
             const SizedBox(width: 16),
-            
+
             // Calendar name
             Expanded(
               child: Text(
@@ -209,17 +211,41 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
 
           // Format instructions
           const Text(
-            'Format: [Building Code] ␣ [Floor] [Room]',
+            'Format: [Building Code] ␣ [Floor].[Room]',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
-
-          // Example
+          const SizedBox(height: 6),
+          // Examples
           const Text(
-            'Example: Hall Building, Floor 9, Room 27 → H 927',
+            'Please refer the examples below:',
+            style: TextStyle(fontSize: 13),
+          ),
+          const SizedBox(height: 4),
+          const Text.rich(
+            TextSpan(
+              text: 'Hall Building, Floor 9, Room 27 → ',
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'H 9.27',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            style: TextStyle(fontSize: 13),
+          ),
+          const Text.rich(
+            TextSpan(
+              text: 'JMSB Building, Floor S2, Room 330 → ',
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'MB S2.330',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
             style: TextStyle(fontSize: 13),
           ),
         ],
@@ -234,7 +260,7 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
         ? calendar.displayName![0]
         : '?';
   }
-  
+
   /// Navigates to the calendar view screen with the selected calendar.
   void navigateToCalendarView(UserCalendar selectedCalendars) {
     Navigator.pushNamed(
