@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/repositories/building_repository.dart';
 import '../../utils/map_viewmodel.dart';
+import '../setting/common_app_bart.dart';
 
 class SmartPlannerView extends StatefulWidget {
   final MapViewModel? mapViewModel;
@@ -107,26 +108,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: const Text(
-          'Smart Planner',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      appBar: const CommonAppBar(title: "Smart Planner"),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
