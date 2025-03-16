@@ -68,11 +68,7 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.maps_home_work),
                       onPress: () => Navigator.pushNamed(
                           context, '/OutdoorLocationMapView',
-                          arguments: {
-                            'campus': ConcordiaCampus.sgw
-                          }
-                        )
-                      ),
+                          arguments: {'campus': ConcordiaCampus.sgw})),
                   const SizedBox(width: 20),
                   FeatureCard(
                     title: 'Next class directions',
@@ -80,19 +76,7 @@ class HomePage extends StatelessWidget {
                     onPress: () => Navigator.pushNamed(
                       context,
                       '/NextClassDirectionsPreview',
-                      arguments: {
-                        // currently, there are hard-coded values passed
-                        // to the route params for testing.
-                        // TODO: during refactoring, make these nullable
-                        // and instead have the end user configure them
-                        // on the 'Next Class' Directions screen.
-                        'sourceRoom': '10001',
-                        'sourceBuilding': 'Vanier Library',
-                        'sourceFloor': '1',
-                        'destRoom': '109-2',
-                        'destBuilding': 'Hall Building',
-                        'destFloor': '1',
-                      },
+                      arguments: [],
                     ),
                   ),
                 ],
