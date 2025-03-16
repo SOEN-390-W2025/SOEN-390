@@ -5,16 +5,23 @@ import '../../data/repositories/building_repository.dart';
 import '../../utils/map_viewmodel.dart';
 
 class SmartPlannerView extends StatefulWidget {
-  const SmartPlannerView({super.key});
+  final MapViewModel? mapViewModel;
+
+  const SmartPlannerView({
+    super.key,
+    this.mapViewModel,
+  });
 
   @override
   State<SmartPlannerView> createState() => _SmartPlannerViewState();
 }
 
 class _SmartPlannerViewState extends State<SmartPlannerView> {
+  late final MapViewModel _mapViewModel;
+  bool isFetchingNearestBuilding = false;
+
   final TextEditingController _planController = TextEditingController();
   final TextEditingController _sourceController = TextEditingController();
-  final MapViewModel _mapViewModel = MapViewModel();
   List<String> buildings = [];
   bool locationEnabled = false;
   bool useCurrentLocation = false;
@@ -22,6 +29,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   @override
   void initState() {
     super.initState();
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
     buildings = BuildingRepository.buildingByAbbreviation.values
         .map((building) => building.name)
         .toList();
@@ -53,37 +61,44 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   }
 
   Future<void> _getNearestBuilding() async {
-    final currentPosition = await Geolocator.getCurrentPosition();
-    ConcordiaBuilding? nearestBuilding;
-    double bestDistance = double.infinity;
+    setState(() {
+      isFetchingNearestBuilding = true;
+    });
 
-    for (var building in BuildingRepository.buildingByAbbreviation.values) {
-      final distance = Geolocator.distanceBetween(
-        currentPosition.latitude,
-        currentPosition.longitude,
-        building.lat,
-        building.lng,
-      );
-      if (distance < bestDistance) {
-        nearestBuilding = building;
-        bestDistance = distance;
+    try {
+      final currentPosition = await Geolocator.getCurrentPosition();
+      ConcordiaBuilding? nearestBuilding;
+      double bestDistance = double.infinity;
+
+      for (var building in BuildingRepository.buildingByAbbreviation.values) {
+        final distance = Geolocator.distanceBetween(
+          currentPosition.latitude,
+          currentPosition.longitude,
+          building.lat,
+          building.lng,
+        );
+        if (distance < bestDistance) {
+          nearestBuilding = building;
+          bestDistance = distance;
+        }
       }
 
-      if (nearestBuilding != null && bestDistance <= 1000) {
-        setState(
-          () {
-            _sourceController.text = nearestBuilding!.name;
-            useCurrentLocation = false;
-          },
-        );
-      } else {
-        setState(
-          () {
-            _sourceController.text = "Your location";
-            useCurrentLocation = true;
-          },
-        );
-      }
+      setState(() {
+        if (nearestBuilding != null && bestDistance <= 1000) {
+          _sourceController.text = nearestBuilding!.name;
+          useCurrentLocation = false;
+        } else {
+          _sourceController.text = "Your location";
+          useCurrentLocation = true;
+        }
+      });
+    } catch (e) {
+      // Optionally handle any errors like permission denial here
+      print("Error getting location: $e");
+    } finally {
+      setState(() {
+        isFetchingNearestBuilding = false;
+      });
     }
   }
 
@@ -191,6 +206,24 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                     ),
                   ),
                 ),
+                if (isFetchingNearestBuilding)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10.0, top: 5.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Detecting nearby building...",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
                 if (locationEnabled && !useCurrentLocation)
                   Padding(
                     padding: const EdgeInsets.only(left: 10.0),

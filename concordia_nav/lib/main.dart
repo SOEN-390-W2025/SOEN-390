@@ -106,6 +106,6 @@ class MyApp extends StatelessWidget {
             },
             '/SmartPlannerView': (context) => const SmartPlannerView(),
           },
-        ));
+    ));
   }
 }
