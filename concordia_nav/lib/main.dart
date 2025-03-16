@@ -45,39 +45,40 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CalendarControllerProvider(
-      controller: EventController(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
-        initialRoute: '/',
+        controller: EventController(),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.theme,
+          initialRoute: '/',
           routes: {
             '/': (context) => SplashScreen(),
             '/HomePage': (context) => const HomePage(),
             '/CampusMapPage': (context) => CampusMapPage(
-                campus:
-                    ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+                campus: ModalRoute.of(context)!.settings.arguments
+                    as ConcordiaCampus),
             '/IndoorLocationView': (context) => IndoorLocationView(
                   building: ModalRoute.of(context)!.settings.arguments
                       as ConcordiaBuilding,
                 ),
             '/BuildingSelection': (context) => const BuildingSelection(),
             '/OutdoorLocationMapView': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-                return OutdoorLocationMapView(
-                  campus: args['campus'] as ConcordiaCampus,
-                  building: args['building'] as ConcordiaBuilding?,
-                );
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+              return OutdoorLocationMapView(
+                campus: args['campus'] as ConcordiaCampus,
+                building: args['building'] as ConcordiaBuilding?,
+              );
             },
             '/POIChoiceView': (context) => const POIChoiceView(),
             '/POIMapView': (context) => const POIMapView(),
             '/AccessibilityPage': (context) => const AccessibilityPage(),
             '/CalendarLinkView': (context) => const CalendarLinkView(),
-            '/CalendarSelectionView': (context) => const CalendarSelectionView(),
+            '/CalendarSelectionView': (context) =>
+                const CalendarSelectionView(),
             '/CalendarView': (context) => CalendarView(
-                selectedCalendar:
-                    ModalRoute.of(context)!.settings.arguments as UserCalendar,
-            ),
+                  selectedCalendar: ModalRoute.of(context)!.settings.arguments
+                      as UserCalendar,
+                ),
             '/SettingsPage': (context) => const SettingsPage(),
             '/SearchView': (context) => const SearchView(),
             '/SelectBuilding': (context) => const BuildingSelection(),
@@ -94,17 +95,17 @@ class MyApp extends StatelessWidget {
               final args = ModalRoute.of(context)!.settings.arguments
                   as Map<String, dynamic>;
 
-          return ClassroomSelection(
-            building: args['building'] as String,
-            floor: args['floor'] as String,
-            currentRoom: args['currentRoom'] as String,
-            isSource: args['isSource'] as bool? ?? false,
-            isSearch: args['isSearch'] as bool? ?? false,
-            isDisability: args['isDisability'] as bool? ?? false,
-          );
-        },
-        '/SmartPlannerView': (context) => const SmartPlannerView(),
-      },
-    );
+              return ClassroomSelection(
+                building: args['building'] as String,
+                floor: args['floor'] as String,
+                currentRoom: args['currentRoom'] as String,
+                isSource: args['isSource'] as bool? ?? false,
+                isSearch: args['isSearch'] as bool? ?? false,
+                isDisability: args['isDisability'] as bool? ?? false,
+              );
+            },
+            '/SmartPlannerView': (context) => const SmartPlannerView(),
+          },
+        ));
   }
 }
