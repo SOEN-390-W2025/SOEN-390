@@ -74,7 +74,7 @@ class NavigationJourneyPageState extends State<NavigationJourneyPage> {
               sourceRoom:
                   "${(sourceForNextClass as ConcordiaRoom).floor.floorNumber}${(sourceForNextClass as ConcordiaRoom).roomNumber}",
               building: sourceForNextClass.name,
-              endRoom: "main entrance",
+              endRoom: "Your Location",
               hideAppBar: true,
               hideIndoorInputs: true,
             );

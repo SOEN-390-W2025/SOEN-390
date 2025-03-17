@@ -53,7 +53,7 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
         VirtualStepGuideViewModel(
           sourceRoom: widget.sourceRoom,
           building: widget.building,
-          floor: widget.floor,
+          floor: extractFloor(widget.sourceRoom),
           endRoom: _temporaryEndRoom,
           isDisability: widget.isDisability,
           vsync: this,
@@ -98,9 +98,9 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
       final String firstDigit =
           widget.endRoom.replaceAll(RegExp(r'\D'), '').isNotEmpty
               ? widget.endRoom.replaceAll(RegExp(r'\D'), '')[0]
-              : widget.floor;
+              : '1';
       _viewModel = VirtualStepGuideViewModel(
-        sourceRoom: yourLocationString,
+        sourceRoom: 'connection',
         building: widget.building,
         floor: firstDigit,
         endRoom: widget.endRoom,

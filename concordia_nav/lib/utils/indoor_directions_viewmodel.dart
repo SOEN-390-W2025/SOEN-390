@@ -143,7 +143,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         building.abbreviation.toUpperCase());
 
     // If floor is "1", return the outdoor exit point
-    if (connection != 'connection' && floor == '1') {
+    if (((connection == "main entrance") || (connection != "connection")) &&
+        floor == '1') {
       return buildingData!.outdoorExitPoint;
     }
 
@@ -195,8 +196,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       ConcordiaFloorPoint? startPositionPoint;
       ConcordiaFloorPoint? endPositionPoint;
 
-      dev.log('Source room: $sourceRoomClean');
-      dev.log('End room: $endRoomClean');
+      print('Source room: $sourceRoomClean');
+      print('End room: $endRoomClean');
       dev.log('Floor: $floor');
 
       // Get start location
@@ -217,6 +218,9 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       } else if (endRoomClean == 'connection') {
         endPositionPoint =
             await getStartPoint(building, floor, disability, 'connection');
+      } else if (endRoomClean.toLowerCase() == 'ma') {
+        endPositionPoint =
+            await getStartPoint(building, floor, disability, 'main entrance');
       } else {
         endPositionPoint =
             await getPositionPoint(building, floor, endRoomClean);

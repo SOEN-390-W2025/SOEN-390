@@ -76,8 +76,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
     endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
 
-    final String originalEndRoom = widget.endRoom;
-
     if (widget.sourceRoom.trim().toLowerCase() != 'your location') {
       displayFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
     } else {
@@ -88,7 +86,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
     realStartRoom = widget.sourceRoom;
-    realEndRoom = originalEndRoom;
+    realEndRoom = widget.endRoom;
 
     // Check if source and destination are on different floors
     if (startFloor != endFloor) {
@@ -123,6 +121,10 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     getSvgSize();
 
     _initializeRoute();
+
+    if (isMultiFloor && realStartRoom == yourLocation) {
+      handleNextFloorPress();
+    }
   }
 
   @override
@@ -179,6 +181,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           }
         });
       }
+
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
