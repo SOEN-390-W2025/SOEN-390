@@ -819,6 +819,52 @@ class MapViewModel extends ChangeNotifier {
     return false;
   }
 
+  Widget buildPlaceAutocompleteTextField({
+    required TextEditingController controller,
+    required Function(dynamic) onPlaceSelected,
+  }) {
+    return GooglePlaceAutoCompleteTextField(
+      textEditingController: controller,
+      googleAPIKey: dotenv.env['GOOGLE_MAPS_API_KEY']!,
+      // This inputDecoration could easily just be passed as an arg instead,
+      // but it looks like other views involving the MapViewModel just use an
+      // input selection that consists of campus buildings and current location
+      inputDecoration: const InputDecoration(
+        labelText: "Enter Address",
+        labelStyle: TextStyle(color: Colors.black),
+        floatingLabelStyle: TextStyle(color: Colors.black),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238), width: 2),
+        ),
+      ),
+      debounceTime: 500,
+      isLatLngRequired: true,
+      getPlaceDetailWithLatLng: (prediction) {
+        final location = Location(
+          double.parse(prediction.lat ?? "0"),
+          double.parse(prediction.lng ?? "0"),
+          prediction.description ?? "",
+          null,
+          null,
+          null,
+          null,
+        );
+        onPlaceSelected(location);
+      },
+      itemClick: (prediction) {
+        // Additional handling when a prediction is tapped would go here.
+        // What we really want from this textfield is to just have the user
+        // enter an address, and create a Location object out of it.
+      },
+    );
+  }
+
   @override
   void dispose() {
     _isDisposed = true;

@@ -75,6 +75,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     if (_destinationController.text != '') {
       await _mapViewModel.fetchRoutesForAllModes(
           'Your Location', _destinationController.text);
+      if (!mounted) return;
       setState(() {});
     }
     first = false;
@@ -149,7 +150,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         });
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? Colors.red[100] : Colors.grey[200],
@@ -242,11 +243,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             Expanded(
               child: ElevatedButton(
                 onPressed: _updatePath,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text(
                   'Get Directions',
-                  style: TextStyle(
-                    color: Color.fromRGBO(146, 35, 56, 1),
-                  ),
                 ),
               ),
             ),

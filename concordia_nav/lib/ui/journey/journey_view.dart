@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
-import '../../data/domain-model/concordia_building.dart';
-import '../../data/domain-model/concordia_campus.dart';
-import '../../data/services/building_service.dart';
-import '../../widgets/custom_appbar.dart';
+import '../../data/domain-model/concordia_room.dart';
+import '../../data/domain-model/location.dart';
+import '../../data/domain-model/navigation_decision.dart';
+import '../../data/repositories/navigation_decision_repository.dart';
+import '../../utils/journey/journey_viewmodel.dart';
+import '../../widgets/error_page.dart';
+import '../../widgets/journey/navigation_step_page.dart';
 import '../indoor_location/indoor_directions_view.dart';
 import '../outdoor_location/outdoor_location_map_view.dart';
 
 class NavigationJourneyPage extends StatefulWidget {
-  final String sourceRoom;
-  final String sourceBuilding;
-  final String sourceFloor;
-  final String destRoom;
-  final String destBuilding;
-  final String destFloor;
+  final List<Location> journeyItems;
+  final String journeyName;
+
+  final NavigationDecision? decision;
 
   const NavigationJourneyPage({
     super.key,
-    required this.sourceRoom,
-    required this.sourceBuilding,
-    required this.sourceFloor,
-    required this.destRoom,
-    required this.destBuilding,
-    required this.destFloor,
+    required this.journeyItems,
+    required this.journeyName,
+    this.decision,
   });
 
   @override
@@ -29,107 +27,114 @@ class NavigationJourneyPage extends StatefulWidget {
 }
 
 class NavigationJourneyPageState extends State<NavigationJourneyPage> {
-  final PageController _controller = PageController();
-  int _currentPage = 0;
-  late final List<Widget> _navPages;
+  late NavigationJourneyViewModel viewModel;
+  late final Location sourceForNextClass;
+  late final ConcordiaRoom destinationForNextClass;
 
   @override
   void initState() {
     super.initState();
-    final bool isSameBuilding = widget.sourceBuilding.toLowerCase() ==
-        widget.destBuilding.toLowerCase();
-    if (isSameBuilding) {
-      // For same-building navigation, only a single indoor view is required.
-      _navPages = [
-        IndoorDirectionsView(
-          sourceRoom: widget.sourceRoom,
-          building: widget.sourceBuilding,
-          endRoom: widget.destRoom,
-          isDisability: false,
-          hideAppBar: true,
-          hideIndoorInputs: true,
-        ),
-      ];
-    } else {
-      final ConcordiaBuilding? destBuildingObj =
-          BuildingService.getBuildingByName(widget.destBuilding);
-      final campus = destBuildingObj?.campus ?? ConcordiaCampus.sgw;
 
-      // Unique Building to Unique Building case:
-      // Show indoor and outdoor directions between both classes.
-      _navPages = [
-        IndoorDirectionsView(
-          sourceRoom: widget.sourceRoom,
-          building: widget.sourceBuilding,
-          endRoom: "Your Location",
-          isDisability: false,
-          hideAppBar: true,
-          hideIndoorInputs: true,
-        ),
-        OutdoorLocationMapView(
-          campus: campus,
-          building: destBuildingObj,
-          hideAppBar: true,
-          hideInputs: true,
-        ),
-        IndoorDirectionsView(
-          sourceRoom: "Your Location",
-          building: widget.destBuilding,
-          endRoom: widget.destRoom,
-          isDisability: false,
-          hideAppBar: true,
-          hideIndoorInputs: true,
-        ),
-      ];
+    // A minimum (>= 2) number of Locations must be present within the List.
+    if (widget.journeyItems.length < 2) {
+      throw Exception("Could not build navigation pages for your next class.");
     }
 
-    _controller.addListener(() {
-      final page = _controller.page?.round() ?? 0;
-      if (page != _currentPage) {
-        setState(() {
-          _currentPage = page;
-        });
-      }
-    });
+    viewModel = NavigationJourneyViewModel(
+      repository: NavigationDecisionRepository(),
+      journeyItems: widget.journeyItems,
+      initialDecision: widget.decision,
+    );
+
+    sourceForNextClass = widget.journeyItems.first;
+    destinationForNextClass = (widget.journeyItems.last as ConcordiaRoom);
   }
 
-  void _nextPage() {
-    if (_currentPage < _navPages.length - 1) {
-      _controller.nextPage(
-          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-    } else {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+  /// Builds the page for a given index of the journeyitems Location List.
+  Widget _buildPage(int i) {
+    switch (viewModel.decision.navCase) {
+      // CASE 1: Source and Destination belong to the same ConcordiaBuilding.
+      case NavigationCase.sameBuildingClassroom:
+        return IndoorDirectionsView(
+          sourceRoom:
+              "${(sourceForNextClass as ConcordiaRoom).floor.floorNumber}${(sourceForNextClass as ConcordiaRoom).roomNumber}",
+          // either source or destination work here for the building attribute
+          // since this is Case 1.
+          building: sourceForNextClass.name,
+          endRoom:
+              "${(destinationForNextClass).floor.floorNumber}${(destinationForNextClass).roomNumber}",
+          hideAppBar: true,
+          hideIndoorInputs: true,
+        );
+      // CASE 2: Source and Destination are NOT in the same ConcordiaBuilding.
+      case NavigationCase.differentBuildingClassroom:
+        switch (i) {
+          case 0:
+            return IndoorDirectionsView(
+              sourceRoom:
+                  "${(sourceForNextClass as ConcordiaRoom).floor.floorNumber}${(sourceForNextClass as ConcordiaRoom).roomNumber}",
+              building: sourceForNextClass.name,
+              endRoom: "main entrance",
+              hideAppBar: true,
+              hideIndoorInputs: true,
+            );
+          case 1:
+            return OutdoorLocationMapView(
+              campus: (destinationForNextClass).campus,
+              building: (destinationForNextClass).floor.building,
+              hideAppBar: true,
+              hideInputs: true,
+            );
+          case 2:
+            return IndoorDirectionsView(
+              sourceRoom: "Your Location",
+              building: destinationForNextClass.name,
+              endRoom:
+                  "${(destinationForNextClass).floor.floorNumber}${(destinationForNextClass).roomNumber}",
+              hideAppBar: true,
+              hideIndoorInputs: true,
+            );
+          default:
+            return ErrorPage(
+                message:
+                    "Out-of-bounds step index ($i) for differentBuildingClassroom journey.");
+        }
+      // CASE 3: Source is a non-ConcordiaRoom (labelled an outdoor location).
+      case NavigationCase.outdoorToClassroom:
+        switch (i) {
+          case 0:
+            return OutdoorLocationMapView(
+              campus: (destinationForNextClass).campus,
+              building: (destinationForNextClass).floor.building,
+              hideAppBar: true,
+              hideInputs: true,
+            );
+          case 1:
+            return IndoorDirectionsView(
+              sourceRoom: "Your Location",
+              building: destinationForNextClass.name,
+              endRoom:
+                  "${(destinationForNextClass).floor.floorNumber}${(destinationForNextClass).roomNumber}",
+              hideAppBar: true,
+              hideIndoorInputs: true,
+            );
+          default:
+            return ErrorPage(
+                message:
+                    "Out-of-bounds step index ($i) for outdoorToClassroom journey.");
+        }
+      case NavigationCase.journeyFromSmartPlanner:
+        return const ErrorPage(
+            message: "You're early... there's nothing here for this yet.");
     }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: customAppBar(context, "Next Class Directions"),
-      body: PageView(
-        controller: _controller,
-        physics: const NeverScrollableScrollPhysics(),
-        children: _navPages,
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF962e42),
-            foregroundColor: Colors.white,
-          ),
-          onPressed: _nextPage,
-          child: Text(_currentPage == _navPages.length - 1
-              ? "Complete Journey"
-              : "Proceed to the Next Direction Step"),
-        ),
-      ),
+    return NavigationStepPage(
+      journeyName: widget.journeyName,
+      pageCount: viewModel.decision.pageCount,
+      pageBuilder: _buildPage,
     );
   }
 }
