@@ -20,7 +20,7 @@ void main() {
     );
 
     // Find the IconButton in the customAppBar's actions
-    final menuIconFinder = find.byIcon(Icons.menu);
+    final menuIconFinder = find.byIcon(Icons.edit_note);
 
     // Verify that the IconButton is found
     expect(menuIconFinder, findsOneWidget);
@@ -117,7 +117,7 @@ void main() {
         ),
       );
 
-      const expectedIcon = const Icon(Icons.menu, color: Colors.white);
+      const expectedIcon = const Icon(Icons.edit_note, color: Colors.white);
       final actualIcon = leadingIconButton.icon as Icon;
 
       expect(actualIcon.icon, expectedIcon.icon); // Compare IconData

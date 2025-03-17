@@ -22,6 +22,7 @@ import 'ui/setting/calendar/calendar_link_view.dart';
 import 'ui/setting/calendar/calendar_selection_view.dart';
 import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
+import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

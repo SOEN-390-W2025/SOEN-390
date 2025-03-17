@@ -5,6 +5,7 @@ import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
+import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -355,16 +356,27 @@ void main() async {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Main menu items are present', (WidgetTester tester) async {
-    // Build the HomePage widget with mock onPress handlers
-    await tester.pumpWidget(const MaterialApp(home: const HomePage()));
-    await tester.pump();
-    // Tap on the Menu button
-    await tester.tap(find.byIcon(Icons.menu));
+  testWidgets('Smart Planner navigation should work', (WidgetTester tester) async {
+    // define routes needed for this test
+    final routes = {
+      '/': (context) => const HomePage(),
+      '/SmartPlannerView': (context) => const SmartPlannerView(),
+    };
+    
+    // Build the HomePage widget
+    await tester.pumpWidget(MaterialApp(
+      initialRoute: '/',
+      routes: routes,
+    ));
     await tester.pump();
 
-    // Verify that the app has returned to the HomePage
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Concordia Campus Guide'), findsOneWidget);
+    // Tap on the Menu button
+    expect(find.byIcon(Icons.edit_note), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.edit_note));
+    await tester.pumpAndSettle();
+
+    // Tap the back button in the app bar
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 }
