@@ -83,6 +83,7 @@ class MyApp extends StatelessWidget {
           '/SettingsPage': (context) => const SettingsPage(),
           '/SearchView': (context) => const SearchView(),
           '/SelectBuilding': (context) => const BuildingSelection(),
+          '/SmartPlannerView': (context) => const SmartPlannerView(),
           '/IndoorDirectionsView': (context) {
             final args = ModalRoute.of(context)!.settings.arguments
                 as Map<String, dynamic>;
