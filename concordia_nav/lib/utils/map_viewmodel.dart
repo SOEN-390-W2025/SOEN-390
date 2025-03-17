@@ -123,7 +123,7 @@ class MapViewModel extends ChangeNotifier {
   /// Fetches the initial camera position for the provided [campus].
   Future<CameraPosition> getInitialCameraPosition(
       ConcordiaCampus campus) async {
-    return _mapRepository.getCameraPosition(campus);
+    return _mapRepository.getCameraPositionFromCampus(campus);
   }
 
   Future<String> _getOriginAddress(String? originAddress) async {
