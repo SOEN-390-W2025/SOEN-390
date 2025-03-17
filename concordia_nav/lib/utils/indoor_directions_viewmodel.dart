@@ -196,8 +196,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       ConcordiaFloorPoint? startPositionPoint;
       ConcordiaFloorPoint? endPositionPoint;
 
-      print('Source room: $sourceRoomClean');
-      print('End room: $endRoomClean');
+      dev.log('Source room: $sourceRoomClean');
+      dev.log('End room: $endRoomClean');
       dev.log('Floor: $floor');
 
       // Get start location
