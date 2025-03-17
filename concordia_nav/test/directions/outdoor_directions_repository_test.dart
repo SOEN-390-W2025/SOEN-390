@@ -1,5 +1,5 @@
+import 'package:concordia_nav/data/domain-model/shuttle_route_details.dart';
 import 'package:concordia_nav/data/repositories/outdoor_directions_repository.dart';
-import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -11,14 +11,14 @@ void main() {
   group('outdoor repository tests', () {
     test('loadShuttleRoute', () async {
       var route = await ShuttleRouteRepository()
-          .loadShuttleRoute(ShuttleRouteDirection.SGWtoLOY);
+          .loadShuttleRoute(ShuttleRouteDirection.campusSGWtoLOY);
 
       // verify returned route from SGW to LOY
       expect(route, isA<List<LatLng>>());
       expect(route.first, const LatLng(45.49708, -73.5784));
 
       route = await ShuttleRouteRepository()
-          .loadShuttleRoute(ShuttleRouteDirection.LOYtoSGW);
+          .loadShuttleRoute(ShuttleRouteDirection.campusLOYtoSGW);
 
       // verify returned route from LOY to SGW
       expect(route, isA<List<LatLng>>());

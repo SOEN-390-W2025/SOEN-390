@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../utils/map_viewmodel.dart';
+import '../domain-model/shuttle_route_details.dart';
 
 class ShuttleRouteRepository {
   final AssetBundle assetBundle;
@@ -16,10 +16,10 @@ class ShuttleRouteRepository {
     String filePath;
 
     switch (direction) {
-      case ShuttleRouteDirection.SGWtoLOY:
+      case ShuttleRouteDirection.campusSGWtoLOY:
         filePath = 'assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json';
         break;
-      case ShuttleRouteDirection.LOYtoSGW:
+      case ShuttleRouteDirection.campusLOYtoSGW:
         filePath = 'assets/maps/outdoor/shuttle_bus_routes/loy_to_sgw.json';
         break;
     }
