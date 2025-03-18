@@ -30,6 +30,7 @@ class _LocationSelectionState extends State<LocationSelection> {
   String _selectionMode = 'selectClassroom';
   bool _isMyLocationAvailable = false;
   bool _isLoading = false;
+  final String yourLocationString = "Your Location";
 
   String? _selectedBuilding;
   String? _selectedFloor;
@@ -112,7 +113,7 @@ class _LocationSelectionState extends State<LocationSelection> {
         final Location myLocation = Location(
           lastPosition.latitude,
           lastPosition.longitude,
-          "Your Location",
+          yourLocationString,
           null,
           null,
           null,
@@ -135,7 +136,7 @@ class _LocationSelectionState extends State<LocationSelection> {
       final Location myLocation = Location(
         position.latitude,
         position.longitude,
-        "Your Location",
+        yourLocationString,
         null,
         null,
         null,
@@ -166,7 +167,7 @@ class _LocationSelectionState extends State<LocationSelection> {
       final Location highAccLocation = Location(
         highAccPosition.latitude,
         highAccPosition.longitude,
-        "Your Location",
+        yourLocationString,
         null,
         null,
         null,
@@ -213,236 +214,223 @@ class _LocationSelectionState extends State<LocationSelection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.isSource) ...[
-              Center(
-                child: SegmentedButton(
-                  selected: {_selectionMode},
-                  segments: [
-                    ButtonSegment(
-                      value: "myLocation",
-                      label: Text(
-                        "My Location",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: _isMyLocationAvailable
-                                ? Colors.black
-                                : Colors.grey),
-                      ),
-                      icon: Icon(Icons.my_location,
-                          color: _isMyLocationAvailable
-                              ? Colors.black
-                              : Colors.grey),
-                      enabled: _isMyLocationAvailable,
-                    ),
-                    const ButtonSegment(
-                      value: "outdoorLocation",
-                      label: Text(
-                        "Outdoor Location",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      icon: Icon(Icons.location_on),
-                    ),
-                    const ButtonSegment(
-                      value: "selectClassroom",
-                      label: Text(
-                        "Select Classroom",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      icon: Icon(Icons.meeting_room),
-                    ),
-                  ],
-                  onSelectionChanged: (newValue) {
-                    setState(() {
-                      _selectionMode = newValue.first;
-                    });
-
-                    if (_selectionMode == "myLocation") {
-                      _handleMyLocationSelected();
-                    }
-                  },
-                  style: ButtonStyle(
-                    foregroundColor: WidgetStateProperty.resolveWith<Color>(
-                      (states) => states.contains(WidgetState.selected)
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                    backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                      (states) => states.contains(WidgetState.selected)
-                          ? const Color(0xFF922238)
-                          : Colors.grey[300]!,
-                    ),
-                    iconColor: WidgetStateProperty.resolveWith<Color>(
-                      (states) => states.contains(WidgetState.selected)
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            if (_selectionMode == "outdoorLocation") ...[
-              _mapViewModel.buildPlaceAutocompleteTextField(
-                controller: TextEditingController(),
-                onPlaceSelected: (location) {
-                  widget.onSelectionComplete(location);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-            if (_selectionMode == "selectClassroom") ...[
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: "Select Building",
-                  labelStyle: TextStyle(color: Colors.black),
-                  floatingLabelStyle: TextStyle(color: Colors.black),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF922238)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF922238)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF922238), width: 2),
-                  ),
-                ),
-                value: _selectedBuilding,
-                items: _buildings
-                    .map((b) => DropdownMenuItem<String>(
-                          value: b,
-                          child: Text(b),
-                        ))
-                    .toList(),
-                onChanged: (value) async {
-                  setState(() {
-                    _selectedBuilding = value;
-                  });
-                  if (value != null) await _loadFloors(value);
-                },
-              ),
-              const SizedBox(height: 16),
-              if (_selectedBuilding != null)
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: "Select Floor",
-                    labelStyle: TextStyle(color: Colors.black),
-                    floatingLabelStyle: TextStyle(color: Colors.black),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF922238)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF922238)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Color(0xFF922238), width: 2),
-                    ),
-                  ),
-                  value: _selectedFloor,
-                  items: _floors
-                      .map((f) => DropdownMenuItem<String>(
-                            value: f,
-                            child: Text(f),
-                          ))
-                      .toList(),
-                  onChanged: (value) async {
-                    setState(() {
-                      _selectedFloor = value;
-                    });
-                    if (value != null && _selectedBuilding != null) {
-                      await _loadRooms(_selectedBuilding!, value);
-                    }
-                  },
-                ),
-              const SizedBox(height: 16),
-              if (_selectedFloor != null)
-                DropdownButtonFormField<ConcordiaRoom>(
-                  decoration: const InputDecoration(
-                    labelText: "Select Classroom",
-                    labelStyle: TextStyle(color: Colors.black),
-                    floatingLabelStyle: TextStyle(color: Colors.black),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF922238)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF922238)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Color(0xFF922238), width: 2),
-                    ),
-                  ),
-                  value: _selectedRoom,
-                  items: _rooms
-                      .map((room) => DropdownMenuItem<ConcordiaRoom>(
-                            value: room,
-                            child: Text(_formatRoomNumber(room.roomNumber)),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRoom = value;
-                    });
-                    if (value != null) {
-                      widget.onSelectionComplete(value);
-                    }
-                  },
-                ),
-            ],
-            if (!widget.isSource) ...[
-              // Given that the application intends to cover a broad range of
-              // users, this section is really for new users that don't know
-              // building abbreviations, their next class number, etc. So, it
-              // offers them the option to refer/link to their calendar.
-              const SizedBox(height: 24),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Not sure where your next class is?",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Connect your course calendar to let us help you. Or, if you've already linked a calendar, you can access it here:",
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      icon:
-                          const Icon(Icons.calendar_today, color: Colors.white),
-                      label: const Text("Course Calendar"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF922238),
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: checkCalendarPermission,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            if (_isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child:
-                      CircularProgressIndicator(color: const Color(0xFF962e42)),
-                ),
-              ),
+            if (widget.isSource) _buildSegmentedButton(),
+            if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
+            if (_selectionMode == "selectClassroom") _buildSelectClassroom(),
+            if (!widget.isSource) _buildCalendarLink(),
+            if (_isLoading) _buildLoadingIndicator(),
           ],
         ),
+      ),
+    );
+  }
+
+  // Segmented button for source
+  ButtonSegment<String> _buildSegment(
+      String value, IconData icon, String label, bool isEnabled) {
+    // Explicitly specify that the ButtonSegment is of type String
+    return ButtonSegment<String>(
+      value: value,
+      label: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            fontSize: 12, color: isEnabled ? Colors.black : Colors.grey),
+      ),
+      icon: Icon(icon, color: isEnabled ? Colors.black : Colors.grey),
+      enabled: isEnabled,
+    );
+  }
+
+  Widget _buildSegmentedButton() {
+    return Center(
+      child: SegmentedButton<String>(
+        selected: {_selectionMode},
+        segments: [
+          // Ensure the list is of type List<ButtonSegment<String>>
+          _buildSegment("myLocation", Icons.my_location, "My Location",
+              _isMyLocationAvailable),
+          _buildSegment(
+              "outdoorLocation", Icons.location_on, "Outdoor Location", true),
+          _buildSegment(
+              "selectClassroom", Icons.meeting_room, "Select Classroom", true),
+        ],
+        onSelectionChanged: (newValue) {
+          setState(() {
+            _selectionMode = newValue.first;
+          });
+
+          if (_selectionMode == "myLocation") {
+            _handleMyLocationSelected();
+          }
+        },
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith<Color>(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : Colors.black,
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (states) => states.contains(WidgetState.selected)
+                ? const Color(0xFF922238)
+                : Colors.grey[300]!,
+          ),
+          iconColor: WidgetStateProperty.resolveWith<Color>(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : Colors.black,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Builds the outdoor location selection UI
+  Widget _buildOutdoorLocation() {
+    return Column(
+      children: [
+        _mapViewModel.buildPlaceAutocompleteTextField(
+          controller: TextEditingController(),
+          onPlaceSelected: (location) {
+            widget.onSelectionComplete(location);
+          },
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  // Builds the select classroom UI
+  Widget _buildSelectClassroom() {
+    return Column(
+      children: [
+        _buildBuildingDropdown(),
+        const SizedBox(height: 16),
+        if (_selectedBuilding != null) _buildFloorDropdown(),
+        const SizedBox(height: 16),
+        if (_selectedFloor != null) _buildClassroomDropdown(),
+      ],
+    );
+  }
+
+  // Dropdown for selecting the building
+  Widget _buildBuildingDropdown() {
+    return DropdownButtonFormField<String>(
+      isExpanded: true,
+      decoration: _buildDropdownDecoration("Select Building"),
+      value: _selectedBuilding,
+      items: _buildings
+          .map((b) => DropdownMenuItem<String>(value: b, child: Text(b)))
+          .toList(),
+      onChanged: (value) async {
+        setState(() {
+          _selectedBuilding = value;
+        });
+        if (value != null) await _loadFloors(value);
+      },
+    );
+  }
+
+  // Dropdown for selecting the floor
+  Widget _buildFloorDropdown() {
+    return DropdownButtonFormField<String>(
+      decoration: _buildDropdownDecoration("Select Floor"),
+      value: _selectedFloor,
+      items: _floors
+          .map((f) => DropdownMenuItem<String>(value: f, child: Text(f)))
+          .toList(),
+      onChanged: (value) async {
+        setState(() {
+          _selectedFloor = value;
+        });
+        if (value != null && _selectedBuilding != null) {
+          await _loadRooms(_selectedBuilding!, value);
+        }
+      },
+    );
+  }
+
+  // Dropdown for selecting the classroom
+  Widget _buildClassroomDropdown() {
+    return DropdownButtonFormField<ConcordiaRoom>(
+      decoration: _buildDropdownDecoration("Select Classroom"),
+      value: _selectedRoom,
+      items: _rooms
+          .map((room) => DropdownMenuItem<ConcordiaRoom>(
+                value: room,
+                child: Text(_formatRoomNumber(room.roomNumber)),
+              ))
+          .toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedRoom = value;
+        });
+        if (value != null) {
+          widget.onSelectionComplete(value);
+        }
+      },
+    );
+  }
+
+  // Helper method for dropdown decoration
+  InputDecoration _buildDropdownDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      floatingLabelStyle: const TextStyle(color: Colors.black),
+      border: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238))),
+      enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238))),
+      focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238), width: 2)),
+    );
+  }
+
+  // Builds the link to the calendar for non-source users
+  Widget _buildCalendarLink() {
+    return Column(
+      children: [
+        const SizedBox(height: 24),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Not sure where your next class is?",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Connect your course calendar to let us help you. Or, if you've already linked a calendar, you can access it here:",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.calendar_today, color: Colors.white),
+                label: const Text("Course Calendar"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF922238),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: checkCalendarPermission,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Loading indicator for waiting state
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: CircularProgressIndicator(color: Color(0xFF962e42)),
       ),
     );
   }

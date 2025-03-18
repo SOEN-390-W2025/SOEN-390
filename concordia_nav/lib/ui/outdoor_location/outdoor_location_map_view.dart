@@ -285,7 +285,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           ? null
           : customAppBar(
               context,
-              widget.building == null ? widget.campus.name : widget.campus.name,
+              widget.campus.name,
             ),
       body: Stack(
         children: [

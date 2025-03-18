@@ -310,8 +310,7 @@ class _CalendarViewState extends State<CalendarView> {
                   width: 36,
                   child: Padding(
                     padding: EdgeInsets.all(4.0),
-                    child: CircularProgressIndicator(
-                        color: const Color(0xFF962e42)),
+                    child: CircularProgressIndicator(color: Color(0xFF962e42)),
                   ),
                 )
               else if (_selectedEvent?.locationField == null ||
@@ -358,8 +357,7 @@ class _CalendarViewState extends State<CalendarView> {
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(
-                        color: const Color(0xFF962e42)),
+                    child: CircularProgressIndicator(color: Color(0xFF962e42)),
                   ),
 
                 if (viewModel.errorMessage != null)

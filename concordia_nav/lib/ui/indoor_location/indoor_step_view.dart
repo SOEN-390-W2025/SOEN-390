@@ -72,20 +72,19 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   String extractFloor(String roomName) {
     if (roomName == yourLocationString) return '1';
 
-    // Remove any building prefix if present (like "H " or "MB ")
-    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
-
-    // If the first character is alphabetic, get first two characters
-    if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
-      // For alphanumeric floors, take the first two characters
-      return cleanedRoom.length >= 2
-          ? cleanedRoom.substring(0, 2)
-          : cleanedRoom;
+    // If the room name starts with "S", return the first character and first digit after it
+    if (roomName.isNotEmpty && roomName[0] == 'S') {
+      final firstDigit = RegExp(r'\d').stringMatch(roomName) ?? '1';
+      return roomName[0] + firstDigit;
     }
-    // Otherwise if it starts with a digit, just get the first digit
-    else if (cleanedRoom.isNotEmpty &&
-        RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
-      return cleanedRoom.substring(0, 1);
+
+    // If it doesn't start with "S", find the left-most digit (ignore spaces or building prefix)
+    else if (roomName.isNotEmpty) {
+      // Use regex to find the first digit in the room name
+      final firstDigit =
+          RegExp(r'\d').stringMatch(roomName.replaceAll(' ', ''));
+      return firstDigit ??
+          '1'; // Return the first digit found, or '1' if no digit is found
     }
 
     // Fallback
@@ -95,8 +94,10 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   void _proceedToSecondRoute() {
     setState(() {
       _firstRouteCompleted = true;
-      final String firstDigit =
-          RegExp(r'^[A-Za-z]?\d').firstMatch(widget.endRoom)?.group(0) ?? '1';
+      final String firstDigit = extractFloor(widget.endRoom).startsWith('S') ||
+              RegExp(r'^\d$').hasMatch(extractFloor(widget.endRoom))
+          ? extractFloor(widget.endRoom)
+          : '1';
       _viewModel = VirtualStepGuideViewModel(
         sourceRoom: 'connection',
         building: widget.building,

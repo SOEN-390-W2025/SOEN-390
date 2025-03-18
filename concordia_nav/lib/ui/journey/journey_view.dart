@@ -32,10 +32,12 @@ class NavigationJourneyPageState extends State<NavigationJourneyPage> {
   late NavigationJourneyViewModel viewModel;
   late final Location sourceForNextClass;
   late final ConcordiaRoom destinationForNextClass;
+  late String yourLocationString;
 
   @override
   void initState() {
     super.initState();
+    yourLocationString = "Your Location";
 
     // A minimum (>= 2) number of Locations must be present within the List.
     if (widget.journeyItems.length < 2) {
@@ -76,7 +78,7 @@ class NavigationJourneyPageState extends State<NavigationJourneyPage> {
               sourceRoom:
                   "${(sourceForNextClass as ConcordiaRoom).floor.floorNumber}${(sourceForNextClass as ConcordiaRoom).roomNumber}",
               building: sourceForNextClass.name,
-              endRoom: "Your Location",
+              endRoom: yourLocationString,
               hideAppBar: true,
               hideIndoorInputs: true,
             );
@@ -90,7 +92,7 @@ class NavigationJourneyPageState extends State<NavigationJourneyPage> {
             );
           case 2:
             return IndoorDirectionsView(
-              sourceRoom: "Your Location",
+              sourceRoom: yourLocationString,
               building: destinationForNextClass.name,
               endRoom:
                   "${(destinationForNextClass).floor.floorNumber}${(destinationForNextClass).roomNumber}",
@@ -114,7 +116,7 @@ class NavigationJourneyPageState extends State<NavigationJourneyPage> {
             );
           case 1:
             return IndoorDirectionsView(
-              sourceRoom: "Your Location",
+              sourceRoom: yourLocationString,
               building: destinationForNextClass.name,
               endRoom:
                   "${(destinationForNextClass).floor.floorNumber}${(destinationForNextClass).roomNumber}",

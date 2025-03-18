@@ -660,6 +660,10 @@ class NextClassDirectionsPreviewState
   }
 
   Widget _buildBottomBar(int totalPages) {
+    final bool isPrevButtonDisabled = _currentPage == 0;
+    final bool isNextButtonDisabled = _currentPage == totalPages - 1;
+    final bool isBeginNavigationButtonEnabled = _currentPage == totalPages - 1;
+
     return Container(
       color: const Color(0xFF962E42),
       padding: const EdgeInsets.all(8.0),
@@ -676,7 +680,7 @@ class NextClassDirectionsPreviewState
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: _currentPage == 0 ? null : _prevPage,
+                  onPressed: isPrevButtonDisabled ? null : _prevPage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF962E42),
@@ -684,7 +688,7 @@ class NextClassDirectionsPreviewState
                   child: const Text("Prev"),
                 ),
                 ElevatedButton(
-                  onPressed: _currentPage == totalPages - 1 ? null : _nextPage,
+                  onPressed: isNextButtonDisabled ? null : _nextPage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF962E42),
@@ -692,7 +696,7 @@ class NextClassDirectionsPreviewState
                   child: const Text("Next"),
                 ),
                 ElevatedButton(
-                  onPressed: _currentPage == totalPages - 1 ? _nextPage : null,
+                  onPressed: isBeginNavigationButtonEnabled ? _nextPage : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF962E42),

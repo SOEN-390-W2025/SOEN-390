@@ -17,6 +17,7 @@ import 'dart:developer' as dev;
 
 class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
+  final String mainEntranceString = "main entrance";
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -56,7 +57,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       return null;
     }
 
-    if (room.toLowerCase() == 'main entrance') {
+    if (room.toLowerCase() == mainEntranceString) {
       return buildingData.outdoorExitPoint;
     }
 
@@ -143,7 +144,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         building.abbreviation.toUpperCase());
 
     // If floor is "1", return the outdoor exit point
-    if (((connection == "main entrance") || (connection != "connection")) &&
+    if (((connection == mainEntranceString) || (connection != "connection")) &&
         floor == '1') {
       return buildingData!.outdoorExitPoint;
     }
@@ -219,8 +220,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         endPositionPoint =
             await getStartPoint(building, floor, disability, 'connection');
       } else if (endRoomClean.toLowerCase() == 'ma') {
-        endPositionPoint =
-            await getStartPoint(building, floor, disability, 'main entrance');
+        endPositionPoint = await getStartPoint(
+            building, floor, disability, mainEntranceString);
       } else {
         endPositionPoint =
             await getPositionPoint(building, floor, endRoomClean);
