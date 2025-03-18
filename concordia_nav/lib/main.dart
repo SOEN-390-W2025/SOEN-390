@@ -20,6 +20,7 @@ import 'ui/setting/calendar/calendar_link_view.dart';
 import 'ui/setting/calendar/calendar_selection_view.dart';
 import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
+import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -44,39 +45,40 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CalendarControllerProvider(
-      controller: EventController(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
-        initialRoute: '/',
+        controller: EventController(),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.theme,
+          initialRoute: '/',
           routes: {
             '/': (context) => SplashScreen(),
             '/HomePage': (context) => const HomePage(),
             '/CampusMapPage': (context) => CampusMapPage(
-                campus:
-                    ModalRoute.of(context)!.settings.arguments as ConcordiaCampus),
+                campus: ModalRoute.of(context)!.settings.arguments
+                    as ConcordiaCampus),
             '/IndoorLocationView': (context) => IndoorLocationView(
                   building: ModalRoute.of(context)!.settings.arguments
                       as ConcordiaBuilding,
                 ),
             '/BuildingSelection': (context) => const BuildingSelection(),
             '/OutdoorLocationMapView': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-                return OutdoorLocationMapView(
-                  campus: args['campus'] as ConcordiaCampus,
-                  building: args['building'] as ConcordiaBuilding?,
-                );
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+              return OutdoorLocationMapView(
+                campus: args['campus'] as ConcordiaCampus,
+                building: args['building'] as ConcordiaBuilding?,
+              );
             },
             '/POIChoiceView': (context) => const POIChoiceView(),
             '/POIMapView': (context) => const POIMapView(),
             '/AccessibilityPage': (context) => const AccessibilityPage(),
             '/CalendarLinkView': (context) => const CalendarLinkView(),
-            '/CalendarSelectionView': (context) => const CalendarSelectionView(),
+            '/CalendarSelectionView': (context) =>
+                const CalendarSelectionView(),
             '/CalendarView': (context) => CalendarView(
-                selectedCalendar:
-                    ModalRoute.of(context)!.settings.arguments as UserCalendar,
-            ),
+                  selectedCalendar: ModalRoute.of(context)!.settings.arguments
+                      as UserCalendar,
+                ),
             '/SettingsPage': (context) => const SettingsPage(),
             '/SearchView': (context) => const SearchView(),
             '/SelectBuilding': (context) => const BuildingSelection(),
@@ -100,10 +102,10 @@ class MyApp extends StatelessWidget {
                 isSource: args['isSource'] as bool? ?? false,
                 isSearch: args['isSearch'] as bool? ?? false,
                 isDisability: args['isDisability'] as bool? ?? false,
-            );
+              );
+            },
+            '/SmartPlannerView': (context) => const SmartPlannerView(),
           },
-        },
-      ),
-    );
+    ));
   }
 }

@@ -68,25 +68,19 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.maps_home_work),
                       onPress: () => Navigator.pushNamed(
                           context, '/OutdoorLocationMapView',
-                          arguments: {
-                            'campus': ConcordiaCampus.sgw
-                          }
-                        )
-                      ),
+                          arguments: {'campus': ConcordiaCampus.sgw})),
                   const SizedBox(width: 20),
                   FeatureCard(
                       title: 'Next class directions',
                       icon: const Icon(Icons.calendar_today),
-                      onPress: () =>
-                        Navigator.pushNamed(context, '/IndoorDirectionsView',
-                          arguments: {
-                            'sourceRoom': 'Your Location',
-                            'building': 'Hall Building',
-                            'floor': '1',
-                            'endRoom': 'H 101'
-                          }
-                      )
-                    ),
+                      onPress: () => Navigator.pushNamed(
+                              context, '/IndoorDirectionsView',
+                              arguments: {
+                                'sourceRoom': 'Your Location',
+                                'building': 'Hall Building',
+                                'floor': '1',
+                                'endRoom': 'H 101'
+                              })),
                 ],
               ),
             ),
