@@ -5,7 +5,6 @@ import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../domain-model/location.dart';
-import 'helpers/outdoor_directions_helpers.dart';
 
 class OutdoorRouteResult {
   final Polyline? polyline;
@@ -153,16 +152,29 @@ class ODSDirectionsService {
     gda.TravelMode? travelMode,
   }) async {
     try {
-      final directionsService = ODSDirectionsService();
-      final mode = travelMode ?? gda.TravelMode.walking;
-
-      final routeResult = await directionsService.fetchRouteResult(
-        originAddress: "${origin.lat},${origin.lng}",
-        destinationAddress: "${destination.lat},${destination.lng}",
-        travelMode: mode,
+      final request = gda.DirectionsRequest(
+        origin: "${origin.lat},${origin.lng}",
+        destination: "${destination.lat},${destination.lng}",
+        travelMode: travelMode ?? gda.TravelMode.walking,
       );
 
-      return parseDurationStringToSeconds(routeResult.travelTime);
+      final Completer<int> completer = Completer();
+      await directionsService.route(request,
+          (gda.DirectionsResult result, gda.DirectionsStatus? status) {
+        if (status == gda.DirectionsStatus.ok &&
+            result.routes != null &&
+            result.routes!.isNotEmpty) {
+          final route = result.routes!.first;
+          final leg =
+              route.legs?.isNotEmpty ?? false ? route.legs!.first : null;
+          final durationInSeconds = leg?.duration?.value;
+          completer.complete(durationInSeconds as FutureOr<int>?);
+        } else {
+          completer.complete(0);
+        }
+      });
+
+      return completer.future;
     } on Error catch (e, stackTrace) {
       debugPrint("Error fetching travel time: $e");
       debugPrint("Stack trace: $stackTrace");
