@@ -294,13 +294,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   void handlePrevFloorPress() {
     setState(() {
-      if (realEndRoom == yourLocation) {
-        widget.sourceRoom = 'connection';
-        widget.endRoom = realEndRoom;
-      } else {
-        widget.sourceRoom = yourLocation;
-        widget.endRoom = realEndRoom;
-      }
+      widget.sourceRoom = 'connection';
+      widget.endRoom = realEndRoom;
 
       isMultiFloor = true;
 
