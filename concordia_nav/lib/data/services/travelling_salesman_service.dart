@@ -1,8 +1,8 @@
 import 'dart:developer' as dev;
-import 'dart:math';
 
 import '../domain-model/location.dart';
 import '../domain-model/travelling_salesman_request.dart';
+import '../repositories/building_repository.dart';
 
 class TravellingSalesmanService {
   /// Given a TravellingSalesmanRequest, gives a list where each item contains the
@@ -29,6 +29,7 @@ class TravellingSalesmanService {
     DateTime lastEndTime = request.startTime;
     Location lastLocation = request.startLocation;
     if (events.isNotEmpty && events[0].$3.compareTo(request.startTime) <= 0) {
+      dev.log("TSP: special case where first event underway");
       returnRoute.add(events[0]);
       lastEndTime = events[0].$4;
       lastLocation = events[0].$2;
@@ -38,21 +39,37 @@ class TravellingSalesmanService {
     while (events.isNotEmpty || todoLocations.isNotEmpty) {
       if (events.isNotEmpty) {
         final nextEvent = events.removeAt(0);
+        dev.log(
+            // ignore: prefer_adjacent_string_concatenation
+            "TSP: working on gap starting ${lastEndTime.toIso8601String()}," +
+                " ending event ${nextEvent.$1} ${nextEvent.$3.toIso8601String()}");
         final fitItems = await _fitTodoItems(lastEndTime, lastLocation,
             nextEvent.$3, nextEvent.$2, todoLocations);
+        // addAll gives buggy behaviour
         returnRoute.addAll(fitItems.$1);
         returnRoute.add(nextEvent);
         // Keep just the hanging items for the next iteration
+        lastEndTime = nextEvent.$4;
+        lastLocation = nextEvent.$2;
         todoLocations = fitItems.$2;
       } else {
+        dev.log(
+            // ignore: prefer_interpolation_to_compose_strings
+            "TSP: working on last segment starting " +
+                lastEndTime.toIso8601String() +
+                " and no fixed end");
         final fitItems = await _fitTodoItems(
             lastEndTime, lastLocation, null, null, todoLocations);
         if (fitItems.$2.isNotEmpty) {
           // Because there is no end to the open period, this list should not be empty.
           // If it is, something has gone wrong.
-          dev.log("Error with TSP routing, hanging items not empty");
+          dev.log("TSP: ERROR with routing, hanging items not empty");
+          break;
         }
         returnRoute.addAll(fitItems.$1);
+        // As per above, this is assigning an empty list, which satisfies the while
+        // condition to end the loop
+        todoLocations = fitItems.$2;
       }
     }
 
@@ -64,8 +81,17 @@ class TravellingSalesmanService {
   /// outdoor routing.
   static Future<int> _getTravelTime(
       Location origin, Location destination) async {
-    final random = Random();
-    return random.nextInt(600);
+    if (origin == destination) {
+      dev.log("o = d");
+      return 0;
+    }
+    if (origin == BuildingRepository.h &&
+        destination == BuildingRepository.mb) {
+      dev.log("h and mb");
+      return 300;
+    }
+    dev.log("default 150");
+    return 150;
   }
 
   /// Given an open period (eg. between classes) that starts at one location and time,
@@ -94,6 +120,7 @@ class TravellingSalesmanService {
     while (true) {
       // Find the nearest neighbour from remainingItems to the lastLocation that still
       // allows us to reach the endLocation on time
+      dev.log("TSP: starting nearest neighbour search iteration");
       int? nearestNeighbour;
       int? travelTimeToNearestNeighbour;
       for (int i = 0; i < remainingItems.length; i++) {
@@ -102,6 +129,7 @@ class TravellingSalesmanService {
         if (travelTimeToNearestNeighbour == null ||
             travelTimeToI < travelTimeToNearestNeighbour) {
           // Check if we can still reach the destination on time adding this location
+          dev.log("TSP: remaining todo item $i is a candidate");
           bool canMakeIt = true;
           if (openPeriodEndTime != null && openPeriodEndLocation != null) {
             final DateTime itemIEndTime = lastEndTime
@@ -113,6 +141,8 @@ class TravellingSalesmanService {
                     .compareTo(openPeriodEndTime) >
                 0) {
               canMakeIt = false;
+              dev.log(
+                  "TSP: can't make this item $i due to additional travel time");
             }
           }
           if (canMakeIt) {
@@ -123,10 +153,12 @@ class TravellingSalesmanService {
       }
       // If there is no candidate nearest neighbour, break
       if (nearestNeighbour == null || travelTimeToNearestNeighbour == null) {
+        dev.log("TSP: no compatible nearest neighbour");
         break;
       }
       // And if there is, add it to the remainingItems list
       final pluckedTodoItem = remainingItems.removeAt(nearestNeighbour);
+      dev.log("TSP: plucked todo item ${pluckedTodoItem.$1}");
       final pluckedItemStartTime =
           lastEndTime.add(Duration(seconds: travelTimeToNearestNeighbour));
       final pluckedItemEndTime =
