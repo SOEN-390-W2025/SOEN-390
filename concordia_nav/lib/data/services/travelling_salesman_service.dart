@@ -44,7 +44,7 @@ class TravellingSalesmanService {
             "TSP: working on gap starting ${lastEndTime.toIso8601String()}," +
                 " ending event ${nextEvent.$1} ${nextEvent.$3.toIso8601String()}");
         final fitItems = await _fitTodoItems(lastEndTime, lastLocation,
-            nextEvent.$3, nextEvent.$2, todoLocations);
+            nextEvent.$3, nextEvent.$2, todoLocations, false);
         // addAll gives buggy behaviour
         returnRoute.addAll(fitItems.$1);
         returnRoute.add(nextEvent);
@@ -59,7 +59,7 @@ class TravellingSalesmanService {
                 lastEndTime.toIso8601String() +
                 " and no fixed end");
         final fitItems = await _fitTodoItems(
-            lastEndTime, lastLocation, null, null, todoLocations);
+            lastEndTime, lastLocation, null, null, todoLocations, false);
         if (fitItems.$2.isNotEmpty) {
           // Because there is no end to the open period, this list should not be empty.
           // If it is, something has gone wrong.
@@ -94,6 +94,44 @@ class TravellingSalesmanService {
     return 150;
   }
 
+  /// Helper method used in the optimization process. This is going to create a lot of
+  /// calls to _getTravelTime. It might be a candidate to replace the implementation
+  /// here with one that approximates locally simply based on lat/lng, even if we use
+  /// the 'real' implementation elsewhere.
+  static Future<int> _getOverallRouteTime(Location start, Location? end, List<(String, Location, DateTime, DateTime)> stops) async {
+    if (stops.isEmpty && end != null) return await _getTravelTime(start, end);
+    if (stops.isEmpty) return 0;
+    int sum = await _getTravelTime(start, stops[0].$2);
+    Location lastLocation = stops[0].$2;
+    for (int i = 1; i < stops.length; i++) {
+      sum += await _getTravelTime(lastLocation, stops[i].$2);
+      lastLocation = stops[i].$2;
+    }
+    if (end != null) {
+      sum += await _getTravelTime(lastLocation, end);
+    }
+    return sum;
+  }
+
+  /// When you re-order events as part of an optimization, you need to re-order the
+  /// times you give for each stop based on new travel times. This method does that.
+  static Future<List<(String, Location, DateTime, DateTime)>> _recalculateStopTimes(Location start, DateTime startTime, List<(String, Location, DateTime, DateTime)> stops) async {
+    final List<(String, Location, DateTime, DateTime)> copyOfList = List.from(stops);
+    Location lastLocation = start;
+    DateTime lastEndTime = startTime;
+    for (int i = 0; i < stops.length; i++) {
+      final Duration timeSpentThere = stops[i].$4.difference(stops[i].$3);
+      // Update start time based on travel time
+      final DateTime newStartTime = lastEndTime.add(Duration(seconds: await _getTravelTime(lastLocation, stops[i].$2)));
+      // Update end time based on time spent there
+      final DateTime newEndTime = newStartTime.add(timeSpentThere);
+      stops[i] = (stops[i].$1, stops[i].$2, newStartTime, newEndTime);
+      lastLocation = stops[i].$2;
+      lastEndTime = stops[i].$4;
+    }
+    return copyOfList;
+  }
+
   /// Given an open period (eg. between classes) that starts at one location and time,
   /// and is either unlimited in time or ends at a second location and time, fits todo
   /// items into an optimal order to be visited. Returns one list with the todo items
@@ -109,10 +147,10 @@ class TravellingSalesmanService {
           Location openPeriodStartLocation,
           DateTime? openPeriodEndTime,
           Location? openPeriodEndLocation,
-          List<(String, Location, int)> todoItems) async {
+          List<(String, Location, int)> todoItems, bool doBubbleSwapOptim) async {
     // Copy since not a value type
     final List<(String, Location, int)> remainingItems = List.from(todoItems);
-    final List<(String, Location, DateTime, DateTime)> returnTodoItems = [];
+    List<(String, Location, DateTime, DateTime)> returnTodoItems = [];
 
     Location lastLocation = openPeriodStartLocation;
     DateTime lastEndTime = openPeriodStartTime;
@@ -173,7 +211,32 @@ class TravellingSalesmanService {
       lastEndTime = pluckedItemEndTime;
     }
 
-    // TODO Locally optimize the todoItems we built based on nearest neighbour
+    // Locally optimize the todoItems we built based on nearest neighbour, by passing
+    // through the list with a "bubble-swap" approach. It examines neighbouring pairs of
+    // edges, and if the route would be more efficient 
+    if (returnTodoItems.length > 1 && doBubbleSwapOptim) {
+      bool cleanPass;
+      do {
+        cleanPass = true;
+        final int originalTravelTime = await _getOverallRouteTime(openPeriodStartLocation, openPeriodEndLocation, returnTodoItems);
+        for (int i = 0; i < (returnTodoItems.length - 1); i++) {
+          final List<(String, Location, DateTime, DateTime)> copyOfList = List.from(returnTodoItems);
+          final temp = copyOfList[i];
+          copyOfList[i] = copyOfList[i + 1];
+          copyOfList[i + 1] = temp;
+          final int newTravelTime = await _getOverallRouteTime(openPeriodStartLocation, openPeriodEndLocation, copyOfList);
+          if (newTravelTime < originalTravelTime) {
+            cleanPass = false;
+            returnTodoItems = await _recalculateStopTimes(openPeriodStartLocation, openPeriodStartTime, returnTodoItems);
+          }
+        }
+      } while (!cleanPass);
+    }
+
+    // start -> x -> end non-optimable
+    // start -> x non-optimable
+    // start -> x1 -> x2 (-> end) - calculate overall route length with swapping x1 and x2, then pass through again until (clean)
+    // start -> x1 -> x2 -> x3 -> end - calculate 
 
     return (returnTodoItems, remainingItems);
   }
