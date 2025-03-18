@@ -211,7 +211,7 @@ void main() {
         // Arrange
         const building = 'Hall Building';
         const floor = 'Floor 1';
-        const classroom = '110';
+        const classroom = '102-3';
 
         // Build the widget
         await tester.pumpWidget(const MaterialApp(
@@ -224,11 +224,11 @@ void main() {
         await tester.pumpAndSettle();
 
         // Simulate tapping on a classroom
-        expect(find.text('110'), findsOneWidget);
+        expect(find.text('102-3'), findsOneWidget);
         await tester.tap(find.text(classroom));
         await tester.pumpAndSettle(); 
 
-        expect(find.text('H 110'), findsOneWidget);
+        expect(find.text('H 102-3'), findsOneWidget);
         expect(find.text('Hall Building'), findsOneWidget);
       });
     });
@@ -239,7 +239,7 @@ void main() {
         // Arrange
         const building = 'Hall Building';
         const floor = 'Floor 1';
-        const classroom = '110';
+        const classroom = '102-3';
 
         // Build the widget
         await tester.pumpWidget(const MaterialApp(
@@ -252,12 +252,12 @@ void main() {
         await tester.pump();
 
         // Simulate tapping on a classroom
-        expect(find.text('110'), findsOneWidget);
+        expect(find.text('102-3'), findsOneWidget);
         await tester.tap(find.text(classroom));
         await tester.pumpAndSettle(); 
 
         expect(find.text('From: Your Location'), findsOneWidget);
-        expect(find.text('To: H 110'), findsOneWidget);
+        expect(find.text('To: H 102-3'), findsOneWidget);
       });
     });
   });
