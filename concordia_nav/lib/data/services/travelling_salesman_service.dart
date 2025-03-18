@@ -3,6 +3,7 @@ import 'dart:math';
 
 import '../domain-model/location.dart';
 import '../domain-model/travelling_salesman_request.dart';
+import 'outdoor_directions_service.dart';
 
 class TravellingSalesmanService {
   /// Given a TravellingSalesmanRequest, gives a list where each item contains the
@@ -64,8 +65,22 @@ class TravellingSalesmanService {
   /// outdoor routing.
   static Future<int> _getTravelTime(
       Location origin, Location destination) async {
-    final random = Random();
-    return random.nextInt(600);
+    final randomInt = Random().nextInt(600);
+    try {
+      // There needs to be a step to determine whether outdoor or indoor
+      // routing will be used. Things like ConcordiaRoom objects shoudln't be
+      // treated as an outdoor location if we focus on the runtime type.
+      if (origin.runtimeType == Location &&
+          destination.runtimeType == Location) {
+        return await ODSDirectionsService()
+            .getTravelTimeInSeconds(origin, destination);
+      } else {
+        // At least one them was a subclass, meaning indoor routing is done.
+        return randomInt; // TODO: indoor routing
+      }
+    } on Error {
+      return randomInt;
+    }
   }
 
   /// Given an open period (eg. between classes) that starts at one location and time,
