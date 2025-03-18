@@ -664,6 +664,13 @@ class NextClassDirectionsPreviewState
     final bool isNextButtonDisabled = _currentPage == totalPages - 1;
     final bool isBeginNavigationButtonEnabled = _currentPage == totalPages - 1;
 
+    final VoidCallback? prevButtonCallback =
+        isPrevButtonDisabled ? null : _prevPage;
+    final VoidCallback? nextButtonCallback =
+        isNextButtonDisabled ? null : _nextPage;
+    final VoidCallback? beginNavigationCallback =
+        isBeginNavigationButtonEnabled ? _nextPage : null;
+
     return Container(
       color: const Color(0xFF962E42),
       padding: const EdgeInsets.all(8.0),
@@ -680,7 +687,7 @@ class NextClassDirectionsPreviewState
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: isPrevButtonDisabled ? null : _prevPage,
+                  onPressed: prevButtonCallback,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF962E42),
@@ -688,7 +695,7 @@ class NextClassDirectionsPreviewState
                   child: const Text("Prev"),
                 ),
                 ElevatedButton(
-                  onPressed: isNextButtonDisabled ? null : _nextPage,
+                  onPressed: nextButtonCallback,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF962E42),
@@ -696,7 +703,7 @@ class NextClassDirectionsPreviewState
                   child: const Text("Next"),
                 ),
                 ElevatedButton(
-                  onPressed: isBeginNavigationButtonEnabled ? _nextPage : null,
+                  onPressed: beginNavigationCallback,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF962E42),
