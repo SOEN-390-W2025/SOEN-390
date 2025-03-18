@@ -96,9 +96,7 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
     setState(() {
       _firstRouteCompleted = true;
       final String firstDigit =
-          widget.endRoom.replaceAll(RegExp(r'\D'), '').isNotEmpty
-              ? widget.endRoom.replaceAll(RegExp(r'\D'), '')[0]
-              : '1';
+          RegExp(r'^[A-Za-z]?\d').firstMatch(widget.endRoom)?.group(0) ?? '1';
       _viewModel = VirtualStepGuideViewModel(
         sourceRoom: 'connection',
         building: widget.building,
@@ -161,7 +159,7 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   }
 
   Widget _buildFloorPlanView(VirtualStepGuideViewModel viewModel) {
-    return Expanded(
+    return Positioned(
       child: Stack(
         children: [
           FloorPlanWidget(

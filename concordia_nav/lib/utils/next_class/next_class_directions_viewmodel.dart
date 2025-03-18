@@ -6,12 +6,16 @@ class NextClassViewModel extends ChangeNotifier {
   Location _startLocation;
   Location _endLocation;
   String? staticMapUrl;
+  final ODSDirectionsService _odsDirectionsService;
 
+  // Updated constructor to accept ODSDirectionsService
   NextClassViewModel({
     required Location startLocation,
     required Location endLocation,
+    ODSDirectionsService? odsDirectionsService,
   })  : _startLocation = startLocation,
-        _endLocation = endLocation;
+        _endLocation = endLocation,
+        _odsDirectionsService = odsDirectionsService ?? ODSDirectionsService();
 
   Location get startLocation => _startLocation;
   Location get endLocation => _endLocation;
@@ -29,7 +33,7 @@ class NextClassViewModel extends ChangeNotifier {
     final origin = "${_startLocation.lat},${_startLocation.lng}";
     final destination = "${_endLocation.lat},${_endLocation.lng}";
 
-    staticMapUrl = await ODSDirectionsService().fetchStaticMapUrl(
+    staticMapUrl = await _odsDirectionsService.fetchStaticMapUrl(
       originAddress: origin,
       destinationAddress: destination,
       width: width,

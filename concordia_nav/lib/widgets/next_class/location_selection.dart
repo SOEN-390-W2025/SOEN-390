@@ -91,7 +91,6 @@ class _LocationSelectionState extends State<LocationSelection> {
   /// Handles whether the end user's current location should be selected as the
   /// input. Otherwise, shows an error if something went wrong trying to get it.
   Future<void> _handleMyLocationSelected() async {
-    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -173,9 +172,7 @@ class _LocationSelectionState extends State<LocationSelection> {
         null,
         null,
       );
-      if (mounted) {
-        widget.onSelectionComplete(highAccLocation);
-      }
+      widget.onSelectionComplete(highAccLocation);
     } on Error {
       // We'll ignore the attempt to fetch a high accuracy update and fall back
       // to the normal "current location" retrieval.
@@ -298,6 +295,7 @@ class _LocationSelectionState extends State<LocationSelection> {
             ],
             if (_selectionMode == "selectClassroom") ...[
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: "Select Building",
                   labelStyle: TextStyle(color: Colors.black),

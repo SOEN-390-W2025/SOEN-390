@@ -4,6 +4,7 @@ import '../../data/domain-model/location.dart';
 import '../../data/domain-model/navigation_decision.dart';
 import '../../data/repositories/navigation_decision_repository.dart';
 import '../../utils/journey/journey_viewmodel.dart';
+import '../../utils/map_viewmodel.dart';
 import '../../widgets/error_page.dart';
 import '../../widgets/journey/navigation_step_page.dart';
 import '../indoor_location/indoor_directions_view.dart';
@@ -12,7 +13,7 @@ import '../outdoor_location/outdoor_location_map_view.dart';
 class NavigationJourneyPage extends StatefulWidget {
   final List<Location> journeyItems;
   final String journeyName;
-
+  final MapViewModel? mapViewModel;
   final NavigationDecision? decision;
 
   const NavigationJourneyPage({
@@ -20,6 +21,7 @@ class NavigationJourneyPage extends StatefulWidget {
     required this.journeyItems,
     required this.journeyName,
     this.decision,
+    this.mapViewModel,
   });
 
   @override
@@ -82,6 +84,7 @@ class NavigationJourneyPageState extends State<NavigationJourneyPage> {
             return OutdoorLocationMapView(
               campus: (destinationForNextClass).campus,
               building: (destinationForNextClass).floor.building,
+              mapViewModel: widget.mapViewModel,
               hideAppBar: true,
               hideInputs: true,
             );

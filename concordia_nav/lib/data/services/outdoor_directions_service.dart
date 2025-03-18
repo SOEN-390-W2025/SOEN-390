@@ -158,6 +158,7 @@ class ODSDirectionsService {
       origin: originAddress,
       destination: destinationAddress,
     );
+
     final Completer<String?> completer = Completer();
 
     await directionsService.route(request,
@@ -167,24 +168,19 @@ class ODSDirectionsService {
           result.routes!.isNotEmpty) {
         final route = result.routes!.first;
         final encodedPolyline = route.overviewPolyline?.points;
-        String staticMapUrl;
+
         if (encodedPolyline != null && encodedPolyline.isNotEmpty) {
           final String path =
               "path=color:0xDE3355|weight:5|enc:$encodedPolyline";
-          staticMapUrl =
-              "$baseUrl?size=$sizeParam&$markers&$path&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}";
-        } else {
-          // Fallback: No route available; show markers only.
-          staticMapUrl =
-              "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}";
+          completer.complete(
+              "$baseUrl?size=$sizeParam&$markers&$path&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}");
+          return;
         }
-        completer.complete(staticMapUrl);
-        return;
-      } else {
-        final String staticMapUrl =
-            "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}";
-        completer.complete(staticMapUrl);
       }
+
+      // Fallback: No route available, show markers only
+      completer.complete(
+          "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}");
     });
 
     return completer.future;

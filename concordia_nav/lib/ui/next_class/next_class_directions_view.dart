@@ -59,10 +59,12 @@ enum NextClassScenario {
 
 class NextClassDirectionsPreview extends StatefulWidget {
   final List<Location> journeyItems;
+  final NextClassViewModel? viewModel;
 
   const NextClassDirectionsPreview({
     super.key,
     required this.journeyItems,
+    this.viewModel,
   });
 
   @override
@@ -110,10 +112,11 @@ class NextClassDirectionsPreviewState
         break;
     }
 
-    viewModel = NextClassViewModel(
-      startLocation: _source,
-      endLocation: _destination,
-    );
+    viewModel = widget.viewModel ??
+        NextClassViewModel(
+          startLocation: _source,
+          endLocation: _destination,
+        );
   }
 
   /// Creates a dummy placeholder room, associated with the Location inputs.
@@ -176,10 +179,12 @@ class NextClassDirectionsPreviewState
       final availableHeight =
           (mediaQuery.size.height - kToolbarHeight - 120).toInt();
 
-      final String? newMapUrl = await viewModel.fetchStaticMapWithSize(
-        availableWidth,
-        availableHeight,
-      );
+      final String? newMapUrl = mounted
+          ? await viewModel.fetchStaticMapWithSize(
+              availableWidth,
+              availableHeight,
+            )
+          : "";
       setState(() => _staticMapUrl = newMapUrl);
     } on Error catch (e) {
       debugPrint("Error fetching location: $e");
@@ -505,8 +510,10 @@ class NextClassDirectionsPreviewState
               final availableWidth = mediaQuery.size.width.toInt();
               final availableHeight =
                   (mediaQuery.size.height - kToolbarHeight - 120).toInt();
-              await viewModel.fetchStaticMapWithSize(
-                  availableWidth, availableHeight);
+              if (context.mounted) {
+                await viewModel.fetchStaticMapWithSize(
+                    availableWidth, availableHeight);
+              }
             }
             if (context.mounted) Navigator.pop(context);
           },
@@ -535,8 +542,10 @@ class NextClassDirectionsPreviewState
               final availableWidth = mediaQuery.size.width.toInt();
               final availableHeight =
                   (mediaQuery.size.height - kToolbarHeight - 120).toInt();
-              await viewModel.fetchStaticMapWithSize(
-                  availableWidth, availableHeight);
+              if (context.mounted) {
+                await viewModel.fetchStaticMapWithSize(
+                    availableWidth, availableHeight);
+              }
             }
             if (context.mounted) Navigator.pop(context);
           },

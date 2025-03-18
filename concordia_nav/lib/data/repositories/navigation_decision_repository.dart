@@ -56,10 +56,11 @@ class NavigationDecisionRepository {
                   navCase: NavigationCase.outdoorToClassroom, pageCount: 2);
           }
         default:
-          // Multi-step journeys are to be extended when covering Epic 9.
-          return NavigationDecision(
-              navCase: NavigationCase.journeyFromSmartPlanner,
-              pageCount: journeyItems.length);
+          return null;
+        // Multi-step journeys are to be extended when covering Epic 9.
+        // return NavigationDecision(
+        //     navCase: NavigationCase.journeyFromSmartPlanner,
+        //     pageCount: journeyItems.length);
       }
     } on Error catch (e) {
       // There's a check in NavigationJourneyPageState to make sure that we have
