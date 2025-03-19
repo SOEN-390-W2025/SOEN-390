@@ -10,11 +10,13 @@ import 'package:http/http.dart' as http;
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../data/domain-model/place.dart';
 import '../data/repositories/building_repository.dart';
 import '../data/repositories/outdoor_directions_repository.dart';
 import '../data/services/building_service.dart';
 import '../data/services/map_service.dart';
 import '../data/services/helpers/icon_loader.dart';
+import '../data/services/places_service.dart';
 import 'building_viewmodel.dart';
 import 'package:geocoding/geocoding.dart';
 import '../data/services/outdoor_directions_service.dart'; // New import
@@ -842,6 +844,32 @@ class MapViewModel extends ChangeNotifier {
 
     moveToLocation(location);
   }
+
+  final PlacesService _placesService = PlacesService();
+
+  Future<List<Place>> searchNearbyPlaces(PlaceType category) async {
+    final currentLocation = await _mapService.getCurrentLocation();
+    if (currentLocation == null) throw Exception("Location unavailable");
+
+    return await _placesService.getNearbyPlaces(
+      currentLocation: currentLocation,
+      category: category,
+    );
+  }
+
+  // TODO: Implement this method to show places on the map.
+  // void showPlacesOnMap(List<Place> places) {
+  //   final markers = places
+  //       .map((place) => Marker(
+  //             markerId: MarkerId(place.id),
+  //             position: place.location,
+  //             infoWindow: InfoWindow(title: place.name),
+  //           ))
+  //       .toSet();
+
+  //   // Update map markers
+  //   _markersNotifier.value = markers;
+  // }
 }
 
 class ShuttleRouteDetails {

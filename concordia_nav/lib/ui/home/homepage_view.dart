@@ -105,6 +105,19 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FeatureCard(
+                    title: 'Places API Test',
+                    icon: const Icon(Icons.science),
+                    onPress: () => Navigator.pushNamed(context, '/PlacesTest'),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

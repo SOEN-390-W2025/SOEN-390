@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import '../../data/domain-model/concordia_campus.dart';
 import 'data/domain-model/concordia_building.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'data/repositories/calendar.dart';
+import 'data/services/places_service.dart';
 import 'ui/campus_map/campus_map_view.dart';
 import 'ui/home/homepage_view.dart';
 import 'ui/indoor_location/indoor_directions_view.dart';
@@ -22,6 +24,7 @@ import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
+import 'widgets/places_test_screen.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -105,7 +108,8 @@ class MyApp extends StatelessWidget {
               );
             },
             '/SmartPlannerView': (context) => const SmartPlannerView(),
+            '/PlacesTest': (context) => const PlacesTestScreen(),
           },
-    ));
+        ));
   }
 }

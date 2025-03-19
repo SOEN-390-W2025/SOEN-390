@@ -10,6 +10,9 @@ concordia_nav/ios/Flutter/Environment.xcconfig
 # Other
 codecov.exe
 
+repomix.config.json
+repomix-output.txt
+
 pages/*
 !pages/.gitkeep
 
