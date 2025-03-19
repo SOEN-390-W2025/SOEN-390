@@ -1,204 +1,237 @@
 // ignore_for_file: avoid_catches_without_on_clauses
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:developer' as dev;
 import '../../data/repositories/building_data_manager.dart';
 import '../../data/domain-model/poi.dart';
+import '../../data/services/places_service.dart';
+import '../../data/domain-model/place.dart';
+import '../../data/services/map_service.dart';
 
 class POIChoiceViewModel extends ChangeNotifier {
+  // Services
+  final MapService _mapService = MapService();
+  final PlacesService _placesService = PlacesService();
+
+  // Search parameters
+  String? _globalSearchQuery;
+  String get globalSearchQuery => _globalSearchQuery ?? '';
   
+  // Current location
+  LatLng _currentLocation = const LatLng(45.447294, -73.6011365);
+  LatLng get currentLocation => _currentLocation;
+
+  // Indoor POI state
   List<POI> _allPOIs = [];
-  List<POI> _filteredPOIs = [];
-  bool _isLoading = true;
-  String _error = '';
-  String _searchQuery = '';
-  String? _selectedBuilding;
-  String? _selectedFloor;
-  POICategory? _selectedCategory;
+  bool _isLoadingIndoor = true;
+  String _errorIndoor = '';
   
-  // Getters
+  // Indoor POI getters
   List<POI> get allPOIs => _allPOIs;
-  List<POI> get filteredPOIs => _filteredPOIs;
-  bool get isLoading => _isLoading;
-  String get error => _error;
-  String get searchQuery => _searchQuery;
-  String? get selectedBuilding => _selectedBuilding;
-  String? get selectedFloor => _selectedFloor;
-  POICategory? get selectedCategory => _selectedCategory;
+  bool get isLoadingIndoor => _isLoadingIndoor;
+  String get errorIndoor => _errorIndoor;
   
-  // Get unique buildings from POIs
-  List<String> get buildings {
-    return _allPOIs.map((poi) => poi.buildingId).toSet().toList()..sort();
+  // Outdoor POI state
+  List<Place> _outdoorPOIs = [];
+  List<Place> _filteredOutdoorPOIs = [];
+  bool _isLoadingOutdoor = false;
+  String _errorOutdoor = '';
+  PlaceType? _selectedOutdoorCategory = PlaceType.foodDrink;
+  double _searchRadius = 3000; // Default 3km
+  
+  // Outdoor POI getters
+  List<Place> get outdoorPOIs => _outdoorPOIs;
+  List<Place> get filteredOutdoorPOIs => _filteredOutdoorPOIs;
+  bool get isLoadingOutdoor => _isLoadingOutdoor;
+  String get errorOutdoor => _errorOutdoor;
+  PlaceType? get selectedOutdoorCategory => _selectedOutdoorCategory;
+  double get searchRadius => _searchRadius;
+  
+  // ====== INITIALIZATION ======
+  
+  Future<void> init() async {
+    await _initCurrentLocation();
+    await loadIndoorPOIs();
+    await loadOutdoorPOIs(_selectedOutdoorCategory);
   }
   
-  // Get unique floors from selected building
-  List<String> get floors {
-    if (_selectedBuilding == null) return [];
-    return _allPOIs
-        .where((poi) => poi.buildingId == _selectedBuilding)
-        .map((poi) => poi.floor)
-        .toSet()
-        .toList()
-        ..sort();
-  }
-  
-  // Get unique POI categories
-  List<POICategory> get poiCategories {
-    if (_selectedBuilding == null) return [];
-    var pois = _allPOIs.where((poi) => poi.buildingId == _selectedBuilding);
-    if (_selectedFloor != null) {
-      pois = pois.where((poi) => poi.floor == _selectedFloor);
+  Future<void> _initCurrentLocation() async {
+    try {
+      final location = await _mapService.getCurrentLocation();
+      if (location != null) {
+        _currentLocation = location;
+      }
+    } catch (e, stackTrace) {
+      dev.log('Error getting current location, using default', error: e, stackTrace: stackTrace);
+      // Keep using the default location if there's an error
     }
-    return pois.map((poi) => poi.category).toSet().toList();
   }
   
-  // Initialize and load all POIs
-  Future<void> loadPOIs() async {
-    _isLoading = true;
-    _error = '';
+  // ====== INDOOR POI METHODS ======
+  
+  Future<void> loadIndoorPOIs() async {
+    _isLoadingIndoor = true;
+    _errorIndoor = '';
     notifyListeners();
     
     try {
       _allPOIs = await BuildingDataManager.getAllPOIs();
-      _applyFilters();
+      notifyListeners();
     } catch (e, stackTrace) {
-      _error = 'Failed to load POIs';
-      dev.log('Error loading POIs', error: e, stackTrace: stackTrace);
+      _errorIndoor = 'Failed to load indoor POIs';
+      dev.log('Error loading indoor POIs', error: e, stackTrace: stackTrace);
     } finally {
-      _isLoading = false;
+      _isLoadingIndoor = false;
       notifyListeners();
     }
   }
   
-  // Set search query
-  void setSearchQuery(String query) {
-    _searchQuery = query;
-    _applyFilters();
+  void setGlobalSearchQuery(String query) {
+    _globalSearchQuery = query;
+    notifyListeners();
+    
+    // Handle outdoor search
+    if (query.length > 2) {
+      searchOutdoorPOIs(query);
+    } else if (query.isEmpty) {
+      loadOutdoorPOIs(_selectedOutdoorCategory);
+    } else {
+      _applyOutdoorFilters();
+    }
   }
   
-  // Set selected building
-  void setSelectedBuilding(String? buildingId) {
-    _selectedBuilding = buildingId;
-    _selectedFloor = null; // Reset floor when building changes
-    _selectedCategory = null; // Reset category when building changes
-    _applyFilters();
+  // Filter POIs based on global search query
+  List<POI> filterPOIsWithGlobalSearch() {
+    if (_globalSearchQuery == null || _globalSearchQuery!.isEmpty) {
+      return _allPOIs;
+    }
+    
+    final query = _globalSearchQuery!.toLowerCase();
+    return _allPOIs
+      .where((poi) => poi.name.toLowerCase().contains(query))
+      .toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
   }
   
-  // Set selected floor
-  void setSelectedFloor(String? floor) {
-    _selectedFloor = floor;
-    _applyFilters();
+  // Get unique POI names from a filtered list of POIs
+  List<String> getUniqueFilteredPOINames(List<POI> pois) {
+    return pois
+      .map((poi) => poi.name)
+      .toSet()
+      .toList()
+      ..sort();
   }
   
-  // Set selected POI category
-  void setSelectedCategory(POICategory? category) {
-    _selectedCategory = category;
-    _applyFilters();
+  // ====== INDOOR POI HELPERS ======
+  
+  IconData getIconForPOICategory(POICategory category) {
+    switch (category) {
+      case POICategory.washroom: return Icons.wc;
+      case POICategory.waterFountain: return Icons.water_drop;
+      case POICategory.restaurant: return Icons.restaurant;
+      case POICategory.police: return Icons.local_police;
+      case POICategory.elevator: return Icons.elevator;
+      case POICategory.escalator: return Icons.escalator;
+      case POICategory.stairs: return Icons.stairs;
+      case POICategory.exit: return Icons.exit_to_app;
+      default: return Icons.location_on;
+    }
   }
   
-  // Apply all filters
-  void _applyFilters() {
-    _filteredPOIs = _allPOIs;
+  // ====== OUTDOOR POI METHODS ======
+  
+  Future<void> setSearchRadius(double radius) async {
+    if (_searchRadius != radius) {
+      _searchRadius = radius;
+      notifyListeners();
+
+      if (_selectedOutdoorCategory != null) {
+        await loadOutdoorPOIs(_selectedOutdoorCategory);
+      }
+    }
+  }
+
+  Future<void> loadOutdoorPOIs(PlaceType? category) async {
+    _isLoadingOutdoor = true;
+    _errorOutdoor = '';
+    _selectedOutdoorCategory = category;
+    notifyListeners();
+
+    try {
+      final places = await _placesService.nearbySearch(
+        location: _currentLocation,
+        includedType: category,
+        radius: _searchRadius,
+        maxResultCount: 20,
+      );
+
+      _outdoorPOIs = places;
+      _applyOutdoorFilters();
+    } catch (e) {
+      _errorOutdoor = e.toString();
+    } finally {
+      _isLoadingOutdoor = false;
+      notifyListeners();
+    }
+  }
+  
+  Future<void> searchOutdoorPOIs(String query) async {
+    if (query.trim().isEmpty) return;
     
-    // Filter by building
-    if (_selectedBuilding != null) {
-      _filteredPOIs = _filteredPOIs
-          .where((poi) => poi.buildingId == _selectedBuilding)
+    _isLoadingOutdoor = true;
+    _errorOutdoor = '';
+    notifyListeners();
+    
+    try {
+      final places = await _placesService.textSearch(
+        textQuery: query,
+        location: _currentLocation,
+        includedType: _selectedOutdoorCategory,
+        radius: _searchRadius,
+        pageSize: 20,
+        openNow: false,
+      );
+      
+      _outdoorPOIs = places;
+      _applyOutdoorFilters();
+    } catch (e) {
+      _errorOutdoor = e.toString();
+    } finally {
+      _isLoadingOutdoor = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshLocation() async {
+    try {
+      final location = await _mapService.getCurrentLocation();
+      if (location != null) {
+        _currentLocation = location;
+        await loadOutdoorPOIs(_selectedOutdoorCategory);
+      }
+    } catch (e, stackTrace) {
+      dev.log('Error refreshing location', error: e, stackTrace: stackTrace);
+      _errorOutdoor = 'Failed to get current location';
+      notifyListeners();
+    }
+  }
+  
+  void setOutdoorCategory(PlaceType? category, bool selected) {
+    _selectedOutdoorCategory = selected ? category : null;
+    loadOutdoorPOIs(_selectedOutdoorCategory);
+  }
+  
+  void _applyOutdoorFilters() {
+    if (_globalSearchQuery == null || _globalSearchQuery!.isEmpty) {
+      _filteredOutdoorPOIs = _outdoorPOIs;
+    } else {
+      final query = _globalSearchQuery!.toLowerCase();
+      _filteredOutdoorPOIs = _outdoorPOIs
+          .where((place) => place.name.toLowerCase().contains(query))
           .toList();
     }
-    
-    // Filter by floor
-    if (_selectedFloor != null) {
-      _filteredPOIs = _filteredPOIs
-          .where((poi) => poi.floor == _selectedFloor)
-          .toList();
-    }
-    
-    // Filter by category
-    if (_selectedCategory != null) {
-      _filteredPOIs = _filteredPOIs
-          .where((poi) => poi.category == _selectedCategory)
-          .toList();
-    }
-    
-    // Filter by search query
-    if (_searchQuery.isNotEmpty) {
-      final query = _searchQuery.toLowerCase();
-      _filteredPOIs = _filteredPOIs
-          .where((poi) => poi.name.toLowerCase().contains(query))
-          .toList();
-    }
-    
-    // Sort by name
-    _filteredPOIs.sort((a, b) => a.name.compareTo(b.name));
     
     notifyListeners();
-  }
-  
-  // Reset all filters
-  void resetFilters() {
-    _searchQuery = '';
-    _selectedBuilding = null;
-    _selectedFloor = null;
-    _selectedCategory = null;
-    _applyFilters();
-  }
-  
-  // Get display name for POI category
-  String getDisplayNameForCategory(POICategory category) {
-    switch (category) {
-      case POICategory.washroom:
-        return 'Washroom';
-      case POICategory.waterFountain:
-        return 'Water Fountain';
-      case POICategory.restaurant:
-        return 'Restaurant';
-      case POICategory.elevator:
-        return 'Elevator';
-      case POICategory.escalator:
-        return 'Escalator';
-      case POICategory.stairs:
-        return 'Stairs';
-      case POICategory.exit:
-        return 'Exit';
-      default:
-        return 'Other';
-    }
-  }
-
-  // Get unique POI names
-  List<String> get uniquePOINames {
-    if (_selectedBuilding == null) return [];
-
-    // Start with POIs from the selected building
-    var pois = _allPOIs.where((poi) => poi.buildingId == _selectedBuilding);
-
-    // Apply floor filter if selected
-    if (_selectedFloor != null) {
-      pois = pois.where((poi) => poi.floor == _selectedFloor);
-    }
-
-    // Apply category filter if selected
-    if (_selectedCategory != null) {
-      pois = pois.where((poi) => poi.category == _selectedCategory);
-    }
-
-    // Get unique names and sort them
-    return pois.map((poi) => poi.name).toSet().toList()..sort();
-  }
-
-  // Select POIs by name
-  List<POI> getPOIsByName(String name) {
-    return _filteredPOIs.where((poi) => poi.name == name).toList();
-  }
-
-  // Get unique POI names from filtered POIs
-  List<String> get uniqueFilteredPOINames {
-    return _filteredPOIs.map((poi) => poi.name).toSet().toList()..sort();
-  }
-
-  // New method to get count of POIs with the same name
-  int getCountForPOIName(String name) {
-    return _filteredPOIs.where((poi) => poi.name == name).length;
   }
 }
