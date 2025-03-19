@@ -22,6 +22,7 @@ import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
+import 'utils/logger_util.dart';
 import 'widgets/places_test_screen.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,6 +31,10 @@ import 'package:calendar_view/calendar_view.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  LoggerUtil.setLogLevel(LoggerUtil.stringToLevel(dotenv.env['LOG_LEVEL']));
+
+  LoggerUtil.info('Application starting...');
 
   try {
     await BuildingDataManager.initialize();
