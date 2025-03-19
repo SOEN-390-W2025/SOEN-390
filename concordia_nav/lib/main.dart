@@ -105,19 +105,6 @@ class MyApp extends StatelessWidget {
               isDisability: args['isDisability'] as bool? ?? false,
             );
           },
-          // ignore: equal_keys_in_map
-          '/ClassroomSelection': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments
-                as Map<String, dynamic>;
-            return ClassroomSelection(
-              building: args['building'] as String,
-              floor: args['floor'] as String,
-              currentRoom: args['currentRoom'] as String,
-              isSource: args['isSource'] as bool? ?? false,
-              isSearch: args['isSearch'] as bool? ?? false,
-              isDisability: args['isDisability'] as bool? ?? false,
-            );
-          },
           '/NextClassDirectionsPreview': (context) {
             final routeArgs = ModalRoute.of(context)!.settings.arguments;
             List<Location> locations = [];
