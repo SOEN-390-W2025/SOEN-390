@@ -48,7 +48,7 @@ void main() {
       state.handlePrevFloorPress();
       await tester.pump();
 
-      expect(state.widget.sourceRoom, yourLocationString);
+      expect(state.widget.sourceRoom, 'connection');
       expect(state.widget.endRoom, 'H 830');
       expect(IndoorDirectionsViewState.isMultiFloor, true);
     });
