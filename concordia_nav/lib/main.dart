@@ -25,6 +25,7 @@ import 'ui/setting/settings_page.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
 import 'utils/poi/poi_viewmodel.dart';
+import 'widgets/places_test_screen.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -136,6 +137,8 @@ class MyApp extends StatelessWidget {
             return NavigationJourneyPage(
                 journeyName: journeyName, journeyItems: locations);
           },
+          '/PlacesTest': (context) =>
+                const PlacesTestScreen(), // TODO: Remove this. Just for testing purposes
         },
       ),
     );
