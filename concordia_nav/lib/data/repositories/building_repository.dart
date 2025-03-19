@@ -224,7 +224,8 @@ class BuildingRepository {
   };
 
   /// Helper method to load polygons and label positions from a specified path.
-  static Future<Map<String, dynamic>> _loadPolygonsAndLabels(String path) async {
+  static Future<Map<String, dynamic>> _loadPolygonsAndLabels(
+      String path) async {
     try {
       final String jsonString = await rootBundle.loadString(path);
       final Map<String, dynamic> jsonData = json.decode(jsonString);
@@ -253,7 +254,8 @@ class BuildingRepository {
   }
 
   /// Loads polygons and label positions (centroids for markers) from assets for a specific campus.
-  static Future<Map<String, dynamic>> loadBuildingPolygonsAndLabels(String campusName) async {
+  static Future<Map<String, dynamic>> loadBuildingPolygonsAndLabels(
+      String campusName) async {
     final String path = 'assets/maps/outdoor/$campusName/polygons.json';
     return await _loadPolygonsAndLabels(path);
   }
@@ -263,7 +265,7 @@ class BuildingRepository {
     const String path = 'assets/maps/outdoor/all/polygons.json';
     return await _loadPolygonsAndLabels(path);
   }
-  
+
   /// Uses LatLngBounds to find the center (centroid) of a polygon.
   static LatLng _calculateBoundsCenter(List<LatLng> points) {
     double sumLat = 0;

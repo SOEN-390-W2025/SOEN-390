@@ -61,6 +61,15 @@ class _FakeCameraPosition_4 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeWidget_5 extends _i1.SmartFake implements _i2.Widget {
+  _FakeWidget_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+
+  @override
+  String toString({_i2.DiagnosticLevel? minLevel = _i2.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
 /// A class which mocks [IndoorMapViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -560,6 +569,26 @@ class MockIndoorMapViewModel extends _i1.Mock
             returnValue: _i9.Future<bool>.value(false),
           )
           as _i9.Future<bool>);
+
+  @override
+  _i2.Widget buildPlaceAutocompleteTextField({
+    required _i2.TextEditingController? controller,
+    required dynamic Function(dynamic)? onPlaceSelected,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#buildPlaceAutocompleteTextField, [], {
+              #controller: controller,
+              #onPlaceSelected: onPlaceSelected,
+            }),
+            returnValue: _FakeWidget_5(
+              this,
+              Invocation.method(#buildPlaceAutocompleteTextField, [], {
+                #controller: controller,
+                #onPlaceSelected: onPlaceSelected,
+              }),
+            ),
+          )
+          as _i2.Widget);
 
   @override
   _i9.Future<void> handleSelection(

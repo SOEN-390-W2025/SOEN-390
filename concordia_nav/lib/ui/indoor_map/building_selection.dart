@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../data/repositories/building_repository.dart';
 import '../../widgets/custom_appbar.dart';
@@ -10,7 +9,11 @@ class BuildingSelection extends StatefulWidget {
   final String? endRoom;
   final bool isSource;
   final bool isDisability;
-  const BuildingSelection({super.key, this.endRoom, this.isSource = false, this.isDisability = false});
+  const BuildingSelection(
+      {super.key,
+      this.endRoom,
+      this.isSource = false,
+      this.isDisability = false});
 
   @override
   BuildingSelectionState createState() => BuildingSelectionState();

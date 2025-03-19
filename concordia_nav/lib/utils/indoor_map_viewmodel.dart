@@ -161,6 +161,8 @@ class IndoorMapViewModel extends MapViewModel {
   }
 
   String extractFloor(String roomName) {
+    if (roomName.trim().toLowerCase() == 'main entrance') return '1';
+
     if (roomName == 'Your Location') return '1';
 
     // Remove any building prefix if present (like "H " or "MB ")

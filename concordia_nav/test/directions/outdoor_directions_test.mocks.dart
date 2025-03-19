@@ -161,4 +161,22 @@ class MockODSDirectionsService extends _i1.Mock
             returnValue: _i4.Future<List<_i6.LatLng>>.value(<_i6.LatLng>[]),
           )
           as _i4.Future<List<_i6.LatLng>>);
+
+  @override
+  _i4.Future<String?> fetchStaticMapUrl({
+    required String? originAddress,
+    required String? destinationAddress,
+    required int? width,
+    required int? height,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchStaticMapUrl, [], {
+              #originAddress: originAddress,
+              #destinationAddress: destinationAddress,
+              #width: width,
+              #height: height,
+            }),
+            returnValue: _i4.Future<String?>.value(),
+          )
+          as _i4.Future<String?>);
 }

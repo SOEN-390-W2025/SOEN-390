@@ -140,4 +140,49 @@ class ODSDirectionsService {
         "${destination.latitude},${destination.longitude}";
     return fetchRoute(originString, destinationString);
   }
+
+  /// Fetches a static map URL based on the origin and destination addresses.
+  Future<String?> fetchStaticMapUrl({
+    required String originAddress,
+    required String destinationAddress,
+    required int width,
+    required int height,
+  }) async {
+    const String baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
+    final String sizeParam = "${width}x$height";
+    final String markers =
+        "markers=icon:http://maps.google.com/mapfiles/kml/shapes/man.png|$originAddress"
+        "&markers=icon:http://maps.google.com/mapfiles/kml/paddle/red-stars.png|$destinationAddress";
+
+    final request = gda.DirectionsRequest(
+      origin: originAddress,
+      destination: destinationAddress,
+    );
+
+    final Completer<String?> completer = Completer();
+
+    await directionsService.route(request,
+        (gda.DirectionsResult result, gda.DirectionsStatus? status) {
+      if (status == gda.DirectionsStatus.ok &&
+          result.routes != null &&
+          result.routes!.isNotEmpty) {
+        final route = result.routes!.first;
+        final encodedPolyline = route.overviewPolyline?.points;
+
+        if (encodedPolyline != null && encodedPolyline.isNotEmpty) {
+          final String path =
+              "path=color:0xDE3355|weight:5|enc:$encodedPolyline";
+          completer.complete(
+              "$baseUrl?size=$sizeParam&$markers&$path&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}");
+          return;
+        }
+      }
+
+      // Fallback: No route available, show markers only
+      completer.complete(
+          "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}");
+    });
+
+    return completer.future;
+  }
 }

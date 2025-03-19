@@ -32,7 +32,7 @@ class BuildingViewModel {
 
   /// Use the BuildingService to get the building by name
   ConcordiaBuilding? getBuildingByName(String name) {
-    return BuildingService.getbuildingByName(name);
+    return BuildingService.getBuildingByName(name);
   }
 
   String? getBuildingAbbreviation(String name) {
@@ -58,22 +58,27 @@ class BuildingViewModel {
     final String abbreviation = building.abbreviation.toUpperCase();
 
     // Use BuildingDataManager to get the building data
-    final BuildingData? buildingData = await BuildingDataManager.getBuildingData(abbreviation);
+    final BuildingData? buildingData =
+        await BuildingDataManager.getBuildingData(abbreviation);
 
     if (buildingData == null) {
       return [];
     }
 
     // Map floors to a list of strings with the floor number
-    return buildingData.floors.map((floor) => "Floor ${floor.floorNumber}").toList();
+    return buildingData.floors
+        .map((floor) => "Floor ${floor.floorNumber}")
+        .toList();
   }
 
-  Future<List<ConcordiaRoom>> getRoomsForFloor(String buildingName, String floorName) async {
+  Future<List<ConcordiaRoom>> getRoomsForFloor(
+      String buildingName, String floorName) async {
     final ConcordiaBuilding building = getBuildingByName(buildingName)!;
     final String abbreviation = building.abbreviation.toUpperCase();
 
     // Use BuildingDataManager to get the building data
-    final BuildingData? buildingData = await BuildingDataManager.getBuildingData(abbreviation);
+    final BuildingData? buildingData =
+        await BuildingDataManager.getBuildingData(abbreviation);
 
     if (buildingData == null) {
       return [];

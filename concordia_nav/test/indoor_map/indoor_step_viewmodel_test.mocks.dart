@@ -77,6 +77,11 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   );
 
   @override
+  bool get isLoading =>
+      (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
   bool get isAccessibilityMode =>
       (super.noSuchMethod(
             Invocation.getter(#isAccessibilityMode),
@@ -161,6 +166,22 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
           as _i5.Future<void>);
+
+  @override
+  _i5.Future<bool> areDirectionsAvailableForLocation(String? location) =>
+      (super.noSuchMethod(
+            Invocation.method(#areDirectionsAvailableForLocation, [location]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<bool> checkFloorPlanExists(String? floorPlanPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#checkFloorPlanExists, [floorPlanPath]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 
   @override
   _i5.Future<_i2.Size> getSvgDimensions(String? svgPath) =>

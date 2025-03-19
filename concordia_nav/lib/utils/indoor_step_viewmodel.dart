@@ -285,7 +285,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     navigationSteps.add(NavigationStep(
       title: 'Destination',
       description:
-          'You have reached your destination: ${endRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+          'You have reached your destination: ${endRoom == yourLocation ? 'Main Entrance' : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
       focusPoint: directionsViewModel.endLocation,
       zoomLevel: 1.3,
       icon: Icons.place,

@@ -14,7 +14,8 @@ import 'package:mockito/mockito.dart';
 import 'calendar_repository_test.mocks.dart';
 import 'calendar_view_test.mocks.dart';
 
-@GenerateMocks([CalendarRepository, CalendarSelectionViewModel, CalendarViewModel])
+@GenerateMocks(
+    [CalendarRepository, CalendarSelectionViewModel, CalendarViewModel])
 void main() {
   late CalendarRepository calendarRepository;
   late MockDeviceCalendarPlugin mockPlugin;
@@ -67,31 +68,50 @@ void main() {
       expect(find.textContaining('Calendar').first, findsOneWidget);
     });
 
-    testWidgets('initialize CalendarView Widget with selected Calendar', (WidgetTester tester) async {
+    testWidgets('initialize CalendarView Widget with selected Calendar',
+        (WidgetTester tester) async {
       final calendar1 = UserCalendar('1', 'Calendar 1');
-      final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
-      final endTime = DateTime.now().copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
-      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
-      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+      final startTime = DateTime.now()
+          .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
+      final startTime2 = DateTime.now()
+          .copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+      final endTime2 = DateTime.now()
+          .copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
       final calendarEvent = UserCalendarEvent(
-        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+          calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
       final calendarEvent2 = UserCalendarEvent(
-        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+          calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
       final calendarEventData = CalendarEventData(
-        title: calendarEvent.title, date: calendarEvent.localStart, description: calendarEvent.description,
-        startTime: calendarEvent.localStart, endTime: calendarEvent.localEnd, color: Colors.cyan, event: calendarEvent);
+          title: calendarEvent.title,
+          date: calendarEvent.localStart,
+          description: calendarEvent.description,
+          startTime: calendarEvent.localStart,
+          endTime: calendarEvent.localEnd,
+          color: Colors.cyan,
+          event: calendarEvent);
       final calendarEventData2 = CalendarEventData(
-        title: calendarEvent2.title, date: calendarEvent2.localStart, description: calendarEvent2.description,
-        startTime: calendarEvent2.localStart, endTime: calendarEvent2.localEnd, color: Colors.greenAccent, event: calendarEvent2);
+          title: calendarEvent2.title,
+          date: calendarEvent2.localStart,
+          description: calendarEvent2.description,
+          startTime: calendarEvent2.localStart,
+          endTime: calendarEvent2.localEnd,
+          color: Colors.greenAccent,
+          event: calendarEvent2);
       final calendarEventDatas = [calendarEventData, calendarEventData2];
       when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
           .thenAnswer((_) async => {});
-      when(mockCalendarViewModel.getCalendarEventData()).thenReturn(calendarEventDatas);
+      when(mockCalendarViewModel.getCalendarEventData())
+          .thenReturn(calendarEventDatas);
       when(mockCalendarViewModel.isLoading).thenReturn(false);
       when(mockCalendarViewModel.errorMessage).thenReturn(null);
 
-      await tester.pumpWidget( MaterialApp(
-          home: CalendarView(selectedCalendar: calendar1, calendarViewModel: mockCalendarViewModel),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CalendarView(
+              selectedCalendar: calendar1,
+              calendarViewModel: mockCalendarViewModel),
         ),
       );
       await tester.pump();
@@ -101,31 +121,51 @@ void main() {
       expect(find.text(calendarEventData.title), findsOneWidget);
     });
 
-    testWidgets('an error message is displayed if calendarviewmodel provides one', (WidgetTester tester) async {
+    testWidgets(
+        'an error message is displayed if calendarviewmodel provides one',
+        (WidgetTester tester) async {
       final calendar1 = UserCalendar('1', 'Calendar 1');
-      final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
-      final endTime = DateTime.now().copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
-      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
-      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+      final startTime = DateTime.now()
+          .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
+      final startTime2 = DateTime.now()
+          .copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+      final endTime2 = DateTime.now()
+          .copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
       final calendarEvent = UserCalendarEvent(
-        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+          calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
       final calendarEvent2 = UserCalendarEvent(
-        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+          calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
       final calendarEventData = CalendarEventData(
-        title: calendarEvent.title, date: calendarEvent.localStart, description: calendarEvent.description,
-        startTime: calendarEvent.localStart, endTime: calendarEvent.localEnd, color: Colors.cyan, event: calendarEvent);
+          title: calendarEvent.title,
+          date: calendarEvent.localStart,
+          description: calendarEvent.description,
+          startTime: calendarEvent.localStart,
+          endTime: calendarEvent.localEnd,
+          color: Colors.cyan,
+          event: calendarEvent);
       final calendarEventData2 = CalendarEventData(
-        title: calendarEvent2.title, date: calendarEvent2.localStart, description: calendarEvent2.description,
-        startTime: calendarEvent2.localStart, endTime: calendarEvent2.localEnd, color: Colors.greenAccent, event: calendarEvent2);
+          title: calendarEvent2.title,
+          date: calendarEvent2.localStart,
+          description: calendarEvent2.description,
+          startTime: calendarEvent2.localStart,
+          endTime: calendarEvent2.localEnd,
+          color: Colors.greenAccent,
+          event: calendarEvent2);
       final calendarEventDatas = [calendarEventData, calendarEventData2];
       when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
           .thenAnswer((_) async => {});
-      when(mockCalendarViewModel.getCalendarEventData()).thenReturn(calendarEventDatas);
+      when(mockCalendarViewModel.getCalendarEventData())
+          .thenReturn(calendarEventDatas);
       when(mockCalendarViewModel.isLoading).thenReturn(false);
       when(mockCalendarViewModel.errorMessage).thenReturn('Test Error');
 
-      await tester.pumpWidget( MaterialApp(
-          home: CalendarView(selectedCalendar: calendar1, calendarViewModel: mockCalendarViewModel),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CalendarView(
+              selectedCalendar: calendar1,
+              calendarViewModel: mockCalendarViewModel),
         ),
       );
       await tester.pump();
@@ -134,31 +174,50 @@ void main() {
       expect(find.text('Test Error'), findsOneWidget);
     });
 
-    testWidgets('a circular progress indicator is displayed if loading', (WidgetTester tester) async {
+    testWidgets('a circular progress indicator is displayed if loading',
+        (WidgetTester tester) async {
       final calendar1 = UserCalendar('1', 'Calendar 1');
-      final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
-      final endTime = DateTime.now().copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
-      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
-      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+      final startTime = DateTime.now()
+          .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
+      final startTime2 = DateTime.now()
+          .copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+      final endTime2 = DateTime.now()
+          .copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
       final calendarEvent = UserCalendarEvent(
-        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+          calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
       final calendarEvent2 = UserCalendarEvent(
-        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+          calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
       final calendarEventData = CalendarEventData(
-        title: calendarEvent.title, date: calendarEvent.localStart, description: calendarEvent.description,
-        startTime: calendarEvent.localStart, endTime: calendarEvent.localEnd, color: Colors.cyan, event: calendarEvent);
+          title: calendarEvent.title,
+          date: calendarEvent.localStart,
+          description: calendarEvent.description,
+          startTime: calendarEvent.localStart,
+          endTime: calendarEvent.localEnd,
+          color: Colors.cyan,
+          event: calendarEvent);
       final calendarEventData2 = CalendarEventData(
-        title: calendarEvent2.title, date: calendarEvent2.localStart, description: calendarEvent2.description,
-        startTime: calendarEvent2.localStart, endTime: calendarEvent2.localEnd, color: Colors.greenAccent, event: calendarEvent2);
+          title: calendarEvent2.title,
+          date: calendarEvent2.localStart,
+          description: calendarEvent2.description,
+          startTime: calendarEvent2.localStart,
+          endTime: calendarEvent2.localEnd,
+          color: Colors.greenAccent,
+          event: calendarEvent2);
       final calendarEventDatas = [calendarEventData, calendarEventData2];
       when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
           .thenAnswer((_) async => {});
-      when(mockCalendarViewModel.getCalendarEventData()).thenReturn(calendarEventDatas);
+      when(mockCalendarViewModel.getCalendarEventData())
+          .thenReturn(calendarEventDatas);
       when(mockCalendarViewModel.isLoading).thenReturn(true);
       when(mockCalendarViewModel.errorMessage).thenReturn(null);
 
-      await tester.pumpWidget( MaterialApp(
-          home: CalendarView(selectedCalendar: calendar1, calendarViewModel: mockCalendarViewModel),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CalendarView(
+              selectedCalendar: calendar1,
+              calendarViewModel: mockCalendarViewModel),
         ),
       );
       await tester.pump();
@@ -169,102 +228,150 @@ void main() {
 
     testWidgets('tapping event opens drawer', (WidgetTester tester) async {
       await tester.runAsync(() async {
-      final calendar1 = UserCalendar('1', 'Calendar 1');
-      final startTime = DateTime.now().copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
-      final endTime = DateTime.now().copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
-      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
-      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
-      final calendarEvent = UserCalendarEvent(
-        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
-      final calendarEvent2 = UserCalendarEvent(
-        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
-      final calendarEventData = CalendarEventData(
-        title: calendarEvent.title, date: calendarEvent.localStart, description: calendarEvent.description,
-        startTime: calendarEvent.localStart, endTime: calendarEvent.localEnd, color: Colors.cyan, event: calendarEvent);
-      final calendarEventData2 = CalendarEventData(
-        title: calendarEvent2.title, date: calendarEvent2.localStart, description: calendarEvent2.description,
-        startTime: calendarEvent2.localStart, endTime: calendarEvent2.localEnd, color: Colors.greenAccent, event: calendarEvent2);
-      final calendarEventDatas = [calendarEventData, calendarEventData2];
-      final startFormat = '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}';
-      final endFormat = '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}';
+        final calendar1 = UserCalendar('1', 'Calendar 1');
+        final startTime = DateTime.now()
+            .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+        final endTime = DateTime.now()
+            .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+        final startTime2 = DateTime.now()
+            .copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+        final endTime2 = DateTime.now()
+            .copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+        final calendarEvent = UserCalendarEvent(
+            calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+        final calendarEvent2 = UserCalendarEvent(
+            calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+        final calendarEventData = CalendarEventData(
+            title: calendarEvent.title,
+            date: calendarEvent.localStart,
+            description: calendarEvent.description,
+            startTime: calendarEvent.localStart,
+            endTime: calendarEvent.localEnd,
+            color: Colors.cyan,
+            event: calendarEvent);
+        final calendarEventData2 = CalendarEventData(
+            title: calendarEvent2.title,
+            date: calendarEvent2.localStart,
+            description: calendarEvent2.description,
+            startTime: calendarEvent2.localStart,
+            endTime: calendarEvent2.localEnd,
+            color: Colors.greenAccent,
+            event: calendarEvent2);
+        final calendarEventDatas = [calendarEventData, calendarEventData2];
+        final startFormat =
+            '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}';
+        final endFormat =
+            '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}';
 
-      when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
-          .thenAnswer((_) async => {});
-      when(mockCalendarViewModel.getCalendarEventData()).thenReturn(calendarEventDatas);
-      when(mockCalendarViewModel.isLoading).thenReturn(false);
-      when(mockCalendarViewModel.errorMessage).thenReturn(null);
-      when(mockCalendarViewModel.formatEventTime(calendarEvent))
-          .thenReturn('$startFormat - $endFormat');
+        when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
+            .thenAnswer((_) async => {});
+        when(mockCalendarViewModel.getCalendarEventData())
+            .thenReturn(calendarEventDatas);
+        when(mockCalendarViewModel.isLoading).thenReturn(false);
+        when(mockCalendarViewModel.errorMessage).thenReturn(null);
+        when(mockCalendarViewModel.formatEventTime(calendarEvent))
+            .thenReturn('$startFormat - $endFormat');
 
-      await tester.pumpWidget( MaterialApp(
-          home: CalendarView(selectedCalendar: calendar1, calendarViewModel: mockCalendarViewModel),
-        ),
-      );
-      await tester.pump();
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CalendarView(
+                selectedCalendar: calendar1,
+                calendarViewModel: mockCalendarViewModel),
+          ),
+        );
+        await tester.pump();
 
-      // simulate tapping an event
-      final container = find.ancestor(
-        of: find.text(calendarEvent.title), 
-        matching: find.byType(Container)).first;
-      await tester.tapAt(tester.getCenter(container));
+        // simulate tapping an event
+        final container = find
+            .ancestor(
+                of: find.text(calendarEvent.title),
+                matching: find.byType(Container))
+            .first;
+        await tester.tapAt(tester.getCenter(container));
 
-      // wait for drawer to fetch needed data and display
-      await Future.delayed(const Duration(milliseconds: 500));
-      await tester.pumpAndSettle();
+        // wait for drawer to fetch needed data and display
+        await Future.delayed(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
 
-      // eventDetailsDrawer is displayed
-      expect(find.text('Directions'), findsOneWidget);
-      expect(find.byIcon(Icons.access_time), findsOneWidget);});
+        // eventDetailsDrawer is displayed
+        expect(find.text('Directions'), findsOneWidget);
+        expect(find.byIcon(Icons.access_time), findsOneWidget);
+      });
     });
 
-    testWidgets('tapping event opens drawer with unavailable directions when locationField null', (WidgetTester tester) async {
+    testWidgets(
+        'tapping event opens drawer with unavailable directions when locationField null',
+        (WidgetTester tester) async {
       await tester.runAsync(() async {
-      final calendar1 = UserCalendar('1', 'Calendar 1');
-      final startTime = DateTime.now().copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
-      final endTime = DateTime.now().copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
-      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
-      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
-      final calendarEvent = UserCalendarEvent(
-        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', null);
-      final calendarEvent2 = UserCalendarEvent(
-        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
-      final calendarEventData = CalendarEventData(
-        title: calendarEvent.title, date: calendarEvent.localStart, description: calendarEvent.description,
-        startTime: calendarEvent.localStart, endTime: calendarEvent.localEnd, color: Colors.cyan, event: calendarEvent);
-      final calendarEventData2 = CalendarEventData(
-        title: calendarEvent2.title, date: calendarEvent2.localStart, description: calendarEvent2.description,
-        startTime: calendarEvent2.localStart, endTime: calendarEvent2.localEnd, color: Colors.greenAccent, event: calendarEvent2);
-      final calendarEventDatas = [calendarEventData, calendarEventData2];
-      final startFormat = '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}';
-      final endFormat = '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}';
+        final calendar1 = UserCalendar('1', 'Calendar 1');
+        final startTime = DateTime.now()
+            .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+        final endTime = DateTime.now()
+            .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+        final startTime2 = DateTime.now()
+            .copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+        final endTime2 = DateTime.now()
+            .copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+        final calendarEvent = UserCalendarEvent(
+            calendar1, '1', 'waaa', startTime, endTime, 'WAAA', null);
+        final calendarEvent2 = UserCalendarEvent(
+            calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+        final calendarEventData = CalendarEventData(
+            title: calendarEvent.title,
+            date: calendarEvent.localStart,
+            description: calendarEvent.description,
+            startTime: calendarEvent.localStart,
+            endTime: calendarEvent.localEnd,
+            color: Colors.cyan,
+            event: calendarEvent);
+        final calendarEventData2 = CalendarEventData(
+            title: calendarEvent2.title,
+            date: calendarEvent2.localStart,
+            description: calendarEvent2.description,
+            startTime: calendarEvent2.localStart,
+            endTime: calendarEvent2.localEnd,
+            color: Colors.greenAccent,
+            event: calendarEvent2);
+        final calendarEventDatas = [calendarEventData, calendarEventData2];
+        final startFormat =
+            '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}';
+        final endFormat =
+            '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}';
 
-      when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
-          .thenAnswer((_) async => {});
-      when(mockCalendarViewModel.getCalendarEventData()).thenReturn(calendarEventDatas);
-      when(mockCalendarViewModel.isLoading).thenReturn(false);
-      when(mockCalendarViewModel.errorMessage).thenReturn(null);
-      when(mockCalendarViewModel.formatEventTime(calendarEvent))
-          .thenReturn('$startFormat - $endFormat');
+        when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
+            .thenAnswer((_) async => {});
+        when(mockCalendarViewModel.getCalendarEventData())
+            .thenReturn(calendarEventDatas);
+        when(mockCalendarViewModel.isLoading).thenReturn(false);
+        when(mockCalendarViewModel.errorMessage).thenReturn(null);
+        when(mockCalendarViewModel.formatEventTime(calendarEvent))
+            .thenReturn('$startFormat - $endFormat');
 
-      await tester.pumpWidget( MaterialApp(
-          home: CalendarView(selectedCalendar: calendar1, calendarViewModel: mockCalendarViewModel),
-        ),
-      );
-      await tester.pump();
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CalendarView(
+                selectedCalendar: calendar1,
+                calendarViewModel: mockCalendarViewModel),
+          ),
+        );
+        await tester.pump();
 
-      // simulate tapping an event
-      final container = find.ancestor(
-        of: find.text(calendarEvent.title), 
-        matching: find.byType(Container)).first;
-      await tester.tapAt(tester.getCenter(container));
+        // simulate tapping an event
+        final container = find
+            .ancestor(
+                of: find.text(calendarEvent.title),
+                matching: find.byType(Container))
+            .first;
+        await tester.tapAt(tester.getCenter(container));
 
-      // wait for drawer to fetch needed data and display
-      await Future.delayed(const Duration(milliseconds: 500));
-      await tester.pumpAndSettle();
+        // wait for drawer to fetch needed data and display
+        await Future.delayed(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
 
-      // eventDetailsDrawer is displayed
-      expect(find.text('Not Available'), findsOneWidget);
-      expect(find.byIcon(Icons.access_time), findsOneWidget);});
+        // eventDetailsDrawer is displayed
+        expect(find.text('Not Available'), findsOneWidget);
+        expect(find.byIcon(Icons.access_time), findsOneWidget);
+      });
     });
   });
 
@@ -293,7 +400,8 @@ void main() {
 
     testWidgets('navigates to CalendarSelectionView when permission is granted',
         (WidgetTester tester) async {
-      final MockCalendarSelectionViewModel mockSelectionViewModel = MockCalendarSelectionViewModel(); 
+      final MockCalendarSelectionViewModel mockSelectionViewModel =
+          MockCalendarSelectionViewModel();
       final calendar1 = UserCalendar('1', 'Calendar 1');
       final calendar2 = UserCalendar('2', 'Calendar 2');
       final calendars = [calendar1, calendar2];
@@ -308,8 +416,8 @@ void main() {
       final routes = {
         '/': (context) =>
             CalendarLinkView(calendarRepository: calendarRepository),
-        '/CalendarSelectionView': (context) => CalendarSelectionView(
-              calendarViewModel: mockSelectionViewModel),
+        '/CalendarSelectionView': (context) =>
+            CalendarSelectionView(calendarViewModel: mockSelectionViewModel),
       };
 
       // Build the CalendarLinkView widget
@@ -337,9 +445,76 @@ void main() {
   });
 
   group('CalendarSelectionView Widget tests', () {
-    testWidgets('navigates to CalendarView when select Calendar', (WidgetTester tester) async {
+    testWidgets('tapping event opens drawer and navigates to directions',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        final calendar1 = UserCalendar('1', 'Calendar 1');
+        final startTime = DateTime.now()
+            .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+        final endTime = DateTime.now()
+            .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+        final calendarEvent = UserCalendarEvent(
+            calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+        final calendarEventData = CalendarEventData(
+            title: calendarEvent.title,
+            date: calendarEvent.localStart,
+            description: calendarEvent.description,
+            startTime: calendarEvent.localStart,
+            endTime: calendarEvent.localEnd,
+            color: Colors.cyan,
+            event: calendarEvent);
+
+        when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
+            .thenAnswer((_) async => {});
+        when(mockCalendarViewModel.getCalendarEventData())
+            .thenReturn([calendarEventData]);
+        when(mockCalendarViewModel.isLoading).thenReturn(false);
+        when(mockCalendarViewModel.errorMessage).thenReturn(null);
+        when(mockCalendarViewModel.formatEventTime(calendarEvent)).thenReturn(
+            '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')} - ${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}');
+
+        await tester.pumpWidget(
+          MaterialApp(
+            routes: {
+              '/NextClassDirectionsPreview': (context) {
+                return Container();
+              },
+            },
+            home: CalendarView(
+                selectedCalendar: calendar1,
+                calendarViewModel: mockCalendarViewModel),
+          ),
+        );
+
+        await tester.pump();
+
+        // simulate tapping an event
+        final container = find
+            .ancestor(
+                of: find.text(calendarEvent.title),
+                matching: find.byType(Container))
+            .first;
+        await tester.tapAt(tester.getCenter(container));
+
+        // wait for drawer to fetch needed data and display
+        await Future.delayed(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
+
+        // Verify eventDetailsDrawer is displayed
+        expect(find.text('Directions'), findsOneWidget);
+        await tester.tap(find.text('Directions'));
+        await tester.pumpAndSettle();
+
+        // Verify navigation happens by checking if we're redirected to the directions screen
+        expect(find.byType(Container), findsOneWidget);
+      });
+    });
+
+    testWidgets('navigates to CalendarView when select Calendar',
+        (WidgetTester tester) async {
       // Arrange CalendarSelectionView
-      final MockCalendarSelectionViewModel mockSelectionViewModel = MockCalendarSelectionViewModel();
+      final MockCalendarSelectionViewModel mockSelectionViewModel =
+          MockCalendarSelectionViewModel();
       final calendar1 = UserCalendar('1', 'Calendar 1');
       final calendar2 = UserCalendar('2', 'Calendar 2');
       final calendars = [calendar1, calendar2];
@@ -347,32 +522,49 @@ void main() {
       when(mockSelectionViewModel.calendars).thenReturn(calendars);
 
       // Arrange CalendarView
-      final startTime = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
-      final endTime = DateTime.now().copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
-      final startTime2 = DateTime.now().copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
-      final endTime2 = DateTime.now().copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
+      final startTime = DateTime.now()
+          .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 2, minute: 30, second: 0, millisecond: 0);
+      final startTime2 = DateTime.now()
+          .copyWith(hour: 3, minute: 0, second: 0, millisecond: 0);
+      final endTime2 = DateTime.now()
+          .copyWith(hour: 4, minute: 30, second: 0, millisecond: 0);
       final calendarEvent = UserCalendarEvent(
-        calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
+          calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
       final calendarEvent2 = UserCalendarEvent(
-        calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+          calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
       final calendarEventData = CalendarEventData(
-        title: calendarEvent.title, date: calendarEvent.localStart, description: calendarEvent.description,
-        startTime: calendarEvent.localStart, endTime: calendarEvent.localEnd, color: Colors.cyan, event: calendarEvent);
+          title: calendarEvent.title,
+          date: calendarEvent.localStart,
+          description: calendarEvent.description,
+          startTime: calendarEvent.localStart,
+          endTime: calendarEvent.localEnd,
+          color: Colors.cyan,
+          event: calendarEvent);
       final calendarEventData2 = CalendarEventData(
-        title: calendarEvent2.title, date: calendarEvent2.localStart, description: calendarEvent2.description,
-        startTime: calendarEvent2.localStart, endTime: calendarEvent2.localEnd, color: Colors.greenAccent, event: calendarEvent2);
+          title: calendarEvent2.title,
+          date: calendarEvent2.localStart,
+          description: calendarEvent2.description,
+          startTime: calendarEvent2.localStart,
+          endTime: calendarEvent2.localEnd,
+          color: Colors.greenAccent,
+          event: calendarEvent2);
       final calendarEventDatas = [calendarEventData, calendarEventData2];
       when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
           .thenAnswer((_) async => {});
-      when(mockCalendarViewModel.getCalendarEventData()).thenReturn(calendarEventDatas);
+      when(mockCalendarViewModel.getCalendarEventData())
+          .thenReturn(calendarEventDatas);
       when(mockCalendarViewModel.isLoading).thenReturn(false);
       when(mockCalendarViewModel.errorMessage).thenReturn(null);
 
       // define routes needed for this test
       final routes = {
-        '/': (context) => CalendarSelectionView(
-              calendarViewModel: mockSelectionViewModel),
-        '/CalendarView': (context) => CalendarView(selectedCalendar: calendar1, calendarViewModel: mockCalendarViewModel),
+        '/': (context) =>
+            CalendarSelectionView(calendarViewModel: mockSelectionViewModel),
+        '/CalendarView': (context) => CalendarView(
+            selectedCalendar: calendar1,
+            calendarViewModel: mockCalendarViewModel),
       };
 
       // Build the CalendarSelectionView widget
