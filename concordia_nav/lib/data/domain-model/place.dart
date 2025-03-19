@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+// You can find the return object of the Places API here: https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places#Place
 class Place {
   final String id;
   final String name;

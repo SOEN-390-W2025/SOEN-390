@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/domain-model/concordia_building.dart';
-import '../data/domain-model/place.dart';
 import '../data/repositories/building_repository.dart';
 import '../data/repositories/outdoor_directions_repository.dart';
 import '../data/services/building_service.dart';
@@ -845,15 +844,8 @@ class MapViewModel extends ChangeNotifier {
     moveToLocation(location);
   }
 
+  // ignore: unused_field
   final PlacesService _placesService = PlacesService();
-
-  Future<List<Place>> searchNearbyPlaces(PlaceType category) async {
-    final currentLocation = await _mapService.getCurrentLocation();
-    if (currentLocation == null) throw Exception("Location unavailable");
-
-    return await _placesService.nearbySearch(
-        location: currentLocation, includedType: category);
-  }
 }
 
 class ShuttleRouteDetails {
