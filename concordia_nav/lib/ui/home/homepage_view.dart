@@ -14,29 +14,29 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar:
           customAppBar(context, 'Home', onActionPressed: onAppBarActionPressed),
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.location_on, size: 40.0),
-                const SizedBox(width: 10),
-                Text(
-                  'Concordia Campus Guide',
-                  style: TextStyle(
-                    fontSize: 25,
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.location_on, size: 40.0),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Concordia Campus Guide',
+                    style: TextStyle(
+                      fontSize: 25,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            // SGW and LOY maps
-            Flexible(
-              child: Row(
+                ],
+              ),
+              const SizedBox(height: 40),
+              // SGW and LOY maps
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FeatureCard(
@@ -56,11 +56,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            // Outdoor directions and Next class directions
-            Flexible(
-              child: Row(
+              const SizedBox(height: 20),
+              // Outdoor directions and Next class directions
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FeatureCard(
@@ -83,11 +81,9 @@ class HomePage extends StatelessWidget {
                               })),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            // Indoor directions and Find nearby facilities
-            Flexible(
-              child: Row(
+              const SizedBox(height: 20),
+              // Indoor directions and Find nearby facilities
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FeatureCard(
@@ -104,10 +100,9 @@ class HomePage extends StatelessWidget {
                           Navigator.pushNamed(context, '/POIChoiceView')),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            Flexible(
-              child: Row(
+              // TODO: Remove this. Just for testing purposes
+              const SizedBox(height: 20),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FeatureCard(
@@ -117,8 +112,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 20), // Added bottom padding
+            ],
+          ),
         ),
       ),
     );

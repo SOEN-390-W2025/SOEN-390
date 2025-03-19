@@ -1,43 +1,33 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_google_maps_webservices/places.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../services/places_service.dart';
+import '../domain-model/place.dart';
 
 class PlacesRepository {
-  static final _apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
-  final GoogleMapsPlaces _placesClient = GoogleMapsPlaces(apiKey: _apiKey!);
+  final PlacesService _service;
 
-  Future<List<PlacesSearchResult>> searchNearbyPlaces({
-    required Location location,
-    required String type,
-    required int radius,
+  PlacesRepository(this._service);
+
+  /// Fetches nearby places using the Places API.
+  Future<List<Place>> getNearbyPlaces({
+    required LatLng location,
+    required double radius,
+    required PlaceType? type,
+    int maxResultCount = 10,
+    String? languageCode,
+    String? regionCode,
+    List<String>? fields,
   }) async {
-    final response = await _placesClient.searchNearbyWithRadius(
-      Location(lat: location.lat, lng: location.lng),
-      radius,
-      type: type,
-      language: 'en',
-    );
-
-    if (response.status == "OK") {
-      return response.results;
+    try {
+      return await _service.nearbySearch(
+        location: location,
+        radius: radius,
+        includedType: type,
+        maxResultCount: maxResultCount,
+        languageCode: languageCode,
+        regionCode: regionCode,
+      );
+    } catch (e) {
+      throw Exception('Failed to fetch nearby places: $e');
     }
-    throw Exception('Failed to fetch places: ${response.status}');
-  }
-
-  Future<PlaceDetails> getPlaceDetails(String placeId) async {
-    final response = await _placesClient.getDetailsByPlaceId(placeId,
-        language: 'en',
-        fields: [
-          'name',
-          'formatted_address',
-          'geometry',
-          'rating',
-          'opening_hours',
-          'types'
-        ]);
-
-    if (response.status == "OK") {
-      return response.result;
-    }
-    throw Exception('Failed to fetch place details: ${response.status}');
   }
 }

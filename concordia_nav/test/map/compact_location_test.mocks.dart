@@ -4,11 +4,13 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i8;
-import 'dart:ui' as _i12;
+import 'dart:ui' as _i14;
 
 import 'package:concordia_nav/data/domain-model/concordia_building.dart' as _i7;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i9;
+import 'package:concordia_nav/data/domain-model/place.dart' as _i12;
 import 'package:concordia_nav/data/services/map_service.dart' as _i3;
+import 'package:concordia_nav/data/services/places_service.dart' as _i13;
 import 'package:concordia_nav/utils/map_viewmodel.dart' as _i5;
 import 'package:flutter/foundation.dart' as _i2;
 import 'package:flutter/material.dart' as _i11;
@@ -435,13 +437,21 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as _i8.Future<void>);
 
   @override
-  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  _i8.Future<List<_i12.Place>> searchNearbyPlaces(_i13.PlaceType? category) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchNearbyPlaces, [category]),
+            returnValue: _i8.Future<List<_i12.Place>>.value(<_i12.Place>[]),
+          )
+          as _i8.Future<List<_i12.Place>>);
+
+  @override
+  void addListener(_i14.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i14.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

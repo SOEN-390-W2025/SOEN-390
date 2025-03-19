@@ -9,7 +9,9 @@ import 'dart:ui' as _i11;
 import 'package:concordia_nav/data/domain-model/concordia_building.dart' as _i8;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i12;
 import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i6;
+import 'package:concordia_nav/data/domain-model/place.dart' as _i14;
 import 'package:concordia_nav/data/services/map_service.dart' as _i3;
+import 'package:concordia_nav/data/services/places_service.dart' as _i15;
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart' as _i5;
 import 'package:concordia_nav/utils/map_viewmodel.dart' as _i10;
 import 'package:flutter/material.dart' as _i2;
@@ -575,6 +577,14 @@ class MockIndoorMapViewModel extends _i1.Mock
             returnValueForMissingStub: _i9.Future<void>.value(),
           )
           as _i9.Future<void>);
+
+  @override
+  _i9.Future<List<_i14.Place>> searchNearbyPlaces(_i15.PlaceType? category) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchNearbyPlaces, [category]),
+            returnValue: _i9.Future<List<_i14.Place>>.value(<_i14.Place>[]),
+          )
+          as _i9.Future<List<_i14.Place>>);
 
   @override
   void addListener(_i11.VoidCallback? listener) => super.noSuchMethod(

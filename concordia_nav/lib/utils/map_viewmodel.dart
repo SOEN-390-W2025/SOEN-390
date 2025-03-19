@@ -851,25 +851,9 @@ class MapViewModel extends ChangeNotifier {
     final currentLocation = await _mapService.getCurrentLocation();
     if (currentLocation == null) throw Exception("Location unavailable");
 
-    return await _placesService.getNearbyPlaces(
-      currentLocation: currentLocation,
-      category: category,
-    );
+    return await _placesService.nearbySearch(
+        location: currentLocation, includedType: category);
   }
-
-  // TODO: Implement this method to show places on the map.
-  // void showPlacesOnMap(List<Place> places) {
-  //   final markers = places
-  //       .map((place) => Marker(
-  //             markerId: MarkerId(place.id),
-  //             position: place.location,
-  //             infoWindow: InfoWindow(title: place.name),
-  //           ))
-  //       .toSet();
-
-  //   // Update map markers
-  //   _markersNotifier.value = markers;
-  // }
 }
 
 class ShuttleRouteDetails {

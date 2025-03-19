@@ -4,6 +4,7 @@ import 'package:concordia_nav/data/services/helpers/icon_loader.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart';
 import 'package:mockito/annotations.dart';
@@ -18,13 +19,16 @@ import 'map_viewmodel_test.mocks.dart';
 
 @GenerateMocks(
     [MapRepository, MapService, MapViewModel, ODSDirectionsService, Client])
-void main() {
+void main() async {
   late MapViewModel mapViewModel;
   late MockMapRepository mockMapRepository;
   late MockMapService mockMapService;
   late MockODSDirectionsService mockODSDirectionsService;
   late ShuttleRouteRepository shuttleRepo;
   late MockClient mockHttpClient;
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
 
   setUp(() {
     mockMapRepository = MockMapRepository();
@@ -49,8 +53,6 @@ void main() {
     late MockMapService mockMapService;
     late ShuttleRouteRepository mockShuttleRouteRepository;
     late MockODSDirectionsService mockODSDirectionsService;
-
-    TestWidgetsFlutterBinding.ensureInitialized();
 
     const MethodChannel geocodingChannel =
         MethodChannel('flutter.baseflow.com/geocoding');
@@ -122,7 +124,7 @@ void main() {
       when(mockHttpClient.post(any,
               headers: anyNamed('headers'), body: anyNamed('body')))
           .thenAnswer((_) async => Response(
-                '{"d": {"Points": [{"ID": "BUS1", "Latitude": 45.4971, "Longitude": -73.5788}]} }',
+                '{"d": {"Points": [{"ID": "BUS1", "Latitude": 45.4971, "Longitude": -73.5788, "Angle": 90, "Course": "LOYtoSGW", "BusName": "Bus 1"}]} }',
                 200,
               ));
 

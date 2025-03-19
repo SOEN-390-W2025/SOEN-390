@@ -4,17 +4,19 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i10;
-import 'dart:convert' as _i15;
-import 'dart:typed_data' as _i16;
-import 'dart:ui' as _i14;
+import 'dart:convert' as _i17;
+import 'dart:typed_data' as _i18;
+import 'dart:ui' as _i16;
 
 import 'package:concordia_nav/data/domain-model/concordia_building.dart'
     as _i13;
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i9;
+import 'package:concordia_nav/data/domain-model/place.dart' as _i14;
 import 'package:concordia_nav/data/repositories/map_repository.dart' as _i8;
 import 'package:concordia_nav/data/services/map_service.dart' as _i4;
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart'
     as _i6;
+import 'package:concordia_nav/data/services/places_service.dart' as _i15;
 import 'package:concordia_nav/utils/map_viewmodel.dart' as _i11;
 import 'package:flutter/material.dart' as _i3;
 import 'package:google_directions_api/google_directions_api.dart' as _i5;
@@ -596,13 +598,21 @@ class MockMapViewModel extends _i1.Mock implements _i11.MapViewModel {
           as _i10.Future<void>);
 
   @override
-  void addListener(_i14.VoidCallback? listener) => super.noSuchMethod(
+  _i10.Future<List<_i14.Place>> searchNearbyPlaces(_i15.PlaceType? category) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchNearbyPlaces, [category]),
+            returnValue: _i10.Future<List<_i14.Place>>.value(<_i14.Place>[]),
+          )
+          as _i10.Future<List<_i14.Place>>);
+
+  @override
+  void addListener(_i16.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i14.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i16.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -647,7 +657,7 @@ class MockODSDirectionsService extends _i1.Mock
     required String? destinationAddress,
     required _i5.TravelMode? travelMode,
     String? polylineId = 'route',
-    _i14.Color? color = const _i14.Color(4280391411),
+    _i16.Color? color = const _i16.Color(4280391411),
     int? width = 5,
   }) =>
       (super.noSuchMethod(
@@ -680,7 +690,7 @@ class MockODSDirectionsService extends _i1.Mock
     required String? originAddress,
     required String? destinationAddress,
     String? polylineId = 'walking_route',
-    _i14.Color? color = const _i14.Color(4279007742),
+    _i16.Color? color = const _i16.Color(4279007742),
     int? width = 5,
   }) =>
       (super.noSuchMethod(
@@ -757,7 +767,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -783,7 +793,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -809,7 +819,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -835,7 +845,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -870,15 +880,15 @@ class MockClient extends _i1.Mock implements _i7.Client {
           as _i10.Future<String>);
 
   @override
-  _i10.Future<_i16.Uint8List> readBytes(
+  _i10.Future<_i18.Uint8List> readBytes(
     Uri? url, {
     Map<String, String>? headers,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#readBytes, [url], {#headers: headers}),
-            returnValue: _i10.Future<_i16.Uint8List>.value(_i16.Uint8List(0)),
+            returnValue: _i10.Future<_i18.Uint8List>.value(_i18.Uint8List(0)),
           )
-          as _i10.Future<_i16.Uint8List>);
+          as _i10.Future<_i18.Uint8List>);
 
   @override
   _i10.Future<_i7.StreamedResponse> send(_i7.BaseRequest? request) =>

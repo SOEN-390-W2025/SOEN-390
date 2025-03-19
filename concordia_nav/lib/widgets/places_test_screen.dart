@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../data/services/places_service.dart';
 import '../utils/map_viewmodel.dart';
 
+// TODO: Remove this. Just for testing purposes.
 class PlacesTestScreen extends StatefulWidget {
   const PlacesTestScreen({super.key});
 
@@ -22,29 +23,15 @@ class _PlacesTestScreenState extends State<PlacesTestScreen> {
   Future<void> _searchNearbyPlaces(PlaceType category) async {
     setState(() {
       _isLoading = true;
-      _resultText = "Searching for ${_getCategoryName(category)}...";
+      _resultText = "Searching for ${category.displayName}...";
     });
 
     try {
       final places = await _mapViewModel.searchNearbyPlaces(category);
 
       // Convert places to JSON
-      final placesJson = places
-          .map((place) => {
-                'id': place.id,
-                'name': place.name,
-                'address': place.address,
-                'location': {
-                  'latitude': place.location.latitude,
-                  'longitude': place.location.longitude,
-                },
-                'rating': place.rating,
-                'types': place.types,
-                'isOpen': place.isOpen,
-              })
-          .toList();
+      final placesJson = places.map((place) => place.toJson()).toList();
 
-      // Pretty-print the JSON
       final prettyJson = const JsonEncoder.withIndent('  ').convert(placesJson);
 
       setState(() {
@@ -52,8 +39,8 @@ class _PlacesTestScreenState extends State<PlacesTestScreen> {
       });
 
       // Also log to console for debugging
-      dev.log(
-          'Found ${places.length} places of type ${_getCategoryName(category)}');
+      dev.log('Found ${places.length} places of type ${category.displayName}');
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       setState(() {
         _resultText = "Error: ${e.toString()}";
@@ -63,25 +50,6 @@ class _PlacesTestScreenState extends State<PlacesTestScreen> {
       setState(() {
         _isLoading = false;
       });
-    }
-  }
-
-  String _getCategoryName(PlaceType type) {
-    switch (type) {
-      case PlaceType.healthCenter:
-        return 'Health Centers';
-      case PlaceType.foodDrink:
-        return 'Food & Drink';
-      case PlaceType.studyPlace:
-        return 'Study Places';
-      case PlaceType.coffeeShop:
-        return 'Coffee Shops';
-      case PlaceType.gym:
-        return 'Gyms';
-      case PlaceType.grocery:
-        return 'Grocery Stores';
-      default:
-        return 'Places';
     }
   }
 

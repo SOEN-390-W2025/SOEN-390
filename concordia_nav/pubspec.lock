@@ -280,14 +280,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
-  flutter_google_maps_webservices:
-    dependency: "direct main"
-    description:
-      name: flutter_google_maps_webservices
-      sha256: "0a1ad0619d5a8ec37b4a8a47776c26fe7491f5a3b8031a5191607ea1a4996ead"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
   flutter_lints:
     dependency: "direct dev"
     description:
