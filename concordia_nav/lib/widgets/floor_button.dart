@@ -5,11 +5,13 @@ import '../ui/indoor_map/floor_selection.dart';
 class FloorButton extends StatelessWidget {
   final String floor;
   final ConcordiaBuilding building;
+  final Function(String)? onFloorChanged;
 
   const FloorButton({
     super.key,
     required this.floor,
-    required this.building,
+    required this.building, 
+    this.onFloorChanged,
   });
 
   @override

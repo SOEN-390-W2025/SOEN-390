@@ -186,6 +186,7 @@ class _POIChoiceViewState extends State<POIChoiceView> {
                   '/POIMapView',
                   arguments: {
                     'poiName': poiName,
+                    'poiChoiceViewModel': _poichoiceViewModel
                   },
                 );
               },

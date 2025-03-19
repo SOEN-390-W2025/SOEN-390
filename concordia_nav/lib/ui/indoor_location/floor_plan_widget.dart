@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../data/domain-model/poi.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/indoor/indoor_path.dart';
 
+import 'dart:developer' as dev;
 class FloorPlanWidget extends StatelessWidget {
   final IndoorMapViewModel indoorMapViewModel;
   final String floorPlanPath;
@@ -15,6 +17,8 @@ class FloorPlanWidget extends StatelessWidget {
   final bool highlightCurrentStep;
   final Offset? currentStepPoint;
   final bool showStepView;
+  final List<POI>? pois;
+  final Function(POI)? onPoiTap;
 
 
   const FloorPlanWidget({
@@ -28,8 +32,9 @@ class FloorPlanWidget extends StatelessWidget {
     this.onTap,
     this.highlightCurrentStep = false,
     this.currentStepPoint,
-    this.showStepView = false
-
+    this.showStepView = false,
+    this.pois,
+    this.onPoiTap,
   });
 
   @override
@@ -79,6 +84,36 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                   size: Size(width, height),
                 ),
+              if (pois != null)
+                ...pois!.map((poi) => Positioned(
+                      left: poi.x - 24,
+                      top: poi.y - 26,
+                      child: GestureDetector(
+                        onTap: () {
+                          dev.log('assets/icons/pois/${poi.category.toString().split('.').last}.png');
+                          if (onPoiTap != null) onPoiTap!(poi);
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          color: Colors.transparent,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'assets/icons/pois/${poi.category.toString().split('.').last}.png',
+                                width: 32,
+                                height: 32,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  Icons.location_city,
+                                  color: Colors.red,
+                                  size: 24,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )),
             ],
           ),
         ),

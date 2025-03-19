@@ -22,6 +22,7 @@ import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
+import 'utils/poi/poi_viewmodel.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -70,7 +71,14 @@ class MyApp extends StatelessWidget {
               );
             },
             '/POIChoiceView': (context) => const POIChoiceView(),
-            '/POIMapView': (context) => const POIMapView(),
+            '/POIMapView': (context) {
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+              return POIMapView(
+                poiName: args['poiName'] as String,
+                poiChoiceViewModel: args['poiChoiceViewModel'] as POIChoiceViewModel,
+              );
+            },
             '/AccessibilityPage': (context) => const AccessibilityPage(),
             '/CalendarLinkView': (context) => const CalendarLinkView(),
             '/CalendarSelectionView': (context) =>

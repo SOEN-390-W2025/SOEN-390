@@ -350,6 +350,9 @@ class BuildingDataManager {
             case RoomCategory.restaurant:
               poiCategory = POICategory.restaurant;
               break;
+            case RoomCategory.police:
+              poiCategory = POICategory.police;
+              break;
             default:
               poiCategory = POICategory.other;
               break;

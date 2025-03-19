@@ -134,6 +134,14 @@ flutter:
     - assets/maps/indoor/floorplans/MBS2.svg
     - assets/maps/indoor/floorplans/VL1.svg
     - assets/maps/indoor/floorplans/VL2.svg
+    - assets/icons/pois/elevator.png
+    - assets/icons/pois/escalator.png
+    - assets/icons/pois/exit.png
+    - assets/icons/pois/police.png
+    - assets/icons/pois/restaurant.png
+    - assets/icons/pois/stairs.png
+    - assets/icons/pois/washroom.png
+    - assets/icons/pois/waterFountain.png
     - assets/icons/default.png
     - assets/icons/destination.png
     - assets/icons/origin.png

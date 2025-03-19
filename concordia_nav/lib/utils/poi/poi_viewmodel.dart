@@ -17,6 +17,7 @@ class POIChoiceViewModel extends ChangeNotifier {
   POICategory? _selectedCategory;
   
   // Getters
+  List<POI> get allPOIs => _allPOIs;
   List<POI> get filteredPOIs => _filteredPOIs;
   bool get isLoading => _isLoading;
   String get error => _error;
