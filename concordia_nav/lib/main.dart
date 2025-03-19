@@ -22,6 +22,7 @@ import 'ui/setting/calendar/calendar_link_view.dart';
 import 'ui/setting/calendar/calendar_selection_view.dart';
 import 'ui/setting/calendar/calendar_view.dart';
 import 'ui/setting/settings_page.dart';
+import 'ui/smart_planner/generated_plan_view.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
 import 'widgets/splash_screen.dart';
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
           '/SearchView': (context) => const SearchView(),
           '/SelectBuilding': (context) => const BuildingSelection(),
           '/SmartPlannerView': (context) => const SmartPlannerView(),
+          '/GeneratedPlanView': (context) => const GeneratedPlanView(),
           '/IndoorDirectionsView': (context) {
             final args = ModalRoute.of(context)!.settings.arguments
                 as Map<String, dynamic>;
