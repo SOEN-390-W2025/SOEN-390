@@ -14,12 +14,14 @@ class POIChoiceView extends StatefulWidget {
 class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProviderStateMixin {
   late POIChoiceViewModel _viewModel;
   late TabController _tabController;
+  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     _viewModel = POIChoiceViewModel();
     _tabController = TabController(length: 2, vsync: this);
+    _searchController = TextEditingController();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel.init(); // Load both indoor and outdoor POIs
@@ -30,6 +32,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   void dispose() {
     _tabController.dispose();
     _viewModel.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -44,7 +47,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
             body: Column(
               children: [
                 // Global search bar - outside both tabs
-                _buildSearchBar(
+              _buildSearchBar(
                   labelText: 'Search POIs',
                   query: viewModel.globalSearchQuery,
                   onChanged: (query) => viewModel.setGlobalSearchQuery(query),
@@ -232,6 +235,9 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
     required Function(String) onChanged,
     required VoidCallback onClear,
   }) {
+    // Set the controller's text to match the current query value
+    _searchController.text = query;
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Container(
@@ -247,6 +253,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
           ],
         ),
         child: TextField(
+          controller: _searchController,
           decoration: InputDecoration(
             fillColor: Colors.white,
             filled: true,
@@ -267,7 +274,10 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
             suffixIcon: query.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
-                  onPressed: onClear,
+                  onPressed: (){
+                    _searchController.clear();
+                    onClear();
+                  },
                 )
               : null,
           ),
