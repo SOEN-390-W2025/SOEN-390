@@ -13,7 +13,13 @@ class FloorSelection extends StatefulWidget {
   final bool isSource;
   final bool isSearch;
   final bool isDisability;
-  const FloorSelection({super.key, required this.building, this.endRoom,  this.isSource = false, this.isSearch = false , this.isDisability = false});
+  const FloorSelection(
+      {super.key,
+      required this.building,
+      this.endRoom,
+      this.isSource = false,
+      this.isSearch = false,
+      this.isDisability = false});
 
   @override
   FloorSelectionState createState() => FloorSelectionState();
@@ -52,77 +58,73 @@ class FloorSelectionState extends State<FloorSelection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, widget.building),
-      body: Column(
-        children: [
-          IndoorSearchBar(
-            controller: searchController,
-            hintText: 'Search',
-            icon: Icons.location_on,
-            iconColor: Theme.of(context).primaryColor,
-          ),
-          if (!widget.isSearch)
-            SelectIndoorDestination(building: widget.building, isSource: widget.isSource, endRoom: widget.endRoom, isDisability: widget.isDisability),
-          FutureBuilder<List<String>>(
-            future: floorsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return const Expanded(
-                  child: Center(
-                    child: Text('Not available')
-                  )
-                );
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Expanded(
-                  child: Center(
-                    child: Text("No floors available")
-                  )
-                );
-              } else {
-                // Update the floors list only once
-                if (allFloors.isEmpty) {
-                  allFloors = snapshot.data!;
-                  filteredFloors = List.from(allFloors);
-                }
+      body: Column(children: [
+        IndoorSearchBar(
+          controller: searchController,
+          hintText: 'Search',
+          icon: Icons.location_on,
+          iconColor: Theme.of(context).primaryColor,
+        ),
+        if (!widget.isSearch)
+          SelectIndoorDestination(
+              building: widget.building,
+              isSource: widget.isSource,
+              endRoom: widget.endRoom,
+              isDisability: widget.isDisability),
+        FutureBuilder<List<String>>(
+          future: floorsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Expanded(
+                  child: Center(child: Text('Not available')));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Expanded(
+                  child: Center(child: Text("No floors available")));
+            } else {
+              // Update the floors list only once
+              if (allFloors.isEmpty) {
+                allFloors = snapshot.data!;
+                filteredFloors = List.from(allFloors);
+              }
 
-                return SelectableList(
-                  items: filteredFloors,
-                  title: 'Select a floor',
-                  searchController: searchController,
-                  onItemSelected: (floor) {
-                     if (widget.isSearch) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => IndoorLocationView(
-                            building: BuildingViewModel().getBuildingByName(widget.building)!,
-                            floor: floor.replaceAll('Floor ', ''),
-                          ),
+              return SelectableList(
+                items: filteredFloors,
+                title: 'Select a floor',
+                searchController: searchController,
+                onItemSelected: (floor) {
+                  if (widget.isSearch) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => IndoorLocationView(
+                          building: BuildingViewModel()
+                              .getBuildingByName(widget.building)!,
+                          floor: floor.replaceAll('Floor ', ''),
                         ),
-                        (route) => route.isFirst,
-                      );
-                     } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ClassroomSelection(
+                      ),
+                      (route) => route.isFirst,
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ClassroomSelection(
                             building: widget.building,
                             floor: floor.toString(),
                             currentRoom: widget.endRoom,
                             isSource: widget.isSource,
-                            isDisability: widget.isDisability
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                );
-              }
-            },
-          ),
-        ]
-      ),
+                            isDisability: widget.isDisability),
+                      ),
+                    );
+                  }
+                },
+              );
+            }
+          },
+        ),
+      ]),
     );
   }
 }

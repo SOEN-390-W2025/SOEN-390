@@ -62,7 +62,7 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
         final String hyphen = room.roomNumber.split('-').first;
         String roomNumber = room.roomNumber;
         if (hyphen.length == 1) {
-          roomNumber = '0$roomNumber'; // Add leading zero to single digit room
+          roomNumber = '0$roomNumber';
         }
         return '$floorNumber$roomNumber';
       }).toList();

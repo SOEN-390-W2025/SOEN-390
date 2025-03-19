@@ -5,12 +5,12 @@ import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:concordia_nav/ui/search/search_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:concordia_nav/widgets/compact_location_search_widget.dart';
-import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
+import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -106,6 +106,129 @@ void main() async {
     mockDirectionsService = MockDirectionsService();
     directionsService = ODSDirectionsService();
     directionsService.directionsService = mockDirectionsService;
+  });
+
+  group('fetchStaticMapUrl', () {
+    test('should return a valid static map URL with polyline', () async {
+      // Arrange
+      const originAddress = "New York, NY";
+      const destinationAddress = "Los Angeles, CA";
+      const width = 600;
+      const height = 400;
+
+      // Mock the DirectionsService to return a valid response with a polyline
+      when(mockDirectionsService.route(any, any)).thenAnswer((invocation) {
+        final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+            invocation.positionalArguments[1];
+
+        // Simulate an immediate API response
+        callback(
+          const gda.DirectionsResult(routes: [
+            gda.DirectionsRoute(
+              overviewPolyline:
+                  gda.OverviewPolyline(points: "encodedPolylineExample"),
+            ),
+          ]),
+          gda.DirectionsStatus.ok,
+        );
+
+        return Future.value();
+      });
+
+      // Act
+      final url = await directionsService.fetchStaticMapUrl(
+        originAddress: originAddress,
+        destinationAddress: destinationAddress,
+        width: width,
+        height: height,
+      );
+
+      // Assert
+      expect(url, isNotNull);
+      expect(url!.contains("https://maps.googleapis.com/maps/api/staticmap"),
+          isTrue);
+      expect(
+          url.contains(
+              "path=color:0xDE3355|weight:5|enc:encodedPolylineExample"),
+          isTrue);
+    });
+
+    test('should return a valid static map URL with only markers', () async {
+      // Arrange
+      const originAddress = "New York, NY";
+      const destinationAddress = "Los Angeles, CA";
+      const width = 600;
+      const height = 400;
+
+      // Mock the DirectionsService to return a response without a polyline
+      when(mockDirectionsService.route(any, any)).thenAnswer((invocation) {
+        final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+            invocation.positionalArguments[1];
+
+        // Simulate an API response without polyline
+        callback(
+          const gda.DirectionsResult(routes: [
+            gda.DirectionsRoute(
+              overviewPolyline: gda.OverviewPolyline(points: ""),
+            ),
+          ]),
+          gda.DirectionsStatus.ok,
+        );
+
+        return Future.value();
+      });
+
+      // Act
+      final url = await directionsService.fetchStaticMapUrl(
+        originAddress: originAddress,
+        destinationAddress: destinationAddress,
+        width: width,
+        height: height,
+      );
+
+      // Assert
+      expect(url, isNotNull);
+      expect(url!.contains("https://maps.googleapis.com/maps/api/staticmap"),
+          isTrue);
+      expect(url.contains("markers="), isTrue);
+      expect(url.contains("path=color:0xDE3355|weight:5|enc:"), isFalse);
+    });
+
+    test('should return a valid static map URL when API fails', () async {
+      // Arrange
+      const originAddress = "New York, NY";
+      const destinationAddress = "Los Angeles, CA";
+      const width = 600;
+      const height = 400;
+
+      // Mock the DirectionsService to simulate an API failure
+      when(mockDirectionsService.route(any, any)).thenAnswer((invocation) {
+        final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+            invocation.positionalArguments[1];
+
+        // Simulate API failure
+        callback(
+          const gda.DirectionsResult(routes: []),
+          gda.DirectionsStatus.notFound,
+        );
+
+        return Future.value();
+      });
+
+      // Act
+      final url = await directionsService.fetchStaticMapUrl(
+        originAddress: originAddress,
+        destinationAddress: destinationAddress,
+        width: width,
+        height: height,
+      );
+
+      // Assert
+      expect(url, isNotNull);
+      expect(url!.contains("https://maps.googleapis.com/maps/api/staticmap"),
+          isTrue);
+      expect(url.contains("markers="), isTrue);
+    });
   });
 
   testWidgets(
@@ -205,7 +328,7 @@ void main() async {
     await tester.pump();
 
     // Verify that the fetchRoutesForAllModes method was called
-    verify(mockMapViewModel.fetchRoutesForAllModes(any, any)).called(1);
+    verify(mockMapViewModel.fetchRoutesForAllModes(any, any)).called(2);
   });
 
   testWidgets('widgets are present in the page', (WidgetTester tester) async {
@@ -487,7 +610,7 @@ void main() async {
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Outdoor Location'), findsOneWidget);
+      expect(find.text('Sir George Williams Campus'), findsOneWidget);
     });
 
     testWidgets('appBar has the right title', (WidgetTester tester) async {
@@ -511,7 +634,7 @@ void main() async {
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Outdoor Location'), findsOneWidget);
+      expect(find.text('Sir George Williams Campus'), findsOneWidget);
     });
   });
 

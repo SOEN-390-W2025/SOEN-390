@@ -243,6 +243,12 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
   );
 
   @override
+  set eventsList(List<_i3.UserCalendarEvent>? events) => super.noSuchMethod(
+    Invocation.setter(#eventsList, events),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);

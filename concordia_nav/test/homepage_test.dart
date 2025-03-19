@@ -1,8 +1,10 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
+import 'package:concordia_nav/ui/next_class/next_class_directions_view.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
@@ -270,6 +272,14 @@ void main() async {
           sourceRoom: 'Your location',
           building: 'Hall Building',
           endRoom: '901'),
+      '/NextClassDirectionsPreview': (context) {
+        final routeArgs = ModalRoute.of(context)!.settings.arguments;
+        List<Location> locations = [];
+        if (routeArgs is List<Location>) {
+          locations = routeArgs;
+        }
+        return NextClassDirectionsPreview(journeyItems: locations);
+      },
     };
 
     // Build the HomePage widget
@@ -304,13 +314,13 @@ void main() async {
             mapViewModel: mockMapViewModel,
           ),
       '/OutdoorLocationMapView': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-                return OutdoorLocationMapView(
-                  campus: args['campus'] as ConcordiaCampus,
-                  mapViewModel: mockMapViewModel,
-                );
-            },
+        final args =
+            ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        return OutdoorLocationMapView(
+          campus: args['campus'] as ConcordiaCampus,
+          mapViewModel: mockMapViewModel,
+        );
+      },
     };
 
     when(mockMapViewModel.selectedBuildingNotifier)
@@ -356,13 +366,14 @@ void main() async {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Smart Planner navigation should work', (WidgetTester tester) async {
+  testWidgets('Smart Planner navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
       '/SmartPlannerView': (context) => const SmartPlannerView(),
     };
-    
+
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
       initialRoute: '/',

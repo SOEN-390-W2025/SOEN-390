@@ -18,6 +18,8 @@ class IndoorDirectionsView extends StatefulWidget {
   late String endRoom;
   late String sourceRoom;
   final bool isDisability;
+  final bool hideAppBar;
+  final bool hideIndoorInputs;
 
   IndoorDirectionsView({
     super.key,
@@ -25,6 +27,8 @@ class IndoorDirectionsView extends StatefulWidget {
     required this.building,
     required this.endRoom,
     this.isDisability = false,
+    this.hideAppBar = false,
+    this.hideIndoorInputs = false,
   });
 
   @override
@@ -62,13 +66,17 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     super.initState();
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
-
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
 
     disability = widget.isDisability;
     buildingAbbreviation =
-        _buildingViewModel.getBuildingAbbreviation(widget.building)!;
-    if (widget.sourceRoom != yourLocation) {
+        _buildingViewModel.getBuildingByName(widget.building)!.abbreviation;
+
+    // extractFloor() returns "1" for "main entrance" or "Your Location"
+    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
+
+    if (widget.sourceRoom.trim().toLowerCase() != 'your location') {
       displayFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
     } else {
       displayFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
@@ -77,13 +85,11 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     floorPlanPath =
         'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
-    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
-    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
     realStartRoom = widget.sourceRoom;
     realEndRoom = widget.endRoom;
 
     // Check if source and destination are on different floors
-    if (widget.sourceRoom != 'Your Location' && startFloor != endFloor) {
+    if (startFloor != endFloor) {
       isMultiFloor = true;
       widget.endRoom = 'connection';
     } else {
@@ -97,7 +103,6 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     );
 
     from = realStartRoom;
-
     if (realStartRoom == yourLocation) {
       from = yourLocation;
     } else if (hasFullRoomName(realStartRoom)) {
@@ -110,11 +115,16 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
-    dev.log('IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
+    dev.log(
+        'IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
     dev.log('IndoorDirectionsView: from: $from, to: $to');
     getSvgSize();
 
     _initializeRoute();
+
+    if (isMultiFloor && realStartRoom == yourLocation) {
+      handleNextFloorPress();
+    }
   }
 
   @override
@@ -171,6 +181,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           }
         });
       }
+
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
@@ -192,14 +203,19 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       child:
           Consumer<IndoorDirectionsViewModel>(builder: (context, viewModel, _) {
         return Scaffold(
-          appBar: customAppBar(context, 'Indoor Directions'),
+          appBar: (widget.hideAppBar)
+              ? null
+              : customAppBar(context, 'Indoor Directions'),
           body: Column(
             children: [
-              LocationInfoWidget(
-                  from: from,
-                  to: to,
-                  building: widget.building,
-                  isDisability: disability),
+              Visibility(
+                visible: !widget.hideIndoorInputs,
+                child: LocationInfoWidget(
+                    from: from,
+                    to: to,
+                    building: widget.building,
+                    isDisability: disability),
+              ),
               Expanded(
                 child: Stack(
                   children: [
@@ -221,7 +237,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                         disability: disability,
                         onDisabilityChanged: (value) {
                           disability = !disability;
-                          _initializeRoute(); // Recalculate route with new setting
+                          _initializeRoute();
                         },
                       ),
                     ),
@@ -278,13 +294,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   void handlePrevFloorPress() {
     setState(() {
-      if (realEndRoom == yourLocation) {
-        widget.sourceRoom = 'connection';
-        widget.endRoom = realEndRoom;
-      } else {
-        widget.sourceRoom = yourLocation;
-        widget.endRoom = realEndRoom;
-      }
+      widget.sourceRoom = 'connection';
+      widget.endRoom = realEndRoom;
 
       isMultiFloor = true;
 
