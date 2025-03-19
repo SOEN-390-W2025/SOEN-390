@@ -4,12 +4,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_directions_api/google_directions_api.dart' as gda;
+import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:http/http.dart' as http;
 import '../../data/repositories/map_repository.dart';
 import '../data/domain-model/concordia_campus.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../data/domain-model/location.dart';
+import '../data/domain-model/shuttle_route_details.dart';
+import '../data/domain-model/shuttle_route_segments.dart';
 import '../data/repositories/building_repository.dart';
 import '../data/repositories/outdoor_directions_repository.dart';
 import '../data/services/building_service.dart';
@@ -17,7 +22,7 @@ import '../data/services/map_service.dart';
 import '../data/services/helpers/icon_loader.dart';
 import '../data/services/places_service.dart';
 import 'building_viewmodel.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart' as geodart;
 import '../data/services/outdoor_directions_service.dart'; // New import
 
 /// A custom enum that includes a shuttle option in addition to those provided
@@ -29,9 +34,6 @@ enum CustomTravelMode {
   transit,
   shuttle,
 }
-
-// ignore: constant_identifier_names
-enum ShuttleRouteDirection { LOYtoSGW, SGWtoLOY }
 
 /// Maps a [CustomTravelMode] to the Google Directions API travel mode.
 /// For shuttle, we return `null` because it’s handled separately.
@@ -122,7 +124,7 @@ class MapViewModel extends ChangeNotifier {
   /// Fetches the initial camera position for the provided [campus].
   Future<CameraPosition> getInitialCameraPosition(
       ConcordiaCampus campus) async {
-    return _mapRepository.getCameraPosition(campus);
+    return _mapRepository.getCameraPositionFromCampus(campus);
   }
 
   Future<String> _getOriginAddress(String? originAddress) async {
@@ -229,7 +231,8 @@ class MapViewModel extends ChangeNotifier {
   /// Dart's geocoding package.
   Future<LatLng?> geocodeAddress(String address) async {
     try {
-      List<Location> locations = await locationFromAddress(address);
+      List<geodart.Location> locations =
+          await geodart.locationFromAddress(address);
       if (locations.isNotEmpty) {
         final location = locations.first;
         return LatLng(location.latitude, location.longitude);
@@ -284,9 +287,9 @@ class MapViewModel extends ChangeNotifier {
     if (_isValidShuttleRoute(
         originNearLOY, originNearSGW, destNearLOY, destNearSGW)) {
       if (originNearSGW && destNearLOY) {
-        return ShuttleRouteDirection.SGWtoLOY;
+        return ShuttleRouteDirection.campusSGWtoLOY;
       } else if (originNearLOY && destNearSGW) {
-        return ShuttleRouteDirection.LOYtoSGW;
+        return ShuttleRouteDirection.campusLOYtoSGW;
       } else {
         if (kDebugMode) {
           print(
@@ -381,11 +384,11 @@ class MapViewModel extends ChangeNotifier {
     late LatLng disembarkStop;
     late String polylineIdSuffix;
 
-    if (computedDirection == ShuttleRouteDirection.LOYtoSGW) {
+    if (computedDirection == ShuttleRouteDirection.campusLOYtoSGW) {
       boardingStop = loyolaStop;
       disembarkStop = sgwStop;
       polylineIdSuffix = "LOYtoSGW";
-    } else if (computedDirection == ShuttleRouteDirection.SGWtoLOY) {
+    } else if (computedDirection == ShuttleRouteDirection.campusSGWtoLOY) {
       boardingStop = sgwStop;
       disembarkStop = loyolaStop;
       polylineIdSuffix = "SGWtoLOY";
@@ -817,6 +820,52 @@ class MapViewModel extends ChangeNotifier {
     return false;
   }
 
+  Widget buildPlaceAutocompleteTextField({
+    required TextEditingController controller,
+    required Function(dynamic) onPlaceSelected,
+  }) {
+    return GooglePlaceAutoCompleteTextField(
+      textEditingController: controller,
+      googleAPIKey: dotenv.env['GOOGLE_MAPS_API_KEY']!,
+      // This inputDecoration could easily just be passed as an arg instead,
+      // but it looks like other views involving the MapViewModel just use an
+      // input selection that consists of campus buildings and current location
+      inputDecoration: const InputDecoration(
+        labelText: "Enter Address",
+        labelStyle: TextStyle(color: Colors.black),
+        floatingLabelStyle: TextStyle(color: Colors.black),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF922238), width: 2),
+        ),
+      ),
+      debounceTime: 500,
+      isLatLngRequired: true,
+      getPlaceDetailWithLatLng: (prediction) {
+        final location = Location(
+          double.parse(prediction.lat ?? "0"),
+          double.parse(prediction.lng ?? "0"),
+          prediction.description ?? "",
+          null,
+          null,
+          null,
+          null,
+        );
+        onPlaceSelected(location);
+      },
+      itemClick: (prediction) {
+        // Additional handling when a prediction is tapped would go here.
+        // What we really want from this textfield is to just have the user
+        // enter an address, and create a Location object out of it.
+      },
+    );
+  }
+
   @override
   void dispose() {
     _isDisposed = true;
@@ -846,42 +895,4 @@ class MapViewModel extends ChangeNotifier {
 
   // ignore: unused_field
   final PlacesService _placesService = PlacesService();
-}
-
-class ShuttleRouteDetails {
-  final LatLng? originCoords;
-  final LatLng? destinationCoords;
-  final bool originNearLOY;
-  final bool originNearSGW;
-  final bool destNearLOY;
-  final bool destNearSGW;
-  final ShuttleRouteDirection? direction;
-  final LatLng boardingStop;
-  final LatLng disembarkStop;
-  final String polylineIdSuffix;
-
-  ShuttleRouteDetails({
-    required this.originCoords,
-    required this.destinationCoords,
-    required this.originNearLOY,
-    required this.originNearSGW,
-    required this.destNearLOY,
-    required this.destNearSGW,
-    required this.direction,
-    required this.boardingStop,
-    required this.disembarkStop,
-    required this.polylineIdSuffix,
-  });
-}
-
-class RouteSegments {
-  final Polyline? leg1;
-  final Polyline leg2;
-  final Polyline? leg3;
-
-  RouteSegments({
-    required this.leg1,
-    required this.leg2,
-    required this.leg3,
-  });
 }

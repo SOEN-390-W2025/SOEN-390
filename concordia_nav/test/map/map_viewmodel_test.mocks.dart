@@ -60,26 +60,35 @@ class _FakeMapService_3 extends _i1.SmartFake implements _i4.MapService {
     : super(parent, parentInvocation);
 }
 
-class _FakeDirectionsService_4 extends _i1.SmartFake
+class _FakeWidget_4 extends _i1.SmartFake implements _i3.Widget {
+  _FakeWidget_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+
+  @override
+  String toString({_i3.DiagnosticLevel? minLevel = _i3.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
+class _FakeDirectionsService_5 extends _i1.SmartFake
     implements _i5.DirectionsService {
-  _FakeDirectionsService_4(Object parent, Invocation parentInvocation)
+  _FakeDirectionsService_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeOutdoorRouteResult_5 extends _i1.SmartFake
+class _FakeOutdoorRouteResult_6 extends _i1.SmartFake
     implements _i6.OutdoorRouteResult {
-  _FakeOutdoorRouteResult_5(Object parent, Invocation parentInvocation)
+  _FakeOutdoorRouteResult_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeResponse_6 extends _i1.SmartFake implements _i7.Response {
-  _FakeResponse_6(Object parent, Invocation parentInvocation)
+class _FakeResponse_7 extends _i1.SmartFake implements _i7.Response {
+  _FakeResponse_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeStreamedResponse_7 extends _i1.SmartFake
+class _FakeStreamedResponse_8 extends _i1.SmartFake
     implements _i7.StreamedResponse {
-  _FakeStreamedResponse_7(Object parent, Invocation parentInvocation)
+  _FakeStreamedResponse_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -92,12 +101,12 @@ class MockMapRepository extends _i1.Mock implements _i8.MapRepository {
   }
 
   @override
-  _i2.CameraPosition getCameraPosition(_i9.ConcordiaCampus? campus) =>
+  _i2.CameraPosition getCameraPositionFromCampus(_i9.ConcordiaCampus? campus) =>
       (super.noSuchMethod(
-            Invocation.method(#getCameraPosition, [campus]),
+            Invocation.method(#getCameraPositionFromCampus, [campus]),
             returnValue: _FakeCameraPosition_0(
               this,
-              Invocation.method(#getCameraPosition, [campus]),
+              Invocation.method(#getCameraPositionFromCampus, [campus]),
             ),
           )
           as _i2.CameraPosition);
@@ -575,6 +584,26 @@ class MockMapViewModel extends _i1.Mock implements _i11.MapViewModel {
           as _i10.Future<bool>);
 
   @override
+  _i3.Widget buildPlaceAutocompleteTextField({
+    required _i3.TextEditingController? controller,
+    required dynamic Function(dynamic)? onPlaceSelected,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#buildPlaceAutocompleteTextField, [], {
+              #controller: controller,
+              #onPlaceSelected: onPlaceSelected,
+            }),
+            returnValue: _FakeWidget_4(
+              this,
+              Invocation.method(#buildPlaceAutocompleteTextField, [], {
+                #controller: controller,
+                #onPlaceSelected: onPlaceSelected,
+              }),
+            ),
+          )
+          as _i3.Widget);
+
+  @override
   void dispose() => super.noSuchMethod(
     Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
@@ -627,7 +656,7 @@ class MockODSDirectionsService extends _i1.Mock
   _i5.DirectionsService get directionsService =>
       (super.noSuchMethod(
             Invocation.getter(#directionsService),
-            returnValue: _FakeDirectionsService_4(
+            returnValue: _FakeDirectionsService_5(
               this,
               Invocation.getter(#directionsService),
             ),
@@ -660,7 +689,7 @@ class MockODSDirectionsService extends _i1.Mock
               #width: width,
             }),
             returnValue: _i10.Future<_i6.OutdoorRouteResult>.value(
-              _FakeOutdoorRouteResult_5(
+              _FakeOutdoorRouteResult_6(
                 this,
                 Invocation.method(#fetchRouteResult, [], {
                   #originAddress: originAddress,
@@ -716,6 +745,24 @@ class MockODSDirectionsService extends _i1.Mock
             returnValue: _i10.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
           )
           as _i10.Future<List<_i2.LatLng>>);
+
+  @override
+  _i10.Future<String?> fetchStaticMapUrl({
+    required String? originAddress,
+    required String? destinationAddress,
+    required int? width,
+    required int? height,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchStaticMapUrl, [], {
+              #originAddress: originAddress,
+              #destinationAddress: destinationAddress,
+              #width: width,
+              #height: height,
+            }),
+            returnValue: _i10.Future<String?>.value(),
+          )
+          as _i10.Future<String?>);
 }
 
 /// A class which mocks [Client].
@@ -731,7 +778,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
       (super.noSuchMethod(
             Invocation.method(#head, [url], {#headers: headers}),
             returnValue: _i10.Future<_i7.Response>.value(
-              _FakeResponse_6(
+              _FakeResponse_7(
                 this,
                 Invocation.method(#head, [url], {#headers: headers}),
               ),
@@ -744,7 +791,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
       (super.noSuchMethod(
             Invocation.method(#get, [url], {#headers: headers}),
             returnValue: _i10.Future<_i7.Response>.value(
-              _FakeResponse_6(
+              _FakeResponse_7(
                 this,
                 Invocation.method(#get, [url], {#headers: headers}),
               ),
@@ -766,7 +813,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
               {#headers: headers, #body: body, #encoding: encoding},
             ),
             returnValue: _i10.Future<_i7.Response>.value(
-              _FakeResponse_6(
+              _FakeResponse_7(
                 this,
                 Invocation.method(
                   #post,
@@ -792,7 +839,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
               {#headers: headers, #body: body, #encoding: encoding},
             ),
             returnValue: _i10.Future<_i7.Response>.value(
-              _FakeResponse_6(
+              _FakeResponse_7(
                 this,
                 Invocation.method(
                   #put,
@@ -818,7 +865,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
               {#headers: headers, #body: body, #encoding: encoding},
             ),
             returnValue: _i10.Future<_i7.Response>.value(
-              _FakeResponse_6(
+              _FakeResponse_7(
                 this,
                 Invocation.method(
                   #patch,
@@ -844,7 +891,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
               {#headers: headers, #body: body, #encoding: encoding},
             ),
             returnValue: _i10.Future<_i7.Response>.value(
-              _FakeResponse_6(
+              _FakeResponse_7(
                 this,
                 Invocation.method(
                   #delete,
@@ -885,7 +932,7 @@ class MockClient extends _i1.Mock implements _i7.Client {
       (super.noSuchMethod(
             Invocation.method(#send, [request]),
             returnValue: _i10.Future<_i7.StreamedResponse>.value(
-              _FakeStreamedResponse_7(
+              _FakeStreamedResponse_8(
                 this,
                 Invocation.method(#send, [request]),
               ),

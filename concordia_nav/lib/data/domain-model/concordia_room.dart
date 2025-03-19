@@ -1,3 +1,5 @@
+import 'concordia_building.dart';
+import 'concordia_campus.dart';
 import 'concordia_floor.dart';
 import 'concordia_floor_point.dart';
 import 'location.dart';
@@ -12,6 +14,10 @@ class ConcordiaRoom extends Location {
   ConcordiaRoom(this.roomNumber, this.category, this.floor, this.entrancePoint)
       : super(floor.lat, floor.lng, floor.name, floor.streetAddress, floor.city,
             floor.province, floor.postalCode);
+
+  ConcordiaCampus get campus => floor.building.campus;
+
+  ConcordiaBuilding get building => floor.building;
 
   @override
   bool operator ==(Object other) {

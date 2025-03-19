@@ -614,8 +614,8 @@ void main() async {
       final expectedCameraPosition =
           CameraPosition(target: LatLng(campus.lat, campus.lng), zoom: 17.0);
 
-      when(mockMapRepository.getCameraPosition(campus))
-          .thenReturn((MapRepository()).getCameraPosition(ConcordiaCampus.sgw));
+      when(mockMapRepository.getCameraPositionFromCampus(ConcordiaCampus.sgw))
+          .thenReturn(expectedCameraPosition);
 
       // Act
       final result = await mapViewModel.getInitialCameraPosition(campus);

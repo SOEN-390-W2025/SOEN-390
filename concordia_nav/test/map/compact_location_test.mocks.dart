@@ -3,19 +3,19 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i8;
+import 'dart:async' as _i9;
 import 'dart:ui' as _i12;
 
-import 'package:concordia_nav/data/domain-model/concordia_building.dart' as _i7;
-import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i9;
+import 'package:concordia_nav/data/domain-model/concordia_building.dart' as _i8;
+import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i10;
 import 'package:concordia_nav/data/services/map_service.dart' as _i3;
-import 'package:concordia_nav/utils/map_viewmodel.dart' as _i5;
+import 'package:concordia_nav/utils/map_viewmodel.dart' as _i6;
 import 'package:flutter/foundation.dart' as _i2;
-import 'package:flutter/material.dart' as _i11;
+import 'package:flutter/material.dart' as _i5;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i4;
-import 'package:http/http.dart' as _i10;
+import 'package:http/http.dart' as _i11;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
+import 'package:mockito/src/dummies.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -48,10 +48,19 @@ class _FakeCameraPosition_2 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeWidget_3 extends _i1.SmartFake implements _i5.Widget {
+  _FakeWidget_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+
+  @override
+  String toString({_i2.DiagnosticLevel? minLevel = _i2.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
 /// A class which mocks [MapViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
+class MockMapViewModel extends _i1.Mock implements _i6.MapViewModel {
   MockMapViewModel() {
     _i1.throwOnMissingStub(this);
   }
@@ -60,7 +69,7 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   String get yourLocationString =>
       (super.noSuchMethod(
             Invocation.getter(#yourLocationString),
-            returnValue: _i6.dummyValue<String>(
+            returnValue: _i7.dummyValue<String>(
               this,
               Invocation.getter(#yourLocationString),
             ),
@@ -68,34 +77,34 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as String);
 
   @override
-  List<_i7.ConcordiaBuilding> get filteredBuildings =>
+  List<_i8.ConcordiaBuilding> get filteredBuildings =>
       (super.noSuchMethod(
             Invocation.getter(#filteredBuildings),
-            returnValue: <_i7.ConcordiaBuilding>[],
+            returnValue: <_i8.ConcordiaBuilding>[],
           )
-          as List<_i7.ConcordiaBuilding>);
+          as List<_i8.ConcordiaBuilding>);
 
   @override
-  set filteredBuildings(List<_i7.ConcordiaBuilding>? _filteredBuildings) =>
+  set filteredBuildings(List<_i8.ConcordiaBuilding>? _filteredBuildings) =>
       super.noSuchMethod(
         Invocation.setter(#filteredBuildings, _filteredBuildings),
         returnValueForMissingStub: null,
       );
 
   @override
-  _i2.ValueNotifier<_i7.ConcordiaBuilding?> get selectedBuildingNotifier =>
+  _i2.ValueNotifier<_i8.ConcordiaBuilding?> get selectedBuildingNotifier =>
       (super.noSuchMethod(
             Invocation.getter(#selectedBuildingNotifier),
-            returnValue: _FakeValueNotifier_0<_i7.ConcordiaBuilding?>(
+            returnValue: _FakeValueNotifier_0<_i8.ConcordiaBuilding?>(
               this,
               Invocation.getter(#selectedBuildingNotifier),
             ),
           )
-          as _i2.ValueNotifier<_i7.ConcordiaBuilding?>);
+          as _i2.ValueNotifier<_i8.ConcordiaBuilding?>);
 
   @override
   set selectedBuildingNotifier(
-    _i2.ValueNotifier<_i7.ConcordiaBuilding?>? _selectedBuildingNotifier,
+    _i2.ValueNotifier<_i8.ConcordiaBuilding?>? _selectedBuildingNotifier,
   ) => super.noSuchMethod(
     Invocation.setter(#selectedBuildingNotifier, _selectedBuildingNotifier),
     returnValueForMissingStub: null,
@@ -121,18 +130,18 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   );
 
   @override
-  set shuttleBusTimer(_i8.Timer? _shuttleBusTimer) => super.noSuchMethod(
+  set shuttleBusTimer(_i9.Timer? _shuttleBusTimer) => super.noSuchMethod(
     Invocation.setter(#shuttleBusTimer, _shuttleBusTimer),
     returnValueForMissingStub: null,
   );
 
   @override
-  Map<_i5.CustomTravelMode, _i4.Polyline> get multiModeRoutes =>
+  Map<_i6.CustomTravelMode, _i4.Polyline> get multiModeRoutes =>
       (super.noSuchMethod(
             Invocation.getter(#multiModeRoutes),
-            returnValue: <_i5.CustomTravelMode, _i4.Polyline>{},
+            returnValue: <_i6.CustomTravelMode, _i4.Polyline>{},
           )
-          as Map<_i5.CustomTravelMode, _i4.Polyline>);
+          as Map<_i6.CustomTravelMode, _i4.Polyline>);
 
   @override
   Set<_i4.Marker> get staticBusStopMarkers =>
@@ -170,20 +179,20 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as Set<_i4.Polyline>);
 
   @override
-  Map<_i5.CustomTravelMode, String> get multiModeTravelTimes =>
+  Map<_i6.CustomTravelMode, String> get multiModeTravelTimes =>
       (super.noSuchMethod(
             Invocation.getter(#multiModeTravelTimes),
-            returnValue: <_i5.CustomTravelMode, String>{},
+            returnValue: <_i6.CustomTravelMode, String>{},
           )
-          as Map<_i5.CustomTravelMode, String>);
+          as Map<_i6.CustomTravelMode, String>);
 
   @override
-  _i5.CustomTravelMode get selectedTravelModeForRoute =>
+  _i6.CustomTravelMode get selectedTravelModeForRoute =>
       (super.noSuchMethod(
             Invocation.getter(#selectedTravelModeForRoute),
-            returnValue: _i5.CustomTravelMode.driving,
+            returnValue: _i6.CustomTravelMode.driving,
           )
-          as _i5.CustomTravelMode);
+          as _i6.CustomTravelMode);
 
   @override
   Set<_i4.Polyline> get activePolylines =>
@@ -194,20 +203,20 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as Set<_i4.Polyline>);
 
   @override
-  Map<_i5.CustomTravelMode, String> get travelTimes =>
+  Map<_i6.CustomTravelMode, String> get travelTimes =>
       (super.noSuchMethod(
             Invocation.getter(#travelTimes),
-            returnValue: <_i5.CustomTravelMode, String>{},
+            returnValue: <_i6.CustomTravelMode, String>{},
           )
-          as Map<_i5.CustomTravelMode, String>);
+          as Map<_i6.CustomTravelMode, String>);
 
   @override
-  _i5.CustomTravelMode get selectedTravelMode =>
+  _i6.CustomTravelMode get selectedTravelMode =>
       (super.noSuchMethod(
             Invocation.getter(#selectedTravelMode),
-            returnValue: _i5.CustomTravelMode.driving,
+            returnValue: _i6.CustomTravelMode.driving,
           )
-          as _i5.CustomTravelMode);
+          as _i6.CustomTravelMode);
 
   @override
   bool get hasListeners =>
@@ -215,28 +224,28 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as bool);
 
   @override
-  void setActiveMode(_i5.CustomTravelMode? mode) => super.noSuchMethod(
+  void setActiveMode(_i6.CustomTravelMode? mode) => super.noSuchMethod(
     Invocation.method(#setActiveMode, [mode]),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i8.Future<_i4.CameraPosition> getInitialCameraPosition(
-    _i9.ConcordiaCampus? campus,
+  _i9.Future<_i4.CameraPosition> getInitialCameraPosition(
+    _i10.ConcordiaCampus? campus,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getInitialCameraPosition, [campus]),
-            returnValue: _i8.Future<_i4.CameraPosition>.value(
+            returnValue: _i9.Future<_i4.CameraPosition>.value(
               _FakeCameraPosition_2(
                 this,
                 Invocation.method(#getInitialCameraPosition, [campus]),
               ),
             ),
           )
-          as _i8.Future<_i4.CameraPosition>);
+          as _i9.Future<_i4.CameraPosition>);
 
   @override
-  _i8.Future<void> fetchRoutesForAllModes(
+  _i9.Future<void> fetchRoutesForAllModes(
     String? originAddress,
     String? destinationAddress,
   ) =>
@@ -245,21 +254,21 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
               originAddress,
               destinationAddress,
             ]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<_i4.LatLng?> geocodeAddress(String? address) =>
+  _i9.Future<_i4.LatLng?> geocodeAddress(String? address) =>
       (super.noSuchMethod(
             Invocation.method(#geocodeAddress, [address]),
-            returnValue: _i8.Future<_i4.LatLng?>.value(),
+            returnValue: _i9.Future<_i4.LatLng?>.value(),
           )
-          as _i8.Future<_i4.LatLng?>);
+          as _i9.Future<_i4.LatLng?>);
 
   @override
-  _i8.Future<void> fetchShuttleRoute(
+  _i9.Future<void> fetchShuttleRoute(
     String? originAddress,
     String? destinationAddress,
   ) =>
@@ -268,10 +277,10 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
               originAddress,
               destinationAddress,
             ]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
   double calculatePolylineDistance(_i4.Polyline? polyline) =>
@@ -282,13 +291,13 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
           as double);
 
   @override
-  _i8.Future<void> setActiveModeForRoute(_i5.CustomTravelMode? mode) =>
+  _i9.Future<void> setActiveModeForRoute(_i6.CustomTravelMode? mode) =>
       (super.noSuchMethod(
             Invocation.method(#setActiveModeForRoute, [mode]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
   void adjustCamera(List<_i4.LatLng>? points) => super.noSuchMethod(
@@ -309,29 +318,29 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   );
 
   @override
-  _i8.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
-    _i9.ConcordiaCampus? campus,
+  _i9.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(
+    _i10.ConcordiaCampus? campus,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getCampusPolygonsAndLabels, [campus]),
-            returnValue: _i8.Future<Map<String, dynamic>>.value(
+            returnValue: _i9.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i8.Future<Map<String, dynamic>>);
+          as _i9.Future<Map<String, dynamic>>);
 
   @override
-  _i8.Future<Map<String, dynamic>> getAllCampusPolygonsAndLabels() =>
+  _i9.Future<Map<String, dynamic>> getAllCampusPolygonsAndLabels() =>
       (super.noSuchMethod(
             Invocation.method(#getAllCampusPolygonsAndLabels, []),
-            returnValue: _i8.Future<Map<String, dynamic>>.value(
+            returnValue: _i9.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i8.Future<Map<String, dynamic>>);
+          as _i9.Future<Map<String, dynamic>>);
 
   @override
-  void selectBuilding(_i7.ConcordiaBuilding? building) => super.noSuchMethod(
+  void selectBuilding(_i8.ConcordiaBuilding? building) => super.noSuchMethod(
     Invocation.method(#selectBuilding, [building]),
     returnValueForMissingStub: null,
   );
@@ -343,20 +352,20 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   );
 
   @override
-  _i8.Future<_i4.LatLng?> fetchCurrentLocation() =>
+  _i9.Future<_i4.LatLng?> fetchCurrentLocation() =>
       (super.noSuchMethod(
             Invocation.method(#fetchCurrentLocation, []),
-            returnValue: _i8.Future<_i4.LatLng?>.value(),
+            returnValue: _i9.Future<_i4.LatLng?>.value(),
           )
-          as _i8.Future<_i4.LatLng?>);
+          as _i9.Future<_i4.LatLng?>);
 
   @override
-  _i8.Future<bool> checkLocationAccess() =>
+  _i9.Future<bool> checkLocationAccess() =>
       (super.noSuchMethod(
             Invocation.method(#checkLocationAccess, []),
-            returnValue: _i8.Future<bool>.value(false),
+            returnValue: _i9.Future<bool>.value(false),
           )
-          as _i8.Future<bool>);
+          as _i9.Future<bool>);
 
   @override
   double getDistance(_i4.LatLng? point1, _i4.LatLng? point2) =>
@@ -379,39 +388,59 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   );
 
   @override
-  _i8.Future<void> fetchShuttleBusData({_i10.Client? client}) =>
+  _i9.Future<void> fetchShuttleBusData({_i11.Client? client}) =>
       (super.noSuchMethod(
             Invocation.method(#fetchShuttleBusData, [], {#client: client}),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<void> loadStaticBusStopMarkers() =>
+  _i9.Future<void> loadStaticBusStopMarkers() =>
       (super.noSuchMethod(
             Invocation.method(#loadStaticBusStopMarkers, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<void> checkBuildingAtCurrentLocation(_i11.BuildContext? context) =>
+  _i9.Future<void> checkBuildingAtCurrentLocation(_i5.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#checkBuildingAtCurrentLocation, [context]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<bool> moveToCurrentLocation(_i11.BuildContext? context) =>
+  _i9.Future<bool> moveToCurrentLocation(_i5.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#moveToCurrentLocation, [context]),
-            returnValue: _i8.Future<bool>.value(false),
+            returnValue: _i9.Future<bool>.value(false),
           )
-          as _i8.Future<bool>);
+          as _i9.Future<bool>);
+
+  @override
+  _i5.Widget buildPlaceAutocompleteTextField({
+    required _i5.TextEditingController? controller,
+    required dynamic Function(dynamic)? onPlaceSelected,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#buildPlaceAutocompleteTextField, [], {
+              #controller: controller,
+              #onPlaceSelected: onPlaceSelected,
+            }),
+            returnValue: _FakeWidget_3(
+              this,
+              Invocation.method(#buildPlaceAutocompleteTextField, [], {
+                #controller: controller,
+                #onPlaceSelected: onPlaceSelected,
+              }),
+            ),
+          )
+          as _i5.Widget);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -420,7 +449,7 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
   );
 
   @override
-  _i8.Future<void> handleSelection(
+  _i9.Future<void> handleSelection(
     String? selectedBuilding,
     _i4.LatLng? currentLocation,
   ) =>
@@ -429,10 +458,10 @@ class MockMapViewModel extends _i1.Mock implements _i5.MapViewModel {
               selectedBuilding,
               currentLocation,
             ]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
   void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(

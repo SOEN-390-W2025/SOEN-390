@@ -411,6 +411,17 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   }
 
   @override
+  String get mainEntranceString =>
+      (super.noSuchMethod(
+            Invocation.getter(#mainEntranceString),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#mainEntranceString),
+            ),
+          )
+          as String);
+
+  @override
   String get eta =>
       (super.noSuchMethod(
             Invocation.getter(#eta),
