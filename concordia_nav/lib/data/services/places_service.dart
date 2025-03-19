@@ -39,11 +39,26 @@ class PlacesService {
     'places.generativeSummary',
   ];
 
+  /// Additional fields requested when routing information is needed
   static const List<String> _ROUTING_FIELDS = [
     'routingSummaries',
   ];
 
   /// Fetches nearby places using the Nearby Search endpoint.
+  ///
+  /// This method searches for places within a specified radius of the provided location.
+  /// Various filters can be applied to narrow down results based on place type,
+  /// ranking preference, and other criteria.
+  ///
+  /// Parameters:
+  /// - [location]: The geographical point to search around
+  /// - [includedType]: Filter results to include only places of this type (required but can be null)
+  /// - [radius]: Search radius in meters (Between 0-50,000)
+  /// - [maxResultCount]: Maximum number of results to return (Between 1-20)
+  /// - [rankBy]: How results should be ordered
+  /// - [routingOptions]: Options for calculating routes to the places . Needs to be providede in order to get routing information (distance, travel time)
+  /// - [languageCode]: Language for result text
+  /// - [regionCode]: Region bias for results
   ///
   /// Returns a List of [Place] objects matching the search criteria.
   ///
@@ -82,6 +97,20 @@ class PlacesService {
   }
 
   /// Fetches places using the Text Search endpoint based on a text query.
+  ///
+  /// Parameters:
+  /// - [textQuery]: The text search query
+  /// - [location]: The geographical point to bias results towards
+  /// - [includedType]: Filter results to include only places of this type (required but can be null)
+  /// - [radius]: Search radius in meters for location bias (Between 0-50,000)
+  /// - [openNow]: Whether to return only places that are currently open
+  /// - [pageSize]: Number of results per page (Between 0-20)
+  /// - [rankBy]: How results should be ordered
+  /// - [includePureServiceAreaBusinesses]: Whether to include businesses without physical locations
+  /// - [minRating]: Minimum rating threshold for results (Between 0.0-5.0)
+  /// - [routingOptions]: Options for calculating routes to the places . Needs to be providede in order to get routing information (distance, travel time)
+  /// - [languageCode]: Language for result text (default: 'en')
+  /// - [regionCode]: Region bias for results
   ///
   /// Returns a List of [Place] objects matching the search query and filters.
   ///
@@ -127,14 +156,23 @@ class PlacesService {
     );
   }
 
-  /// Validates if the API key is available
+  /// Validates if the API key is available in environment variables.
+  ///
+  /// Throws [PlacesApiException] if the API key is not configured.
   void _validateApiKey() {
     if (_apiKey == null) {
       throw PlacesApiException('Google Maps API key is not configured');
     }
   }
 
-  /// Builds the field mask with optional routing fields
+  /// Builds the field mask string used in API requests.
+  ///
+  /// The field mask determines which fields are returned in the API response.
+  ///
+  /// Parameters:
+  /// - [includeRouting]: Whether to include routing information fields (default: false)
+  ///
+  /// Returns a comma-separated string of field names to be used in the X-Goog-FieldMask header.
   String _buildFieldMask({bool includeRouting = false}) {
     final fields = List<String>.from(_DEFAULT_PLACE_FIELDS);
     if (includeRouting) {
@@ -143,7 +181,21 @@ class PlacesService {
     return fields.join(',');
   }
 
-  /// Executes an API request and processes the response
+  /// Executes an API request and processes the response.
+  ///
+  /// This is an internal method that handles the HTTP communication with the Places API.
+  ///
+  /// Parameters:
+  /// - [endpoint]: The API endpoint to call (required)
+  /// - [requestBody]: The JSON body of the request (required)
+  /// - [fieldMask]: Fields to include in the response (required)
+  /// - [queryDescription]: Human-readable description for error messages (required)
+  ///
+  /// Returns a List of [Place] objects parsed from the API response.
+  ///
+  /// Throws:
+  /// - [NoPlacesFoundException]: If no places are found
+  /// - [PlacesApiException]: For API errors or request failures
   Future<List<Place>> _executeRequest({
     required String endpoint,
     required Map<String, dynamic> requestBody,
@@ -178,7 +230,18 @@ class PlacesService {
     }
   }
 
-  /// Parses the API response into a list of Place objects
+  /// Parses the API response into a list of Place objects.
+  ///
+  /// Extracts place data and optional routing information from the API response JSON.
+  ///
+  /// Parameters:
+  /// - [responseBody]: The JSON response string from the API
+  /// - [queryDescription]: Description of the query for error messages
+  /// - [requestBody]: Optional original request body, used to extract travel mode
+  ///
+  /// Returns a List of [Place] objects constructed from the response data.
+  ///
+  /// Throws [NoPlacesFoundException] if the places array is empty.
   List<Place> _parseResponse(String responseBody, String queryDescription,
       [Map<String, dynamic>? requestBody]) {
     final data = json.decode(responseBody);
@@ -223,7 +286,10 @@ class PlacesService {
   }
 }
 
-/// Request model for nearby search
+/// Request model for nearby search queries.
+///
+/// Encapsulates parameters for the Places API's nearby search endpoint.
+/// This class converts Dart objects into the proper JSON structure expected by the API.
 class NearbySearchRequest {
   final LatLng location;
   final PlaceType? includedType;
@@ -245,7 +311,9 @@ class NearbySearchRequest {
     this.regionCode,
   });
 
-// In NearbySearchRequest class, modify the toJson method:
+  /// Converts this request to a JSON map compatible with the Places API.
+  ///
+  /// Automatically sanitizes routing options to ensure compatibility.
   Map<String, dynamic> toJson() {
     // Create a safe version of routing options if present
     final safeRoutingOptions = routingOptions?.getSafeOptions();
@@ -273,7 +341,10 @@ class NearbySearchRequest {
   }
 }
 
-/// Request model for text search
+/// Request model for text-based search queries.
+///
+/// Encapsulates parameters for the Places API's text search endpoint.
+/// This class converts Dart objects into the proper JSON structure expected by the API.
 class TextSearchRequest {
   final String textQuery;
   final LatLng location;
@@ -303,7 +374,10 @@ class TextSearchRequest {
     this.regionCode,
   });
 
-// Similarly for TextSearchRequest class, modify the toJson method:
+  /// Converts this request to a JSON map compatible with the Places API.
+  ///
+  /// Automatically sanitizes routing options to ensure compatibility and
+  /// applies constraints to values like pageSize and minRating
   Map<String, dynamic> toJson() {
     // Create a safe version of routing options if present
     final safeRoutingOptions = routingOptions?.getSafeOptions();
@@ -335,16 +409,28 @@ class TextSearchRequest {
   }
 }
 
-/// Enum defining how search results should be ranked for the nearbySearch() function.
+/// Ranking options for nearby search results.
+///
+/// - POPULARITY: Results sorted by their popularity (default)
+/// - DISTANCE: Results sorted by distance from the search location
 enum RankPreferenceNearbySearch { POPULARITY, DISTANCE }
 
-/// Enum defining how search results should be ranked for the textSearch() function.
+/// Ranking options for text search results.
+///
+/// - RELEVANCE: Results sorted by relevance to the search query (default)
+/// - DISTANCE: Results sorted by distance from the specified location
 enum RankPreferenceTextSearch { RELEVANCE, DISTANCE }
 
-// Note: The Routes API also supports a mode of TRANSIT, but that mode is not supported by the Places API
+/// Travel modes supported by the Places API for routing calculations.
+///
+/// Note: The Routes API also supports a mode of TRANSIT, but that mode
+/// is not supported by the Places API.
 enum TravelMode { DRIVE, BICYCLE, WALK }
 
-/// Route modifiers for transportation options
+/// Route modifiers for transportation options.
+///
+/// These modifiers change how routes are calculated based on preferences like avoiding tolls or highways.
+/// Not all modifiers are compatible with all travel modes.
 class RouteModifiers {
   final bool? avoidTolls;
   final bool? avoidHighways;
@@ -368,7 +454,10 @@ class RouteModifiers {
   }
 }
 
-/// Class encapsulating all routing options for Places API requests
+/// Class encapsulating all routing options for Places API requests.
+///
+/// Combines travel mode and route modifiers for calculating routes to places.
+/// Handles compatibility between travel modes and modifiers automatically.
 class PlacesRoutingOptions {
   final TravelMode? travelMode;
   final RouteModifiers? routeModifiers;
@@ -494,7 +583,10 @@ class PlacesRoutingOptions {
   }
 }
 
-// Exception classes
+/// Exception thrown when no places match the search criteria.
+///
+/// This is a normal condition that client code should handle gracefully,
+/// typically by showing an appropriate message to the user.
 class NoPlacesFoundException implements Exception {
   final String message;
   NoPlacesFoundException(this.message);
@@ -502,6 +594,10 @@ class NoPlacesFoundException implements Exception {
   String toString() => message;
 }
 
+/// Exception thrown when a specific place cannot be found.
+///
+/// This is different from NoPlacesFoundException as it indicates
+/// that a specific place that was expected to exist could not be found.
 class PlaceNotFoundException implements Exception {
   final String message;
   PlaceNotFoundException(this.message);
@@ -509,6 +605,11 @@ class PlaceNotFoundException implements Exception {
   String toString() => message;
 }
 
+/// Exception thrown for API errors, authentication issues, or network problems.
+///
+/// This exception indicates problems with the Places API itself rather than
+/// with the search criteria. Client code should handle this by showing an
+/// appropriate error message and possibly retrying the request.
 class PlacesApiException implements Exception {
   final String message;
   PlacesApiException(this.message);
