@@ -229,8 +229,18 @@ void main() async {
     ));
 
     // Tap on the Indoor directions FeatureCard
-    await tester.tap(find.text('Indoor directions'));
+    await tester.tap(find.byIcon(Icons.meeting_room));
     await tester.pumpAndSettle(); // Wait for navigation to complete
+    expect(find.text('Indoor Directions'), findsOneWidget);
+
+    // Scroll down until the 'Indoor Directions' is visible
+    while (!tester.any(find.text('Indoor Directions'))) {
+      await tester.drag(
+          find.byType(Scrollable), const Offset(0, -300)); // drag up
+      await tester.pumpAndSettle(); // Wait for the scroll to finish
+    }
+
+    // Verify if the 'Indoor Directions' text is visible after scrolling
     expect(find.text('Indoor Directions'), findsOneWidget);
 
     // Tap the back button in the app bar
@@ -304,13 +314,13 @@ void main() async {
             mapViewModel: mockMapViewModel,
           ),
       '/OutdoorLocationMapView': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-                return OutdoorLocationMapView(
-                  campus: args['campus'] as ConcordiaCampus,
-                  mapViewModel: mockMapViewModel,
-                );
-            },
+        final args =
+            ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        return OutdoorLocationMapView(
+          campus: args['campus'] as ConcordiaCampus,
+          mapViewModel: mockMapViewModel,
+        );
+      },
     };
 
     when(mockMapViewModel.selectedBuildingNotifier)
@@ -356,13 +366,14 @@ void main() async {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Smart Planner navigation should work', (WidgetTester tester) async {
+  testWidgets('Smart Planner navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
       '/SmartPlannerView': (context) => const SmartPlannerView(),
     };
-    
+
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
       initialRoute: '/',

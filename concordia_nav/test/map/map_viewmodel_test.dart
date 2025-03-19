@@ -20,15 +20,15 @@ import 'map_viewmodel_test.mocks.dart';
 @GenerateMocks(
     [MapRepository, MapService, MapViewModel, ODSDirectionsService, Client])
 void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   late MapViewModel mapViewModel;
   late MockMapRepository mockMapRepository;
   late MockMapService mockMapService;
   late MockODSDirectionsService mockODSDirectionsService;
   late ShuttleRouteRepository shuttleRepo;
   late MockClient mockHttpClient;
-
-  WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
 
   setUp(() {
     mockMapRepository = MockMapRepository();
@@ -49,11 +49,6 @@ void main() async {
   });
 
   group('MapViewModel Tests', () {
-    late MapViewModel mapViewModel;
-    late MockMapService mockMapService;
-    late ShuttleRouteRepository mockShuttleRouteRepository;
-    late MockODSDirectionsService mockODSDirectionsService;
-
     const MethodChannel geocodingChannel =
         MethodChannel('flutter.baseflow.com/geocoding');
 
@@ -81,11 +76,11 @@ void main() async {
     setUp(() {
       // Initialize mock objects
       mockMapService = MockMapService();
-      mockShuttleRouteRepository = ShuttleRouteRepository();
+      shuttleRepo = ShuttleRouteRepository();
       mockODSDirectionsService = MockODSDirectionsService();
       mapViewModel = MapViewModel(
         mapService: mockMapService,
-        shuttleRepository: mockShuttleRouteRepository,
+        shuttleRepository: shuttleRepo,
         odsDirectionsService: mockODSDirectionsService,
       );
     });

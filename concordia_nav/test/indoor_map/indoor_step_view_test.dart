@@ -20,6 +20,7 @@ import 'indoor_step_view_test.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
+
   late MockVirtualStepGuideViewModel mockViewModel;
   late IndoorMapViewModel viewModel;
   late IndoorDirectionsViewModel directionsViewModel;
