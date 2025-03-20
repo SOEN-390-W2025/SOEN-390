@@ -15,9 +15,17 @@ import '../indoor_location/indoor_directions_view.dart';
 import 'package:geolocator/geolocator.dart';
 
 class POIMapView extends StatefulWidget {
+  final String? initialBuilding;
+  final String? initialFloor;
   final String poiName;
   final POIChoiceViewModel poiChoiceViewModel;
-  const POIMapView({super.key, required this.poiName, required this.poiChoiceViewModel});
+  const POIMapView({
+    super.key,
+    required this.poiName,
+    required this.poiChoiceViewModel,
+    this.initialBuilding,
+    this.initialFloor
+  });
 
   @override
   State<POIMapView> createState() => _POIMapViewState();
@@ -38,6 +46,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
   late String _floorPlanPath;
   double _width = 1024.0;
   double _height = 1024.0;
+  bool _noPoisOnCurrentFloor = false;
 
   @override
   void initState() {
@@ -83,7 +92,13 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
         return;
       }
 
-      // Get user's current location and find nearest building
+      // If initialBuilding is provided, use it instead of finding nearest building
+      if (widget.initialBuilding != null) {
+        _useInitialBuildingAndFloor();
+        return;
+      }
+
+      // Otherwise use geolocation to find nearest building
       final location = await IndoorRoutingService.getRoundedGeolocation();
       
       if (location == null) {
@@ -110,6 +125,42 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
         _isLoading = false;
       });
     }
+  }
+
+  void _useInitialBuildingAndFloor() {
+    // Get building by abbreviation
+    _nearestBuilding = _buildingViewModel.getBuildingByName(widget.initialBuilding!);
+    
+    if (_nearestBuilding == null) {
+      setState(() {
+        _errorMessage = 'Building ${widget.initialBuilding} not found.';
+        _isLoading = false;
+      });
+      return;
+    }
+    
+    // Set the floor (use provided floor or default to '1')
+    _selectedFloor = widget.initialFloor ?? '1';
+    
+    // Set floor plan path
+    _floorPlanPath = 'assets/maps/indoor/floorplans/${_nearestBuilding!.abbreviation}$_selectedFloor.svg';
+    
+    // Check if there are POIs of the requested type in this building
+    final poisInBuilding = _matchingPOIs
+        .where((poi) => poi.buildingId == _nearestBuilding!.abbreviation)
+        .toList();
+    
+    if (poisInBuilding.isEmpty) {
+      setState(() {
+        _errorMessage = 'No $_poiName found in ${_nearestBuilding!.name}.';
+        _isLoading = false;
+      });
+      return;
+    }
+    
+    // Update POIs on the current floor and check if floor plan exists
+    _updatePOIsOnCurrentFloor();
+    _checkIfFloorPlanExists();
   }
 
   void _findNearestBuildingWithPOI(double userLat, double userLng) {
@@ -172,8 +223,12 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       return;
     }
 
-    // Select the first floor that has this POI
-    _selectedFloor = poisInBuilding.first.floor;
+    // If initialFloor is specified, use it - otherwise select the first floor that has this POI
+    if (widget.initialFloor != null) {
+      _selectedFloor = widget.initialFloor!;
+    } else {
+      _selectedFloor = poisInBuilding.first.floor;
+    }
     
     // Set floor plan path and check if it exists
     _floorPlanPath = 'assets/maps/indoor/floorplans/${_nearestBuilding!.abbreviation}$_selectedFloor.svg';
@@ -189,11 +244,19 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       poi.buildingId == _nearestBuilding!.abbreviation && 
       poi.floor == _selectedFloor
     ).toList();
+    
+    // Check if there are any POIs on the current floor
+    setState(() {
+      _noPoisOnCurrentFloor = _poisOnCurrentFloor.isEmpty;
+    });
+    
+    // Debug log
+    dev.log('Floor $_selectedFloor has ${_poisOnCurrentFloor.length} POIs of type $_poiName');
   }
 
   Future<void> _checkIfFloorPlanExists() async {
     final bool exists = await _indoorMapViewModel.doesAssetExist(_floorPlanPath);
-    
+    dev.log('Floor plan exists: $exists');
     if (!exists) {
       setState(() {
         _floorPlanExists = false;
@@ -214,13 +277,21 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
   }
 
   void _changeFloor(String floor) {
+    if (_selectedFloor == floor) return; // Skip if same floor selected
+    
     setState(() {
       _selectedFloor = floor;
       _isLoading = true;
+      _noPoisOnCurrentFloor = false; // Reset this flag when changing floors
     });
     
+    // Update floor plan path
     _floorPlanPath = 'assets/maps/indoor/floorplans/${_nearestBuilding!.abbreviation}$_selectedFloor.svg';
+    
+    // This will update the POIs for the new floor
     _updatePOIsOnCurrentFloor();
+    
+    // Check if the floor plan exists and get its dimensions
     _checkIfFloorPlanExists();
   }
 
@@ -256,7 +327,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
         ),
       );
     } else {
-      // Floor plan exists, show it with POI markers
+      // Floor plan exists, show it with POI markers or message
       bodyContent = Stack(
         children: [
           // Floor plan
@@ -266,7 +337,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
             semanticsLabel: 'Floor plan of ${_nearestBuilding!.abbreviation}-$_selectedFloor',
             width: _width,
             height: _height,
-            pois: _poisOnCurrentFloor,
+            pois: _poisOnCurrentFloor, // This passes the POIs specific to the current floor
             onPoiTap: (poi) {
               _showPOIDetails(poi);
             },
@@ -279,11 +350,38 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
             child: FloorButton(
               floor: _selectedFloor,
               building: _nearestBuilding!,
-              onFloorChanged: _changeFloor,
+              poiName: _poiName,
+              poiChoiceViewModel: widget.poiChoiceViewModel,
+              onFloorChanged: _changeFloor, // This triggers loading POIs for the new floor
             ),
           ),
+          
+          // No POIs message overlay - only show if we're not loading and there are no POIs
+          if (_noPoisOnCurrentFloor && !_isLoading)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'No $_poiName on floor $_selectedFloor',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
         ],
-
       );
     }
 
@@ -303,13 +401,13 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensures proper spacing
-          crossAxisAlignment: CrossAxisAlignment.center, // Aligns items properly
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded( // Ensures the text column takes up available space
+            Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, // Aligns text to the left
-                mainAxisSize: MainAxisSize.min, // Prevents unnecessary space
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     poi.name,
@@ -329,7 +427,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                     builder: (context) => IndoorDirectionsView(
                       sourceRoom: 'Your Location',
                       building: _nearestBuilding!.name,
-                      endRoom: poi.floor.toString() + poi.name, // Ensure proper string concatenation
+                      endRoom: poi.floor.toString() + poi.name,
                     ),
                   ),
                 );
