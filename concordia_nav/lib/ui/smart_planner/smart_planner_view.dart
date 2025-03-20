@@ -248,7 +248,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
           onPressed: _planController.text.isNotEmpty &&
                   _sourceController.text.isNotEmpty
               ? () {
-                  // TODO: Implement navigation to generated plan
+                  Navigator.pushNamed(context, '/GeneratedPlanView');
                 }
               : null,
           style: ElevatedButton.styleFrom(
