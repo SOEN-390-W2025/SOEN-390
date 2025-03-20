@@ -73,12 +73,8 @@ class IndoorMapViewModel extends MapViewModel {
 
   /// Centers the camera view on a specific point
   void centerOnPoint(Offset point, Size viewportSize, {double padding = 50.0}) {
-    final double width = viewportSize.width;
-    final double height = viewportSize.height;
-
-    // Calculate viewport dimensions
-    final viewportWidth = width / 2;
-    final viewportHeight = height / 2;
+    final double viewportWidth = viewportSize.width;
+    final double viewportHeight = viewportSize.height;
 
     // Calculate scale and offset to center the point
     final scale = transformationController.value
@@ -102,8 +98,8 @@ class IndoorMapViewModel extends MapViewModel {
   void centerBetweenPoints(
       Offset startLocation, Offset endLocation, Size viewportSize,
       {double padding = 100.0}) {
-    final double width = viewportSize.width;
-    final double height = viewportSize.height;
+    final double viewportWidth = viewportSize.width;
+    final double viewportHeight = viewportSize.height;
 
     if (startLocation == Offset.zero || endLocation == Offset.zero) {
       return; // Don't proceed if points aren't set
@@ -112,10 +108,9 @@ class IndoorMapViewModel extends MapViewModel {
     // Calculate the center point between start and end
     final centerX = (startLocation.dx + endLocation.dx) / 2;
     final centerY = (startLocation.dy + endLocation.dy) / 2;
-
-    // Calculate viewport dimensions (assuming we have access to MediaQuery info)
-    final viewportWidth = width / 2;
-    final viewportHeight = height / 2;
+    final centerPoint = Offset(centerX, centerY);
+    
+    dev.log('Center point: $centerPoint');
 
     // Calculate scale needed to fit the route with padding
     // For horizontal distance
@@ -135,12 +130,13 @@ class IndoorMapViewModel extends MapViewModel {
     // Clamp scale between min and max allowable values
     final clampedScale = scale.clamp(_minScale, _maxScale);
 
-    // Calculate the offset to center the route
-    final offsetX = -centerX + viewportWidth / (2.3 * clampedScale);
-    final offsetY = -centerY + viewportHeight / (2.3 * clampedScale);
+    // Calculate the offset to center the points
+    final offsetX = -(centerX - viewportWidth / (2 * clampedScale));
+    final offsetY = -(centerY - viewportHeight / (2 * clampedScale));
 
-    dev.log(
-        'Centering between points: offsetX=$offsetX, offsetY=$offsetY, clampedScale=$clampedScale');
+    dev.log('Centering between points: startLocation=$startLocation, endLocation=$endLocation');
+    dev.log('Scale calculations: horizontalScale=$horizontalScale, verticalScale=$verticalScale');
+    dev.log('Final values: offsetX=$offsetX, offsetY=$offsetY, clampedScale=$clampedScale');
 
     // Create the transformation matrix
     final matrix = Matrix4.identity()

@@ -132,7 +132,7 @@ class FloorSelectionState extends State<FloorSelection> {
     // Case 1: Is this a POI view?
     if (widget.poiName != null && widget.poiChoiceViewModel != null) {
       // Navigate to POIMapView with the selected floor
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => POIMapView(
@@ -142,6 +142,10 @@ class FloorSelectionState extends State<FloorSelection> {
             initialFloor: cleanFloor,
           ),
         ),
+        (route) {
+          return route.settings.name == '/' ||
+              route.settings.name == '/POIChoiceView';
+        },
       );
     }
     // Case 2: Is this a search view?

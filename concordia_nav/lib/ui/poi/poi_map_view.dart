@@ -102,7 +102,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
 
       // Otherwise use geolocation to find nearest building
       final location = await IndoorRoutingService.getRoundedGeolocation();
-      
+
       if (location == null) {
         setState(() {
           _errorMessage = 'Could not determine your location. Please check location permissions.';
@@ -132,7 +132,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
   void _useInitialBuildingAndFloor() {
     // Get building by abbreviation
     _nearestBuilding = _buildingViewModel.getBuildingByName(widget.initialBuilding!);
-    
+
     if (_nearestBuilding == null) {
       setState(() {
         _errorMessage = 'Building ${widget.initialBuilding} not found.';
@@ -140,18 +140,18 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       });
       return;
     }
-    
+
     // Set the floor (use provided floor or default to '1')
     _selectedFloor = widget.initialFloor ?? '1';
-    
+
     // Set floor plan path
     _floorPlanPath = 'assets/maps/indoor/floorplans/${_nearestBuilding!.abbreviation}$_selectedFloor.svg';
-    
+
     // Check if there are POIs of the requested type in this building
     final poisInBuilding = _matchingPOIs
         .where((poi) => poi.buildingId == _nearestBuilding!.abbreviation)
         .toList();
-    
+
     if (poisInBuilding.isEmpty) {
       setState(() {
         _errorMessage = 'No $_poiName found in ${_nearestBuilding!.name}.';
@@ -159,7 +159,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       });
       return;
     }
-    
+
     // Update POIs on the current floor and check if floor plan exists
     _updatePOIsOnCurrentFloor();
     _checkIfFloorPlanExists();
@@ -240,20 +240,28 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
 
   void _updatePOIsOnCurrentFloor() {
     if (_nearestBuilding == null) return;
-    
+
     // Get POIs for current building and floor
-    _poisOnCurrentFloor = _matchingPOIs.where((poi) => 
-      poi.buildingId == _nearestBuilding!.abbreviation && 
+    _poisOnCurrentFloor = _matchingPOIs.where((poi) =>
+      poi.buildingId == _nearestBuilding!.abbreviation &&
       poi.floor == _selectedFloor
     ).toList();
-    
+
     // Check if there are any POIs on the current floor
     setState(() {
       _noPoisOnCurrentFloor = _poisOnCurrentFloor.isEmpty;
     });
-    
+
     // Debug log
     dev.log('Floor $_selectedFloor has ${_poisOnCurrentFloor.length} POIs of type $_poiName');
+
+    // Pan to the first POI if available
+    if (_poisOnCurrentFloor.isNotEmpty && !_isLoading && _floorPlanExists) {
+      // Use a small delay to ensure the floor plan is fully loaded
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _panToFirstPOI();
+      });
+    }
   }
 
   Future<void> _checkIfFloorPlanExists() async {
@@ -269,13 +277,21 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
 
     // Get SVG dimensions
     final size = await _indoorDirectionsViewModel.getSvgDimensions(_floorPlanPath);
-    
+
     setState(() {
       _width = size.width;
       _height = size.height;
       _floorPlanExists = true;
       _isLoading = false;
     });
+
+    // Pan to first POI once floor plan is loaded
+    if (_poisOnCurrentFloor.isNotEmpty) {
+      // Small delay to ensure UI is updated
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _panToFirstPOI();
+      });
+    }
   }
 
   void _changeFloor(String floor) {
@@ -295,6 +311,35 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
     
     // Check if the floor plan exists and get its dimensions
     _checkIfFloorPlanExists();
+  }
+
+  void _panToFirstPOI() {
+    // Check if there are any POIs on the current floor
+    if (_poisOnCurrentFloor.isNotEmpty) {
+      // Get the first POI
+      final firstPOI = _poisOnCurrentFloor.first;
+
+      // Get the coordinates from the POI
+      final poiX = firstPOI.x.toDouble();
+      final poiY = firstPOI.y.toDouble();
+      
+      dev.log('Panning to POI: ${firstPOI.name} at position ($poiX, $poiY)');
+
+      // Create an Offset with the POI coordinates
+      final poiPosition = Offset(poiX, poiY);
+
+      // Get the viewport size
+      final viewportSize = MediaQuery.of(context).size;
+
+      // Use the centerOnPoint method from IndoorMapViewModel to center the view on this POI
+      _indoorMapViewModel.centerOnPoint(
+        poiPosition,
+        viewportSize,
+        padding: 100.0, // Add some padding around the POI
+      );
+    } else {
+      dev.log('No POIs available to pan to on floor $_selectedFloor');
+    }
   }
 
   @override
