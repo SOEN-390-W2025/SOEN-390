@@ -12,6 +12,7 @@ import '../../data/repositories/building_data_manager.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/floor_button.dart';
+import '../../widgets/radius_bar.dart';
 import '../indoor_location/floor_plan_widget.dart';
 import '../indoor_location/indoor_directions_view.dart';
 import 'package:geolocator/geolocator.dart';
@@ -49,6 +50,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
   double _width = 1024.0;
   double _height = 1024.0;
   bool _noPoisOnCurrentFloor = false;
+  double _searchRadius = 50.0;
 
   @override
   void initState() {
@@ -375,59 +377,77 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       );
     } else {
       // Floor plan exists, show it with POI markers or message
-      bodyContent = Stack(
+      bodyContent = Column(
         children: [
-          // Floor plan
-          FloorPlanWidget(
-            indoorMapViewModel: _indoorMapViewModel,
-            floorPlanPath: _floorPlanPath,
-            semanticsLabel: 'Floor plan of ${_nearestBuilding!.abbreviation}-$_selectedFloor',
-            width: _width,
-            height: _height,
-            pois: _poisOnCurrentFloor, // This passes the POIs specific to the current floor
-            onPoiTap: (poi) {
-              _showPOIDetails(poi);
-            },
-          ),
+          Expanded(
+            child: Stack(
+              children: [
+                // Floor plan
+                FloorPlanWidget(
+                  indoorMapViewModel: _indoorMapViewModel,
+                  floorPlanPath: _floorPlanPath,
+                  semanticsLabel: 'Floor plan of ${_nearestBuilding!.abbreviation}-$_selectedFloor',
+                  width: _width,
+                  height: _height,
+                  pois: _poisOnCurrentFloor, // This passes the POIs specific to the current floor
+                  onPoiTap: (poi) {
+                    _showPOIDetails(poi);
+                  },
+                ),
 
-          // Floor selector button
-          Positioned(
-            top: 80,
-            right: 16,
-            child: FloorButton(
-              floor: _selectedFloor,
-              building: _nearestBuilding!,
-              poiName: _poiName,
-              poiChoiceViewModel: widget.poiChoiceViewModel,
-              onFloorChanged: _changeFloor, // This triggers loading POIs for the new floor
+                // Floor selector button
+                Positioned(
+                  top: 80,
+                  right: 16,
+                  child: FloorButton(
+                    floor: _selectedFloor,
+                    building: _nearestBuilding!,
+                    poiName: _poiName,
+                    poiChoiceViewModel: widget.poiChoiceViewModel,
+                    onFloorChanged: _changeFloor, // This triggers loading POIs for the new floor
+                  ),
+                ),
+                
+                // No POIs message overlay - only show if we're not loading and there are no POIs
+                if (_noPoisOnCurrentFloor && !_isLoading)
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(225),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(100),
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'No $_poiName on floor $_selectedFloor',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           
-          // No POIs message overlay - only show if we're not loading and there are no POIs
-          if (_noPoisOnCurrentFloor && !_isLoading)
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(25),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(10),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'No $_poiName on floor $_selectedFloor',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+          // Radius Bar
+          RadiusBar(
+            initialValue: _searchRadius,
+            minValue: 10.0,
+            maxValue: 200.0,
+            onRadiusChanged: (value) {
+              setState(() {
+                _searchRadius = value;
+              });
+            },
+          ),
         ],
       );
     }
