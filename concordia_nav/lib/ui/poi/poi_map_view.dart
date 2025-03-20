@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_catches_without_on_clauses
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 import '../../data/domain-model/concordia_building.dart';
@@ -51,6 +53,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
   double _height = 1024.0;
   bool _noPoisOnCurrentFloor = false;
   double _searchRadius = 50.0;
+  Offset? _userPosition;
 
   @override
   void initState() {
@@ -167,6 +170,62 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
     _checkIfFloorPlanExists();
   }
 
+  Future<void> _filterPOIsByRadius() async {
+    if (_poisOnCurrentFloor.isEmpty || _nearestBuilding == null) return;
+    
+    // Get the building data
+    final buildingData = await BuildingDataManager.getBuildingData(_nearestBuilding!.abbreviation);
+    if (buildingData == null) return;
+    
+    // Get user's current position using the provided method
+    final userPoint = _indoorDirectionsViewModel.getRegularStartPoint(buildingData, _selectedFloor);
+    
+    if (userPoint == null) {
+      dev.log('Could not determine user position on current floor');
+      return;
+    }
+
+    // Store the user position for displaying the marker
+    setState(() {
+      _userPosition = Offset(userPoint.positionX.toDouble(), userPoint.positionY.toDouble());
+    });
+    
+    // Filter POIs based on distance
+    setState(() {
+      _poisOnCurrentFloor = _poisOnCurrentFloor.where((poi) {
+        // Calculate Euclidean distance on the floor plan
+        final distance = _calculateDistance(
+          userPoint.positionX .toDouble(),
+          userPoint.positionY.toDouble(),
+          poi.x.toDouble(),
+          poi.y.toDouble()
+        );
+        
+        return distance <= _searchRadius;
+      }).toList();
+      
+      _noPoisOnCurrentFloor = _poisOnCurrentFloor.isEmpty;
+    });
+    
+    dev.log('Filtered POIs within radius $_searchRadius: ${_poisOnCurrentFloor.length}');
+  }
+
+
+  double _calculateDistance(double x1, double y1, double x2, double y2) {
+    // Scale factors for converting floor plan coordinates to real-world meters
+    const double xScale = 67.0; // x-axis represents 67 meters
+    const double yScale = 72.0; // y-axis represents 72 meters
+    
+    // Convert floor plan coordinates to real-world meters
+    final double realX1 = x1 * (xScale / _width);
+    final double realY1 = y1 * (yScale / _height);
+    final double realX2 = x2 * (xScale / _width);
+    final double realY2 = y2 * (yScale / _height);
+    
+    // Calculate Euclidean distance in real-world meters
+    return sqrt(pow(realX2 - realX1, 2) + pow(realY2 - realY1, 2));
+  }
+
   void _findNearestBuildingWithPOI(double userLat, double userLng) {
     // Group POIs by building
     final Map<String, List<POI>> poisByBuilding = {};
@@ -248,6 +307,11 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       poi.buildingId == _nearestBuilding!.abbreviation &&
       poi.floor == _selectedFloor
     ).toList();
+    
+    // Apply radius filter if we have POIs
+    if (_poisOnCurrentFloor.isNotEmpty) {
+      _filterPOIsByRadius();
+    }
 
     // Check if there are any POIs on the current floor
     setState(() {
@@ -255,7 +319,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
     });
 
     // Debug log
-    dev.log('Floor $_selectedFloor has ${_poisOnCurrentFloor.length} POIs of type $_poiName');
+    dev.log('Floor $_selectedFloor has ${_poisOnCurrentFloor.length} POIs of type $_poiName within radius $_searchRadius');
 
     // Pan to the first POI if available
     if (_poisOnCurrentFloor.isNotEmpty && !_isLoading && _floorPlanExists) {
@@ -286,6 +350,9 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       _floorPlanExists = true;
       _isLoading = false;
     });
+
+    // Explicitly filter POIs by radius (which will also set the user position)
+    await _filterPOIsByRadius();
 
     // Pan to first POI once floor plan is loaded
     if (_poisOnCurrentFloor.isNotEmpty) {
@@ -393,6 +460,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                   onPoiTap: (poi) {
                     _showPOIDetails(poi);
                   },
+                  currentLocation: _userPosition,
                 ),
 
                 // Floor selector button
@@ -407,7 +475,6 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                     onFloorChanged: _changeFloor, // This triggers loading POIs for the new floor
                   ),
                 ),
-                
                 // No POIs message overlay - only show if we're not loading and there are no POIs
                 if (_noPoisOnCurrentFloor && !_isLoading)
                   Center(
@@ -425,7 +492,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                         ],
                       ),
                       child: Text(
-                        'No $_poiName on floor $_selectedFloor',
+                        'No $_poiName within $_searchRadius meters on floor $_selectedFloor',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -445,6 +512,8 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
             onRadiusChanged: (value) {
               setState(() {
                 _searchRadius = value;
+                // Re-filter POIs when radius changes
+                _updatePOIsOnCurrentFloor();
               });
             },
           ),
@@ -481,7 +550,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text("Building: ${poi.buildingId}, Floor: ${poi.floor}"),
+                  Text("Building: ${_nearestBuilding!.name}, Floor: ${poi.floor}"),
                 ],
               ),
             ),
@@ -494,7 +563,8 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                     builder: (context) => IndoorDirectionsView(
                       sourceRoom: 'Your Location',
                       building: _nearestBuilding!.name,
-                      endRoom: poi.floor.toString() + poi.name,
+                      endRoom: '${poi.buildingId} ${poi.floor}${poi.name}',
+                      selectedPOI: poi,
                     ),
                   ),
                 );

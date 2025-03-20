@@ -19,6 +19,7 @@ class FloorPlanWidget extends StatelessWidget {
   final bool showStepView;
   final List<POI>? pois;
   final Function(POI)? onPoiTap;
+  final Offset? currentLocation;
 
 
   const FloorPlanWidget({
@@ -35,6 +36,7 @@ class FloorPlanWidget extends StatelessWidget {
     this.showStepView = false,
     this.pois,
     this.onPoiTap,
+    this.currentLocation
   });
 
   @override
@@ -114,6 +116,24 @@ class FloorPlanWidget extends StatelessWidget {
                         ),
                       ),
                     )),
+              // Current user location marker (white circle)
+              if (currentLocation != null)
+                Positioned(
+                  left: currentLocation!.dx - 10,
+                  top: currentLocation!.dy - 10,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color.fromARGB(90, 160, 160, 160),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
