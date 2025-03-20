@@ -38,7 +38,7 @@ class POIViewModel extends ChangeNotifier {
   bool _isLoadingOutdoor = false;
   String _errorOutdoor = '';
   PlaceType? _selectedOutdoorCategory = PlaceType.foodDrink;
-  double _searchRadius = 3000; // Default 3km
+  double _searchRadius = 1000; // Default 3km
   
   // Outdoor POI getters
   List<Place> get outdoorPOIs => _outdoorPOIs;

@@ -191,12 +191,11 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
                 viewModel.setOutdoorCategory(category['type'], true);
                 Navigator.pushNamed(
                   context,
-                  '/OutdoorLocationMapView',
+                  '/NearbyPOIMapView',
                   arguments: {
-                    'campus': null, 
+                    'poiViewModel': viewModel,
                     'category': category['type'],
                     'fromPOIChoice': true,
-                    'poiViewModel': _viewModel,
                   },
                 );
               },
