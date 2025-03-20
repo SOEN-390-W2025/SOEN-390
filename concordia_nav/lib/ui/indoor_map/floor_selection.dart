@@ -16,7 +16,7 @@ class FloorSelection extends StatefulWidget {
   final bool isSearch;
   final bool isDisability;
   final String? poiName;
-  final POIChoiceViewModel? poiChoiceViewModel;
+  final POIViewModel? poiChoiceViewModel;
 
   const FloorSelection({
     super.key,

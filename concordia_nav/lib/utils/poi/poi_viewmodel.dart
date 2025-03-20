@@ -9,7 +9,7 @@ import '../../data/services/places_service.dart';
 import '../../data/domain-model/place.dart';
 import '../../data/services/map_service.dart';
 
-class POIChoiceViewModel extends ChangeNotifier {
+class POIViewModel extends ChangeNotifier {
   // Services
   final MapService _mapService = MapService();
   final PlacesService _placesService = PlacesService();

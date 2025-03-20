@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 import '../../data/domain-model/concordia_building.dart';
@@ -18,7 +20,7 @@ class POIMapView extends StatefulWidget {
   final String? initialBuilding;
   final String? initialFloor;
   final String poiName;
-  final POIChoiceViewModel poiChoiceViewModel;
+  final POIViewModel poiChoiceViewModel;
   const POIMapView({
     super.key,
     required this.poiName,
@@ -362,11 +364,11 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withAlpha(10),
                       blurRadius: 5,
                       spreadRadius: 1,
                     ),

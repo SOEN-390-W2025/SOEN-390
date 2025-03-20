@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
                 as Map<String, dynamic>;
             return POIMapView(
               poiName: args['poiName'] as String,
-              poiChoiceViewModel: args['poiChoiceViewModel'] as POIChoiceViewModel,
+              poiChoiceViewModel: args['poiChoiceViewModel'] as POIViewModel,
             );
           },
           '/AccessibilityPage': (context) => const AccessibilityPage(),

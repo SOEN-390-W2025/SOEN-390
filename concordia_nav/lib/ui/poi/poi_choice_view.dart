@@ -12,14 +12,14 @@ class POIChoiceView extends StatefulWidget {
 }
 
 class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProviderStateMixin {
-  late POIChoiceViewModel _viewModel;
+  late POIViewModel _viewModel;
   late TabController _tabController;
   late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = POIChoiceViewModel();
+    _viewModel = POIViewModel();
     _tabController = TabController(length: 2, vsync: this);
     _searchController = TextEditingController();
     
@@ -40,7 +40,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _viewModel,
-      child: Consumer<POIChoiceViewModel>(
+      child: Consumer<POIViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
             appBar: customAppBar(context, 'POI List'),
@@ -85,7 +85,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   }
   
   // Indoor POIs Tab - Modified to remove separate search bar
-  Widget _buildIndoorTab(POIChoiceViewModel viewModel) {
+  Widget _buildIndoorTab(POIViewModel viewModel) {
     return Column(
       children: [
         const Align(
@@ -110,7 +110,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   }
   
   // Outdoor POIs Tab - Modified to remove separate search bar and use consistent grid style
-  Widget _buildOutdoorTab(POIChoiceViewModel viewModel) {
+  Widget _buildOutdoorTab(POIViewModel viewModel) {
     return Column(
       children: [
         // Categories header
@@ -137,7 +137,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   }
 
   // New method to build the category grid with consistent style to indoor grid
-  Widget _buildCategoryGrid(POIChoiceViewModel viewModel) {
+  Widget _buildCategoryGrid(POIViewModel viewModel) {
     // Categories data
     List<Map<String, dynamic>> categories = [
       {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},
@@ -289,7 +289,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   }
   
   // Grid for indoor POIs (modified to use global search)
-  Widget _buildPOINameGrid(POIChoiceViewModel viewModel) {
+  Widget _buildPOINameGrid(POIViewModel viewModel) {
     if (viewModel.isLoadingIndoor) {
       return const Center(child: CircularProgressIndicator());
     }
