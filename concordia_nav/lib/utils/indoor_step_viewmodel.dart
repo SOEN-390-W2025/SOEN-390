@@ -7,6 +7,7 @@ import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../data/domain-model/indoor_route.dart';
+import '../data/domain-model/poi.dart';
 
 // Model classes moved from the view to the model layer
 class NavigationStep {
@@ -49,6 +50,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
   final String floor;
   final String endRoom;
   bool disability;
+  POI? selectedPOI;
 
   // Dependencies
   final IndoorDirectionsViewModel directionsViewModel;
@@ -73,9 +75,10 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     required this.sourceRoom,
     required this.building,
     required this.floor,
-    required this.endRoom,
+    this.endRoom = '',
     required bool isDisability,
     required TickerProvider vsync,
+    this.selectedPOI,
     IndoorDirectionsViewModel? directionsViewModel,
   })  : directionsViewModel =
             directionsViewModel ?? IndoorDirectionsViewModel(),
@@ -109,9 +112,16 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    try {
-      await directionsViewModel.calculateRoute(
-          building, floor, sourceRoom, endRoom, disability);
+   try {
+      if (selectedPOI != null) {
+        // Use POI for route calculation
+         await directionsViewModel.calculateRoute(
+            building, floor, sourceRoom, endRoom, disability, destinationPOI: selectedPOI);
+      } else {
+        // Use endRoom for route calculation
+        await directionsViewModel.calculateRoute(
+            building, floor, sourceRoom, endRoom, disability);
+      }
 
       if (directionsViewModel.calculatedRoute != null) {
         _generateNavigationSteps();
@@ -281,15 +291,25 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       _handleSecondBuilding(route);
     }
 
-    // Add final arrival step
-    navigationSteps.add(NavigationStep(
-      title: 'Destination',
-      description:
-          'You have reached your destination: ${endRoom == yourLocation ? 'Main Entrance' : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
-      focusPoint: directionsViewModel.endLocation,
-      zoomLevel: 1.3,
-      icon: Icons.place,
-    ));
+    // Add final arrival step - customize for POI if available
+    if (selectedPOI != null) {
+      navigationSteps.add(NavigationStep(
+        title: 'Destination',
+        description: 'You have reached ${selectedPOI!.name}',
+        focusPoint: directionsViewModel.endLocation,
+        zoomLevel: 1.3,
+        icon: _getPOICategoryIcon(selectedPOI!.category),
+      ));
+    } else {
+      navigationSteps.add(NavigationStep(
+        title: 'Destination',
+        description:
+            'You have reached your destination: ${endRoom == yourLocation ? 'Main Entrance' : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+        focusPoint: directionsViewModel.endLocation,
+        zoomLevel: 1.3,
+        icon: Icons.place,
+      ));
+    }
 
     // Ensure we have at least one step
     if (navigationSteps.isEmpty) {
@@ -527,6 +547,31 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
     final meters = stepDistanceMeters[currentStepIndex];
     return RouteCalculationService.formatDistance(meters);
+  }
+
+  // Helper method to get appropriate icon for POI category
+  IconData _getPOICategoryIcon(POICategory category) {
+    switch (category) {
+      case POICategory.washroom:
+        return Icons.wc;
+      case POICategory.waterFountain:
+        return Icons.water_drop;
+      case POICategory.restaurant:
+        return Icons.restaurant;
+      case POICategory.elevator:
+        return Icons.elevator;
+      case POICategory.escalator:
+        return Icons.escalator;
+      case POICategory.stairs:
+        return Icons.stairs;
+      case POICategory.exit:
+        return Icons.exit_to_app;
+      case POICategory.police:
+        return Icons.local_police;
+      case POICategory.other:
+      default:
+        return Icons.place;
+    }
   }
 
   // Helper method to get remaining time

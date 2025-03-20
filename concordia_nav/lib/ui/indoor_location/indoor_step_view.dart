@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../data/domain-model/poi.dart';
 import '../../utils/indoor_step_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import 'floor_plan_widget.dart';
@@ -16,6 +17,7 @@ class VirtualStepGuideView extends StatefulWidget {
   final bool isDisability;
   final bool isMultiFloor;
   final VirtualStepGuideViewModel? viewModel;
+  final POI? selectedPOI;
 
   const VirtualStepGuideView({
     super.key,
@@ -26,6 +28,7 @@ class VirtualStepGuideView extends StatefulWidget {
     required this.isMultiFloor,
     this.isDisability = false,
     this.viewModel,
+    this.selectedPOI,
   });
 
   @override
@@ -50,14 +53,24 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
     _temporaryEndRoom = _isMultiFloorRoute ? 'connection' : widget.endRoom;
 
     _viewModel = widget.viewModel ??
-        VirtualStepGuideViewModel(
-          sourceRoom: widget.sourceRoom,
-          building: widget.building,
-          floor: extractFloor(widget.sourceRoom),
-          endRoom: _temporaryEndRoom,
-          isDisability: widget.isDisability,
-          vsync: this,
-        );
+    (!_isMultiFloorRoute
+        ? VirtualStepGuideViewModel(
+            sourceRoom: widget.sourceRoom,
+            building: widget.building,
+            floor: extractFloor(widget.sourceRoom),
+            endRoom: _temporaryEndRoom,
+            isDisability: widget.isDisability,
+            vsync: this,
+            selectedPOI: widget.selectedPOI
+          )
+        : VirtualStepGuideViewModel(
+            sourceRoom: widget.sourceRoom,
+            building: widget.building,
+            floor: extractFloor(widget.sourceRoom),
+            endRoom: _temporaryEndRoom,
+            isDisability: widget.isDisability,
+            vsync: this,
+          ));
 
     _viewModel.initializeRoute().then((_) {
       if (mounted) {
@@ -94,18 +107,31 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   void _proceedToSecondRoute() {
     setState(() {
       _firstRouteCompleted = true;
-      final String firstDigit = extractFloor(widget.endRoom).startsWith('S') ||
+      if (widget.selectedPOI != null) {
+        _viewModel = VirtualStepGuideViewModel(
+          sourceRoom: 'connection',
+          building: widget.building,
+          floor: widget.selectedPOI!.floor,
+          endRoom: widget.endRoom,
+          isDisability: widget.isDisability,
+          vsync: this,
+          selectedPOI: widget.selectedPOI,
+        );
+      } else {
+        final String firstDigit = extractFloor(widget.endRoom).startsWith('S') ||
               RegExp(r'^\d$').hasMatch(extractFloor(widget.endRoom))
           ? extractFloor(widget.endRoom)
           : '1';
-      _viewModel = VirtualStepGuideViewModel(
-        sourceRoom: 'connection',
-        building: widget.building,
-        floor: firstDigit,
-        endRoom: widget.endRoom,
-        isDisability: widget.isDisability,
-        vsync: this,
-      );
+        _viewModel = VirtualStepGuideViewModel(
+          sourceRoom: 'connection',
+          building: widget.building,
+          floor: firstDigit,
+          endRoom: widget.endRoom,
+          isDisability: widget.isDisability,
+          vsync: this,
+        );
+      }
+      
       _viewModel.initializeRoute().then((_) {
         if (mounted) {
           _timer = Timer(const Duration(milliseconds: 300), () {

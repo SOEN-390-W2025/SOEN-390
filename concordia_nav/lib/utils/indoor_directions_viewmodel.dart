@@ -37,6 +37,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
 
+  set endLocation(Offset? value) {
+    _endLocation = value!;
+    notifyListeners(); // Assuming you're using a state management library
+  }
+  
   // Method to toggle accessibility mode
   void toggleAccessibilityMode(bool value) {
     _isAccessibilityMode = value;
@@ -106,6 +111,11 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
   ConcordiaFloorPoint? getRegularStartPoint(
       BuildingData buildingData, String floor) {
+
+    if (floor == '1') {
+      return buildingData.outdoorExitPoint;
+    }
+      
     // Try escalators first if no disability
     try {
       Connection escalatorConnection = buildingData.connections
@@ -221,7 +231,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       // Get end location
       if (destinationPOI != null) {
         // Create a ConcordiaFloor object for the POI's floor
-        final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByName(building)!;
+        final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByAbbreviation(destinationPOI.buildingId)!;
         final poiFloor = ConcordiaFloor(destinationPOI.floor, buildingObj);
         
         // Use POI coordinates directly with the correct floor

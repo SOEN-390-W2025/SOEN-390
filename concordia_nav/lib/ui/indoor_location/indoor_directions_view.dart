@@ -365,6 +365,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                 isMultiFloor: isMultiFloor,
                 onNextFloor: handleNextFloorPress,
                 onPrevFloor: handlePrevFloorPress,
+                selectedPOI: widget.selectedPOI,
               ),
             ],
           ),
