@@ -355,146 +355,129 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                       final place = places[index];
                       return Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // POI Icon
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8.0, right: 16.0, top: 8.0),
-                                  child: CircleAvatar(
-                                    radius: 24,
-                                    backgroundColor: Theme.of(context).primaryColor.withAlpha(26),
-                                    child: Icon(
-                                      _getIconForPlaceType(widget.category),
-                                      color: Theme.of(context).primaryColor,
-                                      size: 28,
+                          InkWell(
+                            onTap: () {
+                              // Close the bottom sheet and show the drawer
+                              Navigator.pop(context);
+                              setState(() {
+                                _selectedPlace = place;
+                                _isDrawerVisible = true;
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center, // Center vertically
+                                children: [
+                                  // POI Icon
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0, right: 16.0),
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Theme.of(context).primaryColor.withAlpha(26),
+                                      child: Icon(
+                                        _getIconForPlaceType(widget.category),
+                                        color: Theme.of(context).primaryColor,
+                                        size: 28,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                
-                                // POI Information
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        place.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                  // POI Information
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          place.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        place.address ?? 'No address available',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[700],
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          place.address ?? 'No address available',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[700],
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          if (place.isOpen != null)
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 6,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: place.isOpen!
-                                                    ? Colors.green[50]
-                                                    : Colors.red[50],
-                                                borderRadius: BorderRadius.circular(4),
-                                                border: Border.all(
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            if (place.isOpen != null)
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
                                                   color: place.isOpen!
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                  width: 0.5,
+                                                      ? Colors.green[50]
+                                                      : Colors.red[50],
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: place.isOpen!
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                    width: 0.5,
+                                                  ),
                                                 ),
-                                              ),
-                                              child: Text(
-                                                place.isOpen! ? 'Open' : 'Closed',
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: place.isOpen!
-                                                      ? Colors.green[800]
-                                                      : Colors.red[800],
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          if (place.isOpen != null)
-                                            const SizedBox(width: 8),
-                                          if (place.rating != null)
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.star,
-                                                  size: 14,
-                                                  color: Colors.amber,
-                                                ),
-                                                const SizedBox(width: 2),
-                                                Text(
-                                                  place.rating!.toStringAsFixed(1),
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
+                                                child: Text(
+                                                  place.isOpen! ? 'Open' : 'Closed',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: place.isOpen!
+                                                        ? Colors.green[800]
+                                                        : Colors.red[800],
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                                if (place.userRatingCount != null)
+                                              ),
+                                            if (place.isOpen != null)
+                                              const SizedBox(width: 8),
+                                            if (place.rating != null)
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.star,
+                                                    size: 14,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  const SizedBox(width: 2),
                                                   Text(
-                                                    ' (${place.userRatingCount})',
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.grey[600],
+                                                    place.rating!.toStringAsFixed(1),
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
-                                              ],
-                                            ),
-                                        ],
-                                      ),
-                                    ],
+                                                  if (place.userRatingCount != null)
+                                                    Text(
+                                                      ' (${place.userRatingCount})',
+                                                      style: TextStyle(
+                                                        fontSize: 11,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                
-                                // Action Buttons Column
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Info button
-                                    InkWell(
+                                  
+                                  // Directions button
+                                  Center(
+                                    child: InkWell(
                                       onTap: () {
                                         Navigator.pop(context);
-                                        setState(() {
-                                          _selectedPlace = place;
-                                          _isDrawerVisible = true;
-                                        });
+                                        _navigateToDirections(place);
                                       },
-                                      child: Container(
-                                        width: 38,
-                                        height: 38,
-                                        margin: const EdgeInsets.only(bottom: 8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue.withAlpha(25),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.info_outline,
-                                          color: Colors.blue,
-                                          size: 28,
-                                        ),
-                                      ),
-                                    ),
-                                    
-                                    // Directions button
-                                    InkWell(
-                                      onTap: () => _navigateToDirections(place),
                                       child: Container(
                                         width: 38,
                                         height: 38,
@@ -502,17 +485,19 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                                           color: Theme.of(context).primaryColor.withAlpha(25),
                                           shape: BoxShape.circle,
                                         ),
-                                        child: Icon(
-                                          Icons.directions,
-                                          color: Theme.of(context).primaryColor,
-                                          size: 28,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.directions,
+                                            color: Theme.of(context).primaryColor,
+                                            size: 28,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(width: 8),
-                              ],
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                              ),
                             ),
                           ),
                           if (index < places.length - 1)
