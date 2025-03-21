@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../data/domain-model/concordia_campus.dart';
 import '../../data/domain-model/place.dart';
 import '../../data/services/places_service.dart';
+import '../../utils/map_viewmodel.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/poi_info_drawer.dart';
+import '../outdoor_location/outdoor_location_map_view.dart';
 
 class NearbyPOIMapView extends StatefulWidget {
   final POIViewModel poiViewModel;
@@ -47,10 +50,7 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
       _isLoading = true;
     });
 
-
     await _viewModel.loadOutdoorPOIs(widget.category);
-
-
     await _createMarkers();
 
     setState(() {
@@ -62,7 +62,6 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
   Future<void> _createMarkers() async {
     final places = _viewModel.filteredOutdoorPOIs;
     final Set<Marker> markers = {};
-
 
     // Add POI markers
     for (var i = 0; i < places.length; i++) {
@@ -136,14 +135,25 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
     });
   }
 
+  // Modified to use OutdoorLocationMapView instead of POIDirectionView
   void _navigateToDirections(Place place) {
-    Navigator.pushNamed(
+    // Create a MapViewModel instance for the location view
+    final MapViewModel mapViewModel = MapViewModel();
+    
+    // Navigate to OutdoorLocationMapView
+    Navigator.push(
       context,
-      '/POIDirectionView',
-      arguments: {
-        'place': place,
-        'poiViewModel': _viewModel,
-      },
+      MaterialPageRoute(
+        builder: (context) => OutdoorLocationMapView(
+          campus: ConcordiaCampus.sgw, // Default to SGW campus
+          mapViewModel: mapViewModel,
+          // Pass additional data needed for directions
+          additionalData: {
+            'place': place,
+            'destinationLatLng': place.location,
+          },
+        ),
+      ),
     );
   }
 
@@ -522,7 +532,6 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
       ),
     );
   }
-
 
   // Gets the icon for a specific PlaceType
   IconData _getIconForPlaceType(PlaceType type) {
