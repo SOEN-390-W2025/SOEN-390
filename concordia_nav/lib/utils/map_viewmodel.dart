@@ -20,6 +20,7 @@ import '../data/repositories/outdoor_directions_repository.dart';
 import '../data/services/building_service.dart';
 import '../data/services/map_service.dart';
 import '../data/services/helpers/icon_loader.dart';
+import '../data/services/places_service.dart';
 import 'building_viewmodel.dart';
 import 'package:geocoding/geocoding.dart' as geodart;
 import '../data/services/outdoor_directions_service.dart'; // New import
@@ -891,4 +892,7 @@ class MapViewModel extends ChangeNotifier {
 
     moveToLocation(location);
   }
+
+  // ignore: unused_field
+  final PlacesService _placesService = PlacesService();
 }
