@@ -569,6 +569,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       case POICategory.police:
         return Icons.local_police;
       case POICategory.other:
+      // ignore: unreachable_switch_default
       default:
         return Icons.place;
     }
