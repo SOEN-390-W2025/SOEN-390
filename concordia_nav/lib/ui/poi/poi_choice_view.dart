@@ -45,6 +45,26 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       value: _viewModel,
       child: Consumer<POIViewModel>(
         builder: (context, viewModel, child) {
+          // If location is being determined, show loading indicator
+          if (viewModel.isLoadingLocation) {
+            return Scaffold(
+              appBar: customAppBar(context, 'Loading Location'),
+              body: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      'Determining your location...',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          
           // Block entire POI view if location permission not granted
           if (!viewModel.hasLocationPermission) {
             return Scaffold(

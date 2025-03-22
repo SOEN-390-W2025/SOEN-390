@@ -26,7 +26,9 @@ class POIViewModel extends ChangeNotifier {
   LatLng? get currentLocation => _currentLocation;
   
   // Location status
+  bool _isLoadingLocation = true;
   bool _hasLocationPermission = false;
+  bool get isLoadingLocation => _isLoadingLocation;
   bool get hasLocationPermission => _hasLocationPermission;
   String _locationErrorMessage = '';
   String get locationErrorMessage => _locationErrorMessage;
@@ -88,12 +90,16 @@ class POIViewModel extends ChangeNotifier {
   Future<void> _initCurrentLocation() async {
     if (_disposed) return;
     
+    _isLoadingLocation = true; // Set loading to true when starting
+    notifyListeners();
+    
     try {
       final locationServiceEnabled = await _mapService.isLocationServiceEnabled();
       if (!locationServiceEnabled) {
         _hasLocationPermission = false;
         _locationErrorMessage = 'Location services are disabled';
         _currentLocation = null;
+        _isLoadingLocation = false; // Set loading to false when done
         notifyListeners();
         return;
       }
@@ -103,6 +109,7 @@ class POIViewModel extends ChangeNotifier {
         _hasLocationPermission = false;
         _locationErrorMessage = 'Location permission denied';
         _currentLocation = null;
+        _isLoadingLocation = false; // Set loading to false when done
         notifyListeners();
         return;
       }
@@ -123,6 +130,8 @@ class POIViewModel extends ChangeNotifier {
       _hasLocationPermission = false;
       _locationErrorMessage = e.toString();
     }
+    
+    _isLoadingLocation = false; // Set loading to false when done
     notifyListeners();
   }
   
@@ -330,12 +339,16 @@ class POIViewModel extends ChangeNotifier {
   Future<void> refreshLocation() async {
     if (_disposed) return;
     
+    _isLoadingLocation = true; // Set loading to true when starting refresh
+    notifyListeners();
+    
     try {
       final locationServiceEnabled = await _mapService.isLocationServiceEnabled();
       if (!locationServiceEnabled) {
         _hasLocationPermission = false;
         _locationErrorMessage = 'Location services are disabled';
         _currentLocation = null;
+        _isLoadingLocation = false; // Set loading to false
         notifyListeners();
         return;
       }
@@ -345,6 +358,7 @@ class POIViewModel extends ChangeNotifier {
         _hasLocationPermission = false;
         _locationErrorMessage = 'Location permission denied';
         _currentLocation = null;
+        _isLoadingLocation = false; // Set loading to false
         notifyListeners();
         return;
       }
@@ -366,6 +380,8 @@ class POIViewModel extends ChangeNotifier {
       _locationErrorMessage = 'Failed to get current location';
       _errorOutdoor = _locationErrorMessage;
     }
+    
+    _isLoadingLocation = false; // Set loading to false when done
     notifyListeners();
   }
   
