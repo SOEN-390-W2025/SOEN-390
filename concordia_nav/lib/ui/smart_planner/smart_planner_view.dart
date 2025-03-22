@@ -235,7 +235,6 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                 textAlignVertical: TextAlignVertical.top,
                 keyboardType: TextInputType.multiline,
                 cursorColor: const Color(0xFF962e42),
-                maxLines: 2,
                 decoration: InputDecoration(
                   hintText: "Create new plan...",
                   hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
