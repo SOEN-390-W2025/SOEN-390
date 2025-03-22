@@ -18,9 +18,15 @@ class POIViewModel extends ChangeNotifier {
   String? _globalSearchQuery;
   String get globalSearchQuery => _globalSearchQuery ?? '';
   
-  // Current location
-  LatLng _currentLocation = const LatLng(45.447294, -73.6011365);
-  LatLng get currentLocation => _currentLocation;
+  // Current location - marked nullable since it might not be available
+  LatLng? _currentLocation;
+  LatLng? get currentLocation => _currentLocation;
+  
+  // Location status
+  bool _hasLocationPermission = false;
+  bool get hasLocationPermission => _hasLocationPermission;
+  String _locationErrorMessage = '';
+  String get locationErrorMessage => _locationErrorMessage;
 
   // Indoor POI state
   List<POI> _allPOIs = [];
@@ -38,7 +44,9 @@ class POIViewModel extends ChangeNotifier {
   bool _isLoadingOutdoor = false;
   String _errorOutdoor = '';
   PlaceType? _selectedOutdoorCategory = PlaceType.foodDrink;
-  double _searchRadius = 1000; // Default 3km
+  double _searchRadius = 1000; // Default 1km
+  TravelMode _travelMode = TravelMode.DRIVE;
+  TravelMode get travelMode => _travelMode;
   
   // Outdoor POI getters
   List<Place> get outdoorPOIs => _outdoorPOIs;
@@ -48,24 +56,56 @@ class POIViewModel extends ChangeNotifier {
   PlaceType? get selectedOutdoorCategory => _selectedOutdoorCategory;
   double get searchRadius => _searchRadius;
   
+  // No default location - we'll block functionality instead
+  
   // ====== INITIALIZATION ======
   
   Future<void> init() async {
     await _initCurrentLocation();
-    await loadIndoorPOIs();
-    await loadOutdoorPOIs(_selectedOutdoorCategory);
+    // Only load POIs if we have location permission
+    if (_hasLocationPermission) {
+      await loadIndoorPOIs();
+      await loadOutdoorPOIs(_selectedOutdoorCategory);
+    }
   }
   
   Future<void> _initCurrentLocation() async {
     try {
+      final locationServiceEnabled = await _mapService.isLocationServiceEnabled();
+      if (!locationServiceEnabled) {
+        _hasLocationPermission = false;
+        _locationErrorMessage = 'Location services are disabled';
+        _currentLocation = null;
+        notifyListeners();
+        return;
+      }
+      
+      final hasPermission = await _mapService.checkAndRequestLocationPermission();
+      if (!hasPermission) {
+        _hasLocationPermission = false;
+        _locationErrorMessage = 'Location permission denied';
+        _currentLocation = null;
+        notifyListeners();
+        return;
+      }
+      
       final location = await _mapService.getCurrentLocation();
       if (location != null) {
         _currentLocation = location;
+        _hasLocationPermission = true;
+        _locationErrorMessage = '';
+      } else {
+        _currentLocation = null;
+        _hasLocationPermission = false;
+        _locationErrorMessage = 'Unable to get current location';
       }
     } catch (e, stackTrace) {
-      dev.log('Error getting current location, using default', error: e, stackTrace: stackTrace);
-      // Keep using the default location if there's an error
+      dev.log('Error getting current location', error: e, stackTrace: stackTrace);
+      _currentLocation = null;
+      _hasLocationPermission = false;
+      _locationErrorMessage = e.toString();
     }
+    notifyListeners();
   }
   
   // ====== INDOOR POI METHODS ======
@@ -92,12 +132,14 @@ class POIViewModel extends ChangeNotifier {
     notifyListeners();
     
     // Handle outdoor search
-    if (query.length > 2) {
-      searchOutdoorPOIs(query);
-    } else if (query.isEmpty) {
-      loadOutdoorPOIs(_selectedOutdoorCategory);
-    } else {
-      _applyOutdoorFilters();
+    if (_hasLocationPermission) {
+      if (query.length > 2) {
+        searchOutdoorPOIs(query);
+      } else if (query.isEmpty) {
+        loadOutdoorPOIs(_selectedOutdoorCategory);
+      } else {
+        _applyOutdoorFilters();
+      }
     }
   }
   
@@ -139,39 +181,79 @@ class POIViewModel extends ChangeNotifier {
     }
   }
   
+  // Calculate distance between two points
+  double calculateDistance(LatLng point1, LatLng point2) {
+    return _mapService.calculateDistance(point1, point2);
+  }
+  
+  // Update a place with calculated distance
+  void updatePlaceWithDistance(int index, Place updatedPlace) {
+    if (index >= 0 && index < _outdoorPOIs.length) {
+      _outdoorPOIs[index] = updatedPlace;
+      _applyOutdoorFilters();
+    }
+  }
+  
   // ====== OUTDOOR POI METHODS ======
+
+  Future<void> setTravelMode(TravelMode mode) async {
+    if (_travelMode != mode) {
+      _travelMode = mode;
+      _isLoadingOutdoor = true;
+      notifyListeners();
+      
+      // Reload outdoor POIs with new travel mode if we have permission
+      if (_hasLocationPermission && _currentLocation != null) {
+        await loadOutdoorPOIs(_selectedOutdoorCategory);
+      }
+    }
+  }
   
   Future<void> setSearchRadius(double radius) async {
     if (_searchRadius != radius) {
       _searchRadius = radius;
       notifyListeners();
 
-      if (_selectedOutdoorCategory != null) {
+      if (_hasLocationPermission && _selectedOutdoorCategory != null) {
         await loadOutdoorPOIs(_selectedOutdoorCategory);
       }
     }
   }
 
   Future<void> loadOutdoorPOIs(PlaceType? category) async {
+    if (!_hasLocationPermission || _currentLocation == null) {
+      _errorOutdoor = _locationErrorMessage.isEmpty ? 'Location permission required' : _locationErrorMessage;
+      _outdoorPOIs = [];
+      _filteredOutdoorPOIs = [];
+      notifyListeners();
+      return;
+    }
+    
     _isLoadingOutdoor = true;
     _errorOutdoor = '';
     _selectedOutdoorCategory = category;
     notifyListeners();
 
     try {
+      // Create routing options with the current travel mode
+      final routingOptions = PlacesRoutingOptions(
+        travelMode: _travelMode,
+      );
+
       final places = await _placesService.nearbySearch(
-        location: _currentLocation,
+        location: _currentLocation!,
         includedType: category,
         radius: _searchRadius,
         maxResultCount: 20,
+        routingOptions: routingOptions,
       );
 
       _outdoorPOIs = places;
-      print(places);
       _applyOutdoorFilters();
     } catch (e) {
       _errorOutdoor = e.toString();
-      print(_errorOutdoor);
+      _outdoorPOIs = [];
+      _filteredOutdoorPOIs = [];
     } finally {
       _isLoadingOutdoor = false;
       notifyListeners();
@@ -179,26 +261,34 @@ class POIViewModel extends ChangeNotifier {
   }
   
   Future<void> searchOutdoorPOIs(String query) async {
-    if (query.trim().isEmpty) return;
+    if (query.trim().isEmpty || !_hasLocationPermission || _currentLocation == null) return;
     
     _isLoadingOutdoor = true;
     _errorOutdoor = '';
     notifyListeners();
     
     try {
+      // Create routing options with the current travel mode
+      final routingOptions = PlacesRoutingOptions(
+        travelMode: _travelMode,
+      );
+      
       final places = await _placesService.textSearch(
         textQuery: query,
-        location: _currentLocation,
+        location: _currentLocation!,
         includedType: _selectedOutdoorCategory,
         radius: _searchRadius,
         pageSize: 20,
         openNow: false,
+        routingOptions: routingOptions,
       );
       
       _outdoorPOIs = places;
       _applyOutdoorFilters();
     } catch (e) {
       _errorOutdoor = e.toString();
+      _outdoorPOIs = [];
+      _filteredOutdoorPOIs = [];
     } finally {
       _isLoadingOutdoor = false;
       notifyListeners();
@@ -207,21 +297,49 @@ class POIViewModel extends ChangeNotifier {
 
   Future<void> refreshLocation() async {
     try {
+      final locationServiceEnabled = await _mapService.isLocationServiceEnabled();
+      if (!locationServiceEnabled) {
+        _hasLocationPermission = false;
+        _locationErrorMessage = 'Location services are disabled';
+        _currentLocation = null;
+        notifyListeners();
+        return;
+      }
+      
+      final hasPermission = await _mapService.checkAndRequestLocationPermission();
+      if (!hasPermission) {
+        _hasLocationPermission = false;
+        _locationErrorMessage = 'Location permission denied';
+        _currentLocation = null;
+        notifyListeners();
+        return;
+      }
+      
       final location = await _mapService.getCurrentLocation();
       if (location != null) {
         _currentLocation = location;
+        _hasLocationPermission = true;
+        _locationErrorMessage = '';
         await loadOutdoorPOIs(_selectedOutdoorCategory);
+      } else {
+        _currentLocation = null;
+        _hasLocationPermission = false;
+        _locationErrorMessage = 'Unable to get current location';
       }
     } catch (e, stackTrace) {
       dev.log('Error refreshing location', error: e, stackTrace: stackTrace);
-      _errorOutdoor = 'Failed to get current location';
-      notifyListeners();
+      _hasLocationPermission = false;
+      _locationErrorMessage = 'Failed to get current location';
+      _errorOutdoor = _locationErrorMessage;
     }
+    notifyListeners();
   }
   
   void setOutdoorCategory(PlaceType? category, bool selected) {
     _selectedOutdoorCategory = selected ? category : null;
-    loadOutdoorPOIs(_selectedOutdoorCategory);
+    if (_hasLocationPermission) {
+      loadOutdoorPOIs(_selectedOutdoorCategory);
+    }
   }
   
   void _applyOutdoorFilters() {

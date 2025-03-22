@@ -5,8 +5,7 @@ import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 
 class POIChoiceView extends StatefulWidget {
-  final POIViewModel? viewModel;
-  const POIChoiceView({super.key, this.viewModel});
+  const POIChoiceView({super.key});
 
   @override
   State<POIChoiceView> createState() => _POIChoiceViewState();
@@ -20,7 +19,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _viewModel = widget.viewModel ?? POIViewModel();
+    _viewModel = POIViewModel();
     _tabController = TabController(length: 2, vsync: this);
     _searchController = TextEditingController();
     
@@ -43,12 +42,20 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       value: _viewModel,
       child: Consumer<POIViewModel>(
         builder: (context, viewModel, child) {
+          // Block entire POI view if location permission not granted
+          if (!viewModel.hasLocationPermission) {
+            return Scaffold(
+              appBar: customAppBar(context, 'Location Required'),
+              body: _buildLocationErrorView(viewModel),
+            );
+          }
+          
           return Scaffold(
             appBar: customAppBar(context, 'POI List'),
             body: Column(
               children: [
-                // Global search bar - outside both tabs
-              _buildSearchBar(
+                // Global search bar
+                _buildSearchBar(
                   labelText: 'Search POIs',
                   query: viewModel.globalSearchQuery,
                   onChanged: (query) => viewModel.setGlobalSearchQuery(query),
@@ -110,7 +117,8 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
     );
   }
   
-  // Outdoor POIs Tab - Modified to remove separate search bar and use consistent grid style
+  // Outdoor POIs Tab - Now we don't need to handle location errors here 
+  // since we already block at the parent level
   Widget _buildOutdoorTab(POIViewModel viewModel) {
     return Column(
       children: [
@@ -129,7 +137,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
           ),
         ),
         
-        // Grid of category cards with consistent style
+        // Grid of category cards
         Expanded(
           child: _buildCategoryGrid(viewModel),
         ),
@@ -137,8 +145,59 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
     );
   }
 
+  // Minimal location error view with only message and retry button
+  Widget _buildLocationErrorView(POIViewModel viewModel) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Could not determine your location. Please check location permissions.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => viewModel.refreshLocation(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // New method to build the category grid with consistent style to indoor grid
   Widget _buildCategoryGrid(POIViewModel viewModel) {
+    if (viewModel.isLoadingOutdoor) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (viewModel.errorOutdoor.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Error: ${viewModel.errorOutdoor}',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => viewModel.loadOutdoorPOIs(viewModel.selectedOutdoorCategory),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+    
     // Categories data
     List<Map<String, dynamic>> categories = [
       {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},

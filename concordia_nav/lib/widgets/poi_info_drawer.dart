@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/domain-model/place.dart';
+import '../data/services/places_service.dart';
 
 class POIInfoDrawer extends StatelessWidget {
   final Place place;
@@ -12,6 +13,19 @@ class POIInfoDrawer extends StatelessWidget {
     required this.onClose,
     required this.onDirections,
   });
+
+  IconData _getTravelModeIcon(TravelMode? mode) {
+    if (mode == null) return Icons.directions_car;
+    
+    switch (mode) {
+      case TravelMode.DRIVE:
+        return Icons.directions_car;
+      case TravelMode.WALK:
+        return Icons.directions_walk;
+      case TravelMode.BICYCLE:
+        return Icons.directions_bike;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +91,20 @@ class POIInfoDrawer extends StatelessWidget {
                     context: context,
                     icon: Icons.location_on,
                     text: place.address!,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Travel information
+                if (place.distanceMeters != null || place.durationSeconds != null) ...[
+                  _buildInfoRow(
+                    context: context,
+                    icon: _getTravelModeIcon(place.travelMode),
+                    text: [
+                      if (place.formattedDistance != null) place.formattedDistance!,
+                      if (place.formattedDistance != null && place.formattedDuration != null) '•',
+                      if (place.formattedDuration != null) place.formattedDuration!,
+                    ].join(' '),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -173,9 +201,9 @@ class POIInfoDrawer extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style:const TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              color:Colors.black,
+              color: Colors.black,
             ),
           ),
         ),
