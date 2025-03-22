@@ -10,6 +10,7 @@ import 'calendar_repository_test.mocks.dart';
 @GenerateNiceMocks([MockSpec<DeviceCalendarPlugin>()])
 void main() {
   group('UserCalendar', () {
+    
     test('UserCalendar instances with the same calendarId are equal', () {
       // Arrange
       final calendar1 = UserCalendar('1', 'Calendar 1');

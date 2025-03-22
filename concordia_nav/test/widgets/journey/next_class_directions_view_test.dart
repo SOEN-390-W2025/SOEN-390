@@ -5,11 +5,14 @@ import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/data/domain-model/room_category.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
+import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/next_class/next_class_directions_view.dart';
 import 'package:concordia_nav/utils/next_class/next_class_directions_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../map/map_viewmodel_test.mocks.dart';
@@ -17,6 +20,50 @@ import '../../map/map_viewmodel_test.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
+
+  final testPosition = Position(
+      longitude: 100.0,
+      latitude: 100.0,
+      timestamp: DateTime.now(),
+      accuracy: 30.0,
+      altitude: 20.0,
+      heading: 120,
+      speed: 150.9,
+      speedAccuracy: 10.0,
+      altitudeAccuracy: 10.0,
+      headingAccuracy: 10.0);
+  // ref to permission integers: https://github.com/Baseflow/flutter-geolocator/blob/main/geolocator_platform_interface/lib/src/extensions/integer_extensions.dart
+  const permission = 3; // permission set to accept
+  const request = 3; // request permission set to accept
+  const service = true; // locationService set to true
+
+  // ensure plugin is initialized
+  const MethodChannel locationChannel =
+      MethodChannel('flutter.baseflow.com/geolocator');
+
+  Future locationHandler(MethodCall methodCall) async {
+    // grants access to location permissions
+    if (methodCall.method == 'requestPermission') {
+      return request;
+    }
+    // return testPosition when searching for the current location
+    if (methodCall.method == 'getCurrentPosition') {
+      return testPosition.toJson();
+    }
+    // set to true when device tries to check for permissions
+    if (methodCall.method == 'isLocationServiceEnabled') {
+      return service;
+    }
+    // returns authorized when checking for location permissions
+    if (methodCall.method == 'checkPermission') {
+      return permission;
+    }
+  }
+
+  setUpAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(locationChannel, locationHandler);
+  });
 
   late NextClassViewModel viewModel;
   late MockODSDirectionsService mockService;
@@ -39,6 +86,48 @@ void main() {
   });
 
   group('NextClassDirectionsPreview Tests', () {
+    testWidgets('Next Class navigation should work with one classroom',
+        (WidgetTester tester) async {
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const HomePage(),
+        '/IndoorDirectionsView': (context) => IndoorDirectionsView(
+            sourceRoom: 'Your location',
+            building: 'Hall Building',
+            endRoom: '901'),
+        '/NextClassDirectionsPreview': (context) {
+          final routeArgs = ModalRoute.of(context)!.settings.arguments;
+          List<Location> locations = [
+            ConcordiaRoom(
+                'H-801',
+                RoomCategory.classroom,
+                ConcordiaFloor("1", BuildingRepository.h),
+                ConcordiaFloorPoint(
+                    ConcordiaFloor("1", BuildingRepository.h), 0, 0))
+          ];
+          if (routeArgs is List<Location>) {
+            locations = routeArgs;
+          }
+          return NextClassDirectionsPreview(
+              journeyItems: locations, viewModel: viewModel);
+        },
+      };
+
+      // Build the HomePage widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
+
+      // Tap on the Next Class directions FeatureCard
+      await tester.tap(find.byIcon(Icons.calendar_today));
+      await tester.pumpAndSettle(); // Wait for navigation to complete
+
+      // Tap the back button in the app bar
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle(); // Wait for navigation to complete
+    });
+
     testWidgets('Journey items: Same Building Classroom',
         (WidgetTester tester) async {
       // Create mock locations for the same building

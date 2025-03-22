@@ -1,6 +1,11 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
+import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
+import 'package:concordia_nav/data/domain-model/concordia_room.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
+import 'package:concordia_nav/data/domain-model/room_category.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
@@ -10,9 +15,11 @@ import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
 import 'map/map_viewmodel_test.mocks.dart';
@@ -274,7 +281,8 @@ void main() async {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Next Class navigation should work', (WidgetTester tester) async {
+  testWidgets('Next Class navigation should work with two classrooms',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
@@ -284,7 +292,20 @@ void main() async {
           endRoom: '901'),
       '/NextClassDirectionsPreview': (context) {
         final routeArgs = ModalRoute.of(context)!.settings.arguments;
-        List<Location> locations = [];
+        List<Location> locations = [
+          ConcordiaRoom(
+              'H-801',
+              RoomCategory.classroom,
+              ConcordiaFloor("1", BuildingRepository.h),
+              ConcordiaFloorPoint(
+                  ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
+          ConcordiaRoom(
+              'H-805',
+              RoomCategory.classroom,
+              ConcordiaFloor("1", BuildingRepository.h),
+              ConcordiaFloorPoint(
+                  ConcordiaFloor("1", BuildingRepository.h), 0, 0))
+        ];
         if (routeArgs is List<Location>) {
           locations = routeArgs;
         }

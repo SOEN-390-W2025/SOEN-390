@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -83,7 +85,7 @@ class NextClassDirectionsPreviewState
   late ConcordiaRoom _destination;
   late NextClassViewModel viewModel;
   bool _hasFetchedSize = false;
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _hasError = false;
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -99,6 +101,7 @@ class NextClassDirectionsPreviewState
     // the destination is a ConcordiaRoom.
     switch (widget.journeyItems.length) {
       case 0: // Nothing was passed to this page.
+        _isLoading = true;
         _source = _buildEmptyRoom(startingPointPlaceholder);
         _destination = _buildEmptyRoom(nextClassPlaceholder);
         _fetchNavigationData();
@@ -490,7 +493,9 @@ class NextClassDirectionsPreviewState
           decoration: BoxDecoration(
             border: Border.all(color: const Color(0xFF962e42), width: 2),
           ),
-          child: Image.network(url, fit: BoxFit.cover),
+          child: (Platform.environment.containsKey('FLUTTER_TEST'))
+              ? null
+              : Image.network(url, fit: BoxFit.cover),
         );
       },
     );
@@ -812,7 +817,8 @@ class NextClassDirectionsPreviewState
                 ),
               ],
             ),
-      bottomNavigationBar: _isLoading || _hasError
+      bottomNavigationBar: _isLoading ||
+              _determineScenario() == NextClassScenario.awaitingDirectionInputs
           ? null
           : _buildBottomBar(
               _buildPagesForScenario(_determineScenario()).length),
