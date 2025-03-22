@@ -6,12 +6,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../domain-model/travelling_salesman_request.dart';
 import '../domain-model/location.dart';
 import '../repositories/places_repository.dart';
-import 'places_service.dart';
-import '../domain-model/place.dart';
-import '../domain-model/concordia_building.dart';
 import '../repositories/building_repository.dart';
 import '../repositories/building_data_manager.dart';
-import './helpers/smart_planner_helpers.dart';
+import 'helpers/smart_planner_helpers.dart';
+import 'places_service.dart';
 
 class SmartPlannerService {
   final PlacesRepository _placesRepository;
@@ -21,50 +19,54 @@ class SmartPlannerService {
     OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
   }
 
-  /// Attempts to interpret [name] as an indoor location reference.
-  /// If [name] has two or more tokens and the last token is numeric,
-  /// it will consider the first tokens as a building reference and the last
-  /// token as a room number. If a matching ConcordiaRoom is found via
-  /// BuildingDataManager, returns that room.
+  /// Attempts to interpret [name] as an indoor location reference, where [name]
+  /// represents a given a text like "H 9.27" or "Hall Building 9.27".
+  /// It normalizes the input: if the last token contains a dot (e.g. "9.27"),
+  /// it splits that into floor ("9") and room ("27").
   Future<Location?> _lookupIndoorLocation(String name) async {
     final tokens = name.trim().split(RegExp(r'\s+'));
-    if (tokens.length >= 2) {
-      final potentialRoomNumber = tokens.last;
-      if (double.tryParse(potentialRoomNumber) != null) {
-        final buildingReference =
-            tokens.sublist(0, tokens.length - 1).join(" ");
-        ConcordiaBuilding? building;
-        // Try by abbreviation.
-        building = BuildingRepository
-            .buildingByAbbreviation[buildingReference.toUpperCase()];
-        if (building == null) {
-          for (var b in BuildingRepository.buildingByAbbreviation.values) {
-            if (b.name
-                .toLowerCase()
-                .contains(buildingReference.toLowerCase())) {
-              building = b;
-              break;
-            }
-          }
-        }
-        if (building != null) {
-          final buildingData =
-              await BuildingDataManager.getBuildingData(building.abbreviation);
-          if (buildingData != null) {
-            for (var roomList in buildingData.roomsByFloor.values) {
-              for (var room in roomList) {
-                if (room.roomNumber.trim() == potentialRoomNumber.trim()) {
-                  dev.log(
-                      "Found ConcordiaRoom for '$name': ${room.roomNumber} in ${building.name}");
-                  return room;
-                }
-              }
-            }
-          }
-        }
+    if (tokens.length < 2) return null;
+
+    String roomToken = tokens.last;
+    String? floorToken;
+    if (roomToken.contains('.')) {
+      final parts = roomToken.split('.');
+      if (parts.length == 2) {
+        floorToken = parts[0];
+        roomToken = parts[1];
       }
     }
-    return null;
+    // If no floor token is provided, we cannot do an indoor lookup.
+    if (floorToken == null) {
+      dev.log("Indoor lookup: no floor token found in '$name'");
+      return null;
+    }
+
+    final buildingRef = tokens.sublist(0, tokens.length - 1).join(' ');
+    final building =
+        BuildingRepository.buildingByAbbreviation[buildingRef.toUpperCase()] ??
+            BuildingRepository.buildingByAbbreviation.values.firstWhere(
+              (b) => b.name.toLowerCase().contains(buildingRef.toLowerCase()),
+              orElse: () => throw Exception("Unknown building '$buildingRef'"),
+            );
+
+    dev.log(
+        "Indoor lookup: using building '${building.name}' for input '$name'");
+    final data =
+        await BuildingDataManager.getBuildingData(building.abbreviation);
+    try {
+      final foundRoom = data!.roomsByFloor[floorToken]!.firstWhere(
+        (r) => r.roomNumber.trim() == roomToken.trim(),
+        orElse: () =>
+            throw Exception("Room $roomToken not found in ${building.name}"),
+      );
+      dev.log(
+          "Indoor lookup succeeded for '$name': found room ${foundRoom.roomNumber}");
+      dev.log("Runtime type of indoor location: ${foundRoom.runtimeType}");
+      return foundRoom;
+    } on Error {
+      throw Exception("Room $roomToken not found in ${building.name}");
+    }
   }
 
   /// Attempts to find a matching place from our catalogs.
@@ -73,17 +75,19 @@ class SmartPlannerService {
   /// If no matching location was found, it throws an error.
   Future<Location> getLocationByName(String name) async {
     // Indoor lookup is performed first.
-    final indoorResult = await _lookupIndoorLocation(name);
-    if (indoorResult != null) {
-      dev.log("Found ConcordiaFloor for '$name': ${indoorResult.name}");
-      return indoorResult;
+    final indoor = await _lookupIndoorLocation(name);
+    if (indoor != null) {
+      dev.log(
+          "getLocationByName: Returning indoor location. Runtime type: ${indoor.runtimeType}");
+      return indoor;
     }
 
     // Next we'll try to check if the location corresponds to a ConU Building.
-    for (var building in BuildingRepository.buildingByAbbreviation.values) {
-      if (building.name.toLowerCase().contains(name.toLowerCase())) {
-        dev.log("Found ConcordiaBuilding for '$name': ${building.name}");
-        return building;
+    for (var b in BuildingRepository.buildingByAbbreviation.values) {
+      if (b.name.toLowerCase().contains(name.toLowerCase())) {
+        dev.log(
+            "getLocationByName: Found ConcordiaBuilding for '$name'. Runtime type: ${b.runtimeType}");
+        return b;
       }
     }
 
@@ -91,36 +95,38 @@ class SmartPlannerService {
     // Places API, we can hard-code a midpoint between both SGW and LOY, which
     // encompasses a large-enough radius to cover a variety of places.
     const midpointForCampuses = LatLng(45.47800, -73.60885);
-    try {
-      final List<Place> nearbyPlaces = await _placesRepository.getNearbyPlaces(
-        location: midpointForCampuses,
-        radius: 6000, // hopefully enough to capture most places
-        type: null,
-      );
-      final index = nearbyPlaces.indexWhere(
-        (place) => place.name.toLowerCase().contains(name.toLowerCase()),
-      );
-      if (index != -1) {
-        final match = nearbyPlaces[index];
-        dev.log("Found matching outdoor place for '$name': ${match.name}");
-        return Location(
-          match.location.latitude,
-          match.location.longitude,
-          match.name,
-          match.address,
-          null,
-          null,
-          null,
-        );
-      }
-    } on Error catch (e, stackTrace) {
-      dev.log("Error fetching nearby places: $e", stackTrace: stackTrace);
+    final nearbyPlaces = await _placesRepository.getNearbyPlaces(
+      location: midpointForCampuses,
+      radius: 15000,
+      type: null,
+    );
+    final idx = nearbyPlaces.indexWhere(
+      (p) => p.name.toLowerCase().contains(name.toLowerCase()),
+    );
+    if (idx != -1) {
+      final match = nearbyPlaces[idx];
+      dev.log(
+          "getLocationByName: Found outdoor place for '$name' via nearbySearch. Runtime type: Location");
+      final loc = parseLocationFromPlace(match);
+      return loc;
+    }
+
+    // If for some reason there was no match from nearbySearch, use textSearch
+    final textResults = await _placesRepository.textSearchPlaces(
+      query: name,
+      location: midpointForCampuses,
+      radius: 15000, // Larger radius or tune as needed
+    );
+    if (textResults.isNotEmpty) {
+      final first = textResults.first;
+      dev.log(
+          "getLocationByName: Found outdoor place for '$name' via textSearch. Runtime type: Location");
+      final loc = parseLocationFromPlace(first);
+      return loc;
     }
 
     // At this point if no match is found, then the input was probably invalid.
-    dev.log("No location found for '$name'.");
-    throw Exception(
-        "No matching location found for '$name'. Please verify the name and try again.");
+    throw Exception("No location found for '$name'.");
   }
 
   /// Returns a [TravellingSalesmanRequest] with lists for events and
@@ -134,31 +140,49 @@ class SmartPlannerService {
     // dart_openai package, so we instead opt to just use tools. A single
     // add_task function is what lets us add items to either the events List or
     // the todoLocations List, with the help of OpenAI.
-    final addTaskTool = OpenAIToolModel(
+    final addIndoorEvent = OpenAIToolModel(
       type: "function",
       function: OpenAIFunctionModel.withParameters(
-        name: "add_task",
+        name: "add_indoor_event",
         parameters: [
-          OpenAIFunctionProperty.string(
-            name: "locationName",
-            description:
-                "Name of the location. Must be unique across all todoLocations and events in the OpenAI response.",
-          ),
-          OpenAIFunctionProperty.string(
-            name: "startTime",
-            description:
-                "Event start time in ISO8601 format if provided, else empty",
-          ),
-          OpenAIFunctionProperty.string(
-            name: "endTime",
-            description:
-                "Event end time in ISO8601 format if provided, else empty",
-          ),
-          OpenAIFunctionProperty.integer(
-            name: "duration",
-            description:
-                "Duration in seconds if provided (for free-time tasks), else 0",
-          ),
+          OpenAIFunctionProperty.string(name: "building"),
+          OpenAIFunctionProperty.string(name: "floor"),
+          OpenAIFunctionProperty.string(name: "room"),
+          OpenAIFunctionProperty.string(name: "startTime"),
+          OpenAIFunctionProperty.string(name: "endTime"),
+        ],
+      ),
+    );
+    final addIndoorLocation = OpenAIToolModel(
+      type: "function",
+      function: OpenAIFunctionModel.withParameters(
+        name: "add_indoor_location",
+        parameters: [
+          OpenAIFunctionProperty.string(name: "building"),
+          OpenAIFunctionProperty.string(name: "floor"),
+          OpenAIFunctionProperty.string(name: "room"),
+          OpenAIFunctionProperty.integer(name: "duration"),
+        ],
+      ),
+    );
+    final addOutdoorEvent = OpenAIToolModel(
+      type: "function",
+      function: OpenAIFunctionModel.withParameters(
+        name: "add_outdoor_event",
+        parameters: [
+          OpenAIFunctionProperty.string(name: "locationName"),
+          OpenAIFunctionProperty.string(name: "startTime"),
+          OpenAIFunctionProperty.string(name: "endTime"),
+        ],
+      ),
+    );
+    final addOutdoorLocation = OpenAIToolModel(
+      type: "function",
+      function: OpenAIFunctionModel.withParameters(
+        name: "add_outdoor_location",
+        parameters: [
+          OpenAIFunctionProperty.string(name: "locationName"),
+          OpenAIFunctionProperty.integer(name: "duration"),
         ],
       ),
     );
@@ -167,105 +191,116 @@ class SmartPlannerService {
     // to what the user's trying to ask for is simple: give the LLM context,
     // and (more importantly,) restrict its output to what we want.
     final systemMessage = OpenAIChatCompletionChoiceMessageModel(
+      role: OpenAIChatMessageRole.system,
       content: [
         OpenAIChatCompletionChoiceMessageContentItemModel.text("""
-          You are a planning assistant. The user may provide times in natural language 
-          (e.g. "from 11:00 AM to 2:00 PM", "from 3 pm to 4 pm", "for 30 minutes"). 
-          Your job is to convert these times into either ISO8601 date/time or a duration in seconds.
+          You are a planning assistant. Split the user's prompt into individual tasks and call exactly one function per task.
 
-          - If the user specifies both a start time and an end time, fill in 'startTime' and 'endTime' (e.g. "2025-03-18T14:00:00" and "2025-03-18T15:00:00").
-          - If the user only provides a duration (e.g. "for 30 minutes"), fill in 'duration'.
-          - If the user provides no times at all, a start time with no end time, or an end time with no start time, throw an error and cancel the operation.
-          - Return only function calls to 'add_task'. No extra text.
-          """)
+          For indoor tasks (if the location refers to a Concordia building with both floor and room details), return one of:
+            - add_indoor_event: with separate fields "building", "floor", and "room" plus startTime and endTime.
+            - add_indoor_location: with the same fields plus a duration.
+          For outdoor tasks (generic venues such as "coffee shop", "grocery shop", etc.), return one of:
+            - add_outdoor_event: with "locationName", "startTime", and "endTime" (full ISO8601 strings).
+            - add_outdoor_location: with "locationName" and a duration (in seconds).
+
+          Important: All times must be full ISO8601 timestamps. If an indoor task is provided, ensure that the "floor" and "room" values exactly match our data format (e.g. for "H 9.27", use floor "9" and room "27"). If a user omits floor/room for an indoor task, choose an outdoor function instead.
+
+          Return only JSON function calls. No extra text.
+        """)
       ],
-      role: OpenAIChatMessageRole.system,
     );
 
-    final userMessage = OpenAIChatCompletionChoiceMessageModel(
-      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt)],
+    final userMsg = OpenAIChatCompletionChoiceMessageModel(
       role: OpenAIChatMessageRole.user,
+      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt)],
     );
 
     final chatResponse = await OpenAI.instance.chat.create(
       // o1 could have been used here too, but 4o does the job. Based on newer
       // models seeming to cost more credits, it's better to just use 4o.
       model: "gpt-4o",
-      messages: [systemMessage, userMessage],
-      tools: [addTaskTool],
+      messages: [systemMessage, userMsg],
+      tools: [
+        addIndoorEvent,
+        addIndoorLocation,
+        addOutdoorEvent,
+        addOutdoorLocation
+      ],
     );
 
     dev.log("Full Chat Response: ${chatResponse.toString()}");
-
     final message = chatResponse.choices.first.message;
     dev.log("Raw message: ${message.toString()}");
 
     if (!message.haveToolCalls) {
-      dev.log("No tool calls detected. Message content: ${message.content}");
       throw Exception("No function calls received from OpenAI.");
     }
 
-    final List<(String, Location, DateTime, DateTime)> events = [];
-    final List<(String, Location, int)> todoLocations = [];
-
     // The entire plan should take place in the same day.
     final planDay = DateTime(startTime.year, startTime.month, startTime.day);
-
     // As per the TravellingSalesmanRequest structure, we need to make sure that
     // the string attribute stored in tuples is unique across all todoLocations
     // and events in the route and can be used to properly identify the location
     // in the response.
-    final Set<String> usedIds = {};
+    final usedIds = <String>{};
 
-    for (final toolCall in message.toolCalls!) {
-      final args = jsonDecode(toolCall.function.arguments);
-      final locationName = args["locationName"] as String? ?? "Plan Item";
-      final startStr = args["startTime"] as String? ?? "";
-      final endStr = args["endTime"] as String? ?? "";
-      final durationSec = args["duration"] as int? ?? 0;
-      final loc = await getLocationByName(locationName);
+    final events = <(String, Location, DateTime, DateTime)>[];
+    final todos = <(String, Location, int)>[];
 
-      if (startStr.isNotEmpty && endStr.isNotEmpty) {
-        try {
-          final parsedStart = DateTime.parse(startStr);
-          final parsedEnd = DateTime.parse(endStr);
-          final startTimeParsed = rebaseTime(parsedStart, planDay);
-          final endTimeParsed = rebaseTime(parsedEnd, planDay);
-          if (!startTimeParsed.isBefore(endTimeParsed)) {
-            dev.log(
-                "Invalid event (start is not before end) for '$locationName': skipping.");
-            continue;
+    for (var call in message.toolCalls!) {
+      final args = jsonDecode(call.function.arguments);
+      switch (call.function.name) {
+        case "add_indoor_event":
+          final indoorKey =
+              "${args['building']} ${args['floor']}.${args['room']}";
+          final loc = await getLocationByName(indoorKey);
+          dev.log(
+              "Processed add_indoor_event; runtime type: ${loc.runtimeType}");
+          final s = rebaseTime(DateTime.parse(args['startTime']), planDay);
+          final e = rebaseTime(DateTime.parse(args['endTime']), planDay);
+          if (s.isBefore(e)) {
+            events.add(
+                (generateUniqueId("event_${loc.name}", usedIds), loc, s, e));
           }
-          events.add((
-            generateUniqueId("add_event_$locationName", usedIds),
+          break;
+        case "add_indoor_location":
+          final indoorKey =
+              "${args['building']} ${args['floor']}.${args['room']}";
+          final loc = await getLocationByName(indoorKey);
+          dev.log(
+              "Processed add_indoor_location; runtime type: ${loc.runtimeType}");
+          todos.add((
+            generateUniqueId("todo_${loc.name}", usedIds),
             loc,
-            startTimeParsed,
-            endTimeParsed
+            args['duration']
           ));
-        } on Error catch (e) {
-          dev.log("Error parsing times for event '$locationName': $e");
-        }
-      } else if (durationSec > 0) {
-        todoLocations.add((
-          generateUniqueId("add_location_$locationName", usedIds),
-          loc,
-          durationSec
-        ));
-      } else {
-        dev.log(
-            "No time info provided for '$locationName'. Cancelling operation.");
-        throw Exception(
-            "No time information provided for task '$locationName'. Please re-enter your prompt with proper time details.");
+          break;
+        case "add_outdoor_event":
+          final loc = await getLocationByName(args['locationName']);
+          dev.log(
+              "Processed add_outdoor_event; runtime type: ${loc.runtimeType}");
+          final s = rebaseTime(DateTime.parse(args['startTime']), planDay);
+          final e = rebaseTime(DateTime.parse(args['endTime']), planDay);
+          if (s.isBefore(e)) {
+            events.add(
+                (generateUniqueId("event_${loc.name}", usedIds), loc, s, e));
+          }
+          break;
+        case "add_outdoor_location":
+          final loc = await getLocationByName(args['locationName']);
+          dev.log(
+              "Processed add_outdoor_location; runtime type: ${loc.runtimeType}");
+          todos.add((
+            generateUniqueId("todo_${loc.name}", usedIds),
+            loc,
+            args['duration']
+          ));
+          break;
       }
     }
 
     final validEvents = validateEvents(events, planDay);
-
     return TravellingSalesmanRequest(
-      todoLocations,
-      validEvents,
-      startTime,
-      startLocation,
-    );
+        todos, validEvents, startTime, startLocation);
   }
 }
