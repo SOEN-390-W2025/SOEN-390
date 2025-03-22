@@ -30,4 +30,32 @@ class PlacesRepository {
       throw Exception('Failed to fetch nearby places: $e');
     }
   }
+
+  /// Wraps PlacesService.textSearch to retrieve a List of [Place] objects via
+  /// the Places API.
+  Future<List<Place>> textSearchPlaces({
+    required String query,
+    required LatLng location,
+    double radius = 1500,
+    PlaceType? type,
+    bool openNow = false,
+    int pageSize = 10,
+    String? languageCode,
+    String? regionCode,
+  }) async {
+    try {
+      return await _service.textSearch(
+        textQuery: query,
+        location: location,
+        includedType: type,
+        radius: radius,
+        openNow: openNow,
+        pageSize: pageSize,
+        languageCode: languageCode,
+        regionCode: regionCode,
+      );
+    } catch (e) {
+      throw Exception('Failed to fetch text search places: $e');
+    }
+  }
 }
