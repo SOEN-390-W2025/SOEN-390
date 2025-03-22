@@ -197,6 +197,8 @@ class _RadiusBarState extends State<RadiusBar> {
                 color: Colors.white,
                 fontSize: 12.0,
               ),
+              tickMarkShape: SliderTickMarkShape.noTickMark,
+              showValueIndicator: ShowValueIndicator.never,
             ),
             child: Column(
               children: [
