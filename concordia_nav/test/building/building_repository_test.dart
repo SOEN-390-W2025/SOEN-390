@@ -101,5 +101,20 @@ void main() {
       expect(BuildingRepository.buildingByAbbreviation["EV"]?.campus,
           ConcordiaCampus.sgw);
     });
+
+    test('get building by its name', () {
+      // should get building by its name
+      expect(BuildingRepository.buildingByName["Central Building"],
+          BuildingRepository.cc);
+      expect(
+          BuildingRepository.buildingByName["John Molson School of Business"],
+          BuildingRepository.mb);
+
+      // can get attributes of buildings
+      expect(
+          BuildingRepository.buildingByName["EV Building"]?.abbreviation, "EV");
+      expect(BuildingRepository.buildingByName["EV Building"]?.campus,
+          ConcordiaCampus.sgw);
+    });
   });
 }
