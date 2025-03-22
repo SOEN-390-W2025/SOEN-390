@@ -86,7 +86,6 @@ class NextClassDirectionsPreviewState
   late NextClassViewModel viewModel;
   bool _hasFetchedSize = false;
   bool _isLoading = false;
-  bool _hasError = false;
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _isFetchingInitialLocation = false;
@@ -130,7 +129,6 @@ class NextClassDirectionsPreviewState
   Future<void> _fetchNavigationData() async {
     setState(() {
       _isLoading = true;
-      _hasError = false;
     });
 
     final buildingViewModel = BuildingViewModel();
@@ -139,7 +137,6 @@ class NextClassDirectionsPreviewState
 
     if (nextClassRoom == null) {
       setState(() {
-        _hasError = true;
         _isLoading = false;
       });
       return;
