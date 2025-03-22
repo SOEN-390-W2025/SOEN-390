@@ -138,6 +138,11 @@ class MockPOIViewModel extends _i1.Mock implements _i4.POIViewModel {
           as bool);
 
   @override
+  bool get hasLocationPermission =>
+      (super.noSuchMethod(Invocation.getter(#hasLocationPermission), returnValue: false)
+          as bool);
+
+  @override
   _i8.Future<void> init() =>
       (super.noSuchMethod(
             Invocation.method(#init, []),
