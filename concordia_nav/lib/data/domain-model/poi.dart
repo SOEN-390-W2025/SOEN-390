@@ -1,44 +1,45 @@
-import 'package:flutter/material.dart';
+enum POICategory {
+  washroom,
+  waterFountain,
+  restaurant,
+  elevator,
+  escalator,
+  stairs,
+  exit,
+  police,
+  other,
+}
 
-/// Represents a Point of Interest (POI) in the application.
-class POIModel {
-  final String title; // The name of the POI
-  final IconData icon; // The icon representing the POI
-  final String route; // The navigation route associated with the POI
+class POI {
+  final String id;
+  final String name;
+  final String buildingId;
+  final String floor;
+  final POICategory category;
+  final double x;
+  final double y;
 
-  /// Constructor for creating a POIModel instance.
-  POIModel({required this.title, required this.icon, required this.route});
+  POI({
+    required this.id,
+    required this.name,
+    required this.buildingId,
+    required this.floor,
+    required this.category,
+    required this.x,
+    required this.y,
+  });
 
-  /// Create a POIModel instance from JSON data (uses Factory method).
-  factory POIModel.fromJson(Map<String, dynamic> json) {
-    return POIModel(
-      title: json['title'],
-      icon: _getIcon(json['icon']),
-      route: json['route'],
-    );
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is POI &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          buildingId == other.buildingId;
 
-  /// Converts an icon string from JSON to an actual IconData object.
-  static IconData _getIcon(String iconName) {
-    switch (iconName) {
-      case 'wc_outlined':
-        return Icons.wc_outlined;
-      case 'elevator_outlined':
-        return Icons.elevator_outlined;
-      case 'stairs_outlined':
-        return Icons.stairs_outlined;
-      case 'directions_run_outlined':
-        return Icons.directions_run_outlined;
-      case 'local_hospital_outlined':
-        return Icons.local_hospital_outlined;
-      case 'archive_outlined':
-        return Icons.archive_outlined;
-      case 'food_bank_outlined':
-        return Icons.food_bank_outlined;
-      case 'more_outlined':
-        return Icons.more_outlined;
-      default:
-        return Icons.help_outline; // Default fallback icon
-    }
-  }
+  @override
+  int get hashCode => id.hashCode ^ buildingId.hashCode;
+
+  @override
+  String toString() => 'POI(name: $name, floor: $floor, building: $buildingId)';
 }

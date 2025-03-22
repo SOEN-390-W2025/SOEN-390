@@ -1,86 +1,472 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../data/domain-model/place.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/search_bar.dart';
-import '../../widgets/poi_box.dart';
 
+class POIChoiceView extends StatefulWidget {
+  const POIChoiceView({super.key});
 
-/// View that allows users to search and select nearby facilities (POIs).
-/// Uses `POIViewModel` to fetch and filter data dynamically.
-class POIChoiceView extends StatelessWidget {
-  final POIViewModel? viewModel;
+  @override
+  State<POIChoiceView> createState() => _POIChoiceViewState();
+}
 
-  const POIChoiceView({super.key, this.viewModel});
+class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProviderStateMixin {
+  late POIViewModel _viewModel;
+  late TabController _tabController;
+  late TextEditingController _searchController;
+  bool _disposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = POIViewModel();
+    _tabController = TabController(length: 2, vsync: this);
+    _searchController = TextEditingController();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_disposed) {
+        _viewModel.init(); // Load both indoor and outdoor POIs
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _tabController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) =>
-          viewModel ??
-          POIViewModel(), // Use injected viewModel or create a new one
-      child: Scaffold(
-        appBar: customAppBar(context, 'Nearby Facilities'),
-        body: Consumer<POIViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (viewModel.errorMessage != null) {
-              return Center(child: Text(viewModel.errorMessage!));
-            }
-
-            final pois = viewModel.poiList;
-
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SearchBarWidget(
-                    controller: viewModel.searchController,
-                    hintText: 'Search location...',
-                    icon: Icons.search,
-                    iconColor: Colors.black,
-                    searchList: const [],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (pois.isEmpty) const Center(child: Text("No results found")),
-                Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(20),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                      childAspectRatio: 1.5,
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
+      child: Consumer<POIViewModel>(
+        builder: (context, viewModel, child) {
+          // If location is being determined, show loading indicator
+          if (viewModel.isLoadingLocation) {
+            return Scaffold(
+              appBar: customAppBar(context, 'Loading Location'),
+              body: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      'Determining your location...',
+                      style: TextStyle(fontSize: 16),
                     ),
-                    itemCount: pois.length,
-                    itemBuilder: (context, index) {
-                      final poi = pois[index];
-
-                      return PoiBox(
-                        title: poi.title,
-                        icon: Icon(poi.icon),
-                        onPress: () {
-                          if (poi.route.isNotEmpty) {
-                            Navigator.pushNamed(context, poi.route);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text("No route available for this POI.")),
-                            );
-                          }
-                        },
-                      );
-                    },
+                  ],
+                ),
+              ),
+            );
+          }
+          
+          // Block entire POI view if location permission not granted
+          if (!viewModel.hasLocationPermission) {
+            return Scaffold(
+              appBar: customAppBar(context, 'Location Required'),
+              body: _buildLocationErrorView(viewModel),
+            );
+          }
+          
+          return Scaffold(
+            appBar: customAppBar(context, 'POI List'),
+            body: Column(
+              children: [
+                // Global search bar
+                _buildSearchBar(
+                  labelText: 'Search POIs',
+                  query: viewModel.globalSearchQuery,
+                  onChanged: (query) => viewModel.setGlobalSearchQuery(query),
+                  onClear: () => viewModel.setGlobalSearchQuery(''),
+                ),
+                
+                TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: 'Indoor'),
+                    Tab(text: 'Outdoor'),
+                  ],
+                  labelColor: Theme.of(context).primaryColor,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Theme.of(context).primaryColor,
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      // Indoor POIs Tab
+                      _buildIndoorTab(viewModel),
+                      
+                      // Outdoor POIs Tab
+                      _buildOutdoorTab(viewModel),
+                    ],
                   ),
                 ),
               ],
-            );
-          },
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
+  // Indoor POIs Tab - Modified to remove separate search bar
+  Widget _buildIndoorTab(POIViewModel viewModel) {
+    return Column(
+      children: [
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+            child: Text(
+              'Select a nearby indoor facility',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
         ),
+        
+        Expanded(
+          child: _buildPOINameGrid(viewModel),
+        ),
+      ],
+    );
+  }
+  
+  // Outdoor POIs Tab - Now we don't need to handle location errors here 
+  // since we already block at the parent level
+  Widget _buildOutdoorTab(POIViewModel viewModel) {
+    return Column(
+      children: [
+        // Categories header
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+            child: Text(
+              'Select a nearby outdoor facility',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+        
+        // Grid of category cards
+        Expanded(
+          child: _buildCategoryGrid(viewModel),
+        ),
+      ],
+    );
+  }
+
+  // Minimal location error view with only message and retry button
+  Widget _buildLocationErrorView(POIViewModel viewModel) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Could not determine your location. Please check location permissions.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => viewModel.refreshLocation(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // New method to build the category grid with consistent style to indoor grid
+  Widget _buildCategoryGrid(POIViewModel viewModel) {
+    if (viewModel.isLoadingOutdoor) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (viewModel.errorOutdoor.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Error: ${viewModel.errorOutdoor}',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => viewModel.loadOutdoorPOIs(viewModel.selectedOutdoorCategory),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+    
+    // Categories data
+    List<Map<String, dynamic>> categories = [
+      {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},
+      {'type': PlaceType.coffeeShop, 'icon': Icons.coffee, 'label': 'Coffee Shops'},
+      {'type': PlaceType.healthCenter, 'icon': Icons.local_hospital, 'label': 'Health Centers'},
+      {'type': PlaceType.studyPlace, 'icon': Icons.book, 'label': 'Study Places'},
+      {'type': PlaceType.gym, 'icon': Icons.fitness_center, 'label': 'Gyms'},
+      {'type': PlaceType.grocery, 'icon': Icons.shopping_cart, 'label': 'Grocery Stores'},
+    ];
+    
+    // Filter categories based on global search query if it exists
+    if (viewModel.globalSearchQuery.isNotEmpty) {
+      final query = viewModel.globalSearchQuery.toLowerCase();
+      categories = categories.where((category) => 
+        category['label'].toString().toLowerCase().contains(query)
+      ).toList();
+    }
+    
+    if (categories.isEmpty) {
+      return const Center(
+        child: Text(
+          'No categories match your search.',
+          style: TextStyle(fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2.5, // Same as indoor grid
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+        ),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          
+          // Use same card style as indoor POIs
+          return Material(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(20),
+            elevation: 2,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                // Set the category and navigate to the map view
+                viewModel.setOutdoorCategory(category['type'], true);
+                Navigator.pushNamed(
+                  context,
+                  '/NearbyPOIMapView',
+                  arguments: {
+                    'poiViewModel': viewModel,
+                    'category': category['type'],
+                    'fromPOIChoice': true,
+                  },
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        category['label'],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(category['icon']),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
+  // Reusable search bar widget (keeping original style)
+  Widget _buildSearchBar({
+    required String labelText,
+    required String query,
+    required Function(String) onChanged,
+    required VoidCallback onClear,
+  }) {
+    // Set the controller's text to match the current query value
+    _searchController.text = query;
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[400]!,
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            fillColor: Colors.white,
+            filled: true,
+            labelText: labelText,
+            prefixIcon: const Icon(Icons.search),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+            ),
+            suffixIcon: query.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: (){
+                    _searchController.clear();
+                    onClear();
+                  },
+                )
+              : null,
+          ),
+          style: const TextStyle(color: Colors.grey),
+          onChanged: onChanged,
+        ),
+      )
+    );
+  }
+  
+  // Grid for indoor POIs (modified to use global search)
+  Widget _buildPOINameGrid(POIViewModel viewModel) {
+    if (viewModel.isLoadingIndoor) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (viewModel.errorIndoor.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Error: ${viewModel.errorIndoor}',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => viewModel.loadIndoorPOIs(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Filter POIs based on global search
+    final filteredPOIs = viewModel.filterPOIsWithGlobalSearch();
+    
+    if (filteredPOIs.isEmpty) {
+      return const Center(
+        child: Text(
+          'No indoor POIs found. Try changing your search.',
+          style: TextStyle(fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    final uniqueNames = viewModel.getUniqueFilteredPOINames(filteredPOIs);
+    
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2.5,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+        ),
+        itemCount: uniqueNames.length,
+        itemBuilder: (context, index) {
+          final poiName = uniqueNames[index];
+          final firstPoi = filteredPOIs.firstWhere((poi) => poi.name == poiName);
+          final iconData = viewModel.getIconForPOICategory(firstPoi.category);
+
+          return Material(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(20),
+            elevation: 2,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/POIMapView',
+                  arguments: {
+                    'poiName': poiName,
+                    'poiChoiceViewModel': _viewModel,
+                    'isOutdoor': false,
+                  },
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        poiName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(iconData),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

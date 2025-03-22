@@ -98,19 +98,6 @@ class HomePage extends StatelessWidget {
                           Navigator.pushNamed(context, '/POIChoiceView')),
                 ],
               ),
-              // TODO: Remove this. Just for testing purposes
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FeatureCard(
-                    title: 'Places API Test',
-                    icon: const Icon(Icons.science),
-                    onPress: () => Navigator.pushNamed(context, '/PlacesTest'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20), // Added bottom padding
             ],
           ),
         ),

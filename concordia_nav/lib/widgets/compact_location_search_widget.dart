@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/domain-model/place.dart';
 import '../utils/building_viewmodel.dart';
 import '../utils/map_viewmodel.dart';
 
@@ -9,6 +10,7 @@ class CompactSearchCardWidget extends StatelessWidget {
   final List<String> searchList;
   final bool drawer;
   final VoidCallback? onDirectionFetched;
+  final Place? selectedPlace; // Add this parameter
 
   const CompactSearchCardWidget({
     super.key,
@@ -18,6 +20,7 @@ class CompactSearchCardWidget extends StatelessWidget {
     required this.searchList,
     this.drawer = false,
     this.onDirectionFetched,
+    this.selectedPlace, // Optional parameter for the selected POI
   });
 
   Future<void> getDirections() async {
@@ -29,8 +32,8 @@ class CompactSearchCardWidget extends StatelessWidget {
 
     // Get the start and end locations
     final startLocation = originController.text;
-
     final endLocation = destinationController.text;
+    
     await mapViewModel.fetchRoutesForAllModes(startLocation, endLocation);
 
     onDirectionFetched?.call();
@@ -38,6 +41,11 @@ class CompactSearchCardWidget extends StatelessWidget {
 
   Future<void> handleSelection(
       BuildContext context, TextEditingController controller) async {
+    // If this is the destination controller and we have a selected place, don't do anything
+    if (controller == destinationController && selectedPlace != null) {
+      return;
+    }
+    
     final result = await Navigator.pushNamed(
       context,
       '/SearchView',
@@ -116,16 +124,24 @@ class CompactSearchCardWidget extends StatelessWidget {
                     TextField(
                       controller: originController,
                       style: const TextStyle(fontSize: 16),
-                      decoration: const InputDecoration(
+                      enabled: selectedPlace == null,
+                      decoration: InputDecoration(
                         hintText: 'Your Location',
                         border: InputBorder.none,
                         isDense: true,
-                        hintStyle: TextStyle(color: Colors.black),
+                        hintStyle: TextStyle(
+                          color: selectedPlace != null
+                              ? Colors.grey[400]
+                              : Colors.black,
+                        ),
                       ),
-                      onTap: () => {
-                        if (mapViewModel.selectedBuildingNotifier.value != null)
-                          mapViewModel.unselectBuilding(),
-                        handleSelection(context, originController)
+                      onTap: () {
+                        if (selectedPlace == null) {
+                          if (mapViewModel.selectedBuildingNotifier.value != null) {
+                            mapViewModel.unselectBuilding();
+                          }
+                          handleSelection(context, originController);
+                        }
                       },
                     ),
                     Divider(
@@ -136,16 +152,24 @@ class CompactSearchCardWidget extends StatelessWidget {
                     TextField(
                       controller: destinationController,
                       style: const TextStyle(fontSize: 16),
+                      enabled: selectedPlace == null,
                       decoration: InputDecoration(
                         hintText: 'Enter Destination',
                         border: InputBorder.none,
                         isDense: true,
-                        hintStyle: TextStyle(color: Colors.grey[600]),
+                        hintStyle: TextStyle(
+                          color: selectedPlace != null
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
+                        ),
                       ),
-                      onTap: () => {
-                        if (mapViewModel.selectedBuildingNotifier.value != null)
-                          mapViewModel.unselectBuilding(),
-                        handleSelection(context, destinationController)
+                      onTap: () {
+                        if (selectedPlace == null) {
+                          if (mapViewModel.selectedBuildingNotifier.value != null) {
+                            mapViewModel.unselectBuilding();
+                          }
+                          handleSelection(context, destinationController);
+                        }
                       },
                     ),
                   ],
