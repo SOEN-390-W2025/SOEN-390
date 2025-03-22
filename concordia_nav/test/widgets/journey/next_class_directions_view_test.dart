@@ -50,6 +50,9 @@ void main() {
     if (methodCall.method == 'getCurrentPosition') {
       return testPosition.toJson();
     }
+    if (methodCall.method == 'getLastKnownPosition') {
+      return testPosition.toJson();
+    }
     // set to true when device tries to check for permissions
     if (methodCall.method == 'isLocationServiceEnabled') {
       return service;
@@ -86,6 +89,41 @@ void main() {
   });
 
   group('NextClassDirectionsPreview Tests', () {
+    testWidgets('Next Class navigation should work with one classroom',
+        (WidgetTester tester) async {
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const HomePage(),
+        '/IndoorDirectionsView': (context) => IndoorDirectionsView(
+            sourceRoom: 'Your location',
+            building: 'Hall Building',
+            endRoom: '901'),
+        '/NextClassDirectionsPreview': (context) {
+          final routeArgs = ModalRoute.of(context)!.settings.arguments;
+          List<Location> locations = [];
+          if (routeArgs is List<Location>) {
+            locations = routeArgs;
+          }
+          return NextClassDirectionsPreview(
+              journeyItems: locations, viewModel: viewModel);
+        },
+      };
+
+      // Build the HomePage widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
+
+      // Tap on the Next Class directions FeatureCard
+      await tester.tap(find.byIcon(Icons.calendar_today));
+      await tester.pumpAndSettle(); // Wait for navigation to complete
+
+      // Tap the back button in the app bar
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle(); // Wait for navigation to complete
+    });
+
     testWidgets('Next Class navigation should work with one classroom',
         (WidgetTester tester) async {
       // define routes needed for this test
