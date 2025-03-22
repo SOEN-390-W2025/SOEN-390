@@ -143,6 +143,11 @@ class MockPOIViewModel extends _i1.Mock implements _i4.POIViewModel {
           as bool);
 
   @override
+  bool get isLoadingLocation =>
+      (super.noSuchMethod(Invocation.getter(#isLoadingLocation), returnValue: false)
+          as bool);
+
+  @override
   _i8.Future<void> init() =>
       (super.noSuchMethod(
             Invocation.method(#init, []),

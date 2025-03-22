@@ -35,6 +35,7 @@ void main() {
       Place(id: "2", name: "Misoya", location: const LatLng(45.49776972691097, -73.57849236126107), types: ["foodDrink"])
     ];
     when(mockPOIViewModel.outdoorPOIs).thenReturn(outdoorPois);
+    when(mockPOIViewModel.isLoadingLocation).thenReturn(false);
     when(mockPOIViewModel.hasLocationPermission).thenReturn(true);
     when(mockPOIViewModel.globalSearchQuery).thenReturn('');
     when(mockPOIViewModel.errorOutdoor).thenReturn('');
