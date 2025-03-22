@@ -11,8 +11,13 @@ import '../domain-model/place.dart';
 class PlacesService {
   // Singleton implementation
   static final PlacesService _instance = PlacesService._internal();
-  factory PlacesService() => _instance;
+  factory PlacesService([http.Client? client]) {
+    _instance._client =
+        client ?? http.Client(); // Default to new http.Client() if not provided
+    return _instance;
+  }
   PlacesService._internal();
+  late http.Client _client;
 
   /// Google Maps API key loaded from environment variables
   final String? _apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
@@ -209,7 +214,7 @@ class PlacesService {
     };
 
     try {
-      final response = await http.post(
+      final response = await _client.post(
         Uri.parse('$_baseUrl$endpoint'),
         headers: headers,
         body: json.encode(requestBody),
