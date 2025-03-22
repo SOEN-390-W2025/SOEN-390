@@ -45,280 +45,110 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       value: _viewModel,
       child: Consumer<POIViewModel>(
         builder: (context, viewModel, child) {
-          // If location is being determined, show loading indicator
           if (viewModel.isLoadingLocation) {
-            return Scaffold(
-              appBar: customAppBar(context, 'Loading Location'),
-              body: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text(
-                      'Determining your location...',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return _buildLoadingLocationScreen();
           }
           
-          // Block entire POI view if location permission not granted
           if (!viewModel.hasLocationPermission) {
-            return Scaffold(
-              appBar: customAppBar(context, 'Location Required'),
-              body: _buildLocationErrorView(viewModel),
-            );
+            return _buildLocationErrorScreen(viewModel);
           }
           
-          return Scaffold(
-            appBar: customAppBar(context, 'POI List'),
-            body: Column(
+          return _buildMainScreen(viewModel);
+        },
+      ),
+    );
+  }
+  
+  // Loading location screen
+  Widget _buildLoadingLocationScreen() {
+    return Scaffold(
+      appBar: customAppBar(context, 'Loading Location'),
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              'Determining your location...',
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  // Location error screen
+  Widget _buildLocationErrorScreen(POIViewModel viewModel) {
+    return Scaffold(
+      appBar: customAppBar(context, 'Location Required'),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Could not determine your location. Please check location permissions.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => viewModel.refreshLocation(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  // Main screen with tabs
+  Widget _buildMainScreen(POIViewModel viewModel) {
+    return Scaffold(
+      appBar: customAppBar(context, 'POI List'),
+      body: Column(
+        children: [
+          _buildSearchBar(viewModel),
+          _buildTabBar(),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
               children: [
-                // Global search bar
-                _buildSearchBar(
-                  labelText: 'Search POIs',
-                  query: viewModel.globalSearchQuery,
-                  onChanged: (query) => viewModel.setGlobalSearchQuery(query),
-                  onClear: () => viewModel.setGlobalSearchQuery(''),
-                ),
-                
-                TabBar(
-                  controller: _tabController,
-                  tabs: const [
-                    Tab(text: 'Indoor'),
-                    Tab(text: 'Outdoor'),
-                  ],
-                  labelColor: Theme.of(context).primaryColor,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: Theme.of(context).primaryColor,
-                ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // Indoor POIs Tab
-                      _buildIndoorTab(viewModel),
-                      
-                      // Outdoor POIs Tab
-                      _buildOutdoorTab(viewModel),
-                    ],
-                  ),
-                ),
+                _buildIndoorTab(viewModel),
+                _buildOutdoorTab(viewModel),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
-  
-  // Indoor POIs Tab - Modified to remove separate search bar
-  Widget _buildIndoorTab(POIViewModel viewModel) {
-    return Column(
-      children: [
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-            child: Text(
-              'Select a nearby indoor facility',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
           ),
-        ),
-        
-        Expanded(
-          child: _buildPOINameGrid(viewModel),
-        ),
-      ],
-    );
-  }
-  
-  // Outdoor POIs Tab - Now we don't need to handle location errors here 
-  // since we already block at the parent level
-  Widget _buildOutdoorTab(POIViewModel viewModel) {
-    return Column(
-      children: [
-        // Categories header
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-            child: Text(
-              'Select a nearby outdoor facility',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-        
-        // Grid of category cards
-        Expanded(
-          child: _buildCategoryGrid(viewModel),
-        ),
-      ],
-    );
-  }
-
-  // Minimal location error view with only message and retry button
-  Widget _buildLocationErrorView(POIViewModel viewModel) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Could not determine your location. Please check location permissions.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.red,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => viewModel.refreshLocation(),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // New method to build the category grid with consistent style to indoor grid
-  Widget _buildCategoryGrid(POIViewModel viewModel) {
-    if (viewModel.isLoadingOutdoor) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (viewModel.errorOutdoor.isNotEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Error: ${viewModel.errorOutdoor}',
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => viewModel.loadOutdoorPOIs(viewModel.selectedOutdoorCategory),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    // Categories data
-    List<Map<String, dynamic>> categories = [
-      {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},
-      {'type': PlaceType.coffeeShop, 'icon': Icons.coffee, 'label': 'Coffee Shops'},
-      {'type': PlaceType.healthCenter, 'icon': Icons.local_hospital, 'label': 'Health Centers'},
-      {'type': PlaceType.studyPlace, 'icon': Icons.book, 'label': 'Study Places'},
-      {'type': PlaceType.gym, 'icon': Icons.fitness_center, 'label': 'Gyms'},
-      {'type': PlaceType.grocery, 'icon': Icons.shopping_cart, 'label': 'Grocery Stores'},
-    ];
-    
-    // Filter categories based on global search query if it exists
-    if (viewModel.globalSearchQuery.isNotEmpty) {
-      final query = viewModel.globalSearchQuery.toLowerCase();
-      categories = categories.where((category) => 
-        category['label'].toString().toLowerCase().contains(query)
-      ).toList();
-    }
-    
-    if (categories.isEmpty) {
-      return const Center(
-        child: Text(
-          'No categories match your search.',
-          style: TextStyle(fontSize: 16),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-    
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 2.5, // Same as indoor grid
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-        ),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          
-          // Use same card style as indoor POIs
-          return Material(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(20),
-            elevation: 2,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                // Set the category and navigate to the map view
-                viewModel.setOutdoorCategory(category['type'], true);
-                Navigator.pushNamed(
-                  context,
-                  '/NearbyPOIMapView',
-                  arguments: {
-                    'poiViewModel': viewModel,
-                    'category': category['type'],
-                    'fromPOIChoice': true,
-                  },
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        category['label'],
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(category['icon']),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+        ],
       ),
     );
   }
   
-  // Reusable search bar widget (keeping original style)
-  Widget _buildSearchBar({
-    required String labelText,
-    required String query,
-    required Function(String) onChanged,
-    required VoidCallback onClear,
-  }) {
+  // Tab bar
+  Widget _buildTabBar() {
+    return TabBar(
+      controller: _tabController,
+      tabs: const [
+        Tab(text: 'Indoor'),
+        Tab(text: 'Outdoor'),
+      ],
+      labelColor: Theme.of(context).primaryColor,
+      unselectedLabelColor: Colors.grey,
+      indicatorColor: Theme.of(context).primaryColor,
+    );
+  }
+  
+  // Search bar
+  Widget _buildSearchBar(POIViewModel viewModel) {
     // Set the controller's text to match the current query value
-    _searchController.text = query;
+    _searchController.text = viewModel.globalSearchQuery;
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -339,7 +169,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
           decoration: InputDecoration(
             fillColor: Colors.white,
             filled: true,
-            labelText: labelText,
+            labelText: 'Search POIs',
             prefixIcon: const Icon(Icons.search),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
@@ -353,62 +183,71 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
               borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(color: Theme.of(context).primaryColor),
             ),
-            suffixIcon: query.isNotEmpty
+            suffixIcon: viewModel.globalSearchQuery.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
                   onPressed: (){
                     _searchController.clear();
-                    onClear();
+                    viewModel.setGlobalSearchQuery('');
                   },
                 )
               : null,
           ),
           style: const TextStyle(color: Colors.grey),
-          onChanged: onChanged,
+          onChanged: (query) => viewModel.setGlobalSearchQuery(query),
         ),
       )
     );
   }
   
-  // Grid for indoor POIs (modified to use global search)
-  Widget _buildPOINameGrid(POIViewModel viewModel) {
+  // Indoor tab content
+  Widget _buildIndoorTab(POIViewModel viewModel) {
+    return Column(
+      children: [
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+            child: Text(
+              'Select a nearby indoor facility',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+        
+        Expanded(
+          child: _buildIndoorContent(viewModel),
+        ),
+      ],
+    );
+  }
+  
+  // Indoor content (loading, error, or grid)
+  Widget _buildIndoorContent(POIViewModel viewModel) {
     if (viewModel.isLoadingIndoor) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (viewModel.errorIndoor.isNotEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Error: ${viewModel.errorIndoor}',
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => viewModel.loadIndoorPOIs(),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+      return _buildErrorState(
+        viewModel.errorIndoor, 
+        () => viewModel.loadIndoorPOIs()
       );
     }
 
-    // Filter POIs based on global search
+    if (!viewModel.hasMatchingIndoorPOIs()) {
+      return _buildEmptyState('No indoor POIs found. Try changing your search.');
+    }
+
+    return _buildIndoorPOIGrid(viewModel);
+  }
+  
+  // Indoor POI grid
+  Widget _buildIndoorPOIGrid(POIViewModel viewModel) {
     final filteredPOIs = viewModel.filterPOIsWithGlobalSearch();
-    
-    if (filteredPOIs.isEmpty) {
-      return const Center(
-        child: Text(
-          'No indoor POIs found. Try changing your search.',
-          style: TextStyle(fontSize: 16),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
     final uniqueNames = viewModel.getUniqueFilteredPOINames(filteredPOIs);
     
     return Padding(
@@ -426,47 +265,154 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
           final firstPoi = filteredPOIs.firstWhere((poi) => poi.name == poiName);
           final iconData = viewModel.getIconForPOICategory(firstPoi.category);
 
-          return Material(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(20),
-            elevation: 2,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/POIMapView',
-                  arguments: {
-                    'poiName': poiName,
-                    'poiChoiceViewModel': _viewModel,
-                    'isOutdoor': false,
-                  },
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        poiName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(iconData),
-                  ],
-                ),
-              ),
-            ),
+          return _buildPOICard(
+            poiName: poiName, 
+            iconData: iconData, 
+            onTap: () => viewModel.navigateToIndoorPOIMap(context, poiName)
           );
         },
+      ),
+    );
+  }
+  
+  // Outdoor tab content
+  Widget _buildOutdoorTab(POIViewModel viewModel) {
+    return Column(
+      children: [
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+            child: Text(
+              'Select a nearby outdoor facility',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+        
+        Expanded(
+          child: _buildOutdoorContent(viewModel),
+        ),
+      ],
+    );
+  }
+  
+  // Outdoor content (loading, error, or grid)
+  Widget _buildOutdoorContent(POIViewModel viewModel) {
+    if (viewModel.isLoadingOutdoor) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (viewModel.errorOutdoor.isNotEmpty) {
+      return _buildErrorState(
+        viewModel.errorOutdoor, 
+        () => viewModel.loadOutdoorPOIs(viewModel.selectedOutdoorCategory)
+      );
+    }
+
+    if (!viewModel.hasMatchingCategories()) {
+      return _buildEmptyState('No categories match your search.');
+    }
+
+    return _buildOutdoorCategoryGrid(viewModel);
+  }
+  
+  // Outdoor category grid
+  Widget _buildOutdoorCategoryGrid(POIViewModel viewModel) {
+    final categories = viewModel.getOutdoorCategories();
+    
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2.5,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+        ),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          
+          return _buildPOICard(
+            poiName: category['label'], 
+            iconData: category['icon'], 
+            onTap: () => viewModel.navigateToNearbyPOIMap(context, category['type'])
+          );
+        },
+      ),
+    );
+  }
+  
+  // Reusable POI/category card
+  Widget _buildPOICard({
+    required String poiName, 
+    required IconData iconData, 
+    required VoidCallback onTap
+  }) {
+    return Material(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(20),
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  poiName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(iconData),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  // Reusable error state widget
+  Widget _buildErrorState(String errorMessage, VoidCallback onRetry) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Error: $errorMessage',
+            style: const TextStyle(color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Reusable empty state widget
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Text(
+        message,
+        style: const TextStyle(fontSize: 16),
+        textAlign: TextAlign.center,
       ),
     );
   }

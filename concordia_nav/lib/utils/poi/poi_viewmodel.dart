@@ -195,7 +195,21 @@ class POIViewModel extends ChangeNotifier {
       .toList()
       ..sort();
   }
-  
+
+  void navigateToIndoorPOIMap(BuildContext context, String poiName) {
+    if (_disposed) return;
+    
+    Navigator.pushNamed(
+      context,
+      '/POIMapView',
+      arguments: {
+        'poiName': poiName,
+        'poiChoiceViewModel': this,
+        'isOutdoor': false,
+      },
+    );
+  }
+
   // ====== INDOOR POI HELPERS ======
   
   IconData getIconForPOICategory(POICategory category) {
@@ -226,8 +240,52 @@ class POIViewModel extends ChangeNotifier {
       _applyOutdoorFilters();
     }
   }
+
+  bool hasMatchingIndoorPOIs() {
+    return filterPOIsWithGlobalSearch().isNotEmpty;
+  }
   
   // ====== OUTDOOR POI METHODS ======
+
+  List<Map<String, dynamic>> getOutdoorCategories() {
+    List<Map<String, dynamic>> categories = [
+      {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},
+      {'type': PlaceType.coffeeShop, 'icon': Icons.coffee, 'label': 'Coffee Shops'},
+      {'type': PlaceType.healthCenter, 'icon': Icons.local_hospital, 'label': 'Health Centers'},
+      {'type': PlaceType.studyPlace, 'icon': Icons.book, 'label': 'Study Places'},
+      {'type': PlaceType.gym, 'icon': Icons.fitness_center, 'label': 'Gyms'},
+      {'type': PlaceType.grocery, 'icon': Icons.shopping_cart, 'label': 'Grocery Stores'},
+    ];
+    
+    // Fix: Use globalSearchQuery getter instead of directly accessing the private variable
+    // The getter likely handles null safety
+    if (globalSearchQuery.isNotEmpty) {
+      final query = globalSearchQuery.toLowerCase();
+      categories = categories.where((category) => 
+        category['label'].toString().toLowerCase().contains(query)
+      ).toList();
+    }
+    
+    return categories;
+  }
+
+  void navigateToNearbyPOIMap(BuildContext context, PlaceType category) {
+    if (_disposed) return;
+    
+    // Set the category
+    setOutdoorCategory(category, true);
+    
+    // Navigate to the map view
+    Navigator.pushNamed(
+      context,
+      '/NearbyPOIMapView',
+      arguments: {
+        'poiViewModel': this,
+        'category': category,
+        'fromPOIChoice': true,
+      },
+    );
+  }
 
   Future<void> setTravelMode(TravelMode mode) async {
     if (_disposed) return;
@@ -336,6 +394,27 @@ class POIViewModel extends ChangeNotifier {
     }
   }
 
+  Future<Set<Marker>> createMarkersForOutdoorPOIs(Function(Place) onTapCallback) async {
+    if (_disposed) return {};
+    
+    final Set<Marker> markers = {};
+
+    // Add POI markers from filtered places
+    for (var place in _filteredOutdoorPOIs) {
+      markers.add(Marker(
+        markerId: MarkerId(place.id),
+        position: place.location,
+        infoWindow: InfoWindow(
+          title: place.name,
+          snippet: place.address ?? 'No address available',
+        ),
+        onTap: () => onTapCallback(place),
+      ));
+    }
+
+    return markers;
+  }
+
   Future<void> refreshLocation() async {
     if (_disposed) return;
     
@@ -407,5 +486,60 @@ class POIViewModel extends ChangeNotifier {
     }
     
     notifyListeners();
+  }
+
+  bool hasMatchingCategories() {
+    return getOutdoorCategories().isNotEmpty;
+  }
+
+  IconData getIconForPlaceType(PlaceType type) {
+    switch (type) {
+      case PlaceType.foodDrink:
+        return Icons.restaurant;
+      case PlaceType.coffeeShop:
+        return Icons.coffee;
+      case PlaceType.healthCenter:
+        return Icons.local_hospital;
+      case PlaceType.studyPlace:
+        return Icons.book;
+      case PlaceType.gym:
+        return Icons.fitness_center;
+      case PlaceType.grocery:
+        return Icons.shopping_cart;
+      // ignore: unreachable_switch_default
+      default:
+        return Icons.place;
+    }
+  }
+
+  IconData getIconForTravelMode(TravelMode mode) {
+    switch (mode) {
+      case TravelMode.DRIVE:
+        return Icons.directions_car;
+      case TravelMode.WALK:
+        return Icons.directions_walk;
+      case TravelMode.BICYCLE:
+        return Icons.directions_bike;
+    }
+  }
+
+  String getCategoryTitle(PlaceType category) {
+    switch (category) {
+      case PlaceType.foodDrink:
+        return 'Restaurants';
+      case PlaceType.coffeeShop:
+        return 'Coffee Shops';
+      case PlaceType.healthCenter:
+        return 'Health Centers';
+      case PlaceType.studyPlace:
+        return 'Study Places';
+      case PlaceType.gym:
+        return 'Gyms';
+      case PlaceType.grocery:
+        return 'Grocery Stores';
+      // ignore: unreachable_switch_default
+      default:
+        return 'Places';
+    }
   }
 }

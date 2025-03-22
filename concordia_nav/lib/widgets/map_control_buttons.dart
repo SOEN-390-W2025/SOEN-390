@@ -14,7 +14,7 @@ class MapControllerButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: style == 1 ? 100 : 150,
+      top: style == 1 ? 100 : style == 2 ? 150 : 16,
       right: 16,
       child: Column(
         mainAxisSize: MainAxisSize.min,

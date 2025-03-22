@@ -5,6 +5,8 @@ class RadiusBar extends StatefulWidget {
   final double minValue;
   final double maxValue;
   final ValueChanged<double> onRadiusChanged;
+  final bool showMeters;
+  final Widget? travelModeSelector;
 
   const RadiusBar({
     super.key,
@@ -12,6 +14,8 @@ class RadiusBar extends StatefulWidget {
     this.minValue = 10.0,
     this.maxValue = 200.0,
     required this.onRadiusChanged,
+    this.showMeters = true,
+    this.travelModeSelector,
   });
 
   @override
@@ -21,12 +25,34 @@ class RadiusBar extends StatefulWidget {
 class _RadiusBarState extends State<RadiusBar> {
   late double _currentValue;
   late TextEditingController _textController;
+  late int _actualDivisions;
 
   @override
   void initState() {
     super.initState();
     _currentValue = widget.initialValue;
-    _textController = TextEditingController(text: _currentValue.toStringAsFixed(0));
+    _textController = TextEditingController(text: _formatValue(_currentValue));
+    _calculateDivisions();
+  }
+
+  void _calculateDivisions() {
+    // Auto-calculate divisions based on the range
+    final range = widget.maxValue - widget.minValue;
+    if (range <= 100) {
+      _actualDivisions = range.toInt();
+    } else if (range <= 500) {
+      _actualDivisions = (range / 5).round();
+    } else {
+      _actualDivisions = (range / 25).round();
+    }
+  }
+
+  String _formatValue(double value) {
+    // For values like 500, 1000, 1500, 2000, show as km
+    if (!widget.showMeters && value >= 500 && value % 500 == 0) {
+      return (value / 1000).toStringAsFixed(1);
+    }
+    return value.toInt().toString();
   }
 
   @override
@@ -38,15 +64,27 @@ class _RadiusBarState extends State<RadiusBar> {
   void _updateValue(double value) {
     setState(() {
       _currentValue = value;
-      _textController.text = value.toStringAsFixed(0);
+      _textController.text = _formatValue(value);
     });
     widget.onRadiusChanged(value);
   }
 
   @override
   Widget build(BuildContext context) {
+    final String unitLabel = !widget.showMeters && _currentValue >= 500 ? 'km' : 'm';
+    final String minLabel = widget.showMeters
+        ? '${widget.minValue.toInt()}m'
+        : widget.minValue >= 1000
+            ? '${(widget.minValue / 1000).toStringAsFixed(1)}km'
+            : '${widget.minValue.toInt()}m';
+    final String maxLabel = widget.showMeters
+        ? '${widget.maxValue.toInt()}m'
+        : widget.maxValue >= 1000
+            ? '${(widget.maxValue / 1000).toStringAsFixed(1)}km'
+            : '${widget.maxValue.toInt()}m';
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -61,58 +99,137 @@ class _RadiusBarState extends State<RadiusBar> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Search Radius:',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
-              ),
-              const SizedBox(width: 8.0),
-              Container(
-                width: 60.0,
-                height: 36.0,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                    border: InputBorder.none,
+              // Left side: Search radius label with icon
+              Row(
+                children: [
+                  Icon(
+                    Icons.radar,
+                    size: 18,
+                    color: Theme.of(context).primaryColor,
                   ),
-                  onSubmitted: (value) {
-                    final newValue = double.tryParse(value);
-                    if (newValue != null) {
-                      final double clampedValue = newValue.clamp(widget.minValue, widget.maxValue);
-                      _updateValue(clampedValue);
-                    }
-                  },
-                ),
+                  const SizedBox(width: 6.0),
+                  const Text(
+                    'Search Radius:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  // Value input
+                  Container(
+                    width: 60.0,
+                    height: 32.0,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _textController,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 13.0,
+                            ),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 2.0),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                            onSubmitted: (value) {
+                              double? newValue = double.tryParse(value);
+                              if (newValue != null && !widget.showMeters && unitLabel == 'km') {
+                                newValue = newValue * 1000;
+                              }
+                              if (newValue != null) {
+                                final double clampedValue = newValue.clamp(widget.minValue, widget.maxValue);
+                                _updateValue(clampedValue);
+                              }
+                            },
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(right: 6.0),
+                          child: Text(
+                            unitLabel,
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 4.0),
-              const Text('m'),
+              
+              // Right side: Travel mode selector if provided
+              if (widget.travelModeSelector != null)
+                widget.travelModeSelector!,
             ],
           ),
-          Row(
-            children: [
-              Text('${widget.minValue.toInt()}m'),
-              Expanded(
-                child: Slider(
+          const SizedBox(height: 4.0),
+          // Slider with labels
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 4.0,
+              activeTrackColor: Theme.of(context).primaryColor,
+              inactiveTrackColor: Colors.grey.shade300,
+              thumbColor: Colors.white,
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 8.0,
+                elevation: 2.0,
+              ),
+              overlayColor: Theme.of(context).primaryColor.withAlpha(25),
+              valueIndicatorColor: Theme.of(context).primaryColor,
+              valueIndicatorTextStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 12.0,
+              ),
+            ),
+            child: Column(
+              children: [
+                Slider(
                   value: _currentValue,
                   min: widget.minValue,
                   max: widget.maxValue,
-                  divisions: ((widget.maxValue - widget.minValue) / 5).round(),
-                  activeColor: const Color.fromRGBO(146, 35, 56, 1),
+                  divisions: _actualDivisions,
+                  label: '$_currentValue$unitLabel',
                   onChanged: _updateValue,
                 ),
-              ),
-              Text('${widget.maxValue.toInt()}m'),
-            ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        minLabel,
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      Text(
+                        maxLabel,
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
