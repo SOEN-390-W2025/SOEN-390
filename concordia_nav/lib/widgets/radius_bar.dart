@@ -5,6 +5,7 @@ class RadiusBar extends StatefulWidget {
   final double minValue;
   final double maxValue;
   final ValueChanged<double> onRadiusChanged;
+  final Function(double)? onRadiusChangeEnd;
   final bool showMeters;
   final Widget? travelModeSelector;
 
@@ -14,6 +15,7 @@ class RadiusBar extends StatefulWidget {
     this.minValue = 10.0,
     this.maxValue = 200.0,
     required this.onRadiusChanged,
+    this.onRadiusChangeEnd,
     this.showMeters = true,
     this.travelModeSelector,
   });
@@ -205,6 +207,7 @@ class _RadiusBarState extends State<RadiusBar> {
                   divisions: _actualDivisions,
                   label: '$_currentValue$unitLabel',
                   onChanged: _updateValue,
+                  onChangeEnd: widget.onRadiusChangeEnd,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),

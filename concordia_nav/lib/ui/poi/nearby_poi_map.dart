@@ -585,7 +585,14 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
       maxValue: 2000,
       showMeters: false,
       onRadiusChanged: (value) async {
+        // Only set the radius value without reloading POIs
         await _viewModel.setSearchRadius(value);
+        // Don't call any method that triggers data reloading
+      },
+      onRadiusChangeEnd: (value) async {
+        // Optionally add this callback to RadiusBar to apply changes
+        // when the user has finished adjusting the radius
+        await _viewModel.applyRadiusChange();
       },
       travelModeSelector: _buildTravelModeButton(),
     );

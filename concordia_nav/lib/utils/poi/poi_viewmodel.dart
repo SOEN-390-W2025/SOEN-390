@@ -308,10 +308,14 @@ class POIViewModel extends ChangeNotifier {
     if (_searchRadius != radius) {
       _searchRadius = radius;
       notifyListeners();
+    }
+  }
 
-      if (_hasLocationPermission && _selectedOutdoorCategory != null) {
-        await loadOutdoorPOIs(_selectedOutdoorCategory);
-      }
+  Future<void> applyRadiusChange() async {
+    if (_disposed) return;
+    
+    if (_hasLocationPermission && _selectedOutdoorCategory != null) {
+      await loadOutdoorPOIs(_selectedOutdoorCategory);
     }
   }
 
