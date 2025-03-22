@@ -223,6 +223,26 @@ class BuildingRepository {
     (BuildingRepository.hu.abbreviation): hu,
   };
 
+  static Map<String, ConcordiaBuilding> buildingByName = {
+    (BuildingRepository.h.name): h,
+    (BuildingRepository.lb.name): lb,
+    (BuildingRepository.er.name): er,
+    (BuildingRepository.ls.name): ls,
+    (BuildingRepository.gm.name): gm,
+    (BuildingRepository.ev.name): ev,
+    (BuildingRepository.mb.name): mb,
+    (BuildingRepository.fb.name): fb,
+    (BuildingRepository.fg.name): fg,
+    (BuildingRepository.cl.name): cl,
+    (BuildingRepository.vl.name): vl,
+    (BuildingRepository.fc.name): fc,
+    (BuildingRepository.ad.name): ad,
+    (BuildingRepository.cj.name): cj,
+    (BuildingRepository.sp.name): sp,
+    (BuildingRepository.cc.name): cc,
+    (BuildingRepository.hu.name): hu,
+  };
+
   /// Helper method to load polygons and label positions from a specified path.
   static Future<Map<String, dynamic>> _loadPolygonsAndLabels(
       String path) async {
