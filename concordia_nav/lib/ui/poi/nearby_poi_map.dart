@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../data/domain-model/place.dart';
-import '../../data/services/places_service.dart';
 import '../../utils/map_viewmodel.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';

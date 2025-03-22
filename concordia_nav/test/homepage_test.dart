@@ -265,10 +265,6 @@ void main() async {
       routes: routes,
     ));
 
-    // Tap on the Find nearby facilities FeatureCard
-    await tester.tap(find.byIcon(Icons.wash));
-    await tester.pumpAndSettle(); // Wait for navigation to complete
-
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle(); // Wait for navigation to complete

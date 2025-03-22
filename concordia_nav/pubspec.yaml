@@ -82,6 +82,7 @@ dependencies:
   flutter_svg: ^2.0.17
   intl: ^0.20.2
   calendar_view: ^1.4.0
+  logger: ^2.5.0
   google_places_flutter: ^2.1.0
 
 dev_dependencies:

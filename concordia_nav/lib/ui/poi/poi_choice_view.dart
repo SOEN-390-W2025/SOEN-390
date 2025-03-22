@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../data/services/places_service.dart';
+import '../../data/domain-model/place.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 
 class POIChoiceView extends StatefulWidget {
-  const POIChoiceView({super.key});
+  final POIViewModel? viewModel;
+  const POIChoiceView({super.key, this.viewModel});
 
   @override
   State<POIChoiceView> createState() => _POIChoiceViewState();
@@ -19,7 +20,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _viewModel = POIViewModel();
+    _viewModel = widget.viewModel ?? POIViewModel();
     _tabController = TabController(length: 2, vsync: this);
     _searchController = TextEditingController();
     

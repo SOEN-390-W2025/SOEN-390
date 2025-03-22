@@ -8,6 +8,8 @@ import 'dart:ui' as _i2;
 
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart'
     as _i6;
+import 'package:concordia_nav/data/domain-model/poi.dart' as _i8;
+import 'package:concordia_nav/data/repositories/building_data.dart' as _i7;
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i4;
@@ -44,6 +46,17 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   MockIndoorDirectionsViewModel() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  String get mainEntranceString =>
+      (super.noSuchMethod(
+            Invocation.getter(#mainEntranceString),
+            returnValue: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#mainEntranceString),
+            ),
+          )
+          as String);
 
   @override
   String get eta =>
@@ -106,6 +119,12 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
           as _i2.Offset);
 
   @override
+  set endLocation(_i2.Offset? value) => super.noSuchMethod(
+    Invocation.setter(#endLocation, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -127,6 +146,16 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
             returnValue: _i5.Future<_i6.ConcordiaFloorPoint?>.value(),
           )
           as _i5.Future<_i6.ConcordiaFloorPoint?>);
+
+  @override
+  _i6.ConcordiaFloorPoint? getRegularStartPoint(
+    _i7.BuildingData? buildingData,
+    String? floor,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRegularStartPoint, [buildingData, floor]),
+          )
+          as _i6.ConcordiaFloorPoint?);
 
   @override
   _i5.Future<_i6.ConcordiaFloorPoint?> getStartPoint(
@@ -152,16 +181,15 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
     String? floor,
     String? sourceRoom,
     String? endRoom,
-    bool? disability,
-  ) =>
+    bool? disability, {
+    _i8.POI? destinationPOI,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#calculateRoute, [
-              building,
-              floor,
-              sourceRoom,
-              endRoom,
-              disability,
-            ]),
+            Invocation.method(
+              #calculateRoute,
+              [building, floor, sourceRoom, endRoom, disability],
+              {#destinationPOI: destinationPOI},
+            ),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
@@ -195,6 +223,12 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
             ),
           )
           as _i5.Future<_i2.Size>);
+
+  @override
+  void forceEndLocation(_i2.Offset? location) => super.noSuchMethod(
+    Invocation.method(#forceEndLocation, [location]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void addListener(_i2.VoidCallback? listener) => super.noSuchMethod(

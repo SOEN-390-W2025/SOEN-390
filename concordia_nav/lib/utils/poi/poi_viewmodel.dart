@@ -167,9 +167,11 @@ class POIViewModel extends ChangeNotifier {
       );
 
       _outdoorPOIs = places;
+      print(places);
       _applyOutdoorFilters();
     } catch (e) {
       _errorOutdoor = e.toString();
+      print(_errorOutdoor);
     } finally {
       _isLoadingOutdoor = false;
       notifyListeners();
