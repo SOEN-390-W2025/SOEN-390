@@ -231,8 +231,18 @@ void main() async {
     ));
 
     // Tap on the Indoor directions FeatureCard
-    await tester.tap(find.text('Indoor directions'));
+    await tester.tap(find.byIcon(Icons.meeting_room));
     await tester.pumpAndSettle(); // Wait for navigation to complete
+    expect(find.text('Indoor Directions'), findsOneWidget);
+
+    // Scroll down until the 'Indoor Directions' is visible
+    while (!tester.any(find.text('Indoor Directions'))) {
+      await tester.drag(
+          find.byType(Scrollable), const Offset(0, -300)); // drag up
+      await tester.pumpAndSettle(); // Wait for the scroll to finish
+    }
+
+    // Verify if the 'Indoor Directions' text is visible after scrolling
     expect(find.text('Indoor Directions'), findsOneWidget);
 
     // Tap the back button in the app bar
