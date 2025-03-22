@@ -1,4 +1,5 @@
 import 'package:concordia_nav/ui/home/homepage_view.dart';
+import 'package:concordia_nav/ui/smart_planner/generated_plan_view.dart';
 import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -107,13 +108,14 @@ void main() {
         (WidgetTester tester) async {
       // Build our app and trigger a frame.
       final routes = {
-        '/SmartPlannerView': (context) =>
+        '/': (context) =>
             SmartPlannerView(mapViewModel: mockMapViewModel),
+        '/GeneratedPlanView': (context) => const GeneratedPlanView()
       };
 
       // Build the HomePage widget
       await tester.pumpWidget(MaterialApp(
-        initialRoute: '/SmartPlannerView',
+        initialRoute: '/',
         routes: routes,
       ));
 
