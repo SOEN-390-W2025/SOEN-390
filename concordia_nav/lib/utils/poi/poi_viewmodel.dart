@@ -14,6 +14,9 @@ class POIViewModel extends ChangeNotifier {
   final MapService _mapService = MapService();
   final PlacesService _placesService = PlacesService();
 
+  // Disposal state tracking
+  bool _disposed = false;
+
   // Search parameters
   String? _globalSearchQuery;
   String get globalSearchQuery => _globalSearchQuery ?? '';
@@ -56,20 +59,35 @@ class POIViewModel extends ChangeNotifier {
   PlaceType? get selectedOutdoorCategory => _selectedOutdoorCategory;
   double get searchRadius => _searchRadius;
   
-  // No default location - we'll block functionality instead
+  // Modified notifyListeners to check disposal state
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
+  }
+  
+  // Override dispose to mark as disposed
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
   
   // ====== INITIALIZATION ======
   
   Future<void> init() async {
     await _initCurrentLocation();
     // Only load POIs if we have location permission
-    if (_hasLocationPermission) {
+    if (_hasLocationPermission && !_disposed) {
       await loadIndoorPOIs();
       await loadOutdoorPOIs(_selectedOutdoorCategory);
     }
   }
   
   Future<void> _initCurrentLocation() async {
+    if (_disposed) return;
+    
     try {
       final locationServiceEnabled = await _mapService.isLocationServiceEnabled();
       if (!locationServiceEnabled) {
@@ -111,6 +129,8 @@ class POIViewModel extends ChangeNotifier {
   // ====== INDOOR POI METHODS ======
   
   Future<void> loadIndoorPOIs() async {
+    if (_disposed) return;
+    
     _isLoadingIndoor = true;
     _errorIndoor = '';
     notifyListeners();
@@ -128,6 +148,8 @@ class POIViewModel extends ChangeNotifier {
   }
   
   void setGlobalSearchQuery(String query) {
+    if (_disposed) return;
+    
     _globalSearchQuery = query;
     notifyListeners();
     
@@ -188,6 +210,8 @@ class POIViewModel extends ChangeNotifier {
   
   // Update a place with calculated distance
   void updatePlaceWithDistance(int index, Place updatedPlace) {
+    if (_disposed) return;
+    
     if (index >= 0 && index < _outdoorPOIs.length) {
       _outdoorPOIs[index] = updatedPlace;
       _applyOutdoorFilters();
@@ -197,6 +221,8 @@ class POIViewModel extends ChangeNotifier {
   // ====== OUTDOOR POI METHODS ======
 
   Future<void> setTravelMode(TravelMode mode) async {
+    if (_disposed) return;
+    
     if (_travelMode != mode) {
       _travelMode = mode;
       _isLoadingOutdoor = true;
@@ -210,6 +236,8 @@ class POIViewModel extends ChangeNotifier {
   }
   
   Future<void> setSearchRadius(double radius) async {
+    if (_disposed) return;
+    
     if (_searchRadius != radius) {
       _searchRadius = radius;
       notifyListeners();
@@ -221,6 +249,8 @@ class POIViewModel extends ChangeNotifier {
   }
 
   Future<void> loadOutdoorPOIs(PlaceType? category) async {
+    if (_disposed) return;
+    
     if (!_hasLocationPermission || _currentLocation == null) {
       _errorOutdoor = _locationErrorMessage.isEmpty ? 'Location permission required' : _locationErrorMessage;
       _outdoorPOIs = [];
@@ -261,6 +291,8 @@ class POIViewModel extends ChangeNotifier {
   }
   
   Future<void> searchOutdoorPOIs(String query) async {
+    if (_disposed) return;
+    
     if (query.trim().isEmpty || !_hasLocationPermission || _currentLocation == null) return;
     
     _isLoadingOutdoor = true;
@@ -296,6 +328,8 @@ class POIViewModel extends ChangeNotifier {
   }
 
   Future<void> refreshLocation() async {
+    if (_disposed) return;
+    
     try {
       final locationServiceEnabled = await _mapService.isLocationServiceEnabled();
       if (!locationServiceEnabled) {
@@ -336,6 +370,8 @@ class POIViewModel extends ChangeNotifier {
   }
   
   void setOutdoorCategory(PlaceType? category, bool selected) {
+    if (_disposed) return;
+    
     _selectedOutdoorCategory = selected ? category : null;
     if (_hasLocationPermission) {
       loadOutdoorPOIs(_selectedOutdoorCategory);
@@ -343,6 +379,8 @@ class POIViewModel extends ChangeNotifier {
   }
   
   void _applyOutdoorFilters() {
+    if (_disposed) return;
+    
     if (_globalSearchQuery == null || _globalSearchQuery!.isEmpty) {
       _filteredOutdoorPOIs = _outdoorPOIs;
     } else {

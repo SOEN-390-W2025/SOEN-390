@@ -15,6 +15,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
   late POIViewModel _viewModel;
   late TabController _tabController;
   late TextEditingController _searchController;
+  bool _disposed = false;
 
   @override
   void initState() {
@@ -24,14 +25,16 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
     _searchController = TextEditingController();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _viewModel.init(); // Load both indoor and outdoor POIs
+      if (!_disposed) {
+        _viewModel.init(); // Load both indoor and outdoor POIs
+      }
     });
   }
 
   @override
   void dispose() {
+    _disposed = true;
     _tabController.dispose();
-    _viewModel.dispose();
     _searchController.dispose();
     super.dispose();
   }
