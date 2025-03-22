@@ -11,8 +11,13 @@ import '../domain-model/place.dart';
 class PlacesService {
   // Singleton implementation
   static final PlacesService _instance = PlacesService._internal();
-  factory PlacesService() => _instance;
+  factory PlacesService([http.Client? client]) {
+    _instance._client =
+        client ?? http.Client(); // Default to new http.Client() if not provided
+    return _instance;
+  }
   PlacesService._internal();
+  late http.Client _client;
 
   /// Google Maps API key loaded from environment variables
   final String? _apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
@@ -209,7 +214,7 @@ class PlacesService {
     };
 
     try {
-      final response = await http.post(
+      final response = await _client.post(
         Uri.parse('$_baseUrl$endpoint'),
         headers: headers,
         body: json.encode(requestBody),
@@ -474,101 +479,64 @@ class PlacesRoutingOptions {
       return this;
     }
 
-    // Create a new route modifiers object based on travel mode
     RouteModifiers safeModifiers;
-    bool hasIncompatibleModifiers = false;
+    final List<String> incompatibleModifiers = _getIncompatibleModifiers();
 
     switch (travelMode) {
       case TravelMode.DRIVE:
-        // DRIVE mode supports: avoidTolls, avoidHighways, avoidFerries
         safeModifiers = RouteModifiers(
           avoidTolls: routeModifiers?.avoidTolls,
           avoidHighways: routeModifiers?.avoidHighways,
           avoidFerries: routeModifiers?.avoidFerries,
         );
-
-        final List<String> usedIncompatibleModifiers = [];
-        // Check for incompatible modifiers dynamically
-        if (routeModifiers?.avoidIndoor == true) {
-          usedIncompatibleModifiers.add('avoidIndoor');
-        }
-
-        // Log warnings for incompatible modifiers if any were used
-        if (usedIncompatibleModifiers.isNotEmpty) {
-          LoggerUtil.warning(
-              '${usedIncompatibleModifiers.join(', ')} ${usedIncompatibleModifiers.length == 1 ? "modifier is" : "modifiers are"} not compatible with DRIVE mode and will be ignored');
-          hasIncompatibleModifiers = true;
-        }
         break;
 
       case TravelMode.WALK:
-        // WALK mode only supports: avoidIndoor
-        safeModifiers = RouteModifiers(
-          avoidIndoor: routeModifiers?.avoidIndoor,
-        );
-
-        final List<String> usedIncompatibleModifiers = [];
-
-        // Check for incompatible modifiers dynamically
-        if (routeModifiers?.avoidTolls == true) {
-          usedIncompatibleModifiers.add('avoidTolls');
-        }
-        if (routeModifiers?.avoidHighways == true) {
-          usedIncompatibleModifiers.add('avoidHighways');
-        }
-        if (routeModifiers?.avoidFerries == true) {
-          usedIncompatibleModifiers.add('avoidFerries');
-        }
-
-        // Log warnings for incompatible modifiers if any were used
-        if (usedIncompatibleModifiers.isNotEmpty) {
-          LoggerUtil.warning(
-              '${usedIncompatibleModifiers.join(', ')} ${usedIncompatibleModifiers.length == 1 ? "modifier is" : "modifiers are"} not compatible with DRIVE mode and will be ignored');
-          hasIncompatibleModifiers = true;
-        }
+        safeModifiers =
+            RouteModifiers(avoidIndoor: routeModifiers?.avoidIndoor);
         break;
 
       case TravelMode.BICYCLE:
-        // BICYCLE doesn't support any route modifiers in the current API
         safeModifiers = const RouteModifiers();
-
-        final List<String> usedIncompatibleModifiers = [];
-        // Check for incompatible modifiers dynamically
-        if (routeModifiers?.avoidTolls == true) {
-          usedIncompatibleModifiers.add('avoidTolls');
-        }
-        if (routeModifiers?.avoidHighways == true) {
-          usedIncompatibleModifiers.add('avoidHighways');
-        }
-        if (routeModifiers?.avoidFerries == true) {
-          usedIncompatibleModifiers.add('avoidFerries');
-        }
-        if (routeModifiers?.avoidIndoor == true) {
-          usedIncompatibleModifiers.add('avoidIndoor');
-        }
-
-        // Log warnings for incompatible modifiers if any were used
-        if (usedIncompatibleModifiers.isNotEmpty) {
-          LoggerUtil.warning(
-              '${usedIncompatibleModifiers.join(', ')} ${usedIncompatibleModifiers.length == 1 ? "modifier is" : "modifiers are"} not supported with BICYCLE mode and will be ignored');
-          hasIncompatibleModifiers = true;
-        }
         break;
 
       default:
         safeModifiers = const RouteModifiers();
     }
 
-    // Log a general message if incompatible modifiers were found
-    if (hasIncompatibleModifiers) {
+    if (incompatibleModifiers.isNotEmpty) {
+      LoggerUtil.warning(
+        '${incompatibleModifiers.join(', ')} ${incompatibleModifiers.length == 1 ? "modifier is" : "modifiers are"} not compatible with $travelMode mode and will be ignored',
+      );
       LoggerUtil.info(
-          'Sanitized incompatible route modifiers for ${travelMode.toString()} mode');
+          'Sanitized incompatible route modifiers for $travelMode mode');
     }
 
     return PlacesRoutingOptions(
       travelMode: travelMode,
       routeModifiers: safeModifiers,
     );
+  }
+
+  List<String> _getIncompatibleModifiers() {
+    final List<String> incompatible = [];
+
+    if (routeModifiers?.avoidTolls == true && travelMode != TravelMode.DRIVE) {
+      incompatible.add('avoidTolls');
+    }
+    if (routeModifiers?.avoidHighways == true &&
+        travelMode != TravelMode.DRIVE) {
+      incompatible.add('avoidHighways');
+    }
+    if (routeModifiers?.avoidFerries == true &&
+        travelMode != TravelMode.DRIVE) {
+      incompatible.add('avoidFerries');
+    }
+    if (routeModifiers?.avoidIndoor == true && travelMode != TravelMode.WALK) {
+      incompatible.add('avoidIndoor');
+    }
+
+    return incompatible;
   }
 
   Map<String, dynamic> toJson(LatLng origin) {
