@@ -4,6 +4,7 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
+import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/data/repositories/building_data.dart';
 import 'package:concordia_nav/data/repositories/building_data_manager.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
@@ -268,5 +269,28 @@ void main() {
 
     // Expect that the result is an Exception
     expect(result, isA<Map<String, BuildingData>>());
+  });
+
+  test('extractPOIsFromBuilding returns a list of POIs', () async {
+    final listPOIs = await BuildingDataManager.extractPOIsFromBuilding("MB");
+
+    expect(listPOIs, isNotEmpty);
+    expect(listPOIs, isA<List<POI>>());
+    expect(listPOIs[0], isA<POI>());
+  });
+
+  test('extractPOIsFromBuilding returns empty list if invalid building', () async {
+    final listPOIs = await BuildingDataManager.extractPOIsFromBuilding("EV");
+
+    expect(listPOIs, isEmpty);
+  });
+
+  test('getAllPOIs returns a list of POIs for all buildings', () async {
+    final listPOIs = await BuildingDataManager.getAllPOIs();
+
+    expect(listPOIs, isNotEmpty);
+    expect(listPOIs, isA<List<POI>>());
+    expect(listPOIs.first.buildingId, "CC");
+    expect(listPOIs.last.buildingId, "VL");
   });
 }

@@ -1,6 +1,7 @@
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/concrete_floor_routable_point.dart';
+import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/utils/building_viewmodel.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
@@ -108,6 +109,31 @@ void main() {
     final available = await indoorDirectionsViewModel.areDirectionsAvailableForLocation('H 1');
 
     expect(available, true);
+  });
+
+  test('can set the endLocation', () {
+    const offset = Offset(492, 678);
+    indoorDirectionsViewModel.endLocation = offset;
+
+    expect(indoorDirectionsViewModel.endLocation, offset);
+  });
+
+  test('calculateRoute with destinationPOI calculates route', () async {
+    final poi = POI(id: "1", name: "Washroom", buildingId:"H", floor: "1", 
+        category: POICategory.washroom, x: 492, y: 678);
+    await indoorDirectionsViewModel.calculateRoute(
+      "Hall Building", "1", "H 110", "", false, destinationPOI: poi);
+
+    expect(indoorDirectionsViewModel.endLocation, const Offset(492, 678));
+    expect(indoorDirectionsViewModel.eta, "7 sec");
+  });
+
+  test('calculateRoute with ma endRoom calculates route', () async {
+    await indoorDirectionsViewModel.calculateRoute(
+      "Hall Building", "1", "H 110", "ma", false);
+
+    expect(indoorDirectionsViewModel.endLocation, const Offset(310, 1000));
+    expect(indoorDirectionsViewModel.eta, "4 sec");
   });
 
   group('ConcreteFloorRoutablePoint Setters', () {
