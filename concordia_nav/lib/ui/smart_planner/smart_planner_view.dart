@@ -402,13 +402,8 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
           '• For free-time tasks, please provide a duration (e.g. "for 30 minutes").',
           style: TextStyle(fontSize: 14),
         ),
-        const SizedBox(height: 8),
         const Text(
-          'Indoor & Outdoor Locations:',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-        const Text(
-          ' • Enter the name and we’ll take care of the rest!',
+          ' • For classrooms, make sure to add a "." between floor and room number (e.g. H 9.27).',
           style: TextStyle(fontSize: 13),
         ),
         const SizedBox(height: 8),
@@ -419,7 +414,7 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
         const Text.rich(
           TextSpan(
             text:
-                'I have to attend a seminar at the J.W. McConnell Building from 9 am to 10 am, then grab lunch at a Grocery Store and stay around there from 12:00 pm to 12:30 pm, and at some point I want to workout at a Gym for an hour.',
+                'I have to attend a seminar at the J.W. McConnell Building from 9 am to 9:30 am, I have a lecture in H 9.27 from 10:00 am to 11:00 am, and go to a coffee shop for 30 minutes, and I also have to go to Hall Building for 20 minutes.',
           ),
           style: TextStyle(fontSize: 13),
         ),
