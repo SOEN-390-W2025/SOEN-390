@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/feature_card.dart';
-import '../../data/domain-model/location.dart';
-import '../../data/repositories/calendar.dart';
-import '../../data/services/map_service.dart';
-import '../../utils/building_viewmodel.dart';
 
 class HomePage extends StatelessWidget {
   final Function? onAppBarActionPressed;
@@ -75,45 +71,11 @@ class HomePage extends StatelessWidget {
                   FeatureCard(
                     title: 'Next class directions',
                     icon: const Icon(Icons.calendar_today),
-                    onPress: () async {
-                      final buildingViewModel = BuildingViewModel();
-
-                      final nextClassRoom =
-                          await CalendarRepository().getNextClassRoom(
-                        null,
-                        buildingViewModel,
-                      );
-
-                      if (nextClassRoom == null) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("No upcoming classes found.")),
-                          );
-                        }
-                        return;
-                      }
-
-                      final MapService mapService = MapService();
-                      final position = await mapService.getCurrentLocation();
-                      final currentLocation = Location(
-                        position!.latitude,
-                        position.longitude,
-                        "Your Location",
-                        "",
-                        "",
-                        "",
-                        "",
-                      );
-
-                      if (context.mounted) {
-                        await Navigator.pushNamed(
-                          context,
-                          '/NextClassDirectionsPreview',
-                          arguments: [currentLocation, nextClassRoom],
-                        );
-                      }
-                    },
+                    onPress: () => Navigator.pushNamed(
+                      context,
+                      '/NextClassDirectionsPreview',
+                      arguments: [],
+                    ),
                   ),
                 ],
               ),
