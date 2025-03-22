@@ -330,6 +330,12 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                           onTap: () {
                             // Close the bottom sheet and show the drawer
                             Navigator.pop(context);
+                            _mapController?.animateCamera(
+                              CameraUpdate.newLatLngZoom(
+                                place.location,
+                                16,
+                              ),
+                            );
                             setState(() {
                               _selectedPlace = place;
                               _isDrawerVisible = true;
