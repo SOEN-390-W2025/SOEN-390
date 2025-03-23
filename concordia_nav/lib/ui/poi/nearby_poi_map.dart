@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data/domain-model/concordia_campus.dart';
@@ -14,11 +15,13 @@ import '../outdoor_location/outdoor_location_map_view.dart';
 class NearbyPOIMapView extends StatefulWidget {
   final POIViewModel poiViewModel;
   final PlaceType category;
+  final Set<Marker>? markers; // Specifically for tests
 
   const NearbyPOIMapView({
     super.key,
     required this.poiViewModel,
     required this.category,
+    this.markers,
   });
 
   @override
@@ -81,20 +84,26 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
   Future<void> _updateMarkersFromViewModel() async {
     if (!mounted) return;
 
-    // Use the ViewModel's marker creation method
-    final markers = await _viewModel.createMarkersForOutdoorPOIs((place) {
-      setState(() {
-        _selectedPlace = place;
-        _isDrawerVisible = true;
+    Set<Marker> markers;
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      // Use the ViewModel's marker creation method
+      markers = await _viewModel.createMarkersForOutdoorPOIs((place) {
+        setState(() {
+          _selectedPlace = place;
+          _isDrawerVisible = true;
+        });
       });
-    });
-
+    }
+    else {
+      markers = widget.markers!;
+    }
     // Only update state if the widget is still mounted
     if (mounted) {
       setState(() {
         _markers = markers;
       });
     }
+    
   }
 
   void _onMapCreated(GoogleMapController controller) {

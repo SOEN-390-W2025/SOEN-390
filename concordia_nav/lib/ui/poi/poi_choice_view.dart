@@ -275,7 +275,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
                   '/POIMapView',
                   arguments: {
                     'poiName': poiName,
-                    'poiChoiceViewModel': this,
+                    'poiChoiceViewModel': viewModel,
                     'isOutdoor': false,
                   },
                 )

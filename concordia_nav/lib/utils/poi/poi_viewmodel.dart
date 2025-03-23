@@ -11,8 +11,11 @@ import '../../data/services/map_service.dart';
 
 class POIViewModel extends ChangeNotifier {
   // Services
-  final MapService _mapService = MapService();
+  final MapService _mapService;
   final PlacesService _placesService = PlacesService();
+
+  POIViewModel({MapService? mapService}) 
+    : _mapService = mapService ?? MapService();
 
   // Disposal state tracking
   bool _disposed = false;
