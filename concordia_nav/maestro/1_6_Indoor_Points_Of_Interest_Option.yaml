@@ -4,9 +4,7 @@ appId: com.example.concordia_nav
     clearState : true
 - assertVisible: "Find nearby facilities"
 - tapOn: "Find nearby facilities"
-- assertVisible: "Nearby Facilities"
-- assertVisible: Restrooms
-- tapOn: "Restrooms"
-- assertVisible: "Nearby Facility"
-- assertVisible: "Time"
-- assertVisible: "Distance"
+- assertVisible: "POI List"
+- assertVisible: Escalators
+- tapOn: "Escalators"
+- assertVisible: "Search Radius"
