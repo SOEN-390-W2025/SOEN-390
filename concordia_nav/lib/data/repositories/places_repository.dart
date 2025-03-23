@@ -2,6 +2,28 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/places_service.dart';
 import '../domain-model/place.dart';
 
+class TextSearchParams {
+  final String query;
+  final LatLng location;
+  final double radius;
+  final PlaceType? type;
+  final bool openNow;
+  final int pageSize;
+  final String? languageCode;
+  final String? regionCode;
+
+  TextSearchParams({
+    required this.query,
+    required this.location,
+    this.radius = 1500,
+    this.type,
+    this.openNow = false,
+    this.pageSize = 10,
+    this.languageCode,
+    this.regionCode,
+  });
+}
+
 class PlacesRepository {
   final PlacesService _service;
 
@@ -34,25 +56,18 @@ class PlacesRepository {
   /// Wraps PlacesService.textSearch to retrieve a List of [Place] objects via
   /// the Places API.
   Future<List<Place>> textSearchPlaces({
-    required String query,
-    required LatLng location,
-    double radius = 1500,
-    PlaceType? type,
-    bool openNow = false,
-    int pageSize = 10,
-    String? languageCode,
-    String? regionCode,
+    required TextSearchParams params,
   }) async {
     try {
       return await _service.textSearch(
-        textQuery: query,
-        location: location,
-        includedType: type,
-        radius: radius,
-        openNow: openNow,
-        pageSize: pageSize,
-        languageCode: languageCode,
-        regionCode: regionCode,
+        textQuery: params.query,
+        location: params.location,
+        includedType: params.type,
+        radius: params.radius,
+        openNow: params.openNow,
+        pageSize: params.pageSize,
+        languageCode: params.languageCode,
+        regionCode: params.regionCode,
       );
     } catch (e) {
       throw Exception('Failed to fetch text search places: $e');

@@ -276,14 +276,19 @@ void main() {
 
       // Act
       try {
-        await repo.textSearchPlaces(
+        // Create TextSearchParams object with the required parameters
+        final params = TextSearchParams(
           query: query,
           location: location,
           radius: radius,
           type: type,
           openNow: openNow,
         );
+
+        // Call textSearchPlaces using the params object
+        await repo.textSearchPlaces(params: params);
       } catch (e) {
+        // Expect the exception to be of type Exception
         expect(e, isA<Exception>());
       }
     });

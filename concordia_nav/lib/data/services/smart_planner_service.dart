@@ -118,11 +118,17 @@ class SmartPlannerService {
     }
 
     // If for some reason there was no match from nearbySearch, use textSearch
-    final textResults = await _placesRepository.textSearchPlaces(
+    // Create TextSearchParams object with the appropriate parameters
+    final params = TextSearchParams(
       query: name,
       location: midpointForCampuses,
       radius: 15000, // Larger radius or tune as needed
     );
+
+// Use the params object when calling textSearchPlaces
+    final textResults =
+        await _placesRepository.textSearchPlaces(params: params);
+
     if (textResults.isNotEmpty) {
       final first = textResults.first;
       dev.log(
