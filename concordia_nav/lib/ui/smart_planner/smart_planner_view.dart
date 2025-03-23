@@ -205,7 +205,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CommonAppBar(title: "Smart Planner"),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,6 +234,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                 controller: _planController,
                 textAlignVertical: TextAlignVertical.top,
                 keyboardType: TextInputType.multiline,
+                maxLines: null,
                 cursorColor: const Color(0xFF962e42),
                 decoration: InputDecoration(
                   hintText: "Create new plan...",
