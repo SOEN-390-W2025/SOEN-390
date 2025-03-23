@@ -42,10 +42,10 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
     super.initState();
     _viewModel = widget.poiViewModel;
     _mapViewModel = MapViewModel();
-    
+
     // Add listener to ViewModel to update UI when data changes
     _viewModel.addListener(_onViewModelChanged);
-    
+
     // Schedule the initialization for after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initialize();
@@ -67,7 +67,7 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
 
   Future<void> _initialize() async {
     if (_initialized) return;
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -93,8 +93,7 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
           _isDrawerVisible = true;
         });
       });
-    }
-    else {
+    } else {
       markers = widget.markers!;
     }
     // Only update state if the widget is still mounted
@@ -103,7 +102,6 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
         _markers = markers;
       });
     }
-    
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -115,7 +113,8 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
     if (_markers.isEmpty) return;
 
     // Include all markers and the user's location
-    final List<LatLng> points = _markers.map((marker) => marker.position).toList();
+    final List<LatLng> points =
+        _markers.map((marker) => marker.position).toList();
 
     // Add current location if available
     if (_viewModel.currentLocation != null) {
@@ -123,7 +122,7 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
     }
 
     // skip for tests
-    if (!Platform.environment.containsKey('FLUTTER_TEST')){
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
       _mapViewModel.adjustCamera(points);
     }
   }
@@ -136,7 +135,7 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
 
   void _navigateToDirections(Place place) {
     final MapViewModel mapViewModel = MapViewModel();
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -155,9 +154,9 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, _viewModel.getCategoryTitle(widget.category)),
-      body: Stack(
-        children: [ 
+        appBar:
+            customAppBar(context, _viewModel.getCategoryTitle(widget.category)),
+        body: Stack(children: [
           Column(
             children: [
               Expanded(
@@ -168,7 +167,9 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                         : GoogleMap(
                             onMapCreated: _onMapCreated,
                             initialCameraPosition: CameraPosition(
-                              target: _viewModel.currentLocation ?? const LatLng(45.495, -73.578), // Default to Montreal if no location
+                              target: _viewModel.currentLocation ??
+                                  const LatLng(45.495,
+                                      -73.578), // Default to Montreal if no location
                               zoom: 15.0,
                             ),
                             markers: _markers,
@@ -187,7 +188,8 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                             context: context,
                             isScrollControlled: true,
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16.0)),
                             ),
                             builder: (context) => DraggableScrollableSheet(
                               initialChildSize: 0.5,
@@ -204,7 +206,8 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,
-                            borderRadius: const BorderRadius.all(Radius.circular(100)),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(100)),
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black26,
@@ -231,7 +234,7 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
               _buildSearchControls(),
             ],
           ),
-          
+
           // POI Info Drawer
           if (_isDrawerVisible && _selectedPlace != null)
             Positioned(
@@ -244,277 +247,244 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
                 onDirections: () => _navigateToDirections(_selectedPlace!),
               ),
             ),
-        ]
-      ) 
-    );
+        ]));
   }
 
   Widget _buildPOIList(ScrollController scrollController) {
     final places = _viewModel.filteredOutdoorPOIs;
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
-      ),
+      decoration: _listContainerDecoration(),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 5,
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              decoration: const BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.all(Radius.circular(2.5)),
-              ),
-            ),
-          ),
-
-          // Header
-          Text(
-            'Nearby ${_viewModel.getCategoryTitle(widget.category)}',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Results count
-          Text(
-            '${places.length} results found',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // List of places
-          Expanded(
-            child: places.isEmpty
-                ? const Center(child: Text('No places found'))
-                : ListView.builder(
-                    controller: scrollController,
-                    itemCount: places.length,
-                    itemBuilder: (context, index) {
-                      final place = places[index];
-                      return Column(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              // Close the bottom sheet
-                              Navigator.pop(context);
-                              
-                              // Use MapViewModel to move to the location
-                              _mapViewModel.moveToLocation(place.location);
-                              
-                              setState(() {
-                                _selectedPlace = place;
-                                _isDrawerVisible = true;
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // POI Icon
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0, right: 16.0),
-                                    child: CircleAvatar(
-                                      radius: 24,
-                                      backgroundColor: Theme.of(context).primaryColor.withAlpha(26),
-                                      child: Icon(
-                                        _viewModel.getIconForPlaceType(widget.category),
-                                        color: Theme.of(context).primaryColor,
-                                        size: 28,
-                                      ),
-                                    ),
-                                  ),
-                                  // POI Information
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          place.name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          place.address ?? 'No address available',
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[700],
-                                          ),
-                                        ),
-                                        // Travel information
-                                        if (place.formattedDistance != null || place.formattedDuration != null)
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 4.0),
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  _viewModel.getIconForTravelMode(_viewModel.travelMode),
-                                                  size: 14,
-                                                  color: Theme.of(context).primaryColor,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                if (place.formattedDistance != null)
-                                                  Text(
-                                                    place.formattedDistance!,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[800],
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                if (place.formattedDistance != null && place.formattedDuration != null)
-                                                  Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                                    child: Text(
-                                                      '•',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey[700],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                if (place.formattedDuration != null)
-                                                  Text(
-                                                    place.formattedDuration!,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[800],
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            if (place.isOpen != null)
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 6,
-                                                  vertical: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: place.isOpen!
-                                                      ? Colors.green[50]
-                                                      : Colors.red[50],
-                                                  borderRadius: BorderRadius.circular(4),
-                                                  border: Border.all(
-                                                    color: place.isOpen!
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                    width: 0.5,
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  place.isOpen! ? 'Open' : 'Closed',
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    color: place.isOpen!
-                                                        ? Colors.green[800]
-                                                        : Colors.red[800],
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            if (place.isOpen != null)
-                                              const SizedBox(width: 8),
-                                            if (place.rating != null)
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.star,
-                                                    size: 14,
-                                                    color: Colors.amber,
-                                                  ),
-                                                  const SizedBox(width: 2),
-                                                  Text(
-                                                    place.rating!.toStringAsFixed(1),
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  if (place.userRatingCount != null)
-                                                    Text(
-                                                      ' (${place.userRatingCount})',
-                                                      style: TextStyle(
-                                                        fontSize: 11,
-                                                        color: Colors.grey[600],
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // Directions button
-                                  Center(
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        _navigateToDirections(place);
-                                      },
-                                      child: Container(
-                                        width: 38,
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).primaryColor.withAlpha(25),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.directions,
-                                            color: Theme.of(context).primaryColor,
-                                            size: 28,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (index < places.length - 1)
-                            Divider(
-                              color: Colors.grey[300],
-                              height: 1,
-                              thickness: 1,
-                              indent: 70,
-                              endIndent: 16,
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-          ),
+          _buildHandleBar(),
+          _buildHeader(),
+          _buildResultsCount(places.length),
+          _buildPlacesList(scrollController, places),
         ],
       ),
     );
   }
+
+  BoxDecoration _listContainerDecoration() {
+    return const BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+    );
+  }
+
+  Widget _buildHandleBar() {
+    return Center(
+      child: Container(
+        width: 40,
+        height: 5,
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[400],
+          borderRadius: BorderRadius.circular(2.5),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Nearby ${_viewModel.getCategoryTitle(widget.category)}',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildResultsCount(int count) {
+    return Column(
+      children: [
+        Text(
+          '$count results found',
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildPlacesList(
+      ScrollController scrollController, List<Place> places) {
+    return Expanded(
+      child: places.isEmpty
+          ? const Center(child: Text('No places found'))
+          : ListView.builder(
+              controller: scrollController,
+              itemCount: places.length,
+              itemBuilder: (context, index) {
+                final place = places[index];
+                return Column(
+                  children: [
+                    _buildPlaceItem(place, index, places.length),
+                    if (index < places.length - 1) _buildDivider(),
+                  ],
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildPlaceItem(Place place, int index, int totalPlaces) {
+    return InkWell(
+      onTap: () => _onPlaceTap(place),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildPOIIcon(),
+            _buildPOIInfo(place),
+            _buildDirectionsButton(place),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onPlaceTap(Place place) {
+    Navigator.pop(context);
+    _mapViewModel.moveToLocation(place.location);
+
+    setState(() {
+      _selectedPlace = place;
+      _isDrawerVisible = true;
+    });
+  }
+
+  Widget _buildPOIIcon() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 16.0),
+      child: CircleAvatar(
+        radius: 24,
+        backgroundColor: Theme.of(context).primaryColor.withAlpha(26),
+        child: Icon(
+          _viewModel.getIconForPlaceType(widget.category),
+          color: Theme.of(context).primaryColor,
+          size: 28,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPOIInfo(Place place) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(place.name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 4),
+          Text(place.address ?? 'No address available',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+          if (place.formattedDistance != null ||
+              place.formattedDuration != null)
+            _buildTravelInfo(place),
+          _buildStatusAndRating(place),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTravelInfo(Place place) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Row(
+        children: [
+          Icon(_viewModel.getIconForTravelMode(_viewModel.travelMode),
+              size: 14, color: Theme.of(context).primaryColor),
+          const SizedBox(width: 4),
+          if (place.formattedDistance != null)
+            Text(place.formattedDistance!,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.w500)),
+          if (place.formattedDistance != null &&
+              place.formattedDuration != null)
+            const SizedBox(width: 4),
+          if (place.formattedDuration != null)
+            Text(place.formattedDuration!,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusAndRating(Place place) {
+    return Row(
+      children: [
+        if (place.isOpen != null) _buildOpenStatus(place.isOpen!),
+        if (place.rating != null)
+          _buildRating(place.rating!, place.userRatingCount),
+      ],
+    );
+  }
+
+  Widget _buildOpenStatus(bool isOpen) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: isOpen ? Colors.green[50] : Colors.red[50],
+        borderRadius: BorderRadius.circular(4),
+        border:
+            Border.all(color: isOpen ? Colors.green : Colors.red, width: 0.5),
+      ),
+      child: Text(isOpen ? 'Open' : 'Closed',
+          style: TextStyle(
+              fontSize: 10,
+              color: isOpen ? Colors.green[800] : Colors.red[800],
+              fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildRating(double rating, int? userRatingCount) {
+    return Row(
+      children: [
+        const Icon(Icons.star, size: 14, color: Colors.amber),
+        const SizedBox(width: 2),
+        Text(rating.toStringAsFixed(1),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        if (userRatingCount != null)
+          Text(' ($userRatingCount)',
+              style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+      ],
+    );
+  }
+
+  Widget _buildDirectionsButton(Place place) {
+    return InkWell(
+      onTap: () => _navigateToDirections(place),
+      child: CircleAvatar(
+        backgroundColor: Theme.of(context).primaryColor.withAlpha(25),
+        radius: 19,
+        child: Icon(Icons.directions,
+            color: Theme.of(context).primaryColor, size: 28),
+      ),
+    );
+  }
+
+  Widget _buildDivider() => Divider(
+      color: Colors.grey[300],
+      height: 1,
+      thickness: 1,
+      indent: 70,
+      endIndent: 16);
 
   void _showTravelModeSelector(BuildContext context) {
     showModalBottomSheet(
