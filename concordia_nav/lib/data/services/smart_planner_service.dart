@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,10 +14,15 @@ import 'places_service.dart';
 
 class SmartPlannerService {
   final PlacesRepository _placesRepository;
+  OpenAIChatCompletionModel? _response;
 
-  SmartPlannerService()
-      : _placesRepository = PlacesRepository(PlacesService()) {
-    OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+  SmartPlannerService(
+      {OpenAIChatCompletionModel? response, PlacesService? placesService})
+      : _placesRepository = PlacesRepository(placesService ?? PlacesService()) {
+    OpenAI.apiKey = Platform.environment.containsKey('FLUTTER_TEST')
+        ? ""
+        : dotenv.env['OPENAI_API_KEY']!;
+    _response = response;
   }
 
   /// Attempts to interpret [name] as an indoor location reference, where [name]
@@ -215,18 +221,19 @@ class SmartPlannerService {
       content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt)],
     );
 
-    final chatResponse = await OpenAI.instance.chat.create(
-      // o1 could have been used here too, but 4o does the job. Based on newer
-      // models seeming to cost more credits, it's better to just use 4o.
-      model: "gpt-4o",
-      messages: [systemMessage, userMsg],
-      tools: [
-        addIndoorEvent,
-        addIndoorLocation,
-        addOutdoorEvent,
-        addOutdoorLocation
-      ],
-    );
+    final chatResponse = _response ??
+        await OpenAI.instance.chat.create(
+          // o1 could have been used here too, but 4o does the job. Based on newer
+          // models seeming to cost more credits, it's better to just use 4o.
+          model: "gpt-4o",
+          messages: [systemMessage, userMsg],
+          tools: [
+            addIndoorEvent,
+            addIndoorLocation,
+            addOutdoorEvent,
+            addOutdoorLocation
+          ],
+        );
 
     dev.log("Full Chat Response: ${chatResponse.toString()}");
     final message = chatResponse.choices.first.message;

@@ -12,8 +12,10 @@ import 'generated_plan_view.dart';
 
 class SmartPlannerView extends StatefulWidget {
   final MapViewModel? mapViewModel;
+  final SmartPlannerService? smartPlannerService;
 
-  const SmartPlannerView({super.key, this.mapViewModel});
+  const SmartPlannerView(
+      {super.key, this.mapViewModel, this.smartPlannerService});
 
   @override
   State<SmartPlannerView> createState() => _SmartPlannerViewState();
@@ -37,7 +39,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   void initState() {
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
-    _smartPlannerService = SmartPlannerService();
+    _smartPlannerService = widget.smartPlannerService ?? SmartPlannerService();
     buildings = BuildingRepository.buildingByAbbreviation.values
         .map((building) => building.name)
         .toList();
