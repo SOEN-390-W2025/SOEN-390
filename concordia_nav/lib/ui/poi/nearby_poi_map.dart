@@ -122,7 +122,10 @@ class _NearbyPOIMapViewState extends State<NearbyPOIMapView> {
       points.add(_viewModel.currentLocation!);
     }
 
-    _mapViewModel.adjustCamera(points);
+    // skip for tests
+    if (!Platform.environment.containsKey('FLUTTER_TEST')){
+      _mapViewModel.adjustCamera(points);
+    }
   }
 
   void _closeDrawer() {

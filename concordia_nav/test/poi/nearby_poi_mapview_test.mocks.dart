@@ -188,10 +188,13 @@ class MockPOIViewModel extends _i1.Mock implements _i3.POIViewModel {
           as _i8.Future<void>);
 
   @override
-  void setGlobalSearchQuery(String? query) => super.noSuchMethod(
-    Invocation.method(#setGlobalSearchQuery, [query]),
-    returnValueForMissingStub: null,
-  );
+  _i8.Future<void> setGlobalSearchQuery(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#setGlobalSearchQuery, [query]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   List<_i5.POI> filterPOIsWithGlobalSearch() =>
@@ -325,11 +328,16 @@ class MockPOIViewModel extends _i1.Mock implements _i3.POIViewModel {
           as _i8.Future<void>);
 
   @override
-  void setOutdoorCategory(_i7.PlaceType? category, bool? selected) =>
-      super.noSuchMethod(
-        Invocation.method(#setOutdoorCategory, [category, selected]),
-        returnValueForMissingStub: null,
-      );
+  _i8.Future<void> setOutdoorCategory(
+    _i7.PlaceType? category,
+    bool? selected,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setOutdoorCategory, [category, selected]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   bool hasMatchingCategories() =>

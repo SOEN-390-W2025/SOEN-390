@@ -6,9 +6,11 @@
 import 'dart:async' as _i6;
 
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart' as _i5;
+import 'package:concordia_nav/data/domain-model/place.dart' as _i8;
 import 'package:concordia_nav/data/services/map_service.dart' as _i3;
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart'
     as _i4;
+import 'package:concordia_nav/data/services/places_service.dart' as _i7;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -142,4 +144,76 @@ class MockMapService extends _i1.Mock implements _i3.MapService {
             returnValue: _i6.Future<List<_i2.LatLng>>.value(<_i2.LatLng>[]),
           )
           as _i6.Future<List<_i2.LatLng>>);
+}
+
+/// A class which mocks [PlacesService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPlacesService extends _i1.Mock implements _i7.PlacesService {
+  MockPlacesService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<List<_i8.Place>> nearbySearch({
+    required _i2.LatLng? location,
+    required _i8.PlaceType? includedType,
+    double? radius = 1500.0,
+    int? maxResultCount = 10,
+    _i7.RankPreferenceNearbySearch? rankBy =
+        _i7.RankPreferenceNearbySearch.POPULARITY,
+    _i7.PlacesRoutingOptions? routingOptions,
+    String? languageCode = 'en',
+    String? regionCode,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#nearbySearch, [], {
+              #location: location,
+              #includedType: includedType,
+              #radius: radius,
+              #maxResultCount: maxResultCount,
+              #rankBy: rankBy,
+              #routingOptions: routingOptions,
+              #languageCode: languageCode,
+              #regionCode: regionCode,
+            }),
+            returnValue: _i6.Future<List<_i8.Place>>.value(<_i8.Place>[]),
+          )
+          as _i6.Future<List<_i8.Place>>);
+
+  @override
+  _i6.Future<List<_i8.Place>> textSearch({
+    required String? textQuery,
+    required _i2.LatLng? location,
+    required _i8.PlaceType? includedType,
+    double? radius = 1500.0,
+    bool? openNow = true,
+    int? pageSize = 10,
+    _i7.RankPreferenceTextSearch? rankBy =
+        _i7.RankPreferenceTextSearch.RELEVANCE,
+    bool? includePureServiceAreaBusinesses = false,
+    double? minRating,
+    _i7.PlacesRoutingOptions? routingOptions,
+    String? languageCode = 'en',
+    String? regionCode,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#textSearch, [], {
+              #textQuery: textQuery,
+              #location: location,
+              #includedType: includedType,
+              #radius: radius,
+              #openNow: openNow,
+              #pageSize: pageSize,
+              #rankBy: rankBy,
+              #includePureServiceAreaBusinesses:
+                  includePureServiceAreaBusinesses,
+              #minRating: minRating,
+              #routingOptions: routingOptions,
+              #languageCode: languageCode,
+              #regionCode: regionCode,
+            }),
+            returnValue: _i6.Future<List<_i8.Place>>.value(<_i8.Place>[]),
+          )
+          as _i6.Future<List<_i8.Place>>);
 }

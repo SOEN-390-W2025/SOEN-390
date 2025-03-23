@@ -3,6 +3,7 @@ import 'package:concordia_nav/data/services/places_service.dart';
 import 'package:concordia_nav/ui/poi/nearby_poi_map.dart';
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart';
 import 'package:concordia_nav/widgets/poi_info_drawer.dart';
+import 'package:concordia_nav/widgets/radius_bar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,8 @@ void main() {
     mockPOIViewModel = MockPOIViewModel();
     when(mockPOIViewModel.currentLocation).thenReturn(const LatLng(45.4215, -75.6992));
     final outdoorPois = [
-      Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]),
+      Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), 
+      types: ["foodDrink"], distanceMeters: 500, durationSeconds: 60, isOpen: true, rating: 7.5, userRatingCount: 20),
       Place(id: "2", name: "Misoya", location: const LatLng(45.49776972691097, -73.57849236126107), types: ["foodDrink"])
     ];
     final marker1 = Marker(
@@ -93,6 +95,45 @@ void main() {
 
       expect(find.text("Nearby Restaurants"), findsOneWidget);
       expect(find.text("Allons Burger"), findsOneWidget);
+      expect(find.text("500 m"), findsOneWidget);
+      expect(find.text("1 min"), findsOneWidget);
+      expect(find.text("Open"), findsOneWidget);
+      expect(find.text("7.5"), findsOneWidget);
+      expect(find.text(" (20)"), findsOneWidget);
+    });
+
+    testWidgets('tap travel mode opens travel mode selection', (WidgetTester tester) async {
+      // Build the NearbyPOIMapView widget
+      await tester.pumpWidget(MaterialApp(home: NearbyPOIMapView(
+          poiViewModel: mockPOIViewModel, category: PlaceType.foodDrink, markers: markers,)));
+      await tester.pump();
+      
+      // find radius bar
+      final radiusBar = find.byType(RadiusBar).evaluate().single.widget as RadiusBar;
+
+      // tap TravelModeButton
+      await tester.tap(find.byWidget(radiusBar.travelModeSelector!));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Select Travel Mode"), findsOneWidget);
+    });
+
+    testWidgets('change travel mode', (WidgetTester tester) async {
+      // Build the NearbyPOIMapView widget
+      await tester.pumpWidget(MaterialApp(home: NearbyPOIMapView(
+          poiViewModel: mockPOIViewModel, category: PlaceType.foodDrink, markers: markers,)));
+      await tester.pump();
+      
+      // find radius bar
+      final radiusBar = find.byType(RadiusBar).evaluate().single.widget as RadiusBar;
+
+      // tap TravelModeButton
+      await tester.tap(find.byWidget(radiusBar.travelModeSelector!));
+      await tester.pumpAndSettle();
+
+      // tap Walking
+      await tester.tap(find.text("Walking"));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('POI list returns message when no places found', (WidgetTester tester) async {

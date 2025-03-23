@@ -1,9 +1,11 @@
 import 'package:concordia_nav/data/domain-model/place.dart';
 import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:concordia_nav/ui/indoor_location/floor_plan_widget.dart';
 import 'package:concordia_nav/ui/indoor_map/floor_selection.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/poi/poi_map_view.dart';
+import 'package:concordia_nav/utils/poi/poi_map_viewmodel.dart';
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart';
 import 'package:concordia_nav/widgets/floor_button.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,15 +16,17 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'poipage_test.mocks.dart';
 
-@GenerateMocks([POIViewModel])
+@GenerateMocks([POIViewModel, POIMapViewModel])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
 
   late MockPOIViewModel mockPOIViewModel;
+  late MockPOIMapViewModel mockPOIMapViewModel;
 
   setUp(() {
     mockPOIViewModel = MockPOIViewModel();
+    mockPOIMapViewModel = MockPOIMapViewModel();
     when(mockPOIViewModel.init()).thenAnswer((_) async => {});
     when(mockPOIViewModel.currentLocation).thenReturn(const LatLng(45.4215, -75.6992));
     final allPois = [
@@ -37,6 +41,19 @@ void main() {
       Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]),
       Place(id: "2", name: "Misoya", location: const LatLng(45.49776972691097, -73.57849236126107), types: ["foodDrink"])
     ];
+    when(mockPOIMapViewModel.loadPOIData()).thenAnswer((_) async => {});
+    when(mockPOIMapViewModel.nearestBuilding).thenReturn(BuildingRepository.h);
+    when(mockPOIMapViewModel.isLoading).thenReturn(false);
+    when(mockPOIMapViewModel.errorMessage).thenReturn('');
+    when(mockPOIMapViewModel.floorPlanExists).thenReturn(true);
+    when(mockPOIMapViewModel.poisOnCurrentFloor).thenReturn([allPois[0]]);
+    when(mockPOIMapViewModel.floorPlanPath).thenReturn("assets/maps/indoor/floorplans/H1.svg");
+    when(mockPOIMapViewModel.selectedFloor).thenReturn("1");
+    when(mockPOIMapViewModel.width).thenReturn(1024);
+    when(mockPOIMapViewModel.height).thenReturn(1024);
+    when(mockPOIMapViewModel.userPosition).thenReturn(const Offset(45.4215, -75.6992));
+    when(mockPOIMapViewModel.noPoisOnCurrentFloor).thenReturn(false);
+    when(mockPOIMapViewModel.searchRadius).thenReturn(50);
     when(mockPOIViewModel.outdoorPOIs).thenReturn(outdoorPois);
     when(mockPOIViewModel.isLoadingLocation).thenReturn(false);
     when(mockPOIViewModel.hasLocationPermission).thenReturn(true);
@@ -179,6 +196,30 @@ void main() {
         expect(find.text('Water Fountain'), findsOneWidget);
         expect(find.byIcon(Icons.water_drop), findsOneWidget);
       });
+    });
+
+    testWidgets('POIMapView renders', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: POIMapView(
+            poiChoiceViewModel: mockPOIViewModel,
+            poiMapViewModel: mockPOIMapViewModel,
+            poiName: "Washroom",
+          )));
+      await tester.pump();
+
+      expect(find.byType(FloorPlanWidget), findsOneWidget);
+      expect(find.byType(FloorButton), findsOneWidget);
+    });
+
+    testWidgets('POIMapView shows message when no pois', (WidgetTester tester) async {
+      when(mockPOIMapViewModel.noPoisOnCurrentFloor).thenReturn(true);
+      await tester.pumpWidget(MaterialApp(home: POIMapView(
+            poiChoiceViewModel: mockPOIViewModel,
+            poiMapViewModel: mockPOIMapViewModel,
+            poiName: "Washroom",
+          )));
+      await tester.pump();
+
+      expect(find.text('No Washroom within 50.0 meters on floor 1'), findsOneWidget);
     });
 
     testWidgets('poi box onPress works', (WidgetTester tester) async {

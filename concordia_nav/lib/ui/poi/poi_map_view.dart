@@ -18,13 +18,15 @@ class POIMapView extends StatefulWidget {
   final String? initialFloor;
   final String poiName;
   final POIViewModel poiChoiceViewModel;
+  final POIMapViewModel? poiMapViewModel;
   
   const POIMapView({
     super.key,
     required this.poiName,
     required this.poiChoiceViewModel,
     this.initialBuilding,
-    this.initialFloor
+    this.initialFloor, 
+    this.poiMapViewModel
   });
 
   @override
@@ -47,7 +49,8 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
     );
     
     // Create the POIMapViewModel with its dependencies including IndoorMapViewModel
-    _poiMapViewModel = POIMapViewModel(
+    // unless provided with one
+    _poiMapViewModel = widget.poiMapViewModel ?? POIMapViewModel(
       poiName: widget.poiName,
       buildingViewModel: BuildingViewModel(),
       indoorDirectionsViewModel: IndoorDirectionsViewModel(),
@@ -109,7 +112,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
           viewModel.panToFirstPOI(MediaQuery.of(context).size);
         }
       });
-      
+
       return _buildFloorPlanView(viewModel);
     }
   }

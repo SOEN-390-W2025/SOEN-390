@@ -9,6 +9,7 @@ import 'dart:ui' as _i10;
 import 'package:concordia_nav/data/domain-model/place.dart' as _i7;
 import 'package:concordia_nav/data/domain-model/poi.dart' as _i5;
 import 'package:concordia_nav/data/services/places_service.dart' as _i6;
+import 'package:concordia_nav/utils/poi/poi_map_viewmodel.dart' as _i11;
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart' as _i3;
 import 'package:flutter/material.dart' as _i2;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as _i9;
@@ -188,10 +189,13 @@ class MockPOIViewModel extends _i1.Mock implements _i3.POIViewModel {
           as _i8.Future<void>);
 
   @override
-  void setGlobalSearchQuery(String? query) => super.noSuchMethod(
-    Invocation.method(#setGlobalSearchQuery, [query]),
-    returnValueForMissingStub: null,
-  );
+  _i8.Future<void> setGlobalSearchQuery(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#setGlobalSearchQuery, [query]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   List<_i5.POI> filterPOIsWithGlobalSearch() =>
@@ -325,11 +329,16 @@ class MockPOIViewModel extends _i1.Mock implements _i3.POIViewModel {
           as _i8.Future<void>);
 
   @override
-  void setOutdoorCategory(_i7.PlaceType? category, bool? selected) =>
-      super.noSuchMethod(
-        Invocation.method(#setOutdoorCategory, [category, selected]),
-        returnValueForMissingStub: null,
-      );
+  _i8.Future<void> setOutdoorCategory(
+    _i7.PlaceType? category,
+    bool? selected,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setOutdoorCategory, [category, selected]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   bool hasMatchingCategories() =>
@@ -371,6 +380,186 @@ class MockPOIViewModel extends _i1.Mock implements _i3.POIViewModel {
             ),
           )
           as String);
+
+  @override
+  void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#addListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeListener(_i10.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#removeListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+}
+
+/// A class which mocks [POIMapViewModel].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPOIMapViewModel extends _i1.Mock implements _i11.POIMapViewModel {
+  MockPOIMapViewModel() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  List<_i5.POI> get matchingPOIs =>
+      (super.noSuchMethod(
+            Invocation.getter(#matchingPOIs),
+            returnValue: <_i5.POI>[],
+          )
+          as List<_i5.POI>);
+
+  @override
+  List<_i5.POI> get poisOnCurrentFloor =>
+      (super.noSuchMethod(
+            Invocation.getter(#poisOnCurrentFloor),
+            returnValue: <_i5.POI>[],
+          )
+          as List<_i5.POI>);
+
+  @override
+  String get selectedFloor =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedFloor),
+            returnValue: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#selectedFloor),
+            ),
+          )
+          as String);
+
+  @override
+  bool get isLoading =>
+      (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
+  String get errorMessage =>
+      (super.noSuchMethod(
+            Invocation.getter(#errorMessage),
+            returnValue: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#errorMessage),
+            ),
+          )
+          as String);
+
+  @override
+  bool get floorPlanExists =>
+      (super.noSuchMethod(
+            Invocation.getter(#floorPlanExists),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  String get floorPlanPath =>
+      (super.noSuchMethod(
+            Invocation.getter(#floorPlanPath),
+            returnValue: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#floorPlanPath),
+            ),
+          )
+          as String);
+
+  @override
+  double get width =>
+      (super.noSuchMethod(Invocation.getter(#width), returnValue: 0.0)
+          as double);
+
+  @override
+  double get height =>
+      (super.noSuchMethod(Invocation.getter(#height), returnValue: 0.0)
+          as double);
+
+  @override
+  bool get noPoisOnCurrentFloor =>
+      (super.noSuchMethod(
+            Invocation.getter(#noPoisOnCurrentFloor),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  double get searchRadius =>
+      (super.noSuchMethod(Invocation.getter(#searchRadius), returnValue: 0.0)
+          as double);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
+          as bool);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i8.Future<void> loadPOIData({
+    String? initialBuilding,
+    String? initialFloor,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadPOIData, [], {
+              #initialBuilding: initialBuilding,
+              #initialFloor: initialFloor,
+            }),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> changeFloor(String? floor) =>
+      (super.noSuchMethod(
+            Invocation.method(#changeFloor, [floor]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setSearchRadius(double? radius) =>
+      (super.noSuchMethod(
+            Invocation.method(#setSearchRadius, [radius]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> retry({String? initialBuilding, String? initialFloor}) =>
+      (super.noSuchMethod(
+            Invocation.method(#retry, [], {
+              #initialBuilding: initialBuilding,
+              #initialFloor: initialFloor,
+            }),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  void panToPOI(_i5.POI? poi, _i10.Size? viewportSize) => super.noSuchMethod(
+    Invocation.method(#panToPOI, [poi, viewportSize]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void panToFirstPOI(_i10.Size? viewportSize) => super.noSuchMethod(
+    Invocation.method(#panToFirstPOI, [viewportSize]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(

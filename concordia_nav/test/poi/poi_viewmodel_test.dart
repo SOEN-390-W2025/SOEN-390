@@ -11,20 +11,34 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'poi_viewmodel_test.mocks.dart';
 
-@GenerateMocks([MapService])
+@GenerateMocks([MapService, PlacesService])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
   late POIViewModel poiViewModel;
   late MockMapService mockMapService;
+  late MockPlacesService mockPlacesService;
 
   setUp(() {
     mockMapService = MockMapService();
+    mockPlacesService = MockPlacesService();
+    final outdoorPois = [
+      Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]),
+      Place(id: "2", name: "Misoya", location: const LatLng(45.49776972691097, -73.57849236126107), types: ["foodDrink"])
+    ];
+    when(mockPlacesService.nearbySearch(
+      location: const LatLng(45.4215, -75.6992), includedType: PlaceType.foodDrink,
+      radius: 1000, maxResultCount: 20))
+        .thenAnswer((_) async => outdoorPois);
+    when(mockPlacesService.textSearch(
+      textQuery: "Allons", location: const LatLng(45.4215, -75.6992), includedType: PlaceType.foodDrink,
+      radius: 1000, pageSize: 20, openNow: false))
+        .thenAnswer((_) async => [outdoorPois[0]]);
     when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
     when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
     when(mockMapService.getCurrentLocation()).thenAnswer((_) async => const LatLng(45.4215, -75.6992));
 
-    poiViewModel = POIViewModel(mapService: mockMapService);
+    poiViewModel = POIViewModel(mapService: mockMapService, placesService: mockPlacesService);
   });
   test('can get globalSearchQuery value', () {
     final globalSearchQuery = poiViewModel.globalSearchQuery;
@@ -98,11 +112,21 @@ void main() {
     await poiViewModel.loadIndoorPOIs();
     final allPois = poiViewModel.allPOIs;
 
-    poiViewModel.setGlobalSearchQuery("Wash");
+    await poiViewModel.setGlobalSearchQuery("Wash");
     final pois = poiViewModel.filterPOIsWithGlobalSearch();
 
     expect(pois, isNot(allPois));
     expect(pois.first.name, "Washroom");
+  });
+
+  test('setGlobalSearchQuery filters outdoor POI', () async {
+    await poiViewModel.init();
+    final outdoorPois = poiViewModel.outdoorPOIs;
+
+    await poiViewModel.setGlobalSearchQuery("Allons");
+
+    expect(poiViewModel.outdoorPOIs, isNot(outdoorPois));
+    expect(poiViewModel.outdoorPOIs.first.name, "Allons Burger");
   });
 
   test('getUniqueFilteredPOINames returns list of POI names', () async {
@@ -153,7 +177,7 @@ void main() {
   test('getOutdoorCategories returns filtered list if query', () async {
     when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
     await poiViewModel.init();
-    poiViewModel.setGlobalSearchQuery("Coffee");
+    await poiViewModel.setGlobalSearchQuery("Coffee");
     
     final categories = poiViewModel.getOutdoorCategories();
 
@@ -175,7 +199,7 @@ void main() {
     when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
     await poiViewModel.init();
 
-    poiViewModel.setOutdoorCategory(PlaceType.foodDrink, true);
+    await poiViewModel.setOutdoorCategory(PlaceType.foodDrink, true);
     expect(poiViewModel.selectedOutdoorCategory, PlaceType.foodDrink);
   });
 
@@ -183,7 +207,7 @@ void main() {
     when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
     await poiViewModel.init();
 
-    poiViewModel.setOutdoorCategory(PlaceType.foodDrink, false);
+    await poiViewModel.setOutdoorCategory(PlaceType.foodDrink, false);
     expect(poiViewModel.selectedOutdoorCategory, isNull);
   });
 
@@ -258,6 +282,46 @@ void main() {
     expect(poiViewModel.locationErrorMessage, "Unable to get current location");
     expect(poiViewModel.currentLocation, isNull);
     expect(poiViewModel.allPOIs, isEmpty);
+  });
+
+  test('init creates outdoor and indoor pois', () async {
+    await poiViewModel.init();
+
+    expect(poiViewModel.allPOIs, isNotEmpty);
+    expect(poiViewModel.outdoorPOIs, isNotEmpty);
+    expect(poiViewModel.outdoorPOIs.length, 2);
+  });
+
+  test('setTravelMode updates travel mode', () async {
+    await poiViewModel.setTravelMode(TravelMode.WALK);
+
+    expect(poiViewModel.travelMode, TravelMode.WALK);
+    expect(poiViewModel.outdoorPOIs, isNotNull);
+  });
+
+  test('setOutdoorCategory updates category', () async {
+    await poiViewModel.init();
+    await poiViewModel.setOutdoorCategory(PlaceType.foodDrink, true);
+
+    expect(poiViewModel.outdoorPOIs, isNotEmpty);
+    expect(poiViewModel.selectedOutdoorCategory, PlaceType.foodDrink);
+  });
+
+  test('applyRadiusChange loads outdoorPOIs', () async {
+    await poiViewModel.init();
+    await poiViewModel.applyRadiusChange();
+
+    expect(poiViewModel.outdoorPOIs, isNotEmpty);
+  });
+
+  test('updatePlaceWithDistance update place', () async {
+    await poiViewModel.init();
+    final place = Place(id: "3", name: "PFK", 
+        location: const LatLng(45.496331463078164, -73.5786988913346), types: ["foodDrink"]);
+
+    poiViewModel.updatePlaceWithDistance(0, place);
+
+    expect(poiViewModel.outdoorPOIs[0], place);
   });
 
   group('POI Tests', () {
