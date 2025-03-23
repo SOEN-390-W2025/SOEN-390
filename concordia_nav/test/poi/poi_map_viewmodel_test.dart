@@ -87,6 +87,19 @@ void main() {
       expect(poiMapViewModel.nearestBuilding, null);
     });
 
+    test('loadPOIData without initial building without location permissions', () async{
+      await poiMapViewModel.loadPOIData();
+
+      expect(poiMapViewModel.errorMessage, "Could not determine your location. Please check location permissions.");
+    });
+
+    test('findNearestBuildingWithPOI', () async {
+      await poiMapViewModel.loadPOIData(initialBuilding: "Hall Building", initialFloor: "1");
+      await poiMapViewModel.findNearestBuildingWithPOI(45.49648751167641, -73.57862647170876, "");
+
+      expect(poiMapViewModel.nearestBuilding, BuildingRepository.h);
+    });
+
     test('changeFloor changes the selected floor', () async {
       await poiMapViewModel.changeFloor("9");
 

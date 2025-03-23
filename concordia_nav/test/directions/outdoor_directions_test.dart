@@ -91,7 +91,7 @@ void main() async {
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
-
+    when(mockMapViewModel.fetchCurrentLocation()).thenAnswer((_) async => const LatLng(45.4215, -75.6992));
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
 
@@ -103,6 +103,8 @@ void main() async {
         .thenReturn(ValueNotifier<Set<Marker>>({}));
     when(mockMapViewModel.staticBusStopMarkers).thenReturn({});
     when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    when(mockMapViewModel.multiModeRoutes).thenReturn(<CustomTravelMode, Polyline>{});
+    when(mockMapViewModel.activePolylines).thenReturn(<Polyline>{});
 
     mockDirectionsService = MockDirectionsService();
     directionsService = ODSDirectionsService();
@@ -398,6 +400,33 @@ void main() async {
     final destination = find.byType(CompactSearchCardWidget).evaluate().single.widget as CompactSearchCardWidget;
     expect(destination.destinationController.text, place.name);
     expect(find.text("Directions to Allons Burger"), findsOneWidget);
+  });
+
+  testWidgets('outdoorLocationMapView with destination marker', (WidgetTester tester) async {
+    // Arrange
+    final place = Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]);
+
+    when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
+    when(mockMapViewModel.destinationMarker).thenReturn(null);
+
+    // Build the widget tree
+    await tester.pumpWidget(MaterialApp(
+      home: OutdoorLocationMapView(
+          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel, 
+          additionalData: {"place": place, "destinationLatLng": const LatLng(45.4215, -75.6992)}),
+    ));
+    await tester.pump();
+
+    expect(find.byType(GoogleMap), findsOneWidget);
   });
 
   test('fetchWalkingPolyline returns a polyline', () async {

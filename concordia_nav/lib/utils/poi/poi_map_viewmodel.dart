@@ -114,7 +114,7 @@ class POIMapViewModel extends ChangeNotifier {
       }
       
       // Otherwise find the nearest building that contains the POI
-      await _findNearestBuildingWithPOI(location.lat, location.lng, initialFloor);
+      await findNearestBuildingWithPOI(location.lat, location.lng, initialFloor);
     } catch (e, stackTrace) {
       dev.log('Error loading POI data', error: e, stackTrace: stackTrace);
       _setError('Failed to load POI data: ${e.toString()}');
@@ -151,7 +151,7 @@ class POIMapViewModel extends ChangeNotifier {
     await _checkIfFloorPlanExists();
   }
   
-  Future<void> _findNearestBuildingWithPOI(double userLat, double userLng, String? initialFloor) async {
+  Future<void> findNearestBuildingWithPOI(double userLat, double userLng, String? initialFloor) async {
     // Group POIs by building
     final Map<String, List<POI>> poisByBuilding = {};
     for (final poi in _matchingPOIs) {
@@ -177,7 +177,7 @@ class POIMapViewModel extends ChangeNotifier {
         }
       }
     }
-    
+
     if (nearestBuildingId != null) {
       _nearestBuilding = _buildingViewModel.getBuildingByAbbreviation(nearestBuildingId);
       await _processNearestBuilding(initialFloor);

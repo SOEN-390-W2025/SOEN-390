@@ -106,6 +106,30 @@ void main() {
       expect(viewModel.navigationSteps[0].icon, Icons.elevator);
     });
 
+    test('addConnectionStep with stairs', () {
+      final firstPortion = ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 10, 20);
+      final firstConnection = Connection([
+        ConcordiaFloor("1", BuildingRepository.h),
+        ConcordiaFloor("1", BuildingRepository.h),
+      ], {}, false, 'Stairs', 5.0, 3.0);
+      final route = IndoorRoute(BuildingRepository.h, [firstPortion], firstConnection, null, null, null, null, null);
+      viewModel.addConnectionStep(route);
+
+      expect(viewModel.navigationSteps[0].description, "Use the stairs to continue your route");
+    }); 
+
+    test('addConnectionStep with escalator', () {
+      final firstPortion = ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 10, 20);
+      final firstConnection = Connection([
+        ConcordiaFloor("1", BuildingRepository.h),
+        ConcordiaFloor("1", BuildingRepository.h),
+      ], {}, false, 'Escalator', 5.0, 3.0);
+      final route = IndoorRoute(BuildingRepository.h, [firstPortion], firstConnection, null, null, null, null, null);
+      viewModel.addConnectionStep(route);
+
+      expect(viewModel.navigationSteps[0].description, "Take the escalator to continue your route");
+    }); 
+
     test('initializeRoute with selectedPOI', () async {
       final poi = POI(id: "1", name: "washroom", buildingId:"H", floor: "1", 
           category: POICategory.washroom, x: 492, y: 678);

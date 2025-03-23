@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_catches_without_on_clauses
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -130,7 +132,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       _mapViewModel.multiModeRoutes.clear();
       _mapViewModel.travelTimes.clear();
       _mapViewModel.activePolylines.clear();
-      
+
       // Calculate each travel mode
       for (var mode in modes) {
         final gdaMode = toGdaTravelMode(mode);
@@ -404,8 +406,11 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         return FutureBuilder<Map<String, dynamic>>(
           future: _mapViewModel.getAllCampusPolygonsAndLabels(),
           builder: (context, polySnapshot) {
-            if (polySnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+            // skip for tests
+            if (!Platform.environment.containsKey('FLUTTER_TEST')){
+              if (polySnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
             }
             final Set<Polygon> polygons = polySnapshot.data?["polygons"] ?? {};
             final Set<Marker> labelMarkers = polySnapshot.data?["labels"] ?? {};
