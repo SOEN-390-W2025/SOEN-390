@@ -20,7 +20,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../map/map_viewmodel_test.mocks.dart';
@@ -114,7 +113,6 @@ OpenAIChatCompletionModel mockChatResponse = OpenAIChatCompletionModel(
   ),
 );
 
-@GenerateMocks([OpenAI])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
