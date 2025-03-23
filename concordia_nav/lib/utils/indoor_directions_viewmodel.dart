@@ -187,6 +187,19 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
+  Future<ConcordiaFloorPoint?> _getStartPoint(String sourceRoomClean, String building, 
+        String floor, bool disability) async {
+    ConcordiaFloorPoint? startPositionPoint;
+    if (sourceRoomClean == 'Your Location') {
+      startPositionPoint = await getStartPoint(building, floor, disability, '');
+    } else if (sourceRoomClean == 'connection') {
+      startPositionPoint = await getStartPoint(building, floor, disability, 'connection');
+    } else {
+      startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
+    }
+    return startPositionPoint;
+  }
+
   Future<void> calculateRoute(
     String building,
     String floor,
@@ -220,13 +233,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       }
 
       // Get start location
-      if (sourceRoomClean == 'Your Location') {
-        startPositionPoint = await getStartPoint(building, floor, disability, '');
-      } else if (sourceRoomClean == 'connection') {
-        startPositionPoint = await getStartPoint(building, floor, disability, 'connection');
-      } else {
-        startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
-      }
+      startPositionPoint = await _getStartPoint(sourceRoomClean, building, floor, disability);
 
       // Get end location
       if (destinationPOI != null) {

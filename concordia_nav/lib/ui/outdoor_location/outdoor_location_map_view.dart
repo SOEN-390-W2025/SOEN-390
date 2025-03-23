@@ -376,6 +376,14 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     );
   }
 
+  String _getAppBarTitle() {
+    if (_isFromPoi && _selectedPlace != null) {
+      return 'Directions to ${_selectedPlace!.name}';
+    } else {
+      return widget.campus.name;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -383,9 +391,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           ? null
           : customAppBar(
               context,
-              _isFromPoi && _selectedPlace != null 
-                  ? 'Directions to ${_selectedPlace!.name}'
-                  : widget.campus.name,
+              _getAppBarTitle(),
             ),
       body: Stack(
         children: [
@@ -396,6 +402,23 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         ],
       ),
     );
+  }
+
+  Set<Marker> _addPOIMarker(Set<Marker> markers) {
+    final allMarkers = markers;
+    if (_isFromPoi && _poiDestinationLatLng != null && _mapViewModel.destinationMarker == null) {
+      allMarkers.add(
+        Marker(
+          markerId: const MarkerId('poi_destination'),
+          position: _poiDestinationLatLng!,
+          infoWindow: InfoWindow(
+            title: _selectedPlace?.name ?? 'Destination',
+            snippet: _selectedPlace?.address ?? '',
+          ),
+        ),
+      );
+    }
+    return allMarkers;
   }
 
   Widget _buildMap() {
@@ -418,20 +441,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             return ValueListenableBuilder<Set<Marker>>(
               valueListenable: _mapViewModel.shuttleMarkersNotifier,
               builder: (context, shuttleMarkers, _) {
-                final Set<Marker> allMarkers = _buildAllMarkers(labelMarkers, shuttleMarkers);
+                Set<Marker> allMarkers = _buildAllMarkers(labelMarkers, shuttleMarkers);
                 // Add POI marker if coming from POI view and no route is calculated yet
-                if (_isFromPoi && _poiDestinationLatLng != null && _mapViewModel.destinationMarker == null) {
-                  allMarkers.add(
-                    Marker(
-                      markerId: const MarkerId('poi_destination'),
-                      position: _poiDestinationLatLng!,
-                      infoWindow: InfoWindow(
-                        title: _selectedPlace?.name ?? 'Destination',
-                        snippet: _selectedPlace?.address ?? '',
-                      ),
-                    ),
-                  );
-                }
+                allMarkers = _addPOIMarker(allMarkers);
 
                 if (!_locationPermissionGranted) {
                   return const Center(

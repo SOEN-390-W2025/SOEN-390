@@ -27,6 +27,38 @@ class POIInfoDrawer extends StatelessWidget {
     }
   }
 
+  Widget _buildTravelInfo(BuildContext context) {
+    return _buildInfoRow(
+      context: context,
+      icon: _getTravelModeIcon(place.travelMode),
+      text: [
+        if (place.formattedDistance != null) place.formattedDistance!,
+        if (place.formattedDistance != null && place.formattedDuration != null) '•',
+        if (place.formattedDuration != null) place.formattedDuration!,
+      ].join(' '),
+    );
+  }
+
+  Widget _buildOpenStatusWidget() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: place.isOpen! ? Colors.green[100] : Colors.red[100],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        place.isOpen! ? 'Open now' : 'Closed',
+        style: TextStyle(
+          color: place.isOpen! ? Colors.green[800] : Colors.red[800],
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -97,15 +129,7 @@ class POIInfoDrawer extends StatelessWidget {
 
                 // Travel information
                 if (place.distanceMeters != null || place.durationSeconds != null) ...[
-                  _buildInfoRow(
-                    context: context,
-                    icon: _getTravelModeIcon(place.travelMode),
-                    text: [
-                      if (place.formattedDistance != null) place.formattedDistance!,
-                      if (place.formattedDistance != null && place.formattedDuration != null) '•',
-                      if (place.formattedDuration != null) place.formattedDuration!,
-                    ].join(' '),
-                  ),
+                  _buildTravelInfo(context),
                   const SizedBox(height: 12),
                 ],
 
@@ -130,23 +154,7 @@ class POIInfoDrawer extends StatelessWidget {
 
                 // Open status
                 if (place.isOpen != null) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: place.isOpen! ? Colors.green[100] : Colors.red[100],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      place.isOpen! ? 'Open now' : 'Closed',
-                      style: TextStyle(
-                        color: place.isOpen! ? Colors.green[800] : Colors.red[800],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  _buildOpenStatusWidget(),
                   const SizedBox(height: 16),
                 ],
 

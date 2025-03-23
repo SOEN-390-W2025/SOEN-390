@@ -5,6 +5,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../domain-model/concordia_floor_point.dart';
+import '../domain-model/concordia_room.dart';
+import '../domain-model/connection.dart';
 import '../domain-model/room_category.dart';
 import 'building_data.dart';
 import '../domain-model/poi.dart';
@@ -315,6 +318,109 @@ class BuildingDataManager {
     return allPOIs;
   }
 
+  static POI? _extractPOIsFromRoom(ConcordiaRoom room, String buildingId) {
+    // Skip rooms with categories we want to exclude or without entrance points
+    if (room.entrancePoint == null ||
+        room.category == RoomCategory.unknown ||
+        room.category == RoomCategory.auditorium ||
+        room.category == RoomCategory.classroom ||
+        room.category == RoomCategory.lab ||
+        room.category == RoomCategory.office ||
+        room.category == RoomCategory.maintenance) {
+      return null;
+    }
+
+    // Get POI category
+    POICategory poiCategory;
+    switch (room.category) {
+      case RoomCategory.washroom:
+        poiCategory = POICategory.washroom;
+        break;
+      case RoomCategory.waterFountain:
+        poiCategory = POICategory.waterFountain;
+        break;
+      case RoomCategory.restaurant:
+        poiCategory = POICategory.restaurant;
+        break;
+      case RoomCategory.police:
+        poiCategory = POICategory.police;
+        break;
+      default:
+        poiCategory = POICategory.other;
+        break;
+    }
+
+    // Add the POI with its category as the name
+    if (room.category != RoomCategory.unknown) {
+      final String name = _formatCategoryName(room.category.toString().split('.').last);
+      return POI(
+        id: '$buildingId-${room.entrancePoint!.floor.floorNumber}-${room.roomNumber}',
+        name: name,
+        buildingId: buildingId,
+        floor: room.entrancePoint!.floor.floorNumber.toString(),
+        category: poiCategory,
+        x: room.entrancePoint!.positionX,
+        y: room.entrancePoint!.positionY,
+      );
+    }
+    return null;
+  }
+
+  static List<POI> _addMultiplePoints(
+      List<POI> pois, List<ConcordiaFloorPoint> points, String buildingId, 
+      Connection connection, POICategory poiCategory) {
+    List<POI> poisPerFloor = pois;
+    for (int i = 0; i < points.length; i++) {
+      final point = points[i];
+      poisPerFloor.add(POI(
+        id: '$buildingId-${point.floor.floorNumber}-${connection.name.replaceAll(" ", "-")}-$i',
+        name: connection.name,
+        buildingId: buildingId,
+        floor: point.floor.floorNumber.toString(),
+        category: poiCategory,
+        x: point.positionX,
+        y: point.positionY,
+      ));
+    }
+    return poisPerFloor;
+  }
+
+  static List<POI> _pointsPerFloor(List<POI> pois, List<ConcordiaFloorPoint> points, String buildingId, 
+      Connection connection, POICategory poiCategory) {
+    List<POI> poisPerFloor = pois;
+    if (points.isNotEmpty) {
+      if (points.length == 1) {
+        // Single point
+        final point = points.first;
+        poisPerFloor.add(POI(
+          id: '$buildingId-${point.floor.floorNumber}-${connection.name.replaceAll(" ", "-")}',
+          name: connection.name,
+          buildingId: buildingId,
+          floor: point.floor.floorNumber.toString(),
+          category: poiCategory,
+          x: point.positionX,
+          y: point.positionY,
+        ));
+      } else {
+        // Multiple points - add with index suffix
+        poisPerFloor = _addMultiplePoints(poisPerFloor, points, buildingId, connection, poiCategory);
+      }
+    }
+    return poisPerFloor;
+  }
+
+  static POICategory _getPOICategory(Connection connection){
+    if (connection.name.toLowerCase().contains('elevator')) {
+      return POICategory.elevator;
+    } else if (connection.name.toLowerCase().contains('escalator')) {
+      return POICategory.escalator;
+    } else if (connection.name.toLowerCase().contains('stair')) {
+      return POICategory.stairs;
+    } else {
+      return POICategory.other;
+    }
+  }
+
   // Method to extract POIs from a specific building
   static Future<List<POI>> extractPOIsFromBuilding(String buildingId) async {
     List<POI> pois = [];
@@ -327,98 +433,21 @@ class BuildingDataManager {
       // Extract POIs from rooms
       buildingData.roomsByFloor.forEach((floor, rooms) {
         for (final room in rooms) {
-          // Skip rooms with categories we want to exclude or without entrance points
-          if (room.entrancePoint == null ||
-              room.category == RoomCategory.unknown ||
-              room.category == RoomCategory.auditorium ||
-              room.category == RoomCategory.classroom ||
-              room.category == RoomCategory.lab ||
-              room.category == RoomCategory.office ||
-              room.category == RoomCategory.maintenance) {
-            continue;
-          }
-
-          // Get POI category
-          POICategory poiCategory;
-          switch (room.category) {
-            case RoomCategory.washroom:
-              poiCategory = POICategory.washroom;
-              break;
-            case RoomCategory.waterFountain:
-              poiCategory = POICategory.waterFountain;
-              break;
-            case RoomCategory.restaurant:
-              poiCategory = POICategory.restaurant;
-              break;
-            case RoomCategory.police:
-              poiCategory = POICategory.police;
-              break;
-            default:
-              poiCategory = POICategory.other;
-              break;
-          }
-
-          // Add the POI with its category as the name
-          if (room.category != RoomCategory.unknown) {
-            final String name = _formatCategoryName(room.category.toString().split('.').last);
-            pois.add(POI(
-              id: '$buildingId-${room.entrancePoint!.floor.floorNumber}-${room.roomNumber}',
-              name: name,
-              buildingId: buildingId,
-              floor: room.entrancePoint!.floor.floorNumber.toString(),
-              category: poiCategory,
-              x: room.entrancePoint!.positionX,
-              y: room.entrancePoint!.positionY,
-            ));
+          final poi = _extractPOIsFromRoom(room, buildingId);
+          if (poi != null) {
+            pois.add(poi);
           }
         }
       });
 
       // Extract POIs from connections
       for (final connection in buildingData.connections) {
-        POICategory poiCategory;
-        if (connection.name.toLowerCase().contains('elevator')) {
-          poiCategory = POICategory.elevator;
-        } else if (connection.name.toLowerCase().contains('escalator')) {
-          poiCategory = POICategory.escalator;
-        } else if (connection.name.toLowerCase().contains('stair')) {
-          poiCategory = POICategory.stairs;
-        } else {
-          poiCategory = POICategory.other;
-        }
+        POICategory poiCategory = _getPOICategory(connection);
 
         // For each floor in the connection
         connection.floorPoints.forEach((floorKey, points) {
           // Handle both single point and multiple points per floor
-          if (points.isNotEmpty) {
-            if (points.length == 1) {
-              // Single point
-              final point = points.first;
-              pois.add(POI(
-                id: '$buildingId-${point.floor.floorNumber}-${connection.name.replaceAll(" ", "-")}',
-                name: connection.name,
-                buildingId: buildingId,
-                floor: point.floor.floorNumber.toString(),
-                category: poiCategory,
-                x: point.positionX,
-                y: point.positionY,
-              ));
-            } else {
-              // Multiple points - add with index suffix
-              for (int i = 0; i < points.length; i++) {
-                final point = points[i];
-                pois.add(POI(
-                  id: '$buildingId-${point.floor.floorNumber}-${connection.name.replaceAll(" ", "-")}-$i',
-                  name: connection.name,
-                  buildingId: buildingId,
-                  floor: point.floor.floorNumber.toString(),
-                  category: poiCategory,
-                  x: point.positionX,
-                  y: point.positionY,
-                ));
-              }
-            }
-          }
+          pois = _pointsPerFloor(pois, points, buildingId, connection, poiCategory);
         });
       }
 

@@ -71,19 +71,38 @@ class _RadiusBarState extends State<RadiusBar> {
     widget.onRadiusChanged(value);
   }
 
+  String _getMinLabel() {
+    if (widget.showMeters){
+      return '${widget.minValue.toInt()}m';
+    }
+    else {
+      if (widget.minValue >= 1000){
+        return '${(widget.minValue / 1000).toStringAsFixed(1)}km';
+      }
+      else {
+        return '${widget.minValue.toInt()}m';
+      }
+    }
+  }
+
+  String _getMaxLabel() {
+    if (widget.showMeters) {
+      return '${widget.maxValue.toInt()}m';
+    }
+    else {
+      if (widget.maxValue >= 1000){
+        return '${(widget.maxValue / 1000).toStringAsFixed(1)}km';
+      } else {
+        return '${widget.maxValue.toInt()}m';
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final String unitLabel = !widget.showMeters && _currentValue >= 500 ? 'km' : 'm';
-    final String minLabel = widget.showMeters
-        ? '${widget.minValue.toInt()}m'
-        : widget.minValue >= 1000
-            ? '${(widget.minValue / 1000).toStringAsFixed(1)}km'
-            : '${widget.minValue.toInt()}m';
-    final String maxLabel = widget.showMeters
-        ? '${widget.maxValue.toInt()}m'
-        : widget.maxValue >= 1000
-            ? '${(widget.maxValue / 1000).toStringAsFixed(1)}km'
-            : '${widget.maxValue.toInt()}m';
+    final String minLabel = _getMinLabel();
+    final String maxLabel = _getMaxLabel();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
