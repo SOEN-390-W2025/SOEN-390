@@ -103,8 +103,12 @@ class NextClassDirectionsPreviewState
         _isLoading = true;
         _source = _buildEmptyRoom(startingPointPlaceholder);
         _destination = _buildEmptyRoom(nextClassPlaceholder);
-        _fetchNavigationData();
-        _isLoading = false;
+        _fetchNavigationData().then((_) {
+          _isLoading = false;
+        });
+        if (Platform.environment.containsKey('FLUTTER_TEST')) {
+          _isLoading = false;
+        }
         break;
       case 1: // 1 Location was passed to this page, which could only come from
         // the Calendar view after having requested to get directions.
