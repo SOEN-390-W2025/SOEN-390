@@ -1,16 +1,20 @@
+import 'dart:collection';
+
 import 'package:calendar_view/calendar_view.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_view.dart';
 import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart';
 import 'package:concordia_nav/utils/calendar_viewmodel.dart';
-import 'package:device_calendar/src/models/result.dart';
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../settings/calendar_view_test.mocks.dart';
 import 'calendar_repository_test.mocks.dart';
 import 'calendar_view_test.mocks.dart';
 
@@ -29,6 +33,121 @@ void main() {
   });
 
   group('CalendarView Widget Tests', () {
+    test('getNextClassEvent returns the next event', () async {
+      final calendar1 = UserCalendar('1', 'Calendar 1');
+      final startTime = DateTime.now()
+          .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+
+      when(mockPlugin.retrieveEvents(any, any))
+          .thenAnswer((_) async => Result<UnmodifiableListView<Event>>()
+            ..data = UnmodifiableListView<Event>([
+              Event(
+                'event1',
+                eventId: 'event1',
+                title: 'Math Class',
+                description: 'Description 1',
+                start: TZDateTime.from(startTime, local),
+                end: TZDateTime.from(endTime, local),
+                allDay: false,
+                location: 'Location 1',
+              ),
+            ]));
+
+      final nextEvent = await calendarRepository.getNextClassEvent([calendar1]);
+
+      expect(nextEvent, isNotNull);
+      expect(nextEvent!.title, 'Math Class');
+    });
+
+    test('getNextClassEvent returns null when no events are found', () async {
+      final calendar1 = UserCalendar('1', 'Calendar 1');
+
+      when(mockPlugin.retrieveEvents(any, any)).thenAnswer(
+          (_) async => Result<UnmodifiableListView<Event>>()..data = null);
+
+      final nextEvent = await calendarRepository.getNextClassEvent([calendar1]);
+
+      expect(nextEvent, isNull);
+    });
+
+    // Tests for getNextClassRoom
+    test('getNextClassRoom returns ConcordiaRoom based on event location',
+        () async {
+      final mockCalendar = UserCalendar('1', 'Calendar 1');
+
+      final startTime = DateTime.now()
+          .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+      const building = BuildingRepository.mb;
+
+      final MockBuildingViewModel mockBuildingViewModel =
+          MockBuildingViewModel();
+
+      when(mockBuildingViewModel.getBuildingByAbbreviation('MB'))
+          .thenReturn(building);
+
+      when(mockPlugin.retrieveEvents(any, any))
+          .thenAnswer((_) async => Result<UnmodifiableListView<Event>>()
+            ..data = UnmodifiableListView<Event>([
+              Event(
+                'event1',
+                eventId: 'event1',
+                title: 'Math Class',
+                description: 'Description 1',
+                start: TZDateTime.from(startTime, local),
+                end: TZDateTime.from(endTime, local),
+                allDay: false,
+                location: 'MB S2.330',
+              ),
+            ]));
+
+      final nextClassRoom = await calendarRepository
+          .getNextClassRoom([mockCalendar], mockBuildingViewModel);
+
+      expect(nextClassRoom, isNotNull);
+      expect(nextClassRoom!.roomNumber, '330');
+      expect(nextClassRoom.floor.floorNumber, 'S2');
+    });
+
+    test('getNextClassRoom returns null if location is missing or invalid',
+        () async {
+      final mockCalendar = UserCalendar('1', 'Calendar 1');
+
+      final startTime = DateTime.now()
+          .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+      final endTime = DateTime.now()
+          .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+
+      final MockBuildingViewModel mockBuildingViewModel =
+          MockBuildingViewModel();
+
+      when(mockBuildingViewModel.getBuildingByAbbreviation('bababooey'))
+          .thenReturn(null);
+
+      when(mockPlugin.retrieveEvents(any, any))
+          .thenAnswer((_) async => Result<UnmodifiableListView<Event>>()
+            ..data = UnmodifiableListView<Event>([
+              Event(
+                'event1',
+                eventId: 'event1',
+                title: 'Math Class',
+                description: 'Description 1',
+                start: TZDateTime.from(startTime, local),
+                end: TZDateTime.from(endTime, local),
+                allDay: false,
+                location: 'bababooey',
+              ),
+            ]));
+
+      final nextClassRoom = await calendarRepository
+          .getNextClassRoom([mockCalendar], mockBuildingViewModel);
+
+      expect(nextClassRoom, isNull);
+    });
+
     testWidgets('renders CalendarView with non-constant key',
         (WidgetTester tester) async {
       const testKey = Key('nonConstantKey');
