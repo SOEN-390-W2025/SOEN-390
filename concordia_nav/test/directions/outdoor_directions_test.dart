@@ -1,5 +1,6 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/domain-model/place.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:concordia_nav/ui/search/search_view.dart';
@@ -369,6 +370,34 @@ void main() async {
 
     // Pump the widget again to reflect the UI update
     await tester.pump();
+  });
+
+  testWidgets('outdoorLocationMapView with pois', (WidgetTester tester) async {
+    // Arrange
+    final place = Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]);
+
+    when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
+
+    // Build the widget tree
+    await tester.pumpWidget(MaterialApp(
+      home: OutdoorLocationMapView(
+          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel, 
+          additionalData: {"place": place, "destinationLatLng": const LatLng(45.4215, -75.6992)}),
+    ));
+    await tester.pump();
+
+    final destination = find.byType(CompactSearchCardWidget).evaluate().single.widget as CompactSearchCardWidget;
+    expect(destination.destinationController.text, place.name);
+    expect(find.text("Directions to Allons Burger"), findsOneWidget);
   });
 
   test('fetchWalkingPolyline returns a polyline', () async {

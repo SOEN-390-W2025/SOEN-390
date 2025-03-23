@@ -5,8 +5,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:ui' as _i4;
 
-import 'package:concordia_nav/utils/building_drawer_viewmodel.dart' as _i3;
-import 'package:flutter/material.dart' as _i2;
+import 'package:concordia_nav/utils/building_drawer_viewmodel.dart' as _i2;
+import 'package:flutter/material.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -23,30 +23,14 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeAnimation_0<T> extends _i1.SmartFake implements _i2.Animation<T> {
-  _FakeAnimation_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [BuildingInfoDrawerViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBuildingInfoDrawerViewModel extends _i1.Mock
-    implements _i3.BuildingInfoDrawerViewModel {
+    implements _i2.BuildingInfoDrawerViewModel {
   MockBuildingInfoDrawerViewModel() {
     _i1.throwOnMissingStub(this);
   }
-
-  @override
-  _i2.Animation<_i4.Offset> get slideAnimation =>
-      (super.noSuchMethod(
-            Invocation.getter(#slideAnimation),
-            returnValue: _FakeAnimation_0<_i4.Offset>(
-              this,
-              Invocation.getter(#slideAnimation),
-            ),
-          )
-          as _i2.Animation<_i4.Offset>);
 
   @override
   bool get hasListeners =>
@@ -54,7 +38,7 @@ class MockBuildingInfoDrawerViewModel extends _i1.Mock
           as bool);
 
   @override
-  void initializeAnimation(_i2.TickerProvider? vsync) => super.noSuchMethod(
+  void initializeAnimation(_i3.TickerProvider? vsync) => super.noSuchMethod(
     Invocation.method(#initializeAnimation, [vsync]),
     returnValueForMissingStub: null,
   );

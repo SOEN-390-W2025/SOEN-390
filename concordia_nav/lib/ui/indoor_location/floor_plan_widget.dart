@@ -93,7 +93,7 @@ class FloorPlanWidget extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () {
                           dev.log('assets/icons/pois/${poi.category.toString().split('.').last}.png');
-                          if (onPoiTap != null) onPoiTap!(poi);
+                          onPoiTap!(poi);
                         },
                         behavior: HitTestBehavior.opaque,
                         child: Container(
