@@ -42,6 +42,12 @@ void main() {
     when(mockPOIViewModel.isLoadingOutdoor).thenReturn(false);
     when(mockPOIViewModel.isLoadingIndoor).thenReturn(false);
     when(mockPOIViewModel.errorIndoor).thenReturn('');
+    when(mockPOIViewModel.hasMatchingIndoorPOIs()).thenReturn(true);
+    when(mockPOIViewModel.hasMatchingCategories()).thenReturn(true);
+    final categories = [
+      {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},
+    ];
+    when(mockPOIViewModel.getOutdoorCategories()).thenReturn(categories);
     when(mockPOIViewModel.filterPOIsWithGlobalSearch()).thenReturn(allPois);
     when(mockPOIViewModel.getUniqueFilteredPOINames(allPois)).thenReturn(["Bathroom", "Water Fountain", "Police"]);
     when(mockPOIViewModel.getIconForPOICategory(POICategory.washroom)).thenReturn(Icons.wc);
@@ -116,8 +122,9 @@ void main() {
       await tester.runAsync(() async {
         when(mockPOIViewModel.globalSearchQuery).thenReturn("Test");
         when(mockPOIViewModel.setGlobalSearchQuery("Test")).thenAnswer((_) async => {});
-        when(mockPOIViewModel.filterPOIsWithGlobalSearch()).thenReturn([]);
-        when(mockPOIViewModel.getUniqueFilteredPOINames([])).thenReturn([]);
+        when(mockPOIViewModel.hasMatchingIndoorPOIs()).thenReturn(false);
+        //when(mockPOIViewModel.filterPOIsWithGlobalSearch()).thenReturn([]);
+        //when(mockPOIViewModel.getUniqueFilteredPOINames([])).thenReturn([]);
         // Build the POI page widget
         await tester.pumpWidget(MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel,)));
         await tester.pump();

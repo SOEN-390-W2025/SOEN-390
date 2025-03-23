@@ -196,20 +196,6 @@ class POIViewModel extends ChangeNotifier {
       ..sort();
   }
 
-  void navigateToIndoorPOIMap(BuildContext context, String poiName) {
-    if (_disposed) return;
-    
-    Navigator.pushNamed(
-      context,
-      '/POIMapView',
-      arguments: {
-        'poiName': poiName,
-        'poiChoiceViewModel': this,
-        'isOutdoor': false,
-      },
-    );
-  }
-
   // ====== INDOOR POI HELPERS ======
   
   IconData getIconForPOICategory(POICategory category) {

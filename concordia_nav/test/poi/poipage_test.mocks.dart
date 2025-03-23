@@ -264,4 +264,26 @@ class MockPOIViewModel extends _i1.Mock implements _i4.POIViewModel {
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  bool hasMatchingIndoorPOIs() => (super.noSuchMethod(
+    Invocation.method(#hasMatchingIndoorPOIs, []),
+    returnValue: false,
+    returnValueForMissingStub: false,
+  ) as bool);
+
+  @override
+  bool hasMatchingCategories() => (super.noSuchMethod(
+    Invocation.method(#hasMatchingCategories, []),
+    returnValue: false,
+    returnValueForMissingStub: false,
+  ) as bool);
+
+  @override
+  List<Map<String, dynamic>> getOutdoorCategories() =>
+      (super.noSuchMethod(
+            Invocation.method(#getOutdoorCategories, []),
+            returnValue: <Map<String, dynamic>>[],
+          )
+          as List<Map<String, dynamic>>);
 }

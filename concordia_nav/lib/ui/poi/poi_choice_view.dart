@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../data/domain-model/place.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 
@@ -269,7 +268,19 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
           return _buildPOICard(
             poiName: poiName, 
             iconData: iconData, 
-            onTap: () => viewModel.navigateToIndoorPOIMap(context, poiName)
+            onTap: () => {
+              if (!_disposed) {
+                Navigator.pushNamed(
+                  context,
+                  '/POIMapView',
+                  arguments: {
+                    'poiName': poiName,
+                    'poiChoiceViewModel': this,
+                    'isOutdoor': false,
+                  },
+                )
+              }
+            }
           );
         },
       ),
