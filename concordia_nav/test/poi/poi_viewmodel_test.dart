@@ -260,4 +260,19 @@ void main() {
     expect(poiViewModel.allPOIs, isEmpty);
   });
 
+  group('POI Tests', () {
+    test('get POI hashcode', () {
+      final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", 
+          category: POICategory.washroom, x: 492, y: 678);
+
+      expect(poi.hashCode, isA<int>());
+    });
+
+    test('POI toString was overwridden', () {
+      final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", 
+          category: POICategory.washroom, x: 492, y: 678);
+      
+      expect(poi.toString(), "POI(name: Bathroom, floor: 1, building: H)");
+    });
+  });
 }

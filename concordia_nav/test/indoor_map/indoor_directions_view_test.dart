@@ -1,5 +1,7 @@
+import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
+import 'package:concordia_nav/widgets/indoor/location_info_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,6 +72,46 @@ void main() {
       expect(find.text('From: Your Location'), findsOneWidget);
       expect(find.textContaining('To: H 110'), findsOneWidget);
       expect(find.byType(SvgPicture), findsOneWidget);
+    });
+
+    testWidgets('IndoorDirectionsView with selectedPOI',
+        (WidgetTester tester) async {
+      final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", 
+          category: POICategory.washroom, x: 492, y: 678);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: yourLocationString,
+            building: 'Hall Building',
+            endRoom: 'H 110',
+            selectedPOI: poi,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final locationInfoWidget = find.byType(LocationInfoWidget).evaluate().single.widget as LocationInfoWidget;
+      expect(locationInfoWidget.to, 'Bathroom (H 1)');
+    });
+
+    testWidgets('IndoorDirectionsView with selectedPOI on different floor',
+        (WidgetTester tester) async {
+      final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "9", 
+          category: POICategory.washroom, x: 593, y: 778);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: yourLocationString,
+            building: 'Hall Building',
+            endRoom: 'H 937',
+            selectedPOI: poi,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      
+      final locationInfoWidget = find.byType(LocationInfoWidget).evaluate().single.widget as LocationInfoWidget;
+      expect(locationInfoWidget.to, 'Bathroom (H 9)');
     });
 
     testWidgets('Start button exists and can be tapped',

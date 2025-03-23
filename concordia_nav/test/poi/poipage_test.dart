@@ -1,8 +1,11 @@
 import 'package:concordia_nav/data/domain-model/place.dart';
 import 'package:concordia_nav/data/domain-model/poi.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
+import 'package:concordia_nav/ui/indoor_map/floor_selection.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/poi/poi_map_view.dart';
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart';
+import 'package:concordia_nav/widgets/floor_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
@@ -205,5 +208,55 @@ void main() {
         await tester.pumpAndSettle(); // return to POIPage
       });
     });
+  });
+
+  group('Floor Selection Tests', () {
+    testWidgets('navigates to POIChoiceView', (WidgetTester tester) async {
+      // define routes needed for this test
+        final routes = {
+          '/': (context) => FloorSelection(
+            building: "Hall Building", 
+            poiChoiceViewModel: mockPOIViewModel,
+            poiName: "Bathroom"),
+          '/POIChoiceView': (context) => POIMapView(
+            poiChoiceViewModel: mockPOIViewModel,
+            poiName: "Bathroom",
+            initialBuilding: "Hall Building",
+            initialFloor: "1",
+          ),
+        };
+
+        // Build the FloorSelection widget
+        await tester.pumpWidget(MaterialApp(
+          initialRoute: '/',
+          routes: routes,
+        ));
+        await tester.pump();
+
+        expect(find.text("Floor 1"), findsOneWidget);
+        await tester.tap(find.text("Floor 1"));
+        await tester.pumpAndSettle();
+
+        expect(find.text("Building - Bathroom"), findsOneWidget);
+    });
+  });
+
+  testWidgets('tap FloorButton', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: FloorButton(
+      floor:"1", 
+      building: BuildingRepository.h,
+      onFloorChanged: (floor) => {},
+      poiName: "Bathroom",
+      ))
+    );
+    await tester.pump();
+
+    await tester.tap(find.byType(InkWell));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Floor 1"));
+    await tester.pumpAndSettle();
+
+    expect(find.text("1"), findsOneWidget);
   });
 }
