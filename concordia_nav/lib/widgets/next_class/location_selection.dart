@@ -47,8 +47,15 @@ class _LocationSelectionState extends State<LocationSelection> {
   @override
   void initState() {
     super.initState();
-    _buildings = _buildingViewModel.getBuildings();
+    _loadBuildings();
     _checkMyLocationAvailability();
+  }
+
+  Future<void> _loadBuildings() async {
+    final buildings = await _buildingViewModel.getAvailableBuildings();
+    setState(() {
+      _buildings = buildings;
+    });
   }
 
   String _formatRoomNumber(String roomNumber) {

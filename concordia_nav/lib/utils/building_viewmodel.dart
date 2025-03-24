@@ -99,4 +99,23 @@ class BuildingViewModel {
     final String abbreviation = parts[0];
     return getBuildingByAbbreviation(abbreviation);
   }
+
+  /// Get only buildings that have available data
+  Future<List<String>> getAvailableBuildings() async {
+    final List<String> availableBuildings = [];
+    final List<String> allBuildings = getBuildings();
+
+    for (final buildingName in allBuildings) {
+      final building = getBuildingByName(buildingName);
+      if (building != null) {
+        // Check if building data exists
+        final buildingData = await BuildingDataManager.getBuildingData(building.abbreviation);
+        if (buildingData != null) {
+          availableBuildings.add(buildingName);
+        }
+      }
+    }
+
+    return availableBuildings;
+  }
 }
