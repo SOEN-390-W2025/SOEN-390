@@ -123,18 +123,16 @@ Widget buildPage(PageSpec spec) {
   if (spec.key == "I") {
     final source = spec.source;
     final dest = spec.destination;
+    final needsArrivalView = dest is ConcordiaRoom &&
+        ["X-R", "RR_same", "L-R", "R-X", "RR_diff"].contains(spec.pairType);
 
-    if (["R-X", "RR_diff"].contains(spec.pairType)) {
+    if (spec.pairType == "R-X" || spec.pairType == "RR_diff") {
       if (spec.mappingIndex == 0 && source is ConcordiaRoom) {
         return buildIndoorView(source: source, endRoom: yourLocationString);
-      } else if (dest is ConcordiaRoom) {
-        return buildArrivalView(dest);
       }
-    } else if (spec.pairType == "X-R" && dest is ConcordiaRoom) {
-      return buildArrivalView(dest);
-    } else if (spec.pairType == "RR_same" && dest is ConcordiaRoom) {
-      return buildArrivalView(dest);
-    } else if (spec.pairType == "L-R" && dest is ConcordiaRoom) {
+    }
+
+    if (needsArrivalView) {
       return buildArrivalView(dest);
     }
 
@@ -143,8 +141,6 @@ Widget buildPage(PageSpec spec) {
     }
   }
 
-  // If we've reached this point it must mean we need to show directions
-  // between two outdoor Locations
   return OutdoorLocationMapView(
     campus: ConcordiaCampus.sgw,
     providedJourneyDest: spec.destination,
