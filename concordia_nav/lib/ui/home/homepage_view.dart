@@ -85,7 +85,7 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FeatureCard(
-                    title: 'Indoor directions',
+                    title: 'Floor Navigation',
                     icon: const Icon(Icons.meeting_room),
                     onPress: () =>
                         Navigator.pushNamed(context, '/BuildingSelection'),
