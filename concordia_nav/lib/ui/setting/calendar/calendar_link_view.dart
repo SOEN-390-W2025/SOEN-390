@@ -49,38 +49,41 @@ class CalendarLinkViewState extends State<CalendarLinkView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, 'Calendar Link'),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Show a message if there is no calendar
-            const Text(
-              'There is currently no calendar',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Show a button to request calendar permissions
-            ElevatedButton(
-              onPressed: () => requestCalendarPermissions(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              child: const Text(
-                'Link',
+      body: Semantics(
+        label: 'Grant permissions to link your calendar(s).',
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Show a message if there is no calendar
+              const Text(
+                'There is currently no calendar',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
+                  fontSize: 16,
                 ),
               ),
-            )
-          ],
+              const SizedBox(height: 16),
+              // Show a button to request calendar permissions
+              ElevatedButton(
+                onPressed: () => requestCalendarPermissions(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+                child: const Text(
+                  'Link',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

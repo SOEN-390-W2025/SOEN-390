@@ -61,9 +61,12 @@ class _CalendarSelectionViewState extends State<CalendarSelectionView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, 'Calendar Selection'),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildContent(),
+      body: Semantics(
+        label: 'Select a Calendar to view its details.',
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _buildContent(),
+      ),
     );
   }
 

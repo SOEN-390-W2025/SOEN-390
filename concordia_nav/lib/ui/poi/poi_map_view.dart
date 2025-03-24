@@ -85,7 +85,11 @@ class _POIMapViewState extends State<POIMapView>
               context,
               '${viewModel.nearestBuilding?.name ?? "Building"} - ${widget.poiName}',
             ),
-            body: _buildBody(viewModel),
+            body: Semantics(
+              label:
+                  'Points of interest pertaining to floor plan. Adjust the search radius to present different results.',
+              child: _buildBody(viewModel),
+            ),
           );
         },
       ),
@@ -213,7 +217,7 @@ class _POIMapViewState extends State<POIMapView>
   }
 
   void _showPOIDetails(POI poi, POIMapViewModel viewModel) {
-    showModalBottomSheet( 
+    showModalBottomSheet(
       context: context,
       builder: (context) => Container(
         width: double.infinity,
