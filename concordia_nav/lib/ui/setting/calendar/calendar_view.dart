@@ -204,144 +204,172 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   Widget _buildEventDetailsDrawer() {
-    // Calculate the height as a percentage of screen height
-    final screenHeight = MediaQuery.of(context).size.height;
-    final bottomSheetHeight = screenHeight * 0.26;
+  // Calculate the height as a percentage of screen height
+  final screenHeight = MediaQuery.of(context).size.height;
+  final bottomSheetHeight = screenHeight * 0.26;
 
-    // Get building information early to use it for button state
-    final building = _selectedEvent?.locationField != null
-        ? _buildingViewModel
-            .getBuildingFromLocation(_selectedEvent!.locationField!)
-        : null;
+  // Get building information early to use it for button state
+  String? buildingCode;
+  if (_selectedEvent?.locationField != null) {
+    final parsed = _parseCalendarLocation(_selectedEvent!.locationField!);
+    buildingCode = parsed['buildingCode'];
+  }
+  
+  final building = buildingCode != null
+      ? _buildingViewModel.getBuildingByAbbreviation(buildingCode)
+      : null;
+  
+  // Check if building code is valid but building not found
+  final bool isInvalidBuilding = buildingCode != null && buildingCode.isNotEmpty && building == null;
 
-    return Container(
-      height: bottomSheetHeight,
-      padding: const EdgeInsets.all(16.0),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle indicator
-          Center(
-            child: Container(
-              width: 40,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(3),
-              ),
+  return Container(
+    height: bottomSheetHeight,
+    padding: const EdgeInsets.all(16.0),
+    decoration: const BoxDecoration(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Handle indicator
+        Center(
+          child: Container(
+            width: 40,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(3),
             ),
           ),
-          const SizedBox(height: 6),
+        ),
+        const SizedBox(height: 6),
 
-          // Header with title and close button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Event title
-              Expanded(
-                child: Text(
-                  _selectedEvent?.title ?? 'No Title',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+        // Header with title and close button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Event title
+            Expanded(
+              child: Text(
+                _selectedEvent?.title ?? 'No Title',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Event time and direction button row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left column with time and location
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _calendarViewModel.formatEventTime(_selectedEvent),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Event time and direction button row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left column with time and location
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Event location if available
+                  if (_selectedEvent?.locationField != null)
                     Row(
                       children: [
-                        const Icon(Icons.access_time, size: 20),
+                        const Icon(Icons.location_on, size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _calendarViewModel.formatEventTime(_selectedEvent),
-                            style: Theme.of(context).textTheme.bodyLarge,
+                            _selectedEvent!.locationField!,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              // Add a red color to the location text if the building is invalid
+                              color: isInvalidBuilding ? Colors.red : null,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    // Event location if available
-                    if (_selectedEvent?.locationField != null)
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _selectedEvent!.locationField!,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
+                ],
               ),
-              const SizedBox(width: 8),
-              // Direction button with states: loading, enabled, disabled
-              if (_checkingFloorPlan)
-                // Loading state
-                const SizedBox(
-                  height: 36,
-                  width: 36,
-                  child: Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: CircularProgressIndicator(color: Color(0xFF962e42)),
-                  ),
-                )
-              else if (_selectedEvent?.locationField == null ||
-                  building == null)
-                // No location or building - disabled button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                  ),
-                  icon: const Icon(Icons.directions, color: Colors.white),
-                  label: const Text('Not Available',
-                      style: TextStyle(color: Colors.white)),
-                  onPressed: null, // Disabled button
-                )
-              else
-                // Enabled button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                  ),
-                  icon: const Icon(Icons.directions, color: Colors.white),
-                  label: const Text('Directions',
-                      style: TextStyle(color: Colors.white)),
-                  onPressed: _navigateToDirections,
+            ),
+            const SizedBox(width: 8),
+            // Direction button with states: loading, enabled, disabled, or error
+            if (_checkingFloorPlan)
+              // Loading state
+              const SizedBox(
+                height: 36,
+                width: 36,
+                child: Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: CircularProgressIndicator(color: Color(0xFF962e42)),
                 ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+              )
+            else if (isInvalidBuilding)
+              // Invalid building - error button
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[700],
+                ),
+                icon: const Icon(Icons.error_outline, color: Colors.white),
+                label: const Text('Invalid Building',
+                    style: TextStyle(color: Colors.white)),
+                onPressed: () {
+                  // Show a tooltip explaining the error
+                  final snackBar = SnackBar(
+                    content: Text('Building code "$buildingCode" not recognized. Please check the location format.'),
+                    duration: const Duration(seconds: 3),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+              )
+            else if (_selectedEvent?.locationField == null || building == null)
+              // No location or building - disabled button
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                ),
+                icon: const Icon(Icons.directions, color: Colors.white),
+                label: const Text('Not Available',
+                    style: TextStyle(color: Colors.white)),
+                onPressed: null, // Disabled button
+              )
+            else
+              // Enabled button
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                ),
+                icon: const Icon(Icons.directions, color: Colors.white),
+                label: const Text('Directions',
+                    style: TextStyle(color: Colors.white)),
+                onPressed: _navigateToDirections,
+              ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
