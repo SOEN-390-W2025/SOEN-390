@@ -15,6 +15,8 @@ import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/journey/journey_view.dart';
 import 'ui/next_class/next_class_directions_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
+import 'utils/logger_util.dart';
+import 'ui/poi/nearby_poi_map.dart';
 import 'ui/poi/poi_choice_view.dart';
 import 'ui/poi/poi_map_view.dart';
 import 'ui/search/search_view.dart';
@@ -26,8 +28,7 @@ import 'ui/setting/settings_page.dart';
 import 'ui/smart_planner/generated_plan_view.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
-import 'utils/logger_util.dart';
-import 'widgets/places_test_screen.dart';
+import 'utils/poi/poi_viewmodel.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -82,7 +83,14 @@ class MyApp extends StatelessWidget {
             );
           },
           '/POIChoiceView': (context) => const POIChoiceView(),
-          '/POIMapView': (context) => const POIMapView(),
+          '/POIMapView': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>;
+            return POIMapView(
+              poiName: args['poiName'] as String,
+              poiChoiceViewModel: args['poiChoiceViewModel'] as POIViewModel,
+            );
+          },
           '/AccessibilityPage': (context) => const AccessibilityPage(),
           '/CalendarLinkView': (context) => const CalendarLinkView(),
           '/CalendarSelectionView': (context) => const CalendarSelectionView(),
@@ -140,11 +148,18 @@ class MyApp extends StatelessWidget {
                 locations = routeArgs['journeyItems'];
               }
             }
+
             return NavigationJourneyPage(
                 journeyName: journeyName, journeyItems: locations);
           },
-          '/PlacesTest': (context) =>
-              const PlacesTestScreen(), // TODO: Remove this. Just for testing purposes
+          '/NearbyPOIMapView': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>;
+            return NearbyPOIMapView(
+              poiViewModel: args['poiViewModel'],
+              category: args['category'],
+            );
+          },
         },
       ),
     );
