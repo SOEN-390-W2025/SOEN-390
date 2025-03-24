@@ -771,7 +771,7 @@ class NextClassDirectionsPreviewState
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => NavigationJourneyPage(
-            journeyName: "Next Class Directions",
+            journeyName: "Navigation to Next Class",
             journeyItems: updatedJourneyItems,
             decision: navigationDecision,
           ),
@@ -792,7 +792,7 @@ class NextClassDirectionsPreviewState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, "Next Class Directions"),
+      appBar: customAppBar(context, "Navigation to Next Class"),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Color(0xFF962E42)),
