@@ -49,7 +49,7 @@ void main() {
         );
 
         // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Indoor Directions'), findsOneWidget);
+        expect(find.text('Floor Navigation'), findsOneWidget);
       });
     });
 
@@ -64,7 +64,7 @@ void main() {
         );
 
         // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Indoor Directions'), findsOneWidget);
+        expect(find.text('Floor Navigation'), findsOneWidget);
       });
     });
 
@@ -79,7 +79,7 @@ void main() {
         );
 
         // Verify that the custom app bar has the correct title
-        expect(find.text('Indoor Directions'), findsOneWidget);
+        expect(find.text('Floor Navigation'), findsOneWidget);
       });
     });
   });

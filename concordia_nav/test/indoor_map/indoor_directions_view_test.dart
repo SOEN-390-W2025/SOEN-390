@@ -68,7 +68,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Indoor Directions'), findsOneWidget);
+      expect(find.text('Floor Navigation'), findsOneWidget);
       expect(find.text('From: Your Location'), findsOneWidget);
       expect(find.textContaining('To: H 110'), findsOneWidget);
       expect(find.byType(SvgPicture), findsOneWidget);

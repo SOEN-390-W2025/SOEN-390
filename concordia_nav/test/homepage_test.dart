@@ -91,8 +91,8 @@ void main() async {
     expect(find.byIcon(Icons.maps_home_work), findsOneWidget);
     expect(find.byIcon(Icons.calendar_today), findsOneWidget);
 
-    // Verify that the Indoor directions and Find nearby facilities FeatureCards are present
-    expect(find.text('Indoor directions'), findsOneWidget);
+    // Verify that the Floor Navigation and Find nearby facilities FeatureCards are present
+    expect(find.text('Floor Navigation'), findsOneWidget);
     expect(find.text('Find nearby facilities'), findsOneWidget);
     expect(find.byIcon(Icons.meeting_room), findsOneWidget);
     expect(find.byIcon(Icons.wash), findsOneWidget);
@@ -221,7 +221,7 @@ void main() async {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Indoor Directions navigation should work',
+  testWidgets('Floor Navigation navigation should work',
       (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
@@ -235,20 +235,20 @@ void main() async {
       routes: routes,
     ));
 
-    // Tap on the Indoor directions FeatureCard
+    // Tap on the Floor Navigation FeatureCard
     await tester.tap(find.byIcon(Icons.meeting_room));
     await tester.pumpAndSettle(); // Wait for navigation to complete
-    expect(find.text('Indoor Directions'), findsOneWidget);
+    expect(find.text('Floor Navigation'), findsOneWidget);
 
-    // Scroll down until the 'Indoor Directions' is visible
-    while (!tester.any(find.text('Indoor Directions'))) {
+    // Scroll down until the 'Floor Navigation' is visible
+    while (!tester.any(find.text('Floor Navigation'))) {
       await tester.drag(
           find.byType(Scrollable), const Offset(0, -300)); // drag up
       await tester.pumpAndSettle(); // Wait for the scroll to finish
     }
 
-    // Verify if the 'Indoor Directions' text is visible after scrolling
-    expect(find.text('Indoor Directions'), findsOneWidget);
+    // Verify if the 'Floor Navigation' text is visible after scrolling
+    expect(find.text('Floor Navigation'), findsOneWidget);
 
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
