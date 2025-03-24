@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,7 +10,9 @@ import '../../data/domain-model/location.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_room.dart';
 import '../../data/domain-model/room_category.dart';
+import '../../data/repositories/calendar.dart';
 import '../../data/repositories/navigation_decision_repository.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../utils/next_class/next_class_directions_viewmodel.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
@@ -81,6 +85,7 @@ class NextClassDirectionsPreviewState
   late ConcordiaRoom _destination;
   late NextClassViewModel viewModel;
   bool _hasFetchedSize = false;
+  bool _isLoading = false;
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _isFetchingInitialLocation = false;
@@ -95,8 +100,15 @@ class NextClassDirectionsPreviewState
     // the destination is a ConcordiaRoom.
     switch (widget.journeyItems.length) {
       case 0: // Nothing was passed to this page.
+        _isLoading = true;
         _source = _buildEmptyRoom(startingPointPlaceholder);
         _destination = _buildEmptyRoom(nextClassPlaceholder);
+        _fetchNavigationData().then((_) {
+          _isLoading = false;
+        });
+        if (Platform.environment.containsKey('FLUTTER_TEST')) {
+          _isLoading = false;
+        }
         break;
       case 1: // 1 Location was passed to this page, which could only come from
         // the Calendar view after having requested to get directions.
@@ -117,6 +129,29 @@ class NextClassDirectionsPreviewState
           startLocation: _source,
           endLocation: _destination,
         );
+  }
+
+  Future<void> _fetchNavigationData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final buildingViewModel = BuildingViewModel();
+    final nextClassRoom =
+        await CalendarRepository().getNextClassRoom(null, buildingViewModel);
+
+    if (nextClassRoom == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _attemptSetSourceToMyLocation();
+      _destination = nextClassRoom;
+      _isLoading = false;
+    });
   }
 
   /// Creates a dummy placeholder room, associated with the Location inputs.
@@ -460,7 +495,9 @@ class NextClassDirectionsPreviewState
           decoration: BoxDecoration(
             border: Border.all(color: const Color(0xFF962e42), width: 2),
           ),
-          child: Image.network(url, fit: BoxFit.cover),
+          child: (Platform.environment.containsKey('FLUTTER_TEST'))
+              ? null
+              : Image.network(url, fit: BoxFit.cover),
         );
       },
     );
@@ -754,36 +791,39 @@ class NextClassDirectionsPreviewState
 
   @override
   Widget build(BuildContext context) {
-    final scenario = _determineScenario();
-    final pages = _buildPagesForScenario(scenario);
-
     return Scaffold(
-      appBar: customAppBar(context, "Next Class Directions Preview"),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: _buildLocationInfo(),
-          ),
-          Expanded(
-            child: AnimatedBuilder(
-              animation: viewModel,
-              builder: (context, _) {
-                return PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: (index) =>
-                      setState(() => _currentPage = index),
-                  children: pages,
-                );
-              },
+      appBar: customAppBar(context, "Next Class Directions"),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF962E42)),
+            )
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: _buildLocationInfo(),
+                ),
+                Expanded(
+                  child: AnimatedBuilder(
+                    animation: viewModel,
+                    builder: (context, _) {
+                      return PageView(
+                        controller: _pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        onPageChanged: (index) =>
+                            setState(() => _currentPage = index),
+                        children: _buildPagesForScenario(_determineScenario()),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: scenario == NextClassScenario.awaitingDirectionInputs
+      bottomNavigationBar: _isLoading ||
+              _determineScenario() == NextClassScenario.awaitingDirectionInputs
           ? null
-          : _buildBottomBar(pages.length),
+          : _buildBottomBar(
+              _buildPagesForScenario(_determineScenario()).length),
     );
   }
 }

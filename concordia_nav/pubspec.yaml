@@ -84,6 +84,7 @@ dependencies:
   calendar_view: ^1.4.0
   logger: ^2.5.0
   google_places_flutter: ^2.1.0
+  dart_openai: ^5.1.0
 
 dev_dependencies:
   flutter_test:

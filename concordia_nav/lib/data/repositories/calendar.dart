@@ -1,6 +1,10 @@
 import 'dart:collection';
 
 import 'package:device_calendar/device_calendar.dart';
+import '../../utils/building_viewmodel.dart';
+import '../domain-model/concordia_floor.dart';
+import '../domain-model/concordia_room.dart';
+import '../domain-model/room_category.dart';
 
 /// This class represents calendars that are available. The UI should present a
 /// checkbox list that allows certain calendars to be selected by the user, and
@@ -120,5 +124,78 @@ class CalendarRepository {
     startDate = startDate.toUtc();
     return await getEvents(
         selectedCalendars, const Duration(days: 1), startDate);
+  }
+
+  /// Gets the next upcoming class event from the selected calendars.
+  Future<UserCalendarEvent?> getNextClassEvent(
+      List<UserCalendar>? selectedCalendars) async {
+    final events = await getEvents(
+      selectedCalendars,
+      const Duration(days: 365 * 100),
+      DateTime.now().toUtc(),
+    );
+    if (events.isEmpty) return null;
+    events.sort((a, b) => a.localStart.compareTo(b.localStart));
+    return events.first;
+  }
+
+  /// Gets the next class room from the selected calendars.
+  Future<ConcordiaRoom?> getNextClassRoom(
+    List<UserCalendar>? selectedCalendars,
+    BuildingViewModel buildingViewModel,
+  ) async {
+    final nextEvent = await getNextClassEvent(selectedCalendars);
+
+    if (nextEvent == null || nextEvent.locationField == null) {
+      return null;
+    }
+
+    final parsed = _parseCalendarLocation(nextEvent.locationField!);
+
+    final buildingCode = parsed['buildingCode'];
+    if (buildingCode == null) return null;
+
+    final building = buildingViewModel.getBuildingByAbbreviation(buildingCode);
+    if (building == null) return null;
+
+    final floorNumber = parsed['floor'] ?? '1';
+    final roomNumber = parsed['room'] ?? '0001';
+
+    final floor = ConcordiaFloor(floorNumber, building);
+
+    return ConcordiaRoom(
+      roomNumber,
+      RoomCategory.classroom,
+      floor,
+      null,
+    );
+  }
+
+  /// Parses a location string into a map with buildingCode, floor, and room.
+  Map<String, String> _parseCalendarLocation(String locationField) {
+    // Example input: "MB S2.330"
+    final parts = locationField.split(' ');
+
+    if (parts.isEmpty) return {};
+
+    final buildingCode = parts[0]; // "MB"
+    String? floor;
+    String? room;
+
+    if (parts.length > 1) {
+      final subParts = parts[1].split('.');
+      if (subParts.isNotEmpty) {
+        floor = subParts[0]; // "S2"
+      }
+      if (subParts.length > 1) {
+        room = subParts[1]; // "330"
+      }
+    }
+
+    return {
+      'buildingCode': buildingCode,
+      'floor': floor ?? '',
+      'room': room ?? '',
+    };
   }
 }
