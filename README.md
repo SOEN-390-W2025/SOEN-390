@@ -51,6 +51,7 @@ The following variables can be configured:
 | Variable            | Description                       | Value                      |
 | ------------------- | --------------------------------- | -------------------------- |
 | GOOGLE_MAPS_API_KEY | Used to integrate Google Maps API | `YOUR_GOOGLE_MAPS_API_KEY` |
+| OPENAI_API_KEY      | Used to integrate OpenAI API      | `YOUR_OPENAI_API_KEY`      |
 
 ## Generating RPS Scripts
 

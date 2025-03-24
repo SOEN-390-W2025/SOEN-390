@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import 'data/domain-model/concordia_building.dart';
 import 'data/domain-model/location.dart';
+import 'data/domain-model/travelling_salesman_request.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'data/repositories/calendar.dart';
 import 'ui/campus_map/campus_map_view.dart';
@@ -99,7 +100,12 @@ class MyApp extends StatelessWidget {
           '/SearchView': (context) => const SearchView(),
           '/SelectBuilding': (context) => const BuildingSelection(),
           '/SmartPlannerView': (context) => const SmartPlannerView(),
-          '/GeneratedPlanView': (context) => const GeneratedPlanView(),
+          '/GeneratedPlanView': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>;
+            return GeneratedPlanView(
+                plan: args['plan'] as TravellingSalesmanRequest);
+          },
           '/IndoorDirectionsView': (context) {
             final args = ModalRoute.of(context)!.settings.arguments
                 as Map<String, dynamic>;
