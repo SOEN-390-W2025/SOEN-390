@@ -23,7 +23,7 @@ import '../data/services/helpers/icon_loader.dart';
 import '../data/services/places_service.dart';
 import 'building_viewmodel.dart';
 import 'package:geocoding/geocoding.dart' as geodart;
-import '../data/services/outdoor_directions_service.dart'; // New import
+import '../data/services/outdoor_directions_service.dart';
 
 /// A custom enum that includes a shuttle option in addition to those provided
 /// by the Google Maps Directions API.
@@ -56,7 +56,7 @@ class MapViewModel extends ChangeNotifier {
   final MapRepository _mapRepository;
   final MapService _mapService;
   final BuildingService _buildingService = BuildingService();
-  final ODSDirectionsService _odsDirectionsService;
+  final ODSDirectionsService odsDirectionsService;
   final ShuttleRouteRepository _shuttleRepository;
 
   final yourLocationString = 'Your Location';
@@ -112,7 +112,7 @@ class MapViewModel extends ChangeNotifier {
     ShuttleRouteRepository? shuttleRepository,
   })  : _mapRepository = mapRepository ?? MapRepository(),
         _mapService = mapService ?? MapService(),
-        _odsDirectionsService = odsDirectionsService ?? ODSDirectionsService(),
+        odsDirectionsService = odsDirectionsService ?? ODSDirectionsService(),
         _shuttleRepository = shuttleRepository ?? ShuttleRouteRepository(),
         super() {
     // Fetch shuttle bus data, start periodic updates, and bus stop markers.
@@ -181,7 +181,7 @@ class MapViewModel extends ChangeNotifier {
             BuildingViewModel().getBuildingLocationByName(destinationAddress);
         String destinationStr =
             "${destinationBuilding?.latitude},${destinationBuilding?.longitude}";
-        final result = await _odsDirectionsService.fetchRouteResult(
+        final result = await odsDirectionsService.fetchRouteResult(
           originAddress: originStr,
           destinationAddress: destinationStr,
           travelMode: gdaMode,
@@ -437,13 +437,13 @@ class MapViewModel extends ChangeNotifier {
         "${routeDetails.destinationCoords!.latitude},${routeDetails.destinationCoords!.longitude}";
 
     // Fetch walking segments
-    final Polyline? leg1 = await _odsDirectionsService.fetchWalkingPolyline(
+    final Polyline? leg1 = await odsDirectionsService.fetchWalkingPolyline(
       originAddress: originStr,
       destinationAddress: boardingStr,
       polylineId: "walking_leg1_${routeDetails.polylineIdSuffix}",
     );
 
-    final Polyline? leg3 = await _odsDirectionsService.fetchWalkingPolyline(
+    final Polyline? leg3 = await odsDirectionsService.fetchWalkingPolyline(
       originAddress: disembarkStr,
       destinationAddress: destStr,
       polylineId: "walking_leg3_${routeDetails.polylineIdSuffix}",

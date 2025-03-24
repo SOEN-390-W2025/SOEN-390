@@ -6,11 +6,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
+import '../../data/domain-model/location.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../widgets/building_info_drawer.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
+import 'package:google_directions_api/google_directions_api.dart' as gda;
 
 class OutdoorLocationMapView extends StatefulWidget {
   final ConcordiaCampus campus;
@@ -18,6 +20,8 @@ class OutdoorLocationMapView extends StatefulWidget {
   final MapViewModel? mapViewModel;
   final bool hideAppBar;
   final bool hideInputs;
+  final Location? providedJourneyStart;
+  final Location? providedJourneyDest;
 
   const OutdoorLocationMapView({
     super.key,
@@ -26,6 +30,8 @@ class OutdoorLocationMapView extends StatefulWidget {
     this.mapViewModel,
     this.hideAppBar = false,
     this.hideInputs = false,
+    this.providedJourneyStart,
+    this.providedJourneyDest,
   });
 
   @override
@@ -72,6 +78,37 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   }
 
   Future<void> _updatePath() async {
+    final start = widget.providedJourneyStart;
+    final end = widget.providedJourneyDest;
+
+    if (start != null && end != null) {
+      // If a providedJourneyStart and providedJourneyDest exist then we'll
+      // work with this. It's specifically for the case where an OutdoorMapView
+      // is used in the context of Navigation to Next Class or Smart Planner
+      // Directions.
+      final origin = LatLng(start.lat, start.lng);
+      final destination = LatLng(end.lat, end.lng);
+
+      final polylinePoints = await _mapViewModel.odsDirectionsService
+          .fetchRouteFromCoords(origin, destination,
+              transport: gda.TravelMode.walking);
+
+      final polyline = Polyline(
+        polylineId: const PolylineId('direct_coords_polyline'),
+        points: polylinePoints,
+        color: const Color(0xFF2196F3),
+        patterns: [PatternItem.dot, PatternItem.gap(10)],
+        width: 5,
+      );
+
+      _mapViewModel.multiModeRoutes[CustomTravelMode.driving] = polyline;
+      await _mapViewModel.setActiveModeForRoute(CustomTravelMode.driving);
+      setState(() {});
+      return;
+    }
+
+    // If Location objects aren't provided, we work with the default address
+    // i.e. the regular "Outdoor Directions" page
     if (_destinationController.text != '') {
       await _mapViewModel.fetchRoutesForAllModes(
           'Your Location', _destinationController.text);

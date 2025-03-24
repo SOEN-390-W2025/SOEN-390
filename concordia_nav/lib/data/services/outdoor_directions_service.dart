@@ -119,12 +119,16 @@ class ODSDirectionsService {
   /// A helper method to fetch a driving route as a list of [LatLng] points.
   /// This is maintained for backward compatibility with `fetchRouteFromCoords()`.
   Future<List<LatLng>> fetchRoute(
-      String originAddress, String destinationAddress) async {
+    String originAddress,
+    String destinationAddress, {
+    gda.TravelMode? transport,
+  }) async {
     final routeResult = await fetchRouteResult(
       originAddress: originAddress,
       destinationAddress: destinationAddress,
-      travelMode: gda.TravelMode.driving, // default to driving
+      travelMode: transport ?? gda.TravelMode.driving, // default to driving
     );
+
     if (routeResult.polyline != null) {
       return routeResult.polyline!.points;
     } else {
@@ -134,11 +138,14 @@ class ODSDirectionsService {
 
   /// Fetches a route using origin coordinates and a destination address.
   Future<List<LatLng>> fetchRouteFromCoords(
-      LatLng origin, LatLng destination) async {
+    LatLng origin,
+    LatLng destination, {
+    gda.TravelMode? transport,
+  }) async {
     final originString = "${origin.latitude},${origin.longitude}";
     final destinationString =
         "${destination.latitude},${destination.longitude}";
-    return fetchRoute(originString, destinationString);
+    return fetchRoute(originString, destinationString, transport: transport);
   }
 
   /// Fetches a static map URL based on the origin and destination addresses.
