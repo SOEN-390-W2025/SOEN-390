@@ -145,7 +145,8 @@ class MyApp extends StatelessWidget {
                 journeyName: journeyName, journeyItems: locations);
           },
           '/NearbyPOIMapView': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>;
             return NearbyPOIMapView(
               poiViewModel: args['poiViewModel'],
               category: args['category'],

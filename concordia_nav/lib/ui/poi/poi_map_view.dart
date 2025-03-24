@@ -5,7 +5,7 @@ import '../../data/domain-model/poi.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
-import '../../utils/poi/poi_map_viewmodel.dart';  // New ViewModel
+import '../../utils/poi/poi_map_viewmodel.dart'; // New ViewModel
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/floor_button.dart';
@@ -19,24 +19,24 @@ class POIMapView extends StatefulWidget {
   final String poiName;
   final POIViewModel poiChoiceViewModel;
   final POIMapViewModel? poiMapViewModel;
-  
-  const POIMapView({
-    super.key,
-    required this.poiName,
-    required this.poiChoiceViewModel,
-    this.initialBuilding,
-    this.initialFloor, 
-    this.poiMapViewModel
-  });
+
+  const POIMapView(
+      {super.key,
+      required this.poiName,
+      required this.poiChoiceViewModel,
+      this.initialBuilding,
+      this.initialFloor,
+      this.poiMapViewModel});
 
   @override
   State<POIMapView> createState() => _POIMapViewState();
 }
 
-class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateMixin {
+class _POIMapViewState extends State<POIMapView>
+    with SingleTickerProviderStateMixin {
   late IndoorMapViewModel _indoorMapViewModel;
   late POIMapViewModel _poiMapViewModel;
-  
+
   @override
   void initState() {
     super.initState();
@@ -47,22 +47,22 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       offsetX: -50.0,
       offsetY: -50.0,
     );
-    
+
     // Create the POIMapViewModel with its dependencies including IndoorMapViewModel
     // unless provided with one
-    _poiMapViewModel = widget.poiMapViewModel ?? POIMapViewModel(
-      poiName: widget.poiName,
-      buildingViewModel: BuildingViewModel(),
-      indoorDirectionsViewModel: IndoorDirectionsViewModel(),
-      indoorMapViewModel: _indoorMapViewModel,
-    );
-    
+    _poiMapViewModel = widget.poiMapViewModel ??
+        POIMapViewModel(
+          poiName: widget.poiName,
+          buildingViewModel: BuildingViewModel(),
+          indoorDirectionsViewModel: IndoorDirectionsViewModel(),
+          indoorMapViewModel: _indoorMapViewModel,
+        );
+
     // Load data after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _poiMapViewModel.loadPOIData(
-        initialBuilding: widget.initialBuilding,
-        initialFloor: widget.initialFloor
-      );
+          initialBuilding: widget.initialBuilding,
+          initialFloor: widget.initialFloor);
     });
   }
 
@@ -91,7 +91,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       ),
     );
   }
-  
+
   Widget _buildBody(POIMapViewModel viewModel) {
     if (viewModel.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -116,7 +116,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       return _buildFloorPlanView(viewModel);
     }
   }
-  
+
   Widget _buildErrorView(POIMapViewModel viewModel) {
     return Center(
       child: Column(
@@ -130,16 +130,15 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => viewModel.retry(
-              initialBuilding: widget.initialBuilding,
-              initialFloor: widget.initialFloor
-            ),
+                initialBuilding: widget.initialBuilding,
+                initialFloor: widget.initialFloor),
             child: const Text('Retry'),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildFloorPlanView(POIMapViewModel viewModel) {
     return Column(
       children: [
@@ -150,7 +149,8 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
               FloorPlanWidget(
                 indoorMapViewModel: _indoorMapViewModel,
                 floorPlanPath: viewModel.floorPlanPath,
-                semanticsLabel: 'Floor plan of ${viewModel.nearestBuilding!.abbreviation}-${viewModel.selectedFloor}',
+                semanticsLabel:
+                    'Floor plan of ${viewModel.nearestBuilding!.abbreviation}-${viewModel.selectedFloor}',
                 width: viewModel.width,
                 height: viewModel.height,
                 pois: viewModel.poisOnCurrentFloor,
@@ -170,7 +170,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                   onFloorChanged: (floor) => viewModel.changeFloor(floor),
                 ),
               ),
-              
+
               // No POIs message overlay
               if (viewModel.noPoisOnCurrentFloor)
                 Center(
@@ -199,7 +199,7 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
             ],
           ),
         ),
-        
+
         // Radius Bar
         RadiusBar(
           initialValue: viewModel.searchRadius,
@@ -211,9 +211,9 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
       ],
     );
   }
-  
+
   void _showPOIDetails(POI poi, POIMapViewModel viewModel) {
-    showModalBottomSheet(
+    showModalBottomSheet( 
       context: context,
       builder: (context) => Container(
         width: double.infinity,
@@ -229,10 +229,12 @@ class _POIMapViewState extends State<POIMapView> with SingleTickerProviderStateM
                 children: [
                   Text(
                     poi.name,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text("Building: ${viewModel.nearestBuilding!.name}, Floor: ${poi.floor}"),
+                  Text(
+                      "Building: ${viewModel.nearestBuilding!.name}, Floor: ${poi.floor}"),
                 ],
               ),
             ),

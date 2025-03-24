@@ -6,6 +6,7 @@ import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/indoor/indoor_path.dart';
 
 import 'dart:developer' as dev;
+
 class FloorPlanWidget extends StatelessWidget {
   final IndoorMapViewModel indoorMapViewModel;
   final String floorPlanPath;
@@ -21,23 +22,21 @@ class FloorPlanWidget extends StatelessWidget {
   final Function(POI)? onPoiTap;
   final Offset? currentLocation;
 
-
-  const FloorPlanWidget({
-    super.key,
-    required this.indoorMapViewModel,
-    required this.floorPlanPath,
-    this.viewModel,
-    required this.semanticsLabel,
-    required this.width,
-    required this.height,
-    this.onTap,
-    this.highlightCurrentStep = false,
-    this.currentStepPoint,
-    this.showStepView = false,
-    this.pois,
-    this.onPoiTap,
-    this.currentLocation
-  });
+  const FloorPlanWidget(
+      {super.key,
+      required this.indoorMapViewModel,
+      required this.floorPlanPath,
+      this.viewModel,
+      required this.semanticsLabel,
+      required this.width,
+      required this.height,
+      this.onTap,
+      this.highlightCurrentStep = false,
+      this.currentStepPoint,
+      this.showStepView = false,
+      this.pois,
+      this.onPoiTap,
+      this.currentLocation});
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +91,8 @@ class FloorPlanWidget extends StatelessWidget {
                       top: poi.y - 26,
                       child: GestureDetector(
                         onTap: () {
-                          dev.log('assets/icons/pois/${poi.category.toString().split('.').last}.png');
+                          dev.log(
+                              'assets/icons/pois/${poi.category.toString().split('.').last}.png');
                           onPoiTap!(poi);
                         },
                         behavior: HitTestBehavior.opaque,
@@ -105,7 +105,8 @@ class FloorPlanWidget extends StatelessWidget {
                                 'assets/icons/pois/${poi.category.toString().split('.').last}.png',
                                 width: 32,
                                 height: 32,
-                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
                                   Icons.location_city,
                                   color: Colors.red,
                                   size: 24,

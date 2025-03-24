@@ -11,7 +11,8 @@ class POIChoiceView extends StatefulWidget {
   State<POIChoiceView> createState() => _POIChoiceViewState();
 }
 
-class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProviderStateMixin {
+class _POIChoiceViewState extends State<POIChoiceView>
+    with SingleTickerProviderStateMixin {
   late POIViewModel _viewModel;
   late TabController _tabController;
   late TextEditingController _searchController;
@@ -23,7 +24,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
     _viewModel = widget.viewModel ?? POIViewModel();
     _tabController = TabController(length: 2, vsync: this);
     _searchController = TextEditingController();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_disposed) {
         _viewModel.init(); // Load both indoor and outdoor POIs
@@ -48,17 +49,17 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
           if (viewModel.isLoadingLocation) {
             return _buildLoadingLocationScreen();
           }
-          
+
           if (!viewModel.hasLocationPermission) {
             return _buildLocationErrorScreen(viewModel);
           }
-          
+
           return _buildMainScreen(viewModel);
         },
       ),
     );
   }
-  
+
   // Loading location screen
   Widget _buildLoadingLocationScreen() {
     return Scaffold(
@@ -78,7 +79,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       ),
     );
   }
-  
+
   // Location error screen
   Widget _buildLocationErrorScreen(POIViewModel viewModel) {
     return Scaffold(
@@ -108,7 +109,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       ),
     );
   }
-  
+
   // Main screen with tabs
   Widget _buildMainScreen(POIViewModel viewModel) {
     return Scaffold(
@@ -130,7 +131,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       ),
     );
   }
-  
+
   // Tab bar
   Widget _buildTabBar() {
     return TabBar(
@@ -144,62 +145,61 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       indicatorColor: Theme.of(context).primaryColor,
     );
   }
-  
+
   // Search bar
   Widget _buildSearchBar(POIViewModel viewModel) {
     // Set the controller's text to match the current query value
     _searchController.text = viewModel.globalSearchQuery;
 
     return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[400]!,
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            fillColor: Colors.white,
-            filled: true,
-            labelText: 'Search POIs',
-            prefixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-            ),
-            suffixIcon: viewModel.globalSearchQuery.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: (){
-                    _searchController.clear();
-                    viewModel.setGlobalSearchQuery('');
-                  },
-                )
-              : null,
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey[400]!,
+                spreadRadius: 1,
+                blurRadius: 2,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          style: const TextStyle(color: Colors.grey),
-          onChanged: (query) => viewModel.setGlobalSearchQuery(query),
-        ),
-      )
-    );
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              fillColor: Colors.white,
+              filled: true,
+              labelText: 'Search POIs',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Theme.of(context).primaryColor),
+              ),
+              suffixIcon: viewModel.globalSearchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        viewModel.setGlobalSearchQuery('');
+                      },
+                    )
+                  : null,
+            ),
+            style: const TextStyle(color: Colors.grey),
+            onChanged: (query) => viewModel.setGlobalSearchQuery(query),
+          ),
+        ));
   }
-  
+
   // Indoor tab content
   Widget _buildIndoorTab(POIViewModel viewModel) {
     return Column(
@@ -217,14 +217,13 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
             ),
           ),
         ),
-        
         Expanded(
           child: _buildIndoorContent(viewModel),
         ),
       ],
     );
   }
-  
+
   // Indoor content (loading, error, or grid)
   Widget _buildIndoorContent(POIViewModel viewModel) {
     if (viewModel.isLoadingIndoor) {
@@ -233,23 +232,22 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
 
     if (viewModel.errorIndoor.isNotEmpty) {
       return _buildErrorState(
-        viewModel.errorIndoor, 
-        () => viewModel.loadIndoorPOIs()
-      );
+          viewModel.errorIndoor, () => viewModel.loadIndoorPOIs());
     }
 
     if (!viewModel.hasMatchingIndoorPOIs()) {
-      return _buildEmptyState('No indoor POIs found. Try changing your search.');
+      return _buildEmptyState(
+          'No indoor POIs found. Try changing your search.');
     }
 
     return _buildIndoorPOIGrid(viewModel);
   }
-  
+
   // Indoor POI grid
   Widget _buildIndoorPOIGrid(POIViewModel viewModel) {
     final filteredPOIs = viewModel.filterPOIsWithGlobalSearch();
     final uniqueNames = viewModel.getUniqueFilteredPOINames(filteredPOIs);
-    
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: GridView.builder(
@@ -262,31 +260,32 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
         itemCount: uniqueNames.length,
         itemBuilder: (context, index) {
           final poiName = uniqueNames[index];
-          final firstPoi = filteredPOIs.firstWhere((poi) => poi.name == poiName);
+          final firstPoi =
+              filteredPOIs.firstWhere((poi) => poi.name == poiName);
           final iconData = viewModel.getIconForPOICategory(firstPoi.category);
 
           return _buildPOICard(
-            poiName: poiName, 
-            iconData: iconData, 
-            onTap: () => {
-              if (!_disposed) {
-                Navigator.pushNamed(
-                  context,
-                  '/POIMapView',
-                  arguments: {
-                    'poiName': poiName,
-                    'poiChoiceViewModel': viewModel,
-                    'isOutdoor': false,
-                  },
-                )
-              }
-            }
-          );
+              poiName: poiName,
+              iconData: iconData,
+              onTap: () => {
+                    if (!_disposed)
+                      {
+                        Navigator.pushNamed(
+                          context,
+                          '/POIMapView',
+                          arguments: {
+                            'poiName': poiName,
+                            'poiChoiceViewModel': viewModel,
+                            'isOutdoor': false,
+                          },
+                        )
+                      }
+                  });
         },
       ),
     );
   }
-  
+
   // Outdoor tab content
   Widget _buildOutdoorTab(POIViewModel viewModel) {
     return Column(
@@ -304,14 +303,13 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
             ),
           ),
         ),
-        
         Expanded(
           child: _buildOutdoorContent(viewModel),
         ),
       ],
     );
   }
-  
+
   // Outdoor content (loading, error, or grid)
   Widget _buildOutdoorContent(POIViewModel viewModel) {
     if (viewModel.isLoadingOutdoor) {
@@ -319,10 +317,8 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
     }
 
     if (viewModel.errorOutdoor.isNotEmpty) {
-      return _buildErrorState(
-        viewModel.errorOutdoor, 
-        () => viewModel.loadOutdoorPOIs(viewModel.selectedOutdoorCategory)
-      );
+      return _buildErrorState(viewModel.errorOutdoor,
+          () => viewModel.loadOutdoorPOIs(viewModel.selectedOutdoorCategory));
     }
 
     if (!viewModel.hasMatchingCategories()) {
@@ -331,11 +327,11 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
 
     return _buildOutdoorCategoryGrid(viewModel);
   }
-  
+
   // Outdoor category grid
   Widget _buildOutdoorCategoryGrid(POIViewModel viewModel) {
     final categories = viewModel.getOutdoorCategories();
-    
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: GridView.builder(
@@ -348,23 +344,22 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
-          
+
           return _buildPOICard(
-            poiName: category['label'], 
-            iconData: category['icon'], 
-            onTap: () => viewModel.navigateToNearbyPOIMap(context, category['type'])
-          );
+              poiName: category['label'],
+              iconData: category['icon'],
+              onTap: () =>
+                  viewModel.navigateToNearbyPOIMap(context, category['type']));
         },
       ),
     );
   }
-  
+
   // Reusable POI/category card
-  Widget _buildPOICard({
-    required String poiName, 
-    required IconData iconData, 
-    required VoidCallback onTap
-  }) {
+  Widget _buildPOICard(
+      {required String poiName,
+      required IconData iconData,
+      required VoidCallback onTap}) {
     return Material(
       color: Colors.grey[200],
       borderRadius: BorderRadius.circular(20),
@@ -396,7 +391,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       ),
     );
   }
-  
+
   // Reusable error state widget
   Widget _buildErrorState(String errorMessage, VoidCallback onRetry) {
     return Center(
@@ -417,7 +412,7 @@ class _POIChoiceViewState extends State<POIChoiceView> with SingleTickerProvider
       ),
     );
   }
-  
+
   // Reusable empty state widget
   Widget _buildEmptyState(String message) {
     return Center(

@@ -28,18 +28,46 @@ void main() {
     mockPOIViewModel = MockPOIViewModel();
     mockPOIMapViewModel = MockPOIMapViewModel();
     when(mockPOIViewModel.init()).thenAnswer((_) async => {});
-    when(mockPOIViewModel.currentLocation).thenReturn(const LatLng(45.4215, -75.6992));
+    when(mockPOIViewModel.currentLocation)
+        .thenReturn(const LatLng(45.4215, -75.6992));
     final allPois = [
-      POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", category: POICategory.washroom, 
-          x: 492, y: 678),
-      POI(id: "2", name: "Water Fountain", buildingId:"H", floor: "1", category: POICategory.waterFountain, 
-          x: 564, y: 711),
-      POI(id: "3", name: "Police", buildingId:"H", floor: "1", category: POICategory.police, 
-          x: 815, y: 915)];
+      POI(
+          id: "1",
+          name: "Bathroom",
+          buildingId: "H",
+          floor: "1",
+          category: POICategory.washroom,
+          x: 492,
+          y: 678),
+      POI(
+          id: "2",
+          name: "Water Fountain",
+          buildingId: "H",
+          floor: "1",
+          category: POICategory.waterFountain,
+          x: 564,
+          y: 711),
+      POI(
+          id: "3",
+          name: "Police",
+          buildingId: "H",
+          floor: "1",
+          category: POICategory.police,
+          x: 815,
+          y: 915)
+    ];
     when(mockPOIViewModel.allPOIs).thenReturn(allPois);
     final outdoorPois = [
-      Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]),
-      Place(id: "2", name: "Misoya", location: const LatLng(45.49776972691097, -73.57849236126107), types: ["foodDrink"])
+      Place(
+          id: "1",
+          name: "Allons Burger",
+          location: const LatLng(45.49648751167641, -73.57862647170876),
+          types: ["foodDrink"]),
+      Place(
+          id: "2",
+          name: "Misoya",
+          location: const LatLng(45.49776972691097, -73.57849236126107),
+          types: ["foodDrink"])
     ];
     when(mockPOIMapViewModel.loadPOIData()).thenAnswer((_) async => {});
     when(mockPOIMapViewModel.nearestBuilding).thenReturn(BuildingRepository.h);
@@ -47,11 +75,13 @@ void main() {
     when(mockPOIMapViewModel.errorMessage).thenReturn('');
     when(mockPOIMapViewModel.floorPlanExists).thenReturn(true);
     when(mockPOIMapViewModel.poisOnCurrentFloor).thenReturn([allPois[0]]);
-    when(mockPOIMapViewModel.floorPlanPath).thenReturn("assets/maps/indoor/floorplans/H1.svg");
+    when(mockPOIMapViewModel.floorPlanPath)
+        .thenReturn("assets/maps/indoor/floorplans/H1.svg");
     when(mockPOIMapViewModel.selectedFloor).thenReturn("1");
     when(mockPOIMapViewModel.width).thenReturn(1024);
     when(mockPOIMapViewModel.height).thenReturn(1024);
-    when(mockPOIMapViewModel.userPosition).thenReturn(const Offset(45.4215, -75.6992));
+    when(mockPOIMapViewModel.userPosition)
+        .thenReturn(const Offset(45.4215, -75.6992));
     when(mockPOIMapViewModel.noPoisOnCurrentFloor).thenReturn(false);
     when(mockPOIMapViewModel.searchRadius).thenReturn(50);
     when(mockPOIViewModel.outdoorPOIs).thenReturn(outdoorPois);
@@ -65,14 +95,22 @@ void main() {
     when(mockPOIViewModel.hasMatchingIndoorPOIs()).thenReturn(true);
     when(mockPOIViewModel.hasMatchingCategories()).thenReturn(true);
     final categories = [
-      {'type': PlaceType.foodDrink, 'icon': Icons.restaurant, 'label': 'Restaurants'},
+      {
+        'type': PlaceType.foodDrink,
+        'icon': Icons.restaurant,
+        'label': 'Restaurants'
+      },
     ];
     when(mockPOIViewModel.getOutdoorCategories()).thenReturn(categories);
     when(mockPOIViewModel.filterPOIsWithGlobalSearch()).thenReturn(allPois);
-    when(mockPOIViewModel.getUniqueFilteredPOINames(allPois)).thenReturn(["Bathroom", "Water Fountain", "Police"]);
-    when(mockPOIViewModel.getIconForPOICategory(POICategory.washroom)).thenReturn(Icons.wc);
-    when(mockPOIViewModel.getIconForPOICategory(POICategory.waterFountain)).thenReturn(Icons.water_drop);
-    when(mockPOIViewModel.getIconForPOICategory(POICategory.police)).thenReturn(Icons.local_police);
+    when(mockPOIViewModel.getUniqueFilteredPOINames(allPois))
+        .thenReturn(["Bathroom", "Water Fountain", "Police"]);
+    when(mockPOIViewModel.getIconForPOICategory(POICategory.washroom))
+        .thenReturn(Icons.wc);
+    when(mockPOIViewModel.getIconForPOICategory(POICategory.waterFountain))
+        .thenReturn(Icons.water_drop);
+    when(mockPOIViewModel.getIconForPOICategory(POICategory.police))
+        .thenReturn(Icons.local_police);
   });
 
   group('poiAppBar', () {
@@ -82,8 +120,9 @@ void main() {
       await tester.runAsync(() async {
         // wait for loading JSON
         // Build the POI page widget
-        await tester
-            .pumpWidget(MaterialApp(home: POIChoiceView(key: UniqueKey(), viewModel: mockPOIViewModel)));
+        await tester.pumpWidget(MaterialApp(
+            home:
+                POIChoiceView(key: UniqueKey(), viewModel: mockPOIViewModel)));
         await tester.pump();
 
         // Verify that the appBar exists and has the right title
@@ -95,7 +134,8 @@ void main() {
       await tester.runAsync(() async {
         // wait for loading JSON
         // Build the POI page widget
-        await tester.pumpWidget(MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel)));
+        await tester.pumpWidget(
+            MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel)));
         await tester.pump();
 
         // Verify that the appBar exists and has the right title
@@ -109,25 +149,34 @@ void main() {
     testWidgets('filter option works', (WidgetTester tester) async {
       await tester.runAsync(() async {
         when(mockPOIViewModel.globalSearchQuery).thenReturn("Bath");
-        when(mockPOIViewModel.setGlobalSearchQuery("Bath")).thenAnswer((_) async => {});
-        final filteredPOI = [POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", category: POICategory.washroom, 
-          x: 492, y: 678),];
-        when(mockPOIViewModel.filterPOIsWithGlobalSearch()).thenReturn(filteredPOI);
-        when(mockPOIViewModel.getUniqueFilteredPOINames(filteredPOI)).thenReturn(["Bathroom"]);
+        when(mockPOIViewModel.setGlobalSearchQuery("Bath"))
+            .thenAnswer((_) async => {});
+        final filteredPOI = [
+          POI(
+              id: "1",
+              name: "Bathroom",
+              buildingId: "H",
+              floor: "1",
+              category: POICategory.washroom,
+              x: 492,
+              y: 678),
+        ];
+        when(mockPOIViewModel.filterPOIsWithGlobalSearch())
+            .thenReturn(filteredPOI);
+        when(mockPOIViewModel.getUniqueFilteredPOINames(filteredPOI))
+            .thenReturn(["Bathroom"]);
         // Build the POI page widget
-        await tester.pumpWidget(MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel)));
+        await tester.pumpWidget(
+            MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel)));
         await tester.pump();
 
         // Find the SearchBarWidget
-        final searchBarWidget = find
-            .byType(TextField)
-            .evaluate()
-            .single
-            .widget as TextField;
+        final searchBarWidget =
+            find.byType(TextField).evaluate().single.widget as TextField;
 
         // Enter "Bath" in the searchBar
         await tester.enterText(find.byType(TextField), "Bath");
-        
+
         expect(searchBarWidget.controller?.text, "Bath");
         await tester.pumpAndSettle();
 
@@ -141,20 +190,21 @@ void main() {
         (WidgetTester tester) async {
       await tester.runAsync(() async {
         when(mockPOIViewModel.globalSearchQuery).thenReturn("Test");
-        when(mockPOIViewModel.setGlobalSearchQuery("Test")).thenAnswer((_) async => {});
+        when(mockPOIViewModel.setGlobalSearchQuery("Test"))
+            .thenAnswer((_) async => {});
         when(mockPOIViewModel.hasMatchingIndoorPOIs()).thenReturn(false);
         //when(mockPOIViewModel.filterPOIsWithGlobalSearch()).thenReturn([]);
         //when(mockPOIViewModel.getUniqueFilteredPOINames([])).thenReturn([]);
         // Build the POI page widget
-        await tester.pumpWidget(MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel,)));
+        await tester.pumpWidget(MaterialApp(
+            home: POIChoiceView(
+          viewModel: mockPOIViewModel,
+        )));
         await tester.pump();
 
         // Find the SearchBarWidget
-        final searchBarWidget = find
-            .byType(TextField)
-            .evaluate()
-            .single
-            .widget as TextField;
+        final searchBarWidget =
+            find.byType(TextField).evaluate().single.widget as TextField;
 
         // Enter "Test" in the searchBar
         await tester.enterText(find.byType(TextField), "Test");
@@ -162,17 +212,38 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify that a PoiBox is present
-        expect(find.text("No indoor POIs found. Try changing your search."), findsOneWidget);
+        expect(find.text("No indoor POIs found. Try changing your search."),
+            findsOneWidget);
       });
     });
   });
 
   group('poiPage', () {
+    testWidgets('searchBar and title exists but without location',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        when(mockPOIViewModel.hasLocationPermission).thenReturn(false);
+        // wait for loading JSON
+        // Build the POI page widget
+        await tester.pumpWidget(MaterialApp(
+            home: POIChoiceView(
+          viewModel: mockPOIViewModel,
+        )));
+        await tester.pump();
+
+        // Verify that the searchBar widget exists
+        expect(find.byType(TextField), findsNothing);
+      });
+    });
+
     testWidgets('searchBar and title exists', (WidgetTester tester) async {
       await tester.runAsync(() async {
         // wait for loading JSON
         // Build the POI page widget
-        await tester.pumpWidget(MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel,)));
+        await tester.pumpWidget(MaterialApp(
+            home: POIChoiceView(
+          viewModel: mockPOIViewModel,
+        )));
         await tester.pump();
 
         // Verify that the searchBar widget exists
@@ -185,7 +256,10 @@ void main() {
       await tester.runAsync(() async {
         // wait for loading JSON
         // Build the POI page widget
-        await tester.pumpWidget(MaterialApp(home: POIChoiceView(viewModel: mockPOIViewModel,)));
+        await tester.pumpWidget(MaterialApp(
+            home: POIChoiceView(
+          viewModel: mockPOIViewModel,
+        )));
         await tester.pump();
 
         // Verify that the Bathroom POI text and icon are present
@@ -199,27 +273,31 @@ void main() {
     });
 
     testWidgets('POIMapView renders', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: POIMapView(
-            poiChoiceViewModel: mockPOIViewModel,
-            poiMapViewModel: mockPOIMapViewModel,
-            poiName: "Washroom",
-          )));
-      await tester.pump();
+      await tester.pumpWidget(MaterialApp(
+          home: POIMapView(
+        poiChoiceViewModel: mockPOIViewModel,
+        poiMapViewModel: mockPOIMapViewModel,
+        poiName: "washroom",
+      )));
+      await tester.pumpAndSettle();
 
       expect(find.byType(FloorPlanWidget), findsOneWidget);
       expect(find.byType(FloorButton), findsOneWidget);
     });
 
-    testWidgets('POIMapView shows message when no pois', (WidgetTester tester) async {
+    testWidgets('POIMapView shows message when no pois',
+        (WidgetTester tester) async {
       when(mockPOIMapViewModel.noPoisOnCurrentFloor).thenReturn(true);
-      await tester.pumpWidget(MaterialApp(home: POIMapView(
-            poiChoiceViewModel: mockPOIViewModel,
-            poiMapViewModel: mockPOIMapViewModel,
-            poiName: "Washroom",
-          )));
+      await tester.pumpWidget(MaterialApp(
+          home: POIMapView(
+        poiChoiceViewModel: mockPOIViewModel,
+        poiMapViewModel: mockPOIMapViewModel,
+        poiName: "Washroom",
+      )));
       await tester.pump();
 
-      expect(find.text('No Washroom within 50.0 meters on floor 1'), findsOneWidget);
+      expect(find.text('No Washroom within 50.0 meters on floor 1'),
+          findsOneWidget);
     });
 
     testWidgets('poi box onPress works', (WidgetTester tester) async {
@@ -227,11 +305,13 @@ void main() {
         // wait for loading JSON
         // define routes needed for this test
         final routes = {
-          '/': (context) => POIChoiceView(viewModel: mockPOIViewModel,),
+          '/': (context) => POIChoiceView(
+                viewModel: mockPOIViewModel,
+              ),
           '/POIMapView': (context) => POIMapView(
-            poiChoiceViewModel: mockPOIViewModel,
-            poiName: "Bathroom",
-          ),
+                poiChoiceViewModel: mockPOIViewModel,
+                poiName: "Bathroom",
+              ),
         };
 
         // Build the POIChoiceView widget
@@ -254,42 +334,42 @@ void main() {
   group('Floor Selection Tests', () {
     testWidgets('navigates to POIChoiceView', (WidgetTester tester) async {
       // define routes needed for this test
-        final routes = {
-          '/': (context) => FloorSelection(
-            building: "Hall Building", 
+      final routes = {
+        '/': (context) => FloorSelection(
+            building: "Hall Building",
             poiChoiceViewModel: mockPOIViewModel,
             poiName: "Bathroom"),
-          '/POIChoiceView': (context) => POIMapView(
-            poiChoiceViewModel: mockPOIViewModel,
-            poiName: "Bathroom",
-            initialBuilding: "Hall Building",
-            initialFloor: "1",
-          ),
-        };
+        '/POIChoiceView': (context) => POIMapView(
+              poiChoiceViewModel: mockPOIViewModel,
+              poiName: "Bathroom",
+              initialBuilding: "Hall Building",
+              initialFloor: "1",
+            ),
+      };
 
-        // Build the FloorSelection widget
-        await tester.pumpWidget(MaterialApp(
-          initialRoute: '/',
-          routes: routes,
-        ));
-        await tester.pump();
+      // Build the FloorSelection widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ));
+      await tester.pump();
 
-        expect(find.text("Floor 1"), findsOneWidget);
-        await tester.tap(find.text("Floor 1"));
-        await tester.pumpAndSettle();
+      expect(find.text("Floor 1"), findsOneWidget);
+      await tester.tap(find.text("Floor 1"));
+      await tester.pumpAndSettle();
 
-        expect(find.text("Building - Bathroom"), findsOneWidget);
+      expect(find.text("Building - Bathroom"), findsOneWidget);
     });
   });
 
   testWidgets('tap FloorButton', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: FloorButton(
-      floor:"1", 
+    await tester.pumpWidget(MaterialApp(
+        home: FloorButton(
+      floor: "1",
       building: BuildingRepository.h,
       onFloorChanged: (floor) => {},
       poiName: "Bathroom",
-      ))
-    );
+    )));
     await tester.pump();
 
     await tester.tap(find.byType(InkWell));
