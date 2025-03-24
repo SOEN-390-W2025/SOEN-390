@@ -1,10 +1,10 @@
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/concordia_room.dart';
-import 'package:concordia_nav/data/domain-model/navigation_decision.dart';
 import 'package:concordia_nav/data/domain-model/room_category.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/repositories/navigation_decision_repository.dart';
+import 'package:concordia_nav/utils/journey/journey_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -21,12 +21,13 @@ void main() {
           ConcordiaFloor("2", BuildingRepository.h),
           ConcordiaFloorPoint(ConcordiaFloor("2", BuildingRepository.h), 0, 0));
       final journey = [source, destination];
+      final overallSeq = buildOverallSequence(journey);
+      final pageSequence = overallSeq.map((entry) => entry.key).toList();
 
-      final result =
-          NavigationDecisionRepository.determineNavigationDecision(journey);
+      final result = NavigationDecisionRepository.determineNavigationDecision(
+          journey, pageSequence);
 
       expect(result, isNotNull);
-      expect(result?.navCase, NavigationCase.sameBuildingClassroom);
       expect(result?.pageCount, 1);
     });
 
@@ -44,12 +45,13 @@ void main() {
           ConcordiaFloorPoint(
               ConcordiaFloor("1", BuildingRepository.lb), 0, 0));
       final journey = [source, destination];
+      final overallSeq = buildOverallSequence(journey);
+      final pageSequence = overallSeq.map((entry) => entry.key).toList();
 
-      final result =
-          NavigationDecisionRepository.determineNavigationDecision(journey);
+      final result = NavigationDecisionRepository.determineNavigationDecision(
+          journey, pageSequence);
 
       expect(result, isNotNull);
-      expect(result?.navCase, NavigationCase.differentBuildingClassroom);
       expect(result?.pageCount, 3);
     });
 
@@ -62,18 +64,18 @@ void main() {
           ConcordiaFloorPoint(
               ConcordiaFloor("1", BuildingRepository.lb), 0, 0));
       final journey = [source, destination];
+      final overallSeq = buildOverallSequence(journey);
+      final pageSequence = overallSeq.map((entry) => entry.key).toList();
 
-      final result =
-          NavigationDecisionRepository.determineNavigationDecision(journey);
-
+      final result = NavigationDecisionRepository.determineNavigationDecision(
+          journey, pageSequence);
       expect(result, isNotNull);
-      expect(result?.navCase, NavigationCase.outdoorToClassroom);
       expect(result?.pageCount, 2);
     });
 
     test('should return null for empty journey list', () {
       final result =
-          NavigationDecisionRepository.determineNavigationDecision([]);
+          NavigationDecisionRepository.determineNavigationDecision([], []);
 
       expect(result, isNull);
     });
@@ -81,7 +83,7 @@ void main() {
     test('should return null for single item journey list', () {
       final journey = [BuildingRepository.h];
       final result =
-          NavigationDecisionRepository.determineNavigationDecision(journey);
+          NavigationDecisionRepository.determineNavigationDecision(journey, []);
 
       expect(result, isNull);
     });

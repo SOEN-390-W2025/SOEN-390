@@ -116,7 +116,6 @@ void main() {
         'renders NavigationStepPage with correct page count and same building',
         (WidgetTester tester) async {
       final decision = MockNavigationDecision();
-      when(decision.navCase).thenReturn(NavigationCase.sameBuildingClassroom);
       when(decision.pageCount).thenReturn(1);
 
       await tester.pumpWidget(MaterialApp(
@@ -147,8 +146,6 @@ void main() {
         'renders NavigationStepPage with correct page count and different buildings',
         (WidgetTester tester) async {
       final decision = MockNavigationDecision();
-      when(decision.navCase)
-          .thenReturn(NavigationCase.differentBuildingClassroom);
       when(decision.pageCount).thenReturn(3);
 
       await tester.pumpWidget(MaterialApp(
@@ -190,7 +187,6 @@ void main() {
         'renders NavigationStepPage with correct page count and outdoor to classroom',
         (WidgetTester tester) async {
       final decision = MockNavigationDecision();
-      when(decision.navCase).thenReturn(NavigationCase.outdoorToClassroom);
       when(decision.pageCount).thenReturn(2);
 
       await tester.pumpWidget(MaterialApp(
