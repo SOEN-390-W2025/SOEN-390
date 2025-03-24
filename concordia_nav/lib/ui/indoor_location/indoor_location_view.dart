@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
@@ -33,6 +35,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   bool _floorPlanExists = true;
   bool _isLoading = true;
   late IndoorDirectionsViewModel _directionsViewModel;
+  bool _hasPannedToRoom = false;
   
   @override
   void initState() {
@@ -74,6 +77,44 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     });
   }
 
+  // New method to pan to the selected room
+  Future<void> _panToSelectedRoom(BuildContext context) async {
+    if (widget.room != null && !_hasPannedToRoom && _floorPlanExists && !_isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        try {
+          // Get room position from the directionsViewModel
+          final roomPoint = await _directionsViewModel.getPositionPoint(
+            widget.building.name,
+            widget.floor ?? '1',
+            widget.room!,
+          );
+          
+          if (roomPoint != null && context.mounted) {
+            // Create an Offset from the room position
+            final roomPosition = Offset(roomPoint.positionX, roomPoint.positionY);
+            
+            // Calculate screen size for centering
+            final screenSize = MediaQuery.of(context).size;
+            
+            // Use centerOnPoint from IndoorMapViewModel to pan to the room
+            _indoorMapViewModel.centerOnPoint(roomPosition, screenSize);
+            
+            // Mark as panned to avoid repeating
+            setState(() {
+              _hasPannedToRoom = true;
+            });
+            
+            dev.log('Panned to room: ${widget.room} at position $roomPosition');
+          } else {
+            dev.log('Could not find position for room: ${widget.room}');
+          }
+        } catch (e) {
+          dev.log('Error panning to room: $e');
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
@@ -84,6 +125,11 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   @override
   Widget build(BuildContext context) {
     dev.log(_floorPlanExists.toString());
+    
+    // Try to pan to the selected room when the floor plan is loaded
+    if (!_isLoading && _floorPlanExists && widget.room != null && !_hasPannedToRoom) {
+      _panToSelectedRoom(context);
+    }
 
     // Extracted body content decision into a separate statement
     Widget bodyContent;
