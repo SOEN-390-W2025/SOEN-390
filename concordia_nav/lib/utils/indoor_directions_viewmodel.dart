@@ -110,9 +110,9 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   ConcordiaFloorPoint? getRegularStartPoint(
-      BuildingData buildingData, String floor) {
+      BuildingData buildingData, String floor, {String? connection}) {
 
-    if (floor == '1') {
+    if (floor == '1' && connection != 'connection') {
       return buildingData.outdoorExitPoint;
     }
       
@@ -158,6 +158,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     if (((connection == mainEntranceString) || (connection != "connection")) &&
         floor == '1') {
       return buildingData!.outdoorExitPoint;
+    } else if (connection != "connection") {
+      
     }
 
     // Try to find a start point based on accessibility needs
@@ -166,7 +168,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     }
 
     // For non-disability case, try regular start points
-    return getRegularStartPoint(buildingData!, floor);
+    return getRegularStartPoint(buildingData!, floor, connection: connection);
   }
 
   Future<ConcordiaFloorPoint?> _getAccessibleStartPoint(
