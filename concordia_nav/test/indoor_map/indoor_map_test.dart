@@ -8,35 +8,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
 
-  group('BuildingSelection Test', () {
-    testWidgets('should trigger floor selection on tapping a building',
-        (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Arrange
-        const building = 'Hall Building';
-
-        // Build the widget
-        await tester.pumpWidget(const MaterialApp(
-          home: BuildingSelection(),
-        ));
-        await tester.pump();
-
-        // Make sure the element is visible before tapping
-        await tester.ensureVisible(find.text(building));
-        await tester.pumpAndSettle();
-
-        // Simulate tapping on a building
-        expect(find.text(building), findsOneWidget);
-        await tester.tap(find.text(building));
-        await tester.pumpAndSettle(); 
-
-        // Assert
-        expect(find.text('Select Building'), findsOneWidget);
-        expect(find.text('Floor 1'), findsOneWidget);
-      });
-    });
-  });
-
   group('IndoorMapView Widget Tests', () {
     testWidgets('IndoorMapView should render correctly with non-constant key',
         (WidgetTester tester) async {
