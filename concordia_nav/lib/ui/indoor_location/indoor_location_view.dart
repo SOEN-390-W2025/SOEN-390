@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../../data/domain-model/poi.dart';
+import '../../data/repositories/building_data_manager.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
@@ -37,6 +39,11 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   late IndoorDirectionsViewModel _directionsViewModel;
   bool _hasPannedToRoom = false;
   
+  // Add POI-related state variables
+  List<POI> _poisOnCurrentFloor = [];
+  // ignore: unused_field
+  bool _loadingPOIs = true;
+  
   @override
   void initState() {
     super.initState();
@@ -54,6 +61,36 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
       offsetX: -50.0,
       offsetY: -50.0,
     );
+    
+    // Load POIs for current floor
+    _loadPOIsForCurrentFloor();
+  }
+
+  Future<void> _loadPOIsForCurrentFloor() async {
+    setState(() {
+      _loadingPOIs = true;
+    });
+    
+    try {
+      // Get all POIs from the building data manager
+      final allPOIs = await BuildingDataManager.getAllPOIs();
+      
+      // Filter POIs for current building and floor
+      _poisOnCurrentFloor = allPOIs.where((poi) => 
+        poi.buildingId == widget.building.abbreviation && 
+        poi.floor == widget.floor
+      ).toList();
+      
+      dev.log('Found ${_poisOnCurrentFloor.length} POIs for ${widget.building.abbreviation} floor ${widget.floor}');
+    } catch (e) {
+      dev.log('Error loading POIs: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingPOIs = false;
+        });
+      }
+    }
   }
 
   Future<void> _getSvgSize() async {
@@ -115,6 +152,61 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     }
   }
 
+  void _handlePoiTap(POI poi) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    poi.name,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                      "Building: ${widget.building.name}, Floor: ${poi.floor}"),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => IndoorDirectionsView(
+                      sourceRoom: 'Your Location',
+                      building: widget.building.name,
+                      endRoom: '${poi.buildingId} ${poi.floor}${poi.name}',
+                      selectedPOI: poi,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+              ),
+              child: const Text(
+                'Directions',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
@@ -145,7 +237,9 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
             semanticsLabel:
                 'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
             width: width,
-            height: height
+            height: height,
+            pois: _poisOnCurrentFloor,
+            onPoiTap: _handlePoiTap,
           ),
           Positioned(
             top: 0,

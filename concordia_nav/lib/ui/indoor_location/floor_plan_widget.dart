@@ -21,9 +21,10 @@ class FloorPlanWidget extends StatelessWidget {
   final List<POI>? pois;
   final Function(POI)? onPoiTap;
   final Offset? currentLocation;
+  final bool showPoisBetweenMapAndMarkers;
 
-  const FloorPlanWidget(
-      {super.key,
+  const FloorPlanWidget({
+      super.key,
       required this.indoorMapViewModel,
       required this.floorPlanPath,
       this.viewModel,
@@ -36,7 +37,8 @@ class FloorPlanWidget extends StatelessWidget {
       this.showStepView = false,
       this.pois,
       this.onPoiTap,
-      this.currentLocation});
+      this.currentLocation,
+      this.showPoisBetweenMapAndMarkers = false});
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +62,7 @@ class FloorPlanWidget extends StatelessWidget {
           height: height,
           child: Stack(
             children: [
+              // Base SVG floor plan
               SvgPicture.asset(
                 floorPlanPath,
                 fit: BoxFit.contain,
@@ -73,6 +76,12 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // POI layer (before route if showPoisBetweenMapAndMarkers is false)
+              if (pois != null && !showPoisBetweenMapAndMarkers)
+                ..._buildPOILayer(),
+
+              // Route painter
               if (viewModel != null)
                 CustomPaint(
                   painter: IndoorMapPainter(
@@ -85,38 +94,11 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                   size: Size(width, height),
                 ),
-              if (pois != null)
-                ...pois!.map((poi) => Positioned(
-                      left: poi.x - 24,
-                      top: poi.y - 26,
-                      child: GestureDetector(
-                        onTap: () {
-                          dev.log(
-                              'assets/icons/pois/${poi.category.toString().split('.').last}.png');
-                          onPoiTap!(poi);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          color: Colors.transparent,
-                          child: Column(
-                            children: [
-                              Image.asset(
-                                'assets/icons/pois/${poi.category.toString().split('.').last}.png',
-                                width: 32,
-                                height: 32,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(
-                                  Icons.location_city,
-                                  color: Colors.red,
-                                  size: 24,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )),
+
+              // POI layer (after map but before markers if showPoisBetweenMapAndMarkers is true)
+              if (pois != null && showPoisBetweenMapAndMarkers)
+                ..._buildPOILayer(),
+
               // Current user location marker (white circle)
               if (currentLocation != null)
                 Positioned(
@@ -140,5 +122,42 @@ class FloorPlanWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Helper method to build POI markers
+  List<Widget> _buildPOILayer() {
+    return pois!.map((poi) => Positioned(
+      left: poi.x - 24,
+      top: poi.y - 26,
+      child: GestureDetector(
+        onTap: () {
+          dev.log(
+              'assets/icons/pois/${poi.category.toString().split('.').last}.png');
+          if (onPoiTap != null) {
+            onPoiTap!(poi);
+          }
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          color: Colors.transparent,
+          child: Column(
+            children: [
+              Image.asset(
+                'assets/icons/pois/${poi.category.toString().split('.').last}.png',
+                width: 32,
+                height: 32,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(
+                  Icons.location_city,
+                  color: Colors.red,
+                  size: 24,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    )).toList();
   }
 }
