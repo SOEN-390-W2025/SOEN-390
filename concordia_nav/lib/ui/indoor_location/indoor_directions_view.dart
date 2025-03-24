@@ -288,7 +288,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         return Scaffold(
           appBar: (widget.hideAppBar)
               ? null
-              : customAppBar(context, 'Indoor Directions'),
+              : customAppBar(context, 'Floor Navigation'),
           body: Column(
             children: [
               Visibility(

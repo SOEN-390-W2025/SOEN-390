@@ -43,7 +43,7 @@ class BuildingSelectionState extends State<BuildingSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(context, 'Indoor Directions'),
+      appBar: customAppBar(context, 'Floor Navigation'),
       body: Column(
         children: [
           IndoorSearchBar(
