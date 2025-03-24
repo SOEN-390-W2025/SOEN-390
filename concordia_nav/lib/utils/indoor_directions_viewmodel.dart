@@ -158,8 +158,6 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     if (((connection == mainEntranceString) || (connection != "connection")) &&
         floor == '1') {
       return buildingData!.outdoorExitPoint;
-    } else if (connection != "connection") {
-      
     }
 
     // Try to find a start point based on accessibility needs
