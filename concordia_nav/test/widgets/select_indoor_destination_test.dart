@@ -1,4 +1,3 @@
-import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
 import 'package:concordia_nav/ui/indoor_map/floor_selection.dart';
 import 'package:concordia_nav/widgets/select_indoor_destination.dart';
 import 'package:flutter/material.dart';
