@@ -5,7 +5,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
+import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i5;
 import 'package:concordia_nav/data/repositories/calendar.dart' as _i3;
+import 'package:concordia_nav/utils/building_viewmodel.dart' as _i6;
 import 'package:device_calendar/device_calendar.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -106,4 +108,28 @@ class MockCalendarRepository extends _i1.Mock
             ),
           )
           as _i4.Future<List<_i3.UserCalendarEvent>>);
+
+  @override
+  _i4.Future<_i3.UserCalendarEvent?> getNextClassEvent(
+    List<_i3.UserCalendar>? selectedCalendars,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassEvent, [selectedCalendars]),
+            returnValue: _i4.Future<_i3.UserCalendarEvent?>.value(),
+          )
+          as _i4.Future<_i3.UserCalendarEvent?>);
+
+  @override
+  _i4.Future<_i5.ConcordiaRoom?> getNextClassRoom(
+    List<_i3.UserCalendar>? selectedCalendars,
+    _i6.BuildingViewModel? buildingViewModel,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassRoom, [
+              selectedCalendars,
+              buildingViewModel,
+            ]),
+            returnValue: _i4.Future<_i5.ConcordiaRoom?>.value(),
+          )
+          as _i4.Future<_i5.ConcordiaRoom?>);
 }

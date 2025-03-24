@@ -520,6 +520,23 @@ class MockPOIMapViewModel extends _i1.Mock implements _i11.POIMapViewModel {
           as _i8.Future<void>);
 
   @override
+  _i8.Future<void> findNearestBuildingWithPOI(
+    double? userLat,
+    double? userLng,
+    String? initialFloor,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#findNearestBuildingWithPOI, [
+              userLat,
+              userLng,
+              initialFloor,
+            ]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
   _i8.Future<void> changeFloor(String? floor) =>
       (super.noSuchMethod(
             Invocation.method(#changeFloor, [floor]),
