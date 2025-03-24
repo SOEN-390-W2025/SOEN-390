@@ -1,6 +1,8 @@
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/connection.dart';
+import 'package:concordia_nav/data/domain-model/indoor_route.dart';
+import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
 import 'package:concordia_nav/utils/indoor_step_viewmodel.dart';
@@ -12,6 +14,7 @@ import 'package:mockito/mockito.dart';
 
 import '../map/outdoor_location_map_test.dart';
 import '../widgets/indoor/indoor_path_test.mocks.dart';
+import 'indoor_step_view_test.mocks.dart';
 
 @GenerateMocks([IndoorDirectionsViewModel])
 void main() {
@@ -101,6 +104,65 @@ void main() {
       expect(viewModel.navigationSteps[0].description,
           'Take the elevator (accessible)');
       expect(viewModel.navigationSteps[0].icon, Icons.elevator);
+    });
+
+    test('addConnectionStep with stairs', () {
+      final firstPortion = ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 10, 20);
+      final firstConnection = Connection([
+        ConcordiaFloor("1", BuildingRepository.h),
+        ConcordiaFloor("1", BuildingRepository.h),
+      ], {}, false, 'Stairs', 5.0, 3.0);
+      final route = IndoorRoute(BuildingRepository.h, [firstPortion], firstConnection, null, null, null, null, null);
+      viewModel.addConnectionStep(route);
+
+      expect(viewModel.navigationSteps[0].description, "Use the stairs to continue your route");
+    }); 
+
+    test('addConnectionStep with escalator', () {
+      final firstPortion = ConcordiaFloorPoint(ConcordiaFloor("1", BuildingRepository.h), 10, 20);
+      final firstConnection = Connection([
+        ConcordiaFloor("1", BuildingRepository.h),
+        ConcordiaFloor("1", BuildingRepository.h),
+      ], {}, false, 'Escalator', 5.0, 3.0);
+      final route = IndoorRoute(BuildingRepository.h, [firstPortion], firstConnection, null, null, null, null, null);
+      viewModel.addConnectionStep(route);
+
+      expect(viewModel.navigationSteps[0].description, "Take the escalator to continue your route");
+    }); 
+
+    test('initializeRoute with selectedPOI', () async {
+      final poi = POI(id: "1", name: "washroom", buildingId:"H", floor: "1", 
+          category: POICategory.washroom, x: 492, y: 678);
+      final mockDirectionsViewmodel = MockIndoorDirectionsViewModel();
+      when(mockDirectionsViewmodel.calculateRoute(
+        'Hall Building', '8', 'H 830', 'H 113', false, destinationPOI: poi))
+          .thenAnswer((_) async => {});
+      final indoorRoute = IndoorRoute(
+        BuildingRepository.h, null, null, null, null, null, null, null);
+      when(mockDirectionsViewmodel.calculatedRoute).thenReturn(indoorRoute);
+      when(mockDirectionsViewmodel.startLocation)
+          .thenReturn(const Offset(45.4215, -75.6992));
+      when(mockDirectionsViewmodel.endLocation)
+          .thenReturn(const Offset(45.4215, -75.6992));
+      const path = "assets/maps/indoor/floorplans/H8.svg";
+      when(mockDirectionsViewmodel.getSvgDimensions(path))
+          .thenAnswer((_) async => const Size(1024, 1024));
+
+      final viewModelwithPOI = VirtualStepGuideViewModel(
+        sourceRoom: 'H 830',
+        building: 'Hall Building',
+        floor: '8',
+        endRoom: 'H 113',
+        isDisability: false,
+        selectedPOI: poi,
+        directionsViewModel: mockDirectionsViewmodel,
+        vsync: const TestVSync(), // Mock this if necessary
+      );
+
+      await viewModelwithPOI.initializeRoute();
+
+      expect(viewModelwithPOI.navigationSteps, isNotEmpty);
+      expect(viewModelwithPOI.navigationSteps.last.icon, Icons.wc);
     });
   });
 }

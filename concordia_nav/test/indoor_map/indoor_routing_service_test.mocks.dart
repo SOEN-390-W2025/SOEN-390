@@ -5,7 +5,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i5;
 
+import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i8;
 import 'package:concordia_nav/data/repositories/calendar.dart' as _i7;
+import 'package:concordia_nav/utils/building_viewmodel.dart' as _i9;
 import 'package:device_calendar/device_calendar.dart' as _i3;
 import 'package:geolocator_platform_interface/src/enums/enums.dart' as _i6;
 import 'package:geolocator_platform_interface/src/geolocator_platform_interface.dart'
@@ -280,4 +282,28 @@ class MockCalendarRepository extends _i1.Mock
             ),
           )
           as _i5.Future<List<_i7.UserCalendarEvent>>);
+
+  @override
+  _i5.Future<_i7.UserCalendarEvent?> getNextClassEvent(
+    List<_i7.UserCalendar>? selectedCalendars,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassEvent, [selectedCalendars]),
+            returnValue: _i5.Future<_i7.UserCalendarEvent?>.value(),
+          )
+          as _i5.Future<_i7.UserCalendarEvent?>);
+
+  @override
+  _i5.Future<_i8.ConcordiaRoom?> getNextClassRoom(
+    List<_i7.UserCalendar>? selectedCalendars,
+    _i9.BuildingViewModel? buildingViewModel,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassRoom, [
+              selectedCalendars,
+              buildingViewModel,
+            ]),
+            returnValue: _i5.Future<_i8.ConcordiaRoom?>.value(),
+          )
+          as _i5.Future<_i8.ConcordiaRoom?>);
 }

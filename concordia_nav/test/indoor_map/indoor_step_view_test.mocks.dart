@@ -3,17 +3,19 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i8;
+import 'dart:async' as _i9;
 import 'dart:ui' as _i5;
 
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart'
-    as _i11;
-import 'package:concordia_nav/data/domain-model/indoor_route.dart' as _i10;
+    as _i12;
+import 'package:concordia_nav/data/domain-model/indoor_route.dart' as _i11;
+import 'package:concordia_nav/data/domain-model/poi.dart' as _i8;
+import 'package:concordia_nav/data/repositories/building_data.dart' as _i13;
 import 'package:concordia_nav/utils/building_viewmodel.dart' as _i3;
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart' as _i2;
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart' as _i4;
 import 'package:concordia_nav/utils/indoor_step_viewmodel.dart' as _i6;
-import 'package:flutter/material.dart' as _i9;
+import 'package:flutter/material.dart' as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
 
@@ -130,6 +132,12 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   @override
   set disability(bool? _disability) => super.noSuchMethod(
     Invocation.setter(#disability, _disability),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set selectedPOI(_i8.POI? _selectedPOI) => super.noSuchMethod(
+    Invocation.setter(#selectedPOI, _selectedPOI),
     returnValueForMissingStub: null,
   );
 
@@ -294,28 +302,28 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
           as bool);
 
   @override
-  _i8.Future<void> initializeRoute() =>
+  _i9.Future<void> initializeRoute() =>
       (super.noSuchMethod(
             Invocation.method(#initializeRoute, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  void focusOnCurrentStep(_i9.BuildContext? context) => super.noSuchMethod(
+  void focusOnCurrentStep(_i10.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#focusOnCurrentStep, [context]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void nextStep(_i9.BuildContext? context) => super.noSuchMethod(
+  void nextStep(_i10.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#nextStep, [context]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void previousStep(_i9.BuildContext? context) => super.noSuchMethod(
+  void previousStep(_i10.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#previousStep, [context]),
     returnValueForMissingStub: null,
   );
@@ -327,7 +335,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   );
 
   @override
-  void addConnectionStep(_i10.IndoorRoute? route) => super.noSuchMethod(
+  void addConnectionStep(_i11.IndoorRoute? route) => super.noSuchMethod(
     Invocation.method(#addConnectionStep, [route]),
     returnValueForMissingStub: null,
   );
@@ -482,6 +490,12 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
           as _i5.Offset);
 
   @override
+  set endLocation(_i5.Offset? value) => super.noSuchMethod(
+    Invocation.setter(#endLocation, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -493,19 +507,34 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   );
 
   @override
-  _i8.Future<_i11.ConcordiaFloorPoint?> getPositionPoint(
+  _i9.Future<_i12.ConcordiaFloorPoint?> getPositionPoint(
     String? buildingName,
     String? floor,
     String? room,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getPositionPoint, [buildingName, floor, room]),
-            returnValue: _i8.Future<_i11.ConcordiaFloorPoint?>.value(),
+            returnValue: _i9.Future<_i12.ConcordiaFloorPoint?>.value(),
           )
-          as _i8.Future<_i11.ConcordiaFloorPoint?>);
+          as _i9.Future<_i12.ConcordiaFloorPoint?>);
 
   @override
-  _i8.Future<_i11.ConcordiaFloorPoint?> getStartPoint(
+  _i12.ConcordiaFloorPoint? getRegularStartPoint(
+    _i13.BuildingData? buildingData,
+    String? floor, {
+    String? connection,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #getRegularStartPoint,
+              [buildingData, floor],
+              {#connection: connection},
+            ),
+          )
+          as _i12.ConcordiaFloorPoint?);
+
+  @override
+  _i9.Future<_i12.ConcordiaFloorPoint?> getStartPoint(
     String? buildingName,
     String? floor,
     bool? disability,
@@ -518,59 +547,64 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
               disability,
               connection,
             ]),
-            returnValue: _i8.Future<_i11.ConcordiaFloorPoint?>.value(),
+            returnValue: _i9.Future<_i12.ConcordiaFloorPoint?>.value(),
           )
-          as _i8.Future<_i11.ConcordiaFloorPoint?>);
+          as _i9.Future<_i12.ConcordiaFloorPoint?>);
 
   @override
-  _i8.Future<void> calculateRoute(
+  _i9.Future<void> calculateRoute(
     String? building,
     String? floor,
     String? sourceRoom,
     String? endRoom,
-    bool? disability,
-  ) =>
+    bool? disability, {
+    _i8.POI? destinationPOI,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#calculateRoute, [
-              building,
-              floor,
-              sourceRoom,
-              endRoom,
-              disability,
-            ]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            Invocation.method(
+              #calculateRoute,
+              [building, floor, sourceRoom, endRoom, disability],
+              {#destinationPOI: destinationPOI},
+            ),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<bool> areDirectionsAvailableForLocation(String? location) =>
+  _i9.Future<bool> areDirectionsAvailableForLocation(String? location) =>
       (super.noSuchMethod(
             Invocation.method(#areDirectionsAvailableForLocation, [location]),
-            returnValue: _i8.Future<bool>.value(false),
+            returnValue: _i9.Future<bool>.value(false),
           )
-          as _i8.Future<bool>);
+          as _i9.Future<bool>);
 
   @override
-  _i8.Future<bool> checkFloorPlanExists(String? floorPlanPath) =>
+  _i9.Future<bool> checkFloorPlanExists(String? floorPlanPath) =>
       (super.noSuchMethod(
             Invocation.method(#checkFloorPlanExists, [floorPlanPath]),
-            returnValue: _i8.Future<bool>.value(false),
+            returnValue: _i9.Future<bool>.value(false),
           )
-          as _i8.Future<bool>);
+          as _i9.Future<bool>);
 
   @override
-  _i8.Future<_i5.Size> getSvgDimensions(String? svgPath) =>
+  _i9.Future<_i5.Size> getSvgDimensions(String? svgPath) =>
       (super.noSuchMethod(
             Invocation.method(#getSvgDimensions, [svgPath]),
-            returnValue: _i8.Future<_i5.Size>.value(
+            returnValue: _i9.Future<_i5.Size>.value(
               _FakeSize_4(
                 this,
                 Invocation.method(#getSvgDimensions, [svgPath]),
               ),
             ),
           )
-          as _i8.Future<_i5.Size>);
+          as _i9.Future<_i5.Size>);
+
+  @override
+  void forceEndLocation(_i5.Offset? location) => super.noSuchMethod(
+    Invocation.method(#forceEndLocation, [location]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(

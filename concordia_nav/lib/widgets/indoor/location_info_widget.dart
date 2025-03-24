@@ -9,13 +9,16 @@ class LocationInfoWidget extends StatelessWidget {
   final String to;
   final String building;
   final bool isDisability;
+  final bool isPOI;
 
-  const LocationInfoWidget(
-      {super.key,
-      required this.from,
-      required this.to,
-      required this.building,
-      required this.isDisability});
+  const LocationInfoWidget({
+    super.key,
+    required this.from,
+    required this.to,
+    required this.building,
+    required this.isDisability,
+    this.isPOI = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +70,34 @@ class LocationInfoWidget extends StatelessWidget {
     );
   }
 
+  static const yourLocation = 'Your Location';
+
+  String _getBuildingName(bool isSource, ConcordiaBuilding? fromBuilding, ConcordiaBuilding? toBuilding) {
+    if (isSource){
+      if (from == yourLocation) {
+        return building;
+      }
+      else {
+        return fromBuilding!.name;
+      }
+    }
+    else {
+      return toBuilding!.name;
+    }
+  }
+
+  String _getFloorName(bool isSource, String fromFloor, String toFloor) {
+    if (isSource) {
+      if (from == yourLocation) {
+        return "Floor 1";
+      }
+      else {return 'Floor $fromFloor';}
+    }
+    else {
+      return 'Floor $toFloor';
+    }
+  }
+
   Widget _buildLocationBox(BuildContext context, String text, bool isSource) {
     final toBuildingAbbrev = to.split(' ')[0];
     final ConcordiaBuilding? toBuilding =
@@ -79,7 +110,7 @@ class LocationInfoWidget extends StatelessWidget {
     String fromBuildingAbbrev = toBuildingAbbrev;
     ConcordiaBuilding? fromBuilding = toBuilding;
     String fromFloor = toFloor;
-    if (from != 'Your Location') {
+    if (from != yourLocation) {
       fromBuildingAbbrev = from.split(' ')[0];
       fromBuilding =
           BuildingViewModel().getBuildingByAbbreviation(fromBuildingAbbrev);
@@ -89,34 +120,45 @@ class LocationInfoWidget extends StatelessWidget {
           : cleanedFrom[0];
     }
 
+    // Determine if this specific box should be interactive:
+    // 1. The destination (To) box should be disabled when using POI
+    // 2. The source (From) box should ALWAYS be interactive, even when using POI
+    //    (this allows changing from "Your Location" to a specific room)
+    final bool isInteractive = !isPOI;
+
     return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/ClassroomSelection',
-          arguments: {
-            'building': isSource ? fromBuilding!.name : toBuilding!.name,
-            'floor': (isSource || from == 'Your Location')
-                ? 'Floor $fromFloor'
-                : 'Floor $toFloor',
-            'currentRoom': isSource ? to : from,
-            'isSource': isSource,
-            'isDisability': isDisability
-          },
-        );
-      },
+      onTap: isInteractive
+          ? () {
+              Navigator.pushNamed(
+                context,
+                '/ClassroomSelection',
+                arguments: {
+                  'building': _getBuildingName(isSource, fromBuilding, toBuilding),
+                  'floor': _getFloorName(isSource, fromFloor, toFloor),
+                  'currentRoom': isSource ? to : from,
+                  'isSource': isSource,
+                  'isDisability': isDisability
+                },
+              );
+            }
+          : null,
       child: Row(
-        // Wrap it with Row widget to allow Expanded to work
         children: [
           Expanded(
-            // Expanded widget now works within Row
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(4),
+                color: isInteractive ? Colors.white : Colors.grey.shade100,
               ),
-              child: Text(text, style: const TextStyle(fontSize: 16)),
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isInteractive ? Colors.black87 : Colors.grey.shade600,
+                ),
+              ),
             ),
           ),
         ],
