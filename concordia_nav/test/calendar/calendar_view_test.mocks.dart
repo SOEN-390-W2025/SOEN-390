@@ -4,15 +4,17 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:ui' as _i9;
+import 'dart:ui' as _i11;
 
-import 'package:calendar_view/calendar_view.dart' as _i7;
+import 'package:calendar_view/calendar_view.dart' as _i9;
+import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i5;
 import 'package:concordia_nav/data/repositories/calendar.dart' as _i3;
-import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart' as _i5;
-import 'package:concordia_nav/utils/calendar_viewmodel.dart' as _i6;
+import 'package:concordia_nav/utils/building_viewmodel.dart' as _i6;
+import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart' as _i7;
+import 'package:concordia_nav/utils/calendar_viewmodel.dart' as _i8;
 import 'package:device_calendar/device_calendar.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:mockito/src/dummies.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -111,13 +113,37 @@ class MockCalendarRepository extends _i1.Mock
             ),
           )
           as _i4.Future<List<_i3.UserCalendarEvent>>);
+
+  @override
+  _i4.Future<_i3.UserCalendarEvent?> getNextClassEvent(
+    List<_i3.UserCalendar>? selectedCalendars,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassEvent, [selectedCalendars]),
+            returnValue: _i4.Future<_i3.UserCalendarEvent?>.value(),
+          )
+          as _i4.Future<_i3.UserCalendarEvent?>);
+
+  @override
+  _i4.Future<_i5.ConcordiaRoom?> getNextClassRoom(
+    List<_i3.UserCalendar>? selectedCalendars,
+    _i6.BuildingViewModel? buildingViewModel,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassRoom, [
+              selectedCalendars,
+              buildingViewModel,
+            ]),
+            returnValue: _i4.Future<_i5.ConcordiaRoom?>.value(),
+          )
+          as _i4.Future<_i5.ConcordiaRoom?>);
 }
 
 /// A class which mocks [CalendarSelectionViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCalendarSelectionViewModel extends _i1.Mock
-    implements _i5.CalendarSelectionViewModel {
+    implements _i7.CalendarSelectionViewModel {
   MockCalendarSelectionViewModel() {
     _i1.throwOnMissingStub(this);
   }
@@ -202,7 +228,7 @@ class MockCalendarSelectionViewModel extends _i1.Mock
 /// A class which mocks [CalendarViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
+class MockCalendarViewModel extends _i1.Mock implements _i8.CalendarViewModel {
   MockCalendarViewModel() {
     _i1.throwOnMissingStub(this);
   }
@@ -265,18 +291,18 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
           as _i4.Future<void>);
 
   @override
-  List<_i7.CalendarEventData<Object?>> getCalendarEventData() =>
+  List<_i9.CalendarEventData<Object?>> getCalendarEventData() =>
       (super.noSuchMethod(
             Invocation.method(#getCalendarEventData, []),
-            returnValue: <_i7.CalendarEventData<Object?>>[],
+            returnValue: <_i9.CalendarEventData<Object?>>[],
           )
-          as List<_i7.CalendarEventData<Object?>>);
+          as List<_i9.CalendarEventData<Object?>>);
 
   @override
   String formatEventTime(_i3.UserCalendarEvent? event) =>
       (super.noSuchMethod(
             Invocation.method(#formatEventTime, [event]),
-            returnValue: _i8.dummyValue<String>(
+            returnValue: _i10.dummyValue<String>(
               this,
               Invocation.method(#formatEventTime, [event]),
             ),
@@ -287,7 +313,7 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
   String getBuildingAbbreviation(String? location) =>
       (super.noSuchMethod(
             Invocation.method(#getBuildingAbbreviation, [location]),
-            returnValue: _i8.dummyValue<String>(
+            returnValue: _i10.dummyValue<String>(
               this,
               Invocation.method(#getBuildingAbbreviation, [location]),
             ),
@@ -295,13 +321,13 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
           as String);
 
   @override
-  void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i11.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i9.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i11.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

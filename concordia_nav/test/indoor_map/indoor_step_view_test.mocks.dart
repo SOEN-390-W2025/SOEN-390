@@ -521,10 +521,15 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   @override
   _i12.ConcordiaFloorPoint? getRegularStartPoint(
     _i13.BuildingData? buildingData,
-    String? floor,
-  ) =>
+    String? floor, {
+    String? connection,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#getRegularStartPoint, [buildingData, floor]),
+            Invocation.method(
+              #getRegularStartPoint,
+              [buildingData, floor],
+              {#connection: connection},
+            ),
           )
           as _i12.ConcordiaFloorPoint?);
 
