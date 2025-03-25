@@ -209,10 +209,19 @@ class _CalendarViewState extends State<CalendarView> {
     final bottomSheetHeight = screenHeight * 0.26;
 
     // Get building information early to use it for button state
-    final building = _selectedEvent?.locationField != null
-        ? _buildingViewModel
-            .getBuildingFromLocation(_selectedEvent!.locationField!)
+    String? buildingCode;
+    if (_selectedEvent?.locationField != null) {
+      final parsed = _parseCalendarLocation(_selectedEvent!.locationField!);
+      buildingCode = parsed['buildingCode'];
+    }
+
+    final building = buildingCode != null
+        ? _buildingViewModel.getBuildingByAbbreviation(buildingCode)
         : null;
+
+    // Check if building code is valid but building not found
+    final bool isInvalidBuilding =
+        buildingCode != null && buildingCode.isNotEmpty && building == null;
 
     return Container(
       height: bottomSheetHeight,
@@ -292,7 +301,14 @@ class _CalendarViewState extends State<CalendarView> {
                           Expanded(
                             child: Text(
                               _selectedEvent!.locationField!,
-                              style: Theme.of(context).textTheme.bodyLarge,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    // Add a red color to the location text if the building is invalid
+                                    color:
+                                        isInvalidBuilding ? Colors.red : null,
+                                  ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -302,7 +318,7 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Direction button with states: loading, enabled, disabled
+              // Direction button with states: loading, enabled, disabled, or error
               if (_checkingFloorPlan)
                 // Loading state
                 const SizedBox(
@@ -312,6 +328,25 @@ class _CalendarViewState extends State<CalendarView> {
                     padding: EdgeInsets.all(4.0),
                     child: CircularProgressIndicator(color: Color(0xFF962e42)),
                   ),
+                )
+              else if (isInvalidBuilding)
+                // Invalid building - error button
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[700],
+                  ),
+                  icon: const Icon(Icons.error_outline, color: Colors.white),
+                  label: const Text('Invalid Building',
+                      style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    // Show a tooltip explaining the error
+                    final snackBar = SnackBar(
+                      content: Text(
+                          'Building code "$buildingCode" not recognized. Please check the location format.'),
+                      duration: const Duration(seconds: 3),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
                 )
               else if (_selectedEvent?.locationField == null ||
                   building == null)

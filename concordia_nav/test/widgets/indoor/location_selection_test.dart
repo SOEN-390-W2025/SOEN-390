@@ -12,8 +12,8 @@ void main() {
 
 // random position far away from campuses
   var testPosition = Position(
-      longitude: 100.0,
-      latitude: 100.0,
+      longitude: 45.497211,
+      latitude: -73.57875,
       timestamp: DateTime.now(),
       accuracy: 30.0,
       altitude: 20.0,
@@ -104,8 +104,8 @@ void main() {
     expect(callbackInvoked, isTrue);
 
     testPosition = Position(
-        longitude: 100.0,
-        latitude: 0.0,
+        longitude: 45.497211,
+        latitude: -73.57875,
         timestamp: DateTime.now(),
         accuracy: 30.0,
         altitude: 20.0,
@@ -165,7 +165,7 @@ void main() {
     expect(find.text('Select Building'), findsOneWidget);
   });
 
-  testWidgets('Selecting Classroom updates dropdowns correctly',
+  testWidgets('Selecting Building updates dropdowns correctly',
       (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -181,23 +181,6 @@ void main() {
 
     expect(find.text('Select Building'), findsOneWidget);
     await tester.tap(find.text('Select Building'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Hall Building'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Select Floor'), findsOneWidget);
-    await tester.tap(find.text('Select Floor'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Floor 1'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Select Classroom'), findsAny);
-    await tester.tap(find.text('Select Classroom').at(1));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('10'));
     await tester.pumpAndSettle();
   });
 

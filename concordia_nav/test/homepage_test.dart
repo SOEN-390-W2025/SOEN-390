@@ -85,9 +85,9 @@ void main() async {
     expect(find.text('LOY map'), findsOneWidget);
     expect(find.byIcon(Icons.map), findsNWidgets(2));
 
-    // Verify that the Outdoor directions and Next class directions FeatureCards are present
+    // Verify that the Outdoor directions and Navigation to Next Class FeatureCards are present
     expect(find.text('Outdoor directions'), findsOneWidget);
-    expect(find.text('Next class directions'), findsOneWidget);
+    expect(find.text('Navigation to Next Class'), findsOneWidget);
     expect(find.byIcon(Icons.maps_home_work), findsOneWidget);
     expect(find.byIcon(Icons.calendar_today), findsOneWidget);
 
@@ -313,7 +313,7 @@ void main() async {
       routes: routes,
     ));
 
-    // Tap on the Next Class directions FeatureCard
+    // Tap on the Navigation to Next Class FeatureCard
     await tester.tap(find.byIcon(Icons.calendar_today));
     await tester.pumpAndSettle(); // Wait for navigation to complete
 

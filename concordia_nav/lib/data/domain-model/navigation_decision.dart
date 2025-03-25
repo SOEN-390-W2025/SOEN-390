@@ -1,28 +1,15 @@
-/*
-In theory, these are the different Location-to-Location scenarios we'll need to
-take into account for the List provided from the Smart Planner section:
-
-(source: outdoor), (destination: outdoor)
-(source: indoor), (destination: outdoor)
-(source: indoor), (destination: outdoor)
-(source: indoor), (destination: indoor)
-(source: different campus), (destination: indoor)
-(source different campus), (destination: outdoor)
-(source: indoor), (destination: different campus)
-(source: outdoor), (destination: different campus)
-
-As of now, the cases addressed are those pertaining to Next Class Directions.
-*/
 enum NavigationCase {
-  sameBuildingClassroom,
-  differentBuildingClassroom,
-  outdoorToClassroom,
-  journeyFromSmartPlanner
+  multiStepJourney,
 }
 
 class NavigationDecision {
   final NavigationCase navCase;
-  final int pageCount;
 
-  NavigationDecision({required this.navCase, required this.pageCount});
+  /// The page sequence is comprised of any number of "I"'s (for an indoor view)
+  /// or "O"'s (for an outdoor view).
+  final List<String> pageSequence;
+
+  NavigationDecision({required this.navCase, required this.pageSequence});
+
+  int get pageCount => pageSequence.length;
 }
