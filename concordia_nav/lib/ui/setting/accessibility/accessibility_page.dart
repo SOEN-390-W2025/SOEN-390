@@ -3,19 +3,22 @@ import '../../../widgets/accessibility_tile.dart';
 import '../../../widgets/custom_appbar.dart';
 import 'dart:developer' as dev;
 
-import 'color_adjustment_view.dart';
-
 class AccessibilityPage extends StatelessWidget {
   const AccessibilityPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
       appBar: customAppBar(context, 'Accessibility'),
       body: Semantics(
         label: 'Explore general accessibility options.',
-        child: ListView(
-          children: _buildAccessibilityTiles(context),
+        child: Container(
+          color: backgroundColor,
+          child: ListView(
+            children: _buildAccessibilityTiles(context),
+          ),
         ),
       ),
     );
@@ -85,7 +88,7 @@ class AccessibilityPage extends StatelessWidget {
   void _handleSubOptionTap(BuildContext context, String option) {
     switch (option) {
       case 'Color adjustment':
-        Navigator.pushNamed(context,  '/ColorAdjustmentView');
+        Navigator.pushNamed(context, '/ColorAdjustmentView');
         break;
 
       case 'Text-to-speech':
@@ -125,7 +128,7 @@ class AccessibilityPage extends StatelessWidget {
         break;
 
       case 'Dwell timing':
-        dev.log( 'Dwell timing adjusted');
+        dev.log('Dwell timing adjusted');
         break;
 
       case 'Simplified interface':
@@ -149,7 +152,7 @@ class AccessibilityPage extends StatelessWidget {
         break;
 
       case 'On-Screen keyboard':
-       dev.log('On-Screen keyboard activated');
+        dev.log('On-Screen keyboard activated');
         break;
 
       case 'Real-time translation':
@@ -157,7 +160,7 @@ class AccessibilityPage extends StatelessWidget {
         break;
 
       case 'Feedback':
-       dev.log('Feedback form opened');
+        dev.log('Feedback form opened');
         break;
 
       default:

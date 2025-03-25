@@ -19,6 +19,12 @@ class _AccessibilityTileState extends State<AccessibilityTile> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final primaryTextColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ??
+                               Theme.of(context).colorScheme.onSurface.withAlpha(35);
+
     return Card(
       child: Column(
         children: [
@@ -27,8 +33,15 @@ class _AccessibilityTileState extends State<AccessibilityTile> {
               _isExpanded
                   ? Icons.keyboard_arrow_down
                   : Icons.keyboard_arrow_right,
+              color: primaryColor,
             ),
-            title: Text(widget.title),
+            title: Text(
+              widget.title,
+              style: TextStyle(
+                color: primaryTextColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             contentPadding: const EdgeInsets.all(7),
             onTap: () {
               setState(() {
@@ -44,14 +57,14 @@ class _AccessibilityTileState extends State<AccessibilityTile> {
                   child: ListTile(
                     title: Text(
                       option['title'],
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 110, 110, 110),
+                      style: TextStyle(
+                        color: secondaryTextColor,
                         fontSize: 14,
                       ),
                     ),
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.keyboard_arrow_right,
-                      color: Color.fromARGB(255, 110, 110, 110),
+                      color: primaryColor.withAlpha(35),
                     ),
                     onTap: option.containsKey('onTap') &&
                             option['onTap'] is Function
