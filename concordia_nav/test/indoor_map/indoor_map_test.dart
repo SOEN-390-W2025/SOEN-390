@@ -37,7 +37,7 @@ void main() {
       });
     });
 
-    testWidgets('CustomAppBar should have the correct title',
+    testWidgets('Selecting a building brings to FloorSelection',
         (WidgetTester tester) async {
       await tester.runAsync(() async {
         // Build the IndoorMapView widget
@@ -46,9 +46,15 @@ void main() {
             home: BuildingSelection(),
           ),
         );
+        await tester.pumpAndSettle();
 
-        // Verify that the custom app bar has the correct title
-        expect(find.text('Floor Navigation'), findsOneWidget);
+        // tap on a building
+        expect(find.text("Hall Building"), findsOneWidget);
+        await tester.tap(find.text("Hall Building"));
+        await tester.pumpAndSettle();
+
+        expect(find.text("Hall Building"), findsOneWidget);
+        expect(find.text("Floor 1"), findsOneWidget);
       });
     });
   });
