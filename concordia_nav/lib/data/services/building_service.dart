@@ -29,7 +29,7 @@ class BuildingService {
   }
 
   // Retrieve building names for a specific campus
-  List<String> getBuildingNamesForCampus(ConcordiaCampus campus) {
+  List<String>  getBuildingNamesForCampus(ConcordiaCampus campus) {
     final buildings =
         BuildingRepository.buildingByCampusAbbreviation[campus.abbreviation];
     if (buildings != null) {
