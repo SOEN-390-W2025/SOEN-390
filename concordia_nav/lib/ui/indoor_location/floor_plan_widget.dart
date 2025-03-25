@@ -21,7 +21,6 @@ class FloorPlanWidget extends StatelessWidget {
   final List<POI>? pois;
   final Function(POI)? onPoiTap;
   final Offset? currentLocation;
-  final bool showPoisBetweenMapAndMarkers;
 
   const FloorPlanWidget({
       super.key,
@@ -38,7 +37,7 @@ class FloorPlanWidget extends StatelessWidget {
       this.pois,
       this.onPoiTap,
       this.currentLocation,
-      this.showPoisBetweenMapAndMarkers = false});
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +76,8 @@ class FloorPlanWidget extends StatelessWidget {
                 ),
               ),
 
-              // POI layer (before route if showPoisBetweenMapAndMarkers is false)
-              if (pois != null && !showPoisBetweenMapAndMarkers)
+              // POI layer
+              if (pois != null)
                 ..._buildPOILayer(),
 
               // Route painter
@@ -94,10 +93,6 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                   size: Size(width, height),
                 ),
-
-              // POI layer (after map but before markers if showPoisBetweenMapAndMarkers is true)
-              if (pois != null && showPoisBetweenMapAndMarkers)
-                ..._buildPOILayer(),
 
               // Current user location marker (white circle)
               if (currentLocation != null)

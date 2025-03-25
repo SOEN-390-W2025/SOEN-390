@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/poi.dart';
-import '../../data/repositories/building_data_manager.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
+import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
@@ -30,25 +31,35 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   late TextEditingController _destinationController;
 
   late IndoorMapViewModel _indoorMapViewModel;
+  late IndoorDirectionsViewModel _directionsViewModel;
+  late BuildingViewModel _buildingViewModel;
+  late POIMapViewModel _poiMapViewModel;
 
   late String floorPlanPath;
   double width = 1024.0;
   double height = 1024.0;
   bool _floorPlanExists = true;
   bool _isLoading = true;
-  late IndoorDirectionsViewModel _directionsViewModel;
   bool _hasPannedToRoom = false;
   
-  // Add POI-related state variables
+  // POI-related state variables
   List<POI> _poisOnCurrentFloor = [];
-  // ignore: unused_field
-  bool _loadingPOIs = true;
   
   @override
   void initState() {
     super.initState();
+    // Initialize ViewModels
     _directionsViewModel = IndoorDirectionsViewModel();
+    _buildingViewModel = BuildingViewModel();
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+    
+    // Initialize POIMapViewModel as a service
+    _poiMapViewModel = POIMapViewModel.asService(
+      buildingViewModel: _buildingViewModel,
+      indoorDirectionsViewModel: _directionsViewModel,
+      indoorMapViewModel: _indoorMapViewModel
+    );
+    
     floorPlanPath =
         'assets/maps/indoor/floorplans/${widget.building.abbreviation}${widget.floor}.svg';
     _checkIfFloorPlanExists();
@@ -62,34 +73,23 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
       offsetY: -50.0,
     );
     
-    // Load POIs for current floor
+    // Load POIs for current floor from the POIMapViewModel
     _loadPOIsForCurrentFloor();
   }
 
   Future<void> _loadPOIsForCurrentFloor() async {
-    setState(() {
-      _loadingPOIs = true;
-    });
-    
     try {
-      // Get all POIs from the building data manager
-      final allPOIs = await BuildingDataManager.getAllPOIs();
+      // Get POIs from the POIMapViewModel
+      _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
+        widget.building.abbreviation, 
+        widget.floor ?? '1'
+      );
       
-      // Filter POIs for current building and floor
-      _poisOnCurrentFloor = allPOIs.where((poi) => 
-        poi.buildingId == widget.building.abbreviation && 
-        poi.floor == widget.floor
-      ).toList();
-      
-      dev.log('Found ${_poisOnCurrentFloor.length} POIs for ${widget.building.abbreviation} floor ${widget.floor}');
-    } catch (e) {
-      dev.log('Error loading POIs: $e');
-    } finally {
       if (mounted) {
-        setState(() {
-          _loadingPOIs = false;
-        });
+        setState(() {});
       }
+    } catch (e) {
+      dev.log('Error loading POIs in IndoorLocationView: $e');
     }
   }
 
@@ -114,7 +114,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     });
   }
 
-  // New method to pan to the selected room
+  // Method to pan to the selected room
   Future<void> _panToSelectedRoom(BuildContext context) async {
     if (widget.room != null && !_hasPannedToRoom && _floorPlanExists && !_isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -210,6 +210,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
+    _poiMapViewModel.dispose();
     _destinationController.dispose();
     super.dispose();
   }
@@ -234,14 +235,15 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
         child: Stack(
           children: [
             FloorPlanWidget(
-                indoorMapViewModel: _indoorMapViewModel,
-                floorPlanPath: floorPlanPath,
-                semanticsLabel:
-                    'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
-                width: width,
-                height: height,
-            pois: _poisOnCurrentFloor,
-            onPoiTap: _handlePoiTap,),
+              indoorMapViewModel: _indoorMapViewModel,
+              floorPlanPath: floorPlanPath,
+              semanticsLabel:
+                  'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
+              width: width,
+              height: height,
+              pois: _poisOnCurrentFloor,
+              onPoiTap: _handlePoiTap,
+            ),
             Positioned(
               top: 0,
               left: 0,

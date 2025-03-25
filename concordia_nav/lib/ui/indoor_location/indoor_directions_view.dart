@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../data/domain-model/poi.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
+import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
@@ -59,6 +60,10 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   late IndoorMapViewModel _indoorMapViewModel;
   late IndoorDirectionsViewModel _directionsViewModel;
   late BuildingViewModel _buildingViewModel;
+  late POIMapViewModel _poiMapViewModel;
+
+  // POI-related state variables
+  List<POI> _poisOnCurrentFloor = [];
 
   static const yourLocation = 'Your Location';
 
@@ -70,9 +75,17 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   @override
   void initState() {
     super.initState();
+    // Initialize ViewModels
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+    
+    // Initialize POIMapViewModel as a service
+    _poiMapViewModel = POIMapViewModel.asService(
+      buildingViewModel: _buildingViewModel,
+      indoorDirectionsViewModel: _directionsViewModel,
+      indoorMapViewModel: _indoorMapViewModel
+    );
 
     disability = widget.isDisability;
     buildingAbbreviation =
@@ -94,6 +107,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
     getSvgSize();
     _initializeRoute();
+    
+    // Load POIs for the current floor from the POIMapViewModel
+    _loadPOIsForCurrentFloor();
 
     // Initialize multi-floor view if needed
     if (isMultiFloor) {
@@ -103,6 +119,23 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         // If we're on the start floor and need to go to a POI on a different floor
         handlePrevFloorPress();
       }
+    }
+  }
+  
+  // Method to load POIs for the current floor using POIMapViewModel
+  Future<void> _loadPOIsForCurrentFloor() async {
+    try {
+      // Get POIs from the POIMapViewModel
+      _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
+        buildingAbbreviation, 
+        displayFloor
+      );
+      
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      dev.log('Error loading POIs in IndoorDirectionsView: $e');
     }
   }
 
@@ -128,13 +161,11 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     }
 
     // Update the floor plan path
-    floorPlanPath =
-        'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
     // Set up the real room references
     realStartRoom = widget.sourceRoom;
-    realEndRoom =
-        '${targetPOI!.buildingId} ${targetPOI!.floor}${targetPOI!.name}';
+    realEndRoom = '${targetPOI!.buildingId} ${targetPOI!.floor}${targetPOI!.name}';
 
     // If multi-floor, set the appropriate end room for the current floor view
     if (isPOIOnDifferentFloor) {
@@ -165,8 +196,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     to = '${targetPOI!.name} (${targetPOI!.buildingId} ${targetPOI!.floor})';
 
     dev.log('IndoorDirectionsView with POI: from: $from, to: $to');
-    dev.log(
-        'Multi-floor POI navigation: $isPOIOnDifferentFloor, display floor: $displayFloor');
+    dev.log('Multi-floor POI navigation: $isPOIOnDifferentFloor, display floor: $displayFloor');
   }
 
   // Original initialization logic moved to a separate method
@@ -181,8 +211,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       displayFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
     }
 
-    floorPlanPath =
-        'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
     realStartRoom = widget.sourceRoom;
     realEndRoom = widget.endRoom;
@@ -208,8 +237,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
-    dev.log(
-        'IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
+    dev.log('IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
     dev.log('IndoorDirectionsView: from: $from, to: $to');
   }
 
@@ -217,6 +245,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   void dispose() {
     _timer?.cancel();
     _indoorMapViewModel.dispose();
+    _poiMapViewModel.dispose();
     super.dispose();
   }
 
@@ -270,7 +299,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         });
       }
 
-      // ignore: avoid_catches_without_on_clauses
+    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
@@ -305,7 +334,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                       to: to,
                       building: widget.building,
                       isDisability: disability,
-                      isPOI: widget.selectedPOI != null),
+                      isPOI: widget.selectedPOI != null
+                  ),
                 ),
                 Expanded(
                   child: Stack(
@@ -318,6 +348,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
                             'Floor plan of $buildingAbbreviation-$displayFloor',
                         width: width,
                         height: height,
+                        pois: _poisOnCurrentFloor,
+                        onPoiTap: null,
                       ),
                       Positioned(
                         top: 16,
@@ -405,6 +437,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         );
 
         getSvgSize();
+
+        // Load POIs for the new floor
+        _loadPOIsForCurrentFloor();
       }
     });
 
@@ -431,6 +466,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         );
 
         getSvgSize(); // Ensure floor plan dimensions update
+
+        // Load POIs for the new floor
+        _loadPOIsForCurrentFloor();
       }
     });
 
