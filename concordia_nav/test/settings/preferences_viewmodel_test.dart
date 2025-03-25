@@ -1,7 +1,10 @@
 import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
   group('PreferencesModel tests', () {
     test('updateTransportation changes the default method', () {
       final preferencesModel = PreferencesModel();

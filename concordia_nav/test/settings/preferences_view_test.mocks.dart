@@ -3,7 +3,8 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:ui' as _i4;
+import 'dart:async' as _i4;
+import 'dart:ui' as _i5;
 
 import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -59,25 +60,31 @@ class MockPreferencesModel extends _i1.Mock implements _i2.PreferencesModel {
           as bool);
 
   @override
-  void updateTransportation(String? newTransportation) => super.noSuchMethod(
-    Invocation.method(#updateTransportation, [newTransportation]),
-    returnValueForMissingStub: null,
-  );
+  _i4.Future<void> updateTransportation(String? newTransportation) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateTransportation, [newTransportation]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  void updateMeasurementUnit(String? newMeasurementUnit) => super.noSuchMethod(
-    Invocation.method(#updateMeasurementUnit, [newMeasurementUnit]),
-    returnValueForMissingStub: null,
-  );
+  _i4.Future<void> updateMeasurementUnit(String? newMeasurementUnit) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateMeasurementUnit, [newMeasurementUnit]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

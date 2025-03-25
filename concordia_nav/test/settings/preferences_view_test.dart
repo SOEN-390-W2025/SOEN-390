@@ -17,8 +17,8 @@ void main () {
       mockPreferencesModel = MockPreferencesModel();
       when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
       when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
-      when(mockPreferencesModel.updateTransportation(any)).thenAnswer((_) {});
-      when(mockPreferencesModel.updateMeasurementUnit(any)).thenAnswer((_) {});
+      when(mockPreferencesModel.updateTransportation(any)).thenAnswer((_) async => {});
+      when(mockPreferencesModel.updateMeasurementUnit(any)).thenAnswer((_) async => {});
     });
 
     testWidgets('renders PreferencesPage with non-constant key',
