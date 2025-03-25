@@ -128,9 +128,7 @@ class FloorPlanWidget extends StatelessWidget {
         onTap: () {
           dev.log(
               'assets/icons/pois/${poi.category.toString().split('.').last}.png');
-          if (onPoiTap != null) {
-            onPoiTap!(poi);
-          }
+          onPoiTap?.call(poi);
         },
         behavior: HitTestBehavior.opaque,
         child: Container(
