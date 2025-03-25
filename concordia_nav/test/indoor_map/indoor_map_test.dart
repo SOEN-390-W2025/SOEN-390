@@ -11,17 +11,15 @@ void main() {
   group('IndoorMapView Widget Tests', () {
     testWidgets('IndoorMapView should render correctly with non-constant key',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          MaterialApp(
-            home: BuildingSelection(key: UniqueKey()),
-          ),
-        );
+      // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BuildingSelection(key: UniqueKey()),
+        ),
+      );
 
-        // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Floor Navigation'), findsOneWidget);
-      });
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
 
     testWidgets('IndoorMapView should render correctly',
@@ -105,7 +103,7 @@ void main() {
         await tester.pump();
 
         // Enter a search term
-        await tester.enterText(find.byType(TextField), '9000');
+        await tester.enterText(find.byType(TextField), '90');
         await tester.pump(); // Rebuild the widget after the text input
 
         // Find all rendered text widgets
@@ -122,12 +120,12 @@ void main() {
             .toList();
 
         // Assert: Verify the filtered list shows only matching classrooms
-        expect(classrooms, contains('90001'),
-            reason: 'Room 101 should be found');
-        expect(classrooms, contains('90002'),
-            reason: 'Room 102 should be found');
-        expect(classrooms, isNot(contains('93')),
-            reason: 'Room 3 should not be found');
+        expect(classrooms, contains('903'),
+            reason: 'Room 3 should be found');
+        expect(classrooms, contains('904'),
+            reason: 'Room 4 should be found');
+        expect(classrooms, isNot(contains('911')),
+            reason: 'Room 11 should not be found');
         expect(classrooms, isNot(contains('920')),
             reason: 'Room 20 should not be found');
       });
