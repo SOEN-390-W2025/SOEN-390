@@ -9,12 +9,15 @@ class AppTheme {
       primary: const Color.fromRGBO(146, 35, 56, 1),
       secondary: const Color.fromRGBO(233, 211, 215, 1),
       surface: Colors.white,
+      onPrimary: Colors.white, // Text on primary color backgrounds
+      onSecondary: Colors.black, // Text on secondary color backgrounds
+      onSurface: Colors.black, // Text on surface/background
     ),
     iconTheme: const IconThemeData(
       color: Color.fromRGBO(146, 35, 56, 1),
     ),
     textTheme: const TextTheme().apply(
-      bodyColor: Colors.black,
+      bodyColor: Colors.black,  // Primary text color
       displayColor: Colors.black,
     ),
   );
@@ -39,7 +42,8 @@ class AppTheme {
     required Color primaryColor,
     required Color secondaryColor,
     required Color backgroundColor,
-    required Color textColor,
+    required Color primaryTextColor,
+    required Color secondaryTextColor,
   }) {
     return ThemeData(
       primaryColor: primaryColor,
@@ -48,22 +52,31 @@ class AppTheme {
         primary: primaryColor,
         secondary: secondaryColor,
         surface: backgroundColor,
+        onPrimary: secondaryTextColor, // Text on primary colored elements
+        onSecondary: primaryTextColor, // Text on secondary colored elements
+        onSurface: primaryTextColor, // Text on surface/background
       ),
       iconTheme: IconThemeData(
         color: primaryColor,
       ),
       textTheme: ThemeData.light().textTheme.apply(
-        bodyColor: textColor,
-        displayColor: textColor,
+        bodyColor: primaryTextColor,
+        displayColor: primaryTextColor,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor,
-        foregroundColor: textColor,
+        foregroundColor: secondaryTextColor, // Usually white text on colored app bar
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
-          foregroundColor: backgroundColor,
+          foregroundColor: secondaryTextColor, // Usually white text on colored button
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: primaryColor),
+          foregroundColor: primaryColor,
         ),
       ),
     );
@@ -78,6 +91,9 @@ class AppTheme {
         primary: const Color.fromRGBO(146, 35, 56, 1),
         secondary: const Color.fromRGBO(233, 211, 215, 1),
         surface: Colors.white,
+        onPrimary: Colors.white, // Text on primary color (white text on burgundy)
+        onSecondary: Colors.black, // Text on secondary color (black text on light pink)
+        onSurface: Colors.black, // Text on surface (black text on white background)
       ),
       iconTheme: const IconThemeData(
         color: Color.fromRGBO(146, 35, 56, 1),
@@ -85,6 +101,22 @@ class AppTheme {
       textTheme: const TextTheme().apply(
         bodyColor: Colors.black,
         displayColor: Colors.black,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color.fromRGBO(146, 35, 56, 1),
+        foregroundColor: Colors.white,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+          foregroundColor: Colors.white,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Color.fromRGBO(146, 35, 56, 1)),
+          foregroundColor: const Color.fromRGBO(146, 35, 56, 1),
+        ),
       ),
     );
     _themeChangeNotifier.value = _currentTheme;

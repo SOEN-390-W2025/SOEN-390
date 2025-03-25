@@ -16,7 +16,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
   late Color _primaryColor;
   late Color _secondaryColor;
   late Color _backgroundColor;
-  late Color _textColor;
+  late Color _primaryTextColor;
+  late Color _secondaryTextColor;
 
   // Create a preview theme
   late ThemeData _previewTheme;
@@ -28,7 +29,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
     _primaryColor = AppTheme.theme.primaryColor;
     _secondaryColor = AppTheme.theme.colorScheme.secondary;
     _backgroundColor = AppTheme.theme.scaffoldBackgroundColor;
-    _textColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
+    _primaryTextColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
+    _secondaryTextColor = AppTheme.theme.colorScheme.onPrimary;
 
     // Initialize preview theme
     _updatePreviewTheme();
@@ -36,32 +38,12 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
 
   // Update the preview theme with current color selections
   void _updatePreviewTheme() {
-    _previewTheme = ThemeData(
+    _previewTheme = AppTheme.createTheme(
       primaryColor: _primaryColor,
-      scaffoldBackgroundColor: _backgroundColor,
-      colorScheme: ColorScheme.fromSwatch().copyWith(
-        primary: _primaryColor,
-        secondary: _secondaryColor,
-        surface: _backgroundColor,
-      ),
-      iconTheme: IconThemeData(
-        color: _primaryColor,
-      ),
-      textTheme: AppTheme.theme.textTheme.apply(
-        bodyColor: _textColor,
-        displayColor: _textColor,
-      ),
-      // Ensure buttons and other components also use the selected colors
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _primaryColor,
-          foregroundColor: Colors.white,
-        ),
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: _primaryColor,
-        foregroundColor: Colors.white,
-      ),
+      secondaryColor: _secondaryColor,
+      backgroundColor: _backgroundColor,
+      primaryTextColor: _primaryTextColor,
+      secondaryTextColor: _secondaryTextColor,
     );
   }
 
@@ -122,7 +104,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
       _primaryColor = AppTheme.theme.primaryColor;
       _secondaryColor = AppTheme.theme.colorScheme.secondary;
       _backgroundColor = AppTheme.theme.scaffoldBackgroundColor;
-      _textColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
+      _primaryTextColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
+      _secondaryTextColor = AppTheme.theme.colorScheme.onPrimary;
       _updatePreviewTheme();
     });
   }
@@ -151,7 +134,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                 label,
                 style: TextStyle(
                   fontSize: 16,
-                  color: _textColor,
+                  color: _primaryTextColor,
                 ),
               ),
             ],
@@ -178,26 +161,26 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: _textColor,
+              color: _primaryTextColor,
             ),
           ),
           const SizedBox(height: 16),
 
-          // Preview text
+          // Preview primary text
           Text(
-            'This is how text will appear',
+            'This is how primary text will appear',
             style: TextStyle(
-              color: _textColor,
+              color: _primaryTextColor,
               fontSize: 16,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Preview primary button
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: _primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: _secondaryTextColor,
             ),
             onPressed: () {},
             child: const Text('Primary Button'),
@@ -208,7 +191,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: _secondaryColor),
-              foregroundColor: _secondaryColor,
+              foregroundColor: _primaryColor,
             ),
             onPressed: () {},
             child: const Text('Secondary Button'),
@@ -237,92 +220,99 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
         appBar: customAppBar(context, 'Color Adjustment'),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Customize your colors',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 8),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Customize your colors',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 8),
 
-              // Color selection rows
-              _buildColorRow(
-                'Primary color',
-                _primaryColor,
-                (color) => setState(() => _primaryColor = color)
-              ),
-              _buildColorRow(
-                'Secondary color',
-                _secondaryColor,
-                (color) => setState(() => _secondaryColor = color)
-              ),
-              _buildColorRow(
-                'Background color',
-                _backgroundColor,
-                (color) => setState(() => _backgroundColor = color)
-              ),
-              _buildColorRow(
-                'Text color',
-                _textColor,
-                (color) => setState(() => _textColor = color)
-              ),
+                // Color selection rows
+                _buildColorRow(
+                  'Primary color',
+                  _primaryColor,
+                  (color) => setState(() => _primaryColor = color)
+                ),
+                _buildColorRow(
+                  'Secondary color',
+                  _secondaryColor,
+                  (color) => setState(() => _secondaryColor = color)
+                ),
+                _buildColorRow(
+                  'Background color',
+                  _backgroundColor,
+                  (color) => setState(() => _backgroundColor = color)
+                ),
+                _buildColorRow(
+                  'Primary text color',
+                  _primaryTextColor,
+                  (color) => setState(() => _primaryTextColor = color)
+                ),
+                _buildColorRow(
+                  'Secondary text color',
+                  _secondaryTextColor,
+                  (color) => setState(() => _secondaryTextColor = color)
+                ),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Preview section
-              _buildPreviewSection(),
+                // Preview section
+                _buildPreviewSection(),
 
-              const Spacer(),
+                const SizedBox(height: 24),
 
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                // Save button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      _updateAppTheme();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Theme updated successfully!'))
+                      );
+                    },
+                    child: const Text(
+                      'Save changes',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                  onPressed: () {
-                    _updateAppTheme();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Theme updated successfully!'))
-                    );
-                  },
-                  child: const Text(
-                    'Save changes',
-                    style: TextStyle(fontSize: 16),
-                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Reset button
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).primaryColor),
-                    foregroundColor: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                // Reset button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Theme.of(context).primaryColor),
+                      foregroundColor: Theme.of(context).primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: _resetToDefault,
+                    child: const Text(
+                      'Reset to default',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                  onPressed: _resetToDefault,
-                  child: const Text(
-                    'Reset to default',
-                    style: TextStyle(fontSize: 16),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
