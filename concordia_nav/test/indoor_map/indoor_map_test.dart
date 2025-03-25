@@ -8,10 +8,29 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
 
-  group('IndoorMapView Widget Tests', () {
-    testWidgets('IndoorMapView should render correctly with non-constant key',
+  group('BuildingSelection Widget Tests', () {
+    testWidgets('Selecting a building brings to FloorSelection',
         (WidgetTester tester) async {
       // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: BuildingSelection(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // tap on a building
+      expect(find.text("Hall Building"), findsOneWidget);
+      await tester.tap(find.text("Hall Building"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Hall Building"), findsOneWidget);
+      expect(find.text("Floor 1"), findsOneWidget);
+    });
+
+    testWidgets('BuildingSelection should render correctly with non-constant key',
+        (WidgetTester tester) async {
+      // Build the BuildingSelection widget
       await tester.pumpWidget(
         MaterialApp(
           home: BuildingSelection(key: UniqueKey()),
@@ -22,40 +41,17 @@ void main() {
       expect(find.text('Floor Navigation'), findsOneWidget);
     });
 
-    testWidgets('IndoorMapView should render correctly',
+    testWidgets('BuildingSelection should render correctly',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: BuildingSelection(),
-          ),
-        );
+      // Build the BuildingSelection widget
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: BuildingSelection(),
+        ),
+      );
 
-        // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Floor Navigation'), findsOneWidget);
-      });
-    });
-
-    testWidgets('Selecting a building brings to FloorSelection',
-        (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: BuildingSelection(),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        // tap on a building
-        expect(find.text("Hall Building"), findsOneWidget);
-        await tester.tap(find.text("Hall Building"));
-        await tester.pumpAndSettle();
-
-        expect(find.text("Hall Building"), findsOneWidget);
-        expect(find.text("Floor 1"), findsOneWidget);
-      });
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
   });
 

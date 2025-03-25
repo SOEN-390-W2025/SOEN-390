@@ -3,7 +3,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../domain-model/concordia_floor_point.dart';
 import '../domain-model/concordia_room.dart';
@@ -69,25 +68,14 @@ class BuildingDataManager {
       return buildingDataCache![upperAbbr];
     }
 
-    try {
-      // Load only the specific building data using the loader class variable
-      final dataLoader = _loader ?? BuildingDataLoader(upperAbbr);
-      final buildingData = await dataLoader.load();
+    // Load only the specific building data using the loader class variable
+    final dataLoader = _loader ?? BuildingDataLoader(upperAbbr);
+    final buildingData = await dataLoader.load();
 
+    if (buildingData != null){
       buildingDataCache![upperAbbr] = buildingData;
       return buildingData;
-    // ignore: unused_catch_stack
-    } on FlutterError catch (e, stackTrace) {
-      // dev.log('Error loading building data for $upperAbbr: $e',
-      //     error: e, stackTrace: stackTrace);
-      return null;
-    } 
-    // ignore: unused_catch_stack
-    on Exception catch (e, stackTrace) {
-      // dev.log('Error loading building data for $upperAbbr: $e',
-      //     error: e, stackTrace: stackTrace);
-      return null;
-    }
+    } else {return null;}
   }
 
   /// Get the list of available building files using the AssetManifest API
