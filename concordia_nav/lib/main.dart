@@ -78,6 +78,8 @@ class MyApp extends StatelessWidget {
             return OutdoorLocationMapView(
               campus: args['campus'] as ConcordiaCampus,
               building: args['building'] as ConcordiaBuilding?,
+              providedJourneyStart: args['providedJourneyStart'] as Location?,
+              providedJourneyDest: args['providedJourneyDest'] as Location?,
             );
           },
           '/POIChoiceView': (context) => const POIChoiceView(),
