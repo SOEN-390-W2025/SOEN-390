@@ -68,11 +68,36 @@ void main() {
       expect(distance, '79 m');
     });
 
+    test('formatDistance returns imperial format distance', () {
+      // < 100
+      String distance = RouteCalculationService.formatDistance(79.14654, measurementUnit: 'Imperial');
+      expect(distance, "87 yd");
+
+      // < 10
+      distance = RouteCalculationService.formatDistance(5.0, measurementUnit: 'Imperial');
+      expect(distance, "5.5 yd");
+
+      // < 1000
+      distance = RouteCalculationService.formatDistance(500.0, measurementUnit: 'Imperial');
+      expect(distance, "547 yd");
+
+      // > 1000
+      distance = RouteCalculationService.formatDistance(1500.0, measurementUnit: 'Imperial');
+      expect(distance, "0.9 mi");
+    });
+
     test('formatDetailedTime rounds and keeps time in seconds if smaller than 60', () {
       final seconds = RouteCalculationService.formatDetailedTime(45.256);
 
       // rounds distance
       expect(seconds, '45 sec');
+    });
+
+    test('formatDetailedTime rounds and keeps time in seconds if bigger than 60', () {
+      final seconds = RouteCalculationService.formatDetailedTime(75.5);
+
+      // rounds distance
+      expect(seconds, '1 min 16 sec');
     });
 
     test('getTurnIcon returns correct icon according to direction', () {

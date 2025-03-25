@@ -68,6 +68,37 @@ void main() {
       expect(IndoorDirectionsViewState.isMultiFloor, true);
     });
 
+    testWidgets('get room name',
+        (WidgetTester tester) async {
+      view = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<IndoorDirectionsViewModel>(
+            create: (_) => mockDirectionsViewModel),
+          ChangeNotifierProvider<PreferencesModel>(
+            create: (_) => mockPreferencesModel)
+        ],
+        child: MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: 'H 921',
+            building: 'Hall Building',
+            endRoom: 'H 830',
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(view);
+      await tester.pumpAndSettle();
+
+      final state = tester
+          .state<IndoorDirectionsViewState>(find.byType(IndoorDirectionsView));
+
+      String room = state.roomName('H 902');
+      expect(room, "H 902");
+      
+      room = state.roomName("902");
+      expect(room, "H 902");
+    });
+
     testWidgets('IndoorDirectionsView renders correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(

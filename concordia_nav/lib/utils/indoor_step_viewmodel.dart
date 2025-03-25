@@ -320,7 +320,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
         description: 'You have reached ${selectedPOI!.name}',
         focusPoint: directionsViewModel.endLocation,
         zoomLevel: 1.3,
-        icon: _getPOICategoryIcon(selectedPOI!.category),
+        icon: getPOICategoryIcon(selectedPOI!.category),
       ));
     } else {
       navigationSteps.add(NavigationStep(
@@ -487,7 +487,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
   }
 
   // Helper method to get appropriate icon for POI category
-  IconData _getPOICategoryIcon(POICategory category) {
+  IconData getPOICategoryIcon(POICategory category) {
     switch (category) {
       case POICategory.washroom:
         return Icons.wc;

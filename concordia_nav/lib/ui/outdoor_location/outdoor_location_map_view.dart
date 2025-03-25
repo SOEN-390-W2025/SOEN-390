@@ -177,6 +177,39 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     first = false;
   }
 
+  Future<void> _setDefaultTravelMode() async {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    final mode = _mapTransportPreferenceToTravelMode(
+        preferences.selectedTransportation);
+    if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
+      await _mapViewModel.setActiveModeForRoute(mode);
+    } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
+      await _mapViewModel
+          .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
+    }
+  }
+
+  Future<void> _calculateTravelModes(
+      CustomTravelMode mode, ODSDirectionsService odsDirectionsService,
+      String originStr, String destStr) async {
+    final gdaMode = toGdaTravelMode(mode);
+    if (gdaMode != null) {
+      final result = await odsDirectionsService.fetchRouteResult(
+        originAddress: originStr,
+        destinationAddress: destStr,
+        travelMode: gdaMode,
+        polylineId: mode.toString(),
+      );
+
+      if (result.polyline != null) {
+        _mapViewModel.multiModeRoutes[mode] = result.polyline!;
+        _mapViewModel.travelTimes[mode] = result.travelTime;
+      } else {
+        _mapViewModel.travelTimes[mode] = "--";
+      }
+    }
+  }
+
   // New method to calculate a route directly to a POI
   Future<void> _calculateCustomRouteToPOI() async {
     if (!mounted) return;
@@ -210,35 +243,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
       // Calculate each travel mode
       for (var mode in modes) {
-        final gdaMode = toGdaTravelMode(mode);
-        if (gdaMode != null) {
-          final result = await odsDirectionsService.fetchRouteResult(
-            originAddress: originStr,
-            destinationAddress: destStr,
-            travelMode: gdaMode,
-            polylineId: mode.toString(),
-          );
-
-          if (result.polyline != null) {
-            _mapViewModel.multiModeRoutes[mode] = result.polyline!;
-            _mapViewModel.travelTimes[mode] = result.travelTime;
-          } else {
-            _mapViewModel.travelTimes[mode] = "--";
-          }
-        }
+        await _calculateTravelModes(mode, odsDirectionsService, originStr, destStr);
       }
 
       // Set default travel mode
       if (!mounted) return;
-      final preferences = Provider.of<PreferencesModel>(context, listen: false);
-      final mode = _mapTransportPreferenceToTravelMode(
-          preferences.selectedTransportation);
-      if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
-        await _mapViewModel.setActiveModeForRoute(mode);
-      } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
-        await _mapViewModel
-            .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
-      }
+      await _setDefaultTravelMode();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,6 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/domain-model/location.dart';
 import 'package:concordia_nav/data/domain-model/place.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
@@ -700,6 +701,114 @@ void main() async {
     // verify setActiveModeForRoute was called
     verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking))
         .called(1);
+  });
+
+  testWidgets('tapping a mode chip sets it as active mode',
+      (WidgetTester tester) async {
+    // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    final time = {
+      CustomTravelMode.driving: "5",
+      CustomTravelMode.walking: "20",
+      CustomTravelMode.bicycling: "10",
+      CustomTravelMode.transit: "10"
+    };
+
+    // mock travelTimes to not be null
+    when(mockMapViewModel.travelTimes).thenReturn(time);
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.transit);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit))
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Transit');
+
+    // Build the widget with mock MapViewModel
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                ),
+              )
+      )
+    );
+
+    // Wait for the FutureBuilders to resolve
+    await tester.pumpAndSettle();
+
+    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit)).called(1);
+  });
+
+  testWidgets('with default destination',
+      (WidgetTester tester) async {
+    // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    final time = {
+      CustomTravelMode.driving: "5",
+      CustomTravelMode.walking: "20",
+      CustomTravelMode.bicycling: "10",
+      CustomTravelMode.transit: "10"
+    };
+
+    // mock travelTimes to not be null
+    when(mockMapViewModel.travelTimes).thenReturn(time);
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.transit);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit))
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Transit');
+    when(mockMapViewModel.odsDirectionsService).thenReturn(directionsService);
+
+    const start = Location(45.4215, -75.6992, "Start", null, null, null, null);
+    const end = Location(45.4215, -75.6992, "End", null, null, null, null);
+    // Build the widget with mock MapViewModel
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                  building: BuildingRepository.h,
+                  providedJourneyStart: start,
+                  providedJourneyDest: end,
+                ),
+              )
+      )
+    );
+
+    // Wait for the FutureBuilders to resolve
+    await tester.pumpAndSettle();
+
+    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit)).called(1);
   });
 
   group('outdoor directions appBar', () {
