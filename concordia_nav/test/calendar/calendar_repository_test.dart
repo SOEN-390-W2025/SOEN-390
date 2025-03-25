@@ -1,16 +1,23 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:collection';
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'calendar_repository_test.mocks.dart';
 
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+
 @GenerateNiceMocks([MockSpec<DeviceCalendarPlugin>()])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
   group('UserCalendar', () {
-    
     test('UserCalendar instances with the same calendarId are equal', () {
       // Arrange
       final calendar1 = UserCalendar('1', 'Calendar 1');

@@ -13,79 +13,50 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
 
-  group('BuildingSelection Test', () {
-    testWidgets('should trigger floor selection on tapping a building',
+  group('BuildingSelection Widget Tests', () {
+    testWidgets('Selecting a building brings to FloorSelection',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Arrange
-        const building = 'Hall Building';
-
-        // Build the widget
-        await tester.pumpWidget(const MaterialApp(
+      // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        const MaterialApp(
           home: BuildingSelection(),
-        ));
-        await tester.pump();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        // Make sure the element is visible before tapping
-        await tester.ensureVisible(find.text(building));
-        await tester.pumpAndSettle();
+      // tap on a building
+      expect(find.text("Hall Building"), findsOneWidget);
+      await tester.tap(find.text("Hall Building"));
+      await tester.pumpAndSettle();
 
-        // Simulate tapping on a building
-        expect(find.text(building), findsOneWidget);
-        await tester.tap(find.text(building));
-        await tester.pumpAndSettle(); 
-
-        // Assert
-        expect(find.text('Select Building'), findsOneWidget);
-        expect(find.text('Floor 1'), findsOneWidget);
-      });
-    });
-  });
-
-  group('IndoorMapView Widget Tests', () {
-    testWidgets('IndoorMapView should render correctly with non-constant key',
-        (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          MaterialApp(
-            home: BuildingSelection(key: UniqueKey()),
-          ),
-        );
-
-        // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Indoor Directions'), findsOneWidget);
-      });
+      expect(find.text("Hall Building"), findsOneWidget);
+      expect(find.text("Floor 1"), findsOneWidget);
     });
 
-    testWidgets('IndoorMapView should render correctly',
+    testWidgets('BuildingSelection should render correctly with non-constant key',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: BuildingSelection(),
-          ),
-        );
+      // Build the BuildingSelection widget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BuildingSelection(key: UniqueKey()),
+        ),
+      );
 
-        // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Indoor Directions'), findsOneWidget);
-      });
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
 
-    testWidgets('CustomAppBar should have the correct title',
+    testWidgets('BuildingSelection should render correctly',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: BuildingSelection(),
-          ),
-        );
+      // Build the BuildingSelection widget
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: BuildingSelection(),
+        ),
+      );
 
-        // Verify that the custom app bar has the correct title
-        expect(find.text('Indoor Directions'), findsOneWidget);
-      });
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
   });
 
@@ -139,7 +110,7 @@ void main() {
         await tester.pump();
 
         // Enter a search term
-        await tester.enterText(find.byType(TextField), '9000');
+        await tester.enterText(find.byType(TextField), '90');
         await tester.pump(); // Rebuild the widget after the text input
 
         // Find all rendered text widgets
@@ -156,12 +127,12 @@ void main() {
             .toList();
 
         // Assert: Verify the filtered list shows only matching classrooms
-        expect(classrooms, contains('90001'),
-            reason: 'Room 101 should be found');
-        expect(classrooms, contains('90002'),
-            reason: 'Room 102 should be found');
-        expect(classrooms, isNot(contains('93')),
-            reason: 'Room 3 should not be found');
+        expect(classrooms, contains('903'),
+            reason: 'Room 3 should be found');
+        expect(classrooms, contains('904'),
+            reason: 'Room 4 should be found');
+        expect(classrooms, isNot(contains('911')),
+            reason: 'Room 11 should not be found');
         expect(classrooms, isNot(contains('920')),
             reason: 'Room 20 should not be found');
       });

@@ -194,7 +194,7 @@ rooms:
   "2":
     - roomNumber: "0001"
       category: waterFountain
-      floor: "1"
+      floor: "2"
       entrancePoint: { x: 289, y: 428 }
     - roomNumber: "22"
       category: office

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -266,7 +267,7 @@ class MapViewModel extends ChangeNotifier {
       bool destNearLOY, bool destNearSGW) {
     if ((!originNearLOY && !originNearSGW) || (!destNearLOY && !destNearSGW)) {
       if (kDebugMode) {
-        print(
+        dev.log(
             "Shuttle route not available: One or both addresses are not within 1km of a campus shuttle stop.");
       }
       return false;
@@ -274,7 +275,7 @@ class MapViewModel extends ChangeNotifier {
     // If both addresses are near the same campus, there's no shuttle route.
     if ((originNearLOY && destNearLOY) || (originNearSGW && destNearSGW)) {
       if (kDebugMode) {
-        print(
+        dev.log(
             "Shuttle route not available: Both addresses are near the same campus shuttle stop.");
       }
       return false;
@@ -292,7 +293,7 @@ class MapViewModel extends ChangeNotifier {
         return ShuttleRouteDirection.campusLOYtoSGW;
       } else {
         if (kDebugMode) {
-          print(
+          dev.log(
               "Shuttle route not available: Addresses do not meet valid shuttle range criteria.");
         }
         return null;
@@ -343,7 +344,7 @@ class MapViewModel extends ChangeNotifier {
 
     if (originCoords == null || destinationCoords == null) {
       if (kDebugMode) {
-        print("Shuttle route not available: Cannot determine coordinates.");
+        dev.log("Shuttle route not available: Cannot determine coordinates.");
       }
       return ShuttleRouteDetails(
         originCoords: null,
@@ -718,13 +719,13 @@ class MapViewModel extends ChangeNotifier {
         shuttleMarkersNotifier.value = newMarkers;
       } else {
         if (kDebugMode) {
-          print(
+          dev.log(
               "Error fetching shuttle bus data: POST status ${postResponse.statusCode}");
         }
       }
     } on Error catch (e) {
       if (kDebugMode) {
-        print("Error fetching shuttle bus data: $e");
+        dev.log("Error fetching shuttle bus data: $e");
       }
     }
   }

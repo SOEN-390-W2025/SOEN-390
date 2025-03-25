@@ -20,8 +20,9 @@ class POIMapViewModel extends ChangeNotifier {
   final IndoorMapViewModel _indoorMapViewModel;
   
   // State
-  List<POI> _matchingPOIs = [];
-  List<POI> _poisOnCurrentFloor = [];
+  List<POI> _allPOIs = [];             // All POIs from the data manager
+  List<POI> _matchingPOIs = [];        // POIs matching specific criteria (e.g., name)
+  List<POI> _poisOnCurrentFloor = [];  // POIs for current building and floor
   ConcordiaBuilding? _nearestBuilding;
   String _selectedFloor = '1';
   bool _isLoading = true;
@@ -36,13 +37,16 @@ class POIMapViewModel extends ChangeNotifier {
   // ignore: prefer_final_fields
   String _poiName = '';
   bool _disposed = false;
+  bool _isLoadingAllPOIs = false;
   
   // Getters
+  List<POI> get allPOIs => _allPOIs;
   List<POI> get matchingPOIs => _matchingPOIs;
   List<POI> get poisOnCurrentFloor => _poisOnCurrentFloor;
   ConcordiaBuilding? get nearestBuilding => _nearestBuilding;
   String get selectedFloor => _selectedFloor;
   bool get isLoading => _isLoading;
+  bool get isLoadingAllPOIs => _isLoadingAllPOIs;
   String get errorMessage => _errorMessage;
   bool get floorPlanExists => _floorPlanExists;
   String get floorPlanPath => _floorPlanPath;
@@ -61,7 +65,23 @@ class POIMapViewModel extends ChangeNotifier {
   }) : _poiName = poiName,
        _buildingViewModel = buildingViewModel,
        _indoorDirectionsViewModel = indoorDirectionsViewModel,
-       _indoorMapViewModel = indoorMapViewModel;
+       _indoorMapViewModel = indoorMapViewModel {
+    // Load all POIs during initialization
+    _loadAllPOIs();
+  }
+  
+  // Constructor for using as a general POI service without a specific POI name
+  POIMapViewModel.asService({
+    required BuildingViewModel buildingViewModel,
+    required IndoorDirectionsViewModel indoorDirectionsViewModel,
+    required IndoorMapViewModel indoorMapViewModel,
+  }) : _poiName = '',
+       _buildingViewModel = buildingViewModel,
+       _indoorDirectionsViewModel = indoorDirectionsViewModel,
+       _indoorMapViewModel = indoorMapViewModel {
+    // Load all POIs during initialization
+    _loadAllPOIs();
+  }
   
   @override
   void dispose() {
@@ -77,15 +97,61 @@ class POIMapViewModel extends ChangeNotifier {
     }
   }
   
-  // Load POI data
+  // Load all POIs from the data manager
+  Future<void> _loadAllPOIs() async {
+    if (_disposed) return;
+    
+    _isLoadingAllPOIs = true;
+    notifyListeners();
+    
+    try {
+      _allPOIs = await BuildingDataManager.getAllPOIs();
+      dev.log('Loaded ${_allPOIs.length} POIs in POIMapViewModel');
+    } catch (e) {
+      dev.log('Error loading POIs in POIMapViewModel: $e');
+      _allPOIs = [];
+    } finally {
+      _isLoadingAllPOIs = false;
+      notifyListeners();
+    }
+  }
+  
+  // Get all POIs for a specific building and floor - can be used by other views
+  Future<List<POI>> getPOIsForBuildingAndFloor(String buildingId, String floor) async {
+    // If POIs haven't been loaded yet, wait for them to load
+    if (_allPOIs.isEmpty && !_isLoadingAllPOIs) {
+      await _loadAllPOIs();
+    }
+    
+    // Wait for loading to complete if it's currently in progress
+    while (_isLoadingAllPOIs) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    
+    // Filter POIs for the specified building and floor
+    final poisForBuildingAndFloor = _allPOIs.where((poi) => 
+      poi.buildingId == buildingId && 
+      poi.floor == floor
+    ).toList();
+    
+    dev.log('Found ${poisForBuildingAndFloor.length} POIs for $buildingId floor $floor');
+    
+    return poisForBuildingAndFloor;
+  }
+  
+  // Load POI data for a specific POI name, optionally with initial building and floor
   Future<void> loadPOIData({String? initialBuilding, String? initialFloor}) async {
     _setLoading(true);
     _clearError();
     
     try {
-      // Load all POIs with this name
-      final allPOIs = await BuildingDataManager.getAllPOIs();
-      _matchingPOIs = allPOIs.where((poi) => poi.name == _poiName).toList();
+      // Wait for all POIs to load if they're still loading
+      while (_isLoadingAllPOIs) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      
+      // Filter all POIs with this name
+      _matchingPOIs = _allPOIs.where((poi) => poi.name == _poiName).toList();
       
       if (_matchingPOIs.isEmpty) {
         _setError('No POIs found with name: $_poiName');

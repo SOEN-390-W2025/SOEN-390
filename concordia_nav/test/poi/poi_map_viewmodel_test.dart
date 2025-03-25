@@ -28,6 +28,8 @@ void main() {
     final point = ConcordiaFloorPoint(floor, 450, 670);
     when(mockDirectionsViewModel.getRegularStartPoint(buildingData, "1"))
         .thenReturn(point);
+    when(mockDirectionsViewModel.getSvgDimensions(any))
+        .thenAnswer((_) async => const Size(1024, 1024));
     poiMapViewModel = POIMapViewModel(
       poiName: "Washroom", 
       buildingViewModel: BuildingViewModel(), 
@@ -71,6 +73,20 @@ void main() {
       expect(height, 1024.0);
     });
 
+    test('can get searchRadius value', () {
+      final searchRadius = poiMapViewModel.searchRadius;
+
+      // verify returns 50 by default
+      expect(searchRadius, 50);
+    });
+
+    test('can get isLoadingAllPOIs value', () {
+      final loading = poiMapViewModel.isLoadingAllPOIs;
+
+      // verify returns true when loadingAllPois
+      expect(loading, true);
+    });
+
     test('loadPOIData with initialBuilding', () async {
       await poiMapViewModel.loadPOIData(initialBuilding: "Hall Building", initialFloor: "1");
 
@@ -78,6 +94,7 @@ void main() {
       expect(poiMapViewModel.matchingPOIs, isNotEmpty);
       expect(poiMapViewModel.poisOnCurrentFloor, isNotEmpty);
       expect(poiMapViewModel.noPoisOnCurrentFloor, false);
+      expect(poiMapViewModel.allPOIs, isNotEmpty);
     });
 
     test('loadPOIData creates error if invalid building', () async {

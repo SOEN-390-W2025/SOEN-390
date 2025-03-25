@@ -384,8 +384,8 @@ void main() {
       await tester.tap(find.text('Finish'));
       await tester.pumpAndSettle();
 
-      // Verify returned to Indoor Directions
-      expect(find.text('Indoor Directions'), findsOneWidget);
+      // Verify returned to Floor Navigation
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
 
     testWidgets(
@@ -415,8 +415,8 @@ void main() {
       await tester.tap(find.text('Exit'));
       await tester.pumpAndSettle();
 
-      // Verify returned to Indoor Directions
-      expect(find.text('Indoor Directions'), findsOneWidget);
+      // Verify returned to Floor Navigation
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
   });
 
