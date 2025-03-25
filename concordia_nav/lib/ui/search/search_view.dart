@@ -41,6 +41,12 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color;
+
     // Get the buildings list from the arguments passed to the page
     final searchList =
         ModalRoute.of(context)?.settings.arguments as List<String>? ?? [];
@@ -48,32 +54,30 @@ class _SearchViewState extends State<SearchView> {
     return ChangeNotifierProvider<SearchViewModel>.value(
       value: _searchViewModel, // Use the provided or created ViewModel
       child: Scaffold(
+        backgroundColor: backgroundColor,
         appBar: customAppBar(context, 'Search'),
         body: Consumer<SearchViewModel>(
           builder: (context, viewModel, child) {
             return Semantics(
-              label:
-                  'Type to filter and select a building from those available.',
+              label: 'Type to filter and select a building from those available.',
               child: Column(
                 children: [
                   TextField(
+                    style: TextStyle(color: textColor),
                     onChanged: (query) {
-                      viewModel
-                          .filterBuildings(query); // Filter buildings on input
+                      viewModel.filterBuildings(query); // Filter buildings on input
                     },
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Search for a building',
-                      prefixIcon: Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search, color: primaryColor),
                       labelStyle: TextStyle(
-                        color: Colors.grey,
+                        color: secondaryTextColor,
                       ),
                       focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.grey), // Color when focused
+                        borderSide: BorderSide(color: primaryColor), // Color when focused
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.grey), // Color when not focused
+                        borderSide: BorderSide(color: secondaryTextColor?.withOpacity(0.5) ?? Colors.grey), // Color when not focused
                       ),
                     ),
                   ),
@@ -95,8 +99,7 @@ class _SearchViewState extends State<SearchView> {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              _selectedBuilding =
-                                  building; // Update the selected building
+                              _selectedBuilding = building; // Update the selected building
                             });
 
                             Navigator.pop(context, [
@@ -107,12 +110,11 @@ class _SearchViewState extends State<SearchView> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color.fromARGB(132, 158, 158, 158)
-                                  : null, // Change color if selected
-                              border: const Border(
+                                  ? primaryColor.withAlpha(100)
+                                  : null, // Use theme-aware selection color
+                              border: Border(
                                 bottom: BorderSide(
-                                  color: Colors
-                                      .grey, // Border color between each item
+                                  color: Theme.of(context).dividerColor, // Theme-aware border color
                                   width: 0.5, // Border thickness
                                 ),
                               ),
@@ -121,9 +123,13 @@ class _SearchViewState extends State<SearchView> {
                               title: Text(
                                 building,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.black : null,
+                                  color: isSelected ? primaryColor : textColor,
+                                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                                 ),
                               ),
+                              trailing: isSelected 
+                                ? Icon(Icons.check_circle, color: primaryColor)
+                                : null,
                             ),
                           ),
                         );
