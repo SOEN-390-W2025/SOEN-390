@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/domain-model/travelling_salesman_request.dart';
-import '../setting/common_app_bart.dart';
+import '../../widgets/custom_appbar.dart';
 
 class GeneratedPlanView extends StatelessWidget {
   // Right now, the plan that's getting passed from the "Smart Planner" view
@@ -84,7 +84,7 @@ class GeneratedPlanView extends StatelessWidget {
     }).toList();
 
     return Scaffold(
-      appBar: const CommonAppBar(title: "Generated Plan"),
+      appBar: customAppBar(context, "Generated Plan"),
       body: Semantics(
         label:
             'Generated plan view with an optimized timeline of events and free locations, including an option to get directions.',

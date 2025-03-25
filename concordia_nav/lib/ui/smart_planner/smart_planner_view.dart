@@ -7,7 +7,7 @@ import '../../data/services/smart_planner_service.dart';
 import '../../utils/map_viewmodel.dart';
 import '../../data/domain-model/location.dart';
 import '../../data/domain-model/travelling_salesman_request.dart';
-import '../setting/common_app_bart.dart';
+import '../../widgets/custom_appbar.dart';
 import 'generated_plan_view.dart';
 
 class SmartPlannerView extends StatefulWidget {
@@ -206,7 +206,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: "Smart Planner"),
+      appBar: customAppBar(context, "Smart Planner"),
       body: Semantics(
         label:
             'Enter your tasks into the Smart Planer with a starting location to generate an optimized plan.',
