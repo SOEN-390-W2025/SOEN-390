@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
 
@@ -161,9 +162,17 @@ class BuildingDataLoader {
 
   BuildingDataLoader(this.buildingAbbreviation);
 
-  Future<BuildingData> load() async {
-    final String yamlString = await rootBundle
+  Future<BuildingData?> load() async {
+    final String yamlString;
+    try {
+      yamlString = await rootBundle
         .loadString('${BuildingData.dataPath}$buildingAbbreviation.yaml');
+    } on FlutterError {
+      return null;
+    } on Exception {
+      return null;
+    }
+    
     final dynamic yamlData = loadYaml(yamlString);
 
     final building =

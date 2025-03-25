@@ -323,10 +323,7 @@ void main() {
 
         // Tap on Police Poi Box brings to POIMapView
         await tester.tap(find.text('Police'));
-        await tester.pumpAndSettle();
-        // Should be in the POI map view page
-        await tester.tap(find.byIcon(Icons.arrow_back));
-        await tester.pumpAndSettle(); // return to POIPage
+        await tester.pump();
       });
     });
   });

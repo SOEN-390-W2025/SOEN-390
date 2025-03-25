@@ -22,8 +22,8 @@ class FloorPlanWidget extends StatelessWidget {
   final Function(POI)? onPoiTap;
   final Offset? currentLocation;
 
-  const FloorPlanWidget(
-      {super.key,
+  const FloorPlanWidget({
+      super.key,
       required this.indoorMapViewModel,
       required this.floorPlanPath,
       this.viewModel,
@@ -36,7 +36,8 @@ class FloorPlanWidget extends StatelessWidget {
       this.showStepView = false,
       this.pois,
       this.onPoiTap,
-      this.currentLocation});
+      this.currentLocation,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +61,7 @@ class FloorPlanWidget extends StatelessWidget {
           height: height,
           child: Stack(
             children: [
+              // Base SVG floor plan
               SvgPicture.asset(
                 floorPlanPath,
                 fit: BoxFit.contain,
@@ -73,6 +75,12 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // POI layer
+              if (pois != null)
+                ..._buildPOILayer(),
+
+              // Route painter
               if (viewModel != null)
                 CustomPaint(
                   painter: IndoorMapPainter(
@@ -85,38 +93,7 @@ class FloorPlanWidget extends StatelessWidget {
                   ),
                   size: Size(width, height),
                 ),
-              if (pois != null)
-                ...pois!.map((poi) => Positioned(
-                      left: poi.x - 24,
-                      top: poi.y - 26,
-                      child: GestureDetector(
-                        onTap: () {
-                          dev.log(
-                              'assets/icons/pois/${poi.category.toString().split('.').last}.png');
-                          onPoiTap!(poi);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          color: Colors.transparent,
-                          child: Column(
-                            children: [
-                              Image.asset(
-                                'assets/icons/pois/${poi.category.toString().split('.').last}.png',
-                                width: 32,
-                                height: 32,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(
-                                  Icons.location_city,
-                                  color: Colors.red,
-                                  size: 24,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )),
+
               // Current user location marker (white circle)
               if (currentLocation != null)
                 Positioned(
@@ -140,5 +117,40 @@ class FloorPlanWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Helper method to build POI markers
+  List<Widget> _buildPOILayer() {
+    return pois!.map((poi) => Positioned(
+      left: poi.x - 24,
+      top: poi.y - 26,
+      child: GestureDetector(
+        onTap: () {
+          dev.log(
+              'assets/icons/pois/${poi.category.toString().split('.').last}.png');
+          onPoiTap?.call(poi);
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          color: Colors.transparent,
+          child: Column(
+            children: [
+              Image.asset(
+                'assets/icons/pois/${poi.category.toString().split('.').last}.png',
+                width: 32,
+                height: 32,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(
+                  Icons.location_city,
+                  color: Colors.red,
+                  size: 24,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    )).toList();
   }
 }
