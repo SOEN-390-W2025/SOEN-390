@@ -64,7 +64,7 @@ class _AccessibilityTileState extends State<AccessibilityTile> {
                     ),
                     trailing: Icon(
                       Icons.keyboard_arrow_right,
-                      color: primaryColor.withAlpha(35),
+                      color: primaryTextColor?.withAlpha(100),
                     ),
                     onTap: option.containsKey('onTap') &&
                             option['onTap'] is Function
