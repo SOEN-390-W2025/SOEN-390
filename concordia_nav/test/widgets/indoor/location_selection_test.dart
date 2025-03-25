@@ -58,20 +58,6 @@ void main() {
     }
   }
 
-  setUp(() {
-    var testPosition = Position(
-        longitude: 45.497211,
-        latitude: -73.57875,
-        timestamp: DateTime.now(),
-        accuracy: 30.0,
-        altitude: 20.0,
-        heading: 120,
-        speed: 150.9,
-        speedAccuracy: 10.0,
-        altitudeAccuracy: 10.0,
-        headingAccuracy: 10.0);
-  });
-
   setUpAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(locationChannel, locationHandler);
