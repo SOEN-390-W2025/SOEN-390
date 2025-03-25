@@ -76,14 +76,16 @@ class BuildingDataManager {
 
       buildingDataCache![upperAbbr] = buildingData;
       return buildingData;
+    // ignore: unused_catch_stack
     } on FlutterError catch (e, stackTrace) {
-      dev.log('Error loading building data for $upperAbbr: $e',
-          error: e, stackTrace: stackTrace);
+      // dev.log('Error loading building data for $upperAbbr: $e',
+      //     error: e, stackTrace: stackTrace);
       return null;
     } 
+    // ignore: unused_catch_stack
     on Exception catch (e, stackTrace) {
-      dev.log('Error loading building data for $upperAbbr: $e',
-          error: e, stackTrace: stackTrace);
+      // dev.log('Error loading building data for $upperAbbr: $e',
+      //     error: e, stackTrace: stackTrace);
       return null;
     }
   }

@@ -112,11 +112,12 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-   try {
+    try {
       if (selectedPOI != null) {
         // Use POI for route calculation
-         await directionsViewModel.calculateRoute(
-            building, floor, sourceRoom, endRoom, disability, destinationPOI: selectedPOI);
+        await directionsViewModel.calculateRoute(
+            building, floor, sourceRoom, endRoom, disability,
+            destinationPOI: selectedPOI);
       } else {
         // Use endRoom for route calculation
         await directionsViewModel.calculateRoute(
@@ -210,6 +211,24 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     ));
   }
 
+  String formatRoom(String room) {
+    return room.replaceAllMapped(RegExp(r'^S(\d)(\d*)$'), (match) {
+      return 'S${match[1]}.${match[2]}';
+    });
+  }
+
+  String removeBuildingAbbreviation(String room, String buildingAbbreviation) {
+    // Ensure the building abbreviation is not in the formatted room string
+    final String formattedRoom = formatRoom(room);
+
+    // If the formatted room starts with the building abbreviation, remove it
+    if (formattedRoom.startsWith(buildingAbbreviation)) {
+      return formattedRoom.substring(buildingAbbreviation.length).trim();
+    }
+
+    return formattedRoom;
+  }
+
   void _handleSecondBuilding(IndoorRoute route) {
     navigationSteps.add(NavigationStep(
       title: 'Building Transition',
@@ -263,7 +282,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     navigationSteps.add(NavigationStep(
       title: 'Start',
       description:
-          'Begin navigation from ${sourceRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+          'Begin navigation from ${sourceRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${removeBuildingAbbreviation(sourceRoom, buildingAbbreviation)}'}',
       focusPoint: directionsViewModel.startLocation,
       zoomLevel: 1.3,
       icon: Icons.my_location,
@@ -304,7 +323,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       navigationSteps.add(NavigationStep(
         title: 'Destination',
         description:
-            'You have reached your destination: ${endRoom == yourLocation ? 'Main Entrance' : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+            'You have reached your destination: ${endRoom == yourLocation ? 'Main Entrance' : '$buildingAbbreviation ${removeBuildingAbbreviation(endRoom, buildingAbbreviation)}'}',
         focusPoint: directionsViewModel.endLocation,
         zoomLevel: 1.3,
         icon: Icons.place,

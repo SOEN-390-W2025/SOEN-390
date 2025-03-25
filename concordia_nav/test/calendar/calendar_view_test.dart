@@ -359,7 +359,7 @@ void main() {
         final calendarEvent = UserCalendarEvent(
             calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 937');
         final calendarEvent2 = UserCalendarEvent(
-            calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'H 837');
+            calendar1, '1', 'nooo', startTime2, endTime2, 'NOOO', 'B 837');
         final calendarEventData = CalendarEventData(
             title: calendarEvent.title,
             date: calendarEvent.localStart,
@@ -564,6 +564,133 @@ void main() {
   });
 
   group('CalendarSelectionView Widget tests', () {
+    testWidgets('tapping event opens drawer and navigate to outdoor directions',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        final calendar1 = UserCalendar('1', 'Calendar 1');
+        final startTime = DateTime.now()
+            .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+        final endTime = DateTime.now()
+            .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+        final calendarEvent = UserCalendarEvent(
+            calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'H 637');
+        final calendarEventData = CalendarEventData(
+            title: calendarEvent.title,
+            date: calendarEvent.localStart,
+            description: calendarEvent.description,
+            startTime: calendarEvent.localStart,
+            endTime: calendarEvent.localEnd,
+            color: Colors.cyan,
+            event: calendarEvent);
+
+        when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
+            .thenAnswer((_) async => {});
+        when(mockCalendarViewModel.getCalendarEventData())
+            .thenReturn([calendarEventData]);
+        when(mockCalendarViewModel.isLoading).thenReturn(false);
+        when(mockCalendarViewModel.errorMessage).thenReturn(null);
+        when(mockCalendarViewModel.formatEventTime(calendarEvent)).thenReturn(
+            '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')} - ${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}');
+
+        await tester.pumpWidget(
+          MaterialApp(
+            routes: {
+              '/NextClassDirectionsPreview': (context) {
+                return Container();
+              },
+              '/OutdoorLocationMapView': (context) => Scaffold(
+                    appBar: AppBar(title: const Text('Outdoor Location Map')),
+                    body: const Center(child: Text('No content available')),
+                  ),
+            },
+            home: CalendarView(
+                selectedCalendar: calendar1,
+                calendarViewModel: mockCalendarViewModel),
+          ),
+        );
+
+        await tester.pump();
+
+        // simulate tapping an event
+        final container = find
+            .ancestor(
+                of: find.text(calendarEvent.title),
+                matching: find.byType(Container))
+            .first;
+        await tester.tapAt(tester.getCenter(container));
+
+        // wait for drawer to fetch needed data and display
+        await Future.delayed(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
+
+        // Verify eventDetailsDrawer is displayed
+        expect(find.text('Directions'), findsOneWidget);
+        await tester.tap(find.text('Directions'));
+        await tester.pumpAndSettle();
+      });
+    });
+
+    testWidgets(
+        'tapping event opens drawer and does not navigate to directions',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        final calendar1 = UserCalendar('1', 'Calendar 1');
+        final startTime = DateTime.now()
+            .copyWith(hour: 10, minute: 0, second: 0, millisecond: 0);
+        final endTime = DateTime.now()
+            .copyWith(hour: 12, minute: 30, second: 0, millisecond: 0);
+        final calendarEvent = UserCalendarEvent(
+            calendar1, '1', 'waaa', startTime, endTime, 'WAAA', 'B 937');
+        final calendarEventData = CalendarEventData(
+            title: calendarEvent.title,
+            date: calendarEvent.localStart,
+            description: calendarEvent.description,
+            startTime: calendarEvent.localStart,
+            endTime: calendarEvent.localEnd,
+            color: Colors.cyan,
+            event: calendarEvent);
+
+        when(mockCalendarViewModel.initialize(selectedCalendar: calendar1))
+            .thenAnswer((_) async => {});
+        when(mockCalendarViewModel.getCalendarEventData())
+            .thenReturn([calendarEventData]);
+        when(mockCalendarViewModel.isLoading).thenReturn(false);
+        when(mockCalendarViewModel.errorMessage).thenReturn(null);
+        when(mockCalendarViewModel.formatEventTime(calendarEvent)).thenReturn(
+            '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')} - ${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}');
+
+        await tester.pumpWidget(
+          MaterialApp(
+            routes: {
+              '/NextClassDirectionsPreview': (context) {
+                return Container();
+              },
+            },
+            home: CalendarView(
+                selectedCalendar: calendar1,
+                calendarViewModel: mockCalendarViewModel),
+          ),
+        );
+
+        await tester.pump();
+
+        // simulate tapping an event
+        final container = find
+            .ancestor(
+                of: find.text(calendarEvent.title),
+                matching: find.byType(Container))
+            .first;
+        await tester.tapAt(tester.getCenter(container));
+
+        // wait for drawer to fetch needed data and display
+        await Future.delayed(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
+
+        // Verify eventDetailsDrawer is displayed
+        expect(find.text('Directions'), findsNothing);
+      });
+    });
+
     testWidgets('tapping event opens drawer and navigates to directions',
         (WidgetTester tester) async {
       await tester.runAsync(() async {

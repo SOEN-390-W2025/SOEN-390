@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
                             arguments: {'campus': ConcordiaCampus.sgw})),
                     const SizedBox(width: 20),
                     FeatureCard(
-                      title: 'Next class directions',
+                      title: 'Navigation to Next Class',
                       icon: const Icon(Icons.calendar_today),
                       onPress: () => Navigator.pushNamed(
                         context,

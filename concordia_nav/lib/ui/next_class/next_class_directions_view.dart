@@ -776,7 +776,7 @@ class NextClassDirectionsPreviewState
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => NavigationJourneyPage(
-            journeyName: "Next Class Directions",
+            journeyName: "Navigation to Next Class",
             journeyItems: updatedJourneyItems,
             decision: navigationDecision,
           ),
