@@ -234,6 +234,23 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   );
 
   @override
+  String get measurementUnit =>
+      (super.noSuchMethod(
+            Invocation.getter(#measurementUnit),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#measurementUnit),
+            ),
+          )
+          as String);
+
+  @override
+  set measurementUnit(String? _measurementUnit) => super.noSuchMethod(
+    Invocation.setter(#measurementUnit, _measurementUnit),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   List<double> get stepDistanceMeters =>
       (super.noSuchMethod(
             Invocation.getter(#stepDistanceMeters),
@@ -339,6 +356,37 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
     Invocation.method(#addConnectionStep, [route]),
     returnValueForMissingStub: null,
   );
+
+  @override
+  String formatRoom(String? room) =>
+      (super.noSuchMethod(
+            Invocation.method(#formatRoom, [room]),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.method(#formatRoom, [room]),
+            ),
+          )
+          as String);
+
+  @override
+  String removeBuildingAbbreviation(
+    String? room,
+    String? buildingAbbreviation,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#removeBuildingAbbreviation, [
+              room,
+              buildingAbbreviation,
+            ]),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.method(#removeBuildingAbbreviation, [
+                room,
+                buildingAbbreviation,
+              ]),
+            ),
+          )
+          as String);
 
   @override
   void calculateTimeAndDistanceEstimates() => super.noSuchMethod(
@@ -457,6 +505,23 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   @override
   set distance(String? _distance) => super.noSuchMethod(
     Invocation.setter(#distance, _distance),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  String get measurementUnit =>
+      (super.noSuchMethod(
+            Invocation.getter(#measurementUnit),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#measurementUnit),
+            ),
+          )
+          as String);
+
+  @override
+  set measurementUnit(String? _measurementUnit) => super.noSuchMethod(
+    Invocation.setter(#measurementUnit, _measurementUnit),
     returnValueForMissingStub: null,
   );
 

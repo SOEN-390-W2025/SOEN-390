@@ -1,0 +1,28 @@
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('PreferencesModel tests', () {
+    test('updateTransportation changes the default method', () {
+      final preferencesModel = PreferencesModel();
+      final ogTransportation = preferencesModel.selectedTransportation;
+
+      preferencesModel.updateTransportation('Walking');
+
+      // Verify selected transportation updated
+      expect(preferencesModel.selectedTransportation, isNot(ogTransportation));
+      expect(preferencesModel.selectedTransportation, 'Walking');
+    });
+
+    test('updateMeasurementUnit updates default unit', () {
+      final preferencesModel = PreferencesModel();
+      final ogMeasurement = preferencesModel.selectedMeasurementUnit;
+
+      preferencesModel.updateMeasurementUnit('Imperial');
+
+      // Verify selected measurement unit updated
+      expect(preferencesModel.selectedMeasurementUnit, isNot(ogMeasurement));
+      expect(preferencesModel.selectedMeasurementUnit, 'Imperial');
+    });
+  });
+}
