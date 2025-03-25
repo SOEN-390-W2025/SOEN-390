@@ -138,6 +138,7 @@ void main() {
           decision: decision,
         ),
       ));
+      await tester.pumpAndSettle();
 
       expect(find.byType(NavigationStepPage), findsOneWidget);
     });

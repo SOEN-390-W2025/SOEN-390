@@ -43,6 +43,7 @@ void main() {
           home: IndoorLocationView(building: building,),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text('Directions'), findsNothing);
     });
@@ -53,7 +54,7 @@ void main() {
           home: IndoorLocationView(building: building, floor: '1'),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(FloorButton), findsOneWidget);
     });
@@ -80,7 +81,7 @@ void main() {
           home: IndoorLocationView(building: building, room: 'H 110'),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Directions'));
       await tester.pumpAndSettle();
@@ -96,6 +97,8 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
+
       expect(find.text(building.name), findsOneWidget);
     });
   });
@@ -105,7 +108,7 @@ void main() {
       // Build the indoor location view widget
       await tester.pumpWidget(const MaterialApp(
           home: IndoorLocationView(building: building)));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);

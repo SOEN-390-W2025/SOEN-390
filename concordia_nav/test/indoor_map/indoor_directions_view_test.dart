@@ -36,6 +36,7 @@ void main() {
       );
 
       await tester.pumpWidget(view);
+      await tester.pumpAndSettle();
 
       final state = tester
           .state<IndoorDirectionsViewState>(find.byType(IndoorDirectionsView));

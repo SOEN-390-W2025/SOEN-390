@@ -134,6 +134,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       if (mounted) {
         setState(() {});
       }
+    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       dev.log('Error loading POIs in IndoorDirectionsView: $e');
     }
