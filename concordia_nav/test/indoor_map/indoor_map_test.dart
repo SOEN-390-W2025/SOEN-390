@@ -1,8 +1,13 @@
+import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_map/classroom_selection.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
+import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -240,11 +245,28 @@ void main() {
         const building = 'Hall Building';
         const floor = 'Floor 1';
         const classroom = '102-3';
+        final mockPreferencesModel = MockPreferencesModel();
+        when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+        when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
+
+        // define routes needed for this test
+        final routes = {
+          '/': (context) => const ClassroomSelection(building: building, floor: floor),
+          'IndoorDirectionsView': (context) => IndoorDirectionsView(
+            sourceRoom: 'Your Location', building: building, 
+            endRoom: classroom)
+        };
 
         // Build the widget
-        await tester.pumpWidget(const MaterialApp(
-          home: ClassroomSelection(building: building, floor: floor),
-        ));
+        await tester.pumpWidget(
+          ChangeNotifierProvider<PreferencesModel>(
+            create: (BuildContext context) => mockPreferencesModel,
+            child: MaterialApp(
+                    initialRoute: '/',
+                    routes: routes,
+                  ),
+          )
+        );
         await tester.pump();
 
         // Make sure the element is visible before tapping

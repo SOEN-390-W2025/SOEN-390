@@ -171,6 +171,7 @@ void main() {
       final routes = {
         '/': (context) => const SettingsPage(),
         '/AccessibilityPage': (context) => const AccessibilityPage(),
+        '/PreferencesPage': (context) => const SettingsPage()
       };
 
       // Build the SettingsPage widget
@@ -189,7 +190,9 @@ void main() {
 
       // Tap on Preferences SettingsTile
       await tester.tap(find.text('Preferences'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
       // Tap on Accessibility SettingsTile
       await tester.tap(find.text('Accessibility'));

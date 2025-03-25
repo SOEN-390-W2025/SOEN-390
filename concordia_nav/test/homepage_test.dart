@@ -14,13 +14,16 @@ import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 import 'map/map_viewmodel_test.mocks.dart';
+import 'settings/preferences_view_test.mocks.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +31,7 @@ void main() async {
 
   late MockMapViewModel mockMapViewModel;
   late MockMapService mockMapService;
+  late MockPreferencesModel mockPreferencesModel;
 
   const Marker mockMarker = Marker(
     markerId: MarkerId('mock_marker'),
@@ -66,6 +70,9 @@ void main() async {
     when(mockMapViewModel.originMarker).thenReturn(mockMarker);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
     when(mockMapViewModel.activePolylines).thenReturn(mockPolylines);
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
@@ -377,10 +384,15 @@ void main() async {
     });
 
     // Build the HomePage widget
-    await tester.pumpWidget(MaterialApp(
-      initialRoute: '/',
-      routes: routes,
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                initialRoute: '/',
+                routes: routes,
+              ),
+      )
+    );
 
     // Tap on the Outdoor Directions FeatureCard
     await tester.tap(find.text("Outdoor directions"));

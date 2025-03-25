@@ -8,12 +8,14 @@ import 'package:concordia_nav/ui/indoor_location/indoor_step_view.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart';
 import 'package:concordia_nav/utils/indoor_step_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
+import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
 import 'indoor_step_view_test.mocks.dart';
 
 @GenerateMocks([VirtualStepGuideViewModel, IndoorDirectionsViewModel])
@@ -25,6 +27,7 @@ void main() {
   late IndoorMapViewModel viewModel;
   late IndoorDirectionsViewModel directionsViewModel;
   late IndoorDirectionsViewModel mockDirectionsViewModel;
+  late MockPreferencesModel mockPreferencesModel;
 
   setUp(() {
     mockViewModel = MockVirtualStepGuideViewModel();
@@ -45,6 +48,9 @@ void main() {
     when(mockViewModel.getRemainingTimeEstimate()).thenReturn('10 mins');
     when(mockViewModel.getRemainingDistanceEstimate()).thenReturn('200 meters');
     when(mockViewModel.isLoading).thenReturn(false);
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   group('VirtualStepGuideView Tests', () {
@@ -54,18 +60,21 @@ void main() {
       when(mockViewModel.navigationSteps).thenReturn([]);
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: VirtualStepGuideView(
-            viewModel: mockViewModel,
-            sourceRoom: 'Room A',
-            building: 'Hall Building',
-            floor: 'Floor 1',
-            endRoom: 'Room B',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: VirtualStepGuideView(
+                    viewModel: mockViewModel,
+                    sourceRoom: 'Room A',
+                    building: 'Hall Building',
+                    floor: 'Floor 1',
+                    endRoom: 'Room B',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
-
+      
       // Verify "No navigation steps available" text is displayed
       expect(find.text('No navigation steps available'), findsOneWidget);
     });
@@ -81,16 +90,19 @@ void main() {
       when(mockViewModel.currentStepIndex).thenReturn(0);
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: VirtualStepGuideView(
-            viewModel: mockViewModel,
-            sourceRoom: 'Room A',
-            building: 'Hall Building',
-            floor: 'Floor 1',
-            endRoom: 'Room B',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: VirtualStepGuideView(
+                    viewModel: mockViewModel,
+                    sourceRoom: 'Room A',
+                    building: 'Hall Building',
+                    floor: 'Floor 1',
+                    endRoom: 'Room B',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
 
       // Check for the step icon, title, and description
@@ -116,17 +128,22 @@ void main() {
           .thenReturn('100 meters');
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: VirtualStepGuideView(
-            viewModel: mockViewModel,
-            sourceRoom: 'H 827',
-            building: 'Hall Building',
-            floor: '8',
-            endRoom: 'H 830',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: VirtualStepGuideView(
+                    viewModel: mockViewModel,
+                    sourceRoom: 'H 827',
+                    building: 'Hall Building',
+                    floor: '8',
+                    endRoom: 'H 830',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
+      
+      expect(find.text('Go straight'), findsOneWidget);
     });
 
     testWidgets('Displays Finish button on last step',
@@ -141,16 +158,19 @@ void main() {
       when(mockViewModel.currentStepIndex).thenReturn(2); // Last step
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: VirtualStepGuideView(
-            viewModel: mockViewModel,
-            sourceRoom: 'Room A',
-            building: 'Hall Building',
-            floor: 'Floor 1',
-            endRoom: 'Room B',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: VirtualStepGuideView(
+                    viewModel: mockViewModel,
+                    sourceRoom: 'Room A',
+                    building: 'Hall Building',
+                    floor: 'Floor 1',
+                    endRoom: 'Room B',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
 
       // Check that the "Finish" button is displayed
@@ -228,15 +248,18 @@ void main() {
   group('Step-by-Step Navigation tests', () {
     testWidgets('test navigation between steps', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: VirtualStepGuideView(
-            sourceRoom: '801',
-            building: 'Hall Building',
-            floor: '8',
-            endRoom: '805',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: const MaterialApp(
+                  home: VirtualStepGuideView(
+                    sourceRoom: '801',
+                    building: 'Hall Building',
+                    floor: '8',
+                    endRoom: '805',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
       await tester.pump();
 
@@ -263,15 +286,18 @@ void main() {
 
     testWidgets('Can go back to previous step', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: VirtualStepGuideView(
-            sourceRoom: '801',
-            building: 'Hall Building',
-            floor: '8',
-            endRoom: '805',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: const MaterialApp(
+                  home: VirtualStepGuideView(
+                    sourceRoom: '801',
+                    building: 'Hall Building',
+                    floor: '8',
+                    endRoom: '805',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
       await tester.pump();
 
@@ -295,15 +321,18 @@ void main() {
     testWidgets('Selecting back in first step does nothing',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: VirtualStepGuideView(
-            sourceRoom: '801',
-            building: 'Hall Building',
-            floor: '8',
-            endRoom: '805',
-            isMultiFloor: false,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: const MaterialApp(
+                  home: VirtualStepGuideView(
+                    sourceRoom: '801',
+                    building: 'Hall Building',
+                    floor: '8',
+                    endRoom: '805',
+                    isMultiFloor: false,
+                  ),
+                ),
+        )
       );
       await tester.pump();
 
@@ -318,13 +347,16 @@ void main() {
     testWidgets('Selecting finish on last page returns to IndoorDirectionsView',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: '801',
-            building: 'Hall Building',
-            endRoom: '805',
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: IndoorDirectionsView(
+                    sourceRoom: '801',
+                    building: 'Hall Building',
+                    endRoom: '805',
+                  ),
+                ),
+        )
       );
       await tester.pump();
 
@@ -360,13 +392,16 @@ void main() {
         'Selecting exit in step-by-step page returns to IndoorDirectionsView',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: '801',
-            building: 'Hall Building',
-            endRoom: '805',
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: IndoorDirectionsView(
+                    sourceRoom: '801',
+                    building: 'Hall Building',
+                    endRoom: '805',
+                  ),
+                ),
+        )
       );
       await tester.pump();
 
@@ -401,16 +436,19 @@ void main() {
     when(mockViewModel.getRemainingDistanceEstimate()).thenReturn('200 meters');
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: VirtualStepGuideView(
-          sourceRoom: 'H 827',
-          building: 'Hall Building',
-          floor: '8',
-          endRoom: 'H 830',
-          isMultiFloor: false,
-          viewModel: mockViewModel,
-        ),
-      ),
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: VirtualStepGuideView(
+                  sourceRoom: 'H 827',
+                  building: 'Hall Building',
+                  floor: '8',
+                  endRoom: 'H 830',
+                  isMultiFloor: false,
+                  viewModel: mockViewModel,
+                ),
+              ),
+      )
     );
 
     // Get the state and call extractFloor
