@@ -3,17 +3,18 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i6;
 
-import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i8;
-import 'package:concordia_nav/data/repositories/calendar.dart' as _i7;
-import 'package:concordia_nav/utils/building_viewmodel.dart' as _i9;
+import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i9;
+import 'package:concordia_nav/data/repositories/calendar.dart' as _i8;
+import 'package:concordia_nav/utils/building_viewmodel.dart' as _i10;
 import 'package:device_calendar/device_calendar.dart' as _i3;
-import 'package:geolocator_platform_interface/src/enums/enums.dart' as _i6;
+import 'package:geolocator_platform_interface/src/enums/enums.dart' as _i7;
 import 'package:geolocator_platform_interface/src/geolocator_platform_interface.dart'
-    as _i4;
+    as _i5;
 import 'package:geolocator_platform_interface/src/models/models.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:shared_preferences/shared_preferences.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -40,64 +41,70 @@ class _FakeDeviceCalendarPlugin_1 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeSharedPreferencesAsync_2 extends _i1.SmartFake
+    implements _i4.SharedPreferencesAsync {
+  _FakeSharedPreferencesAsync_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [GeolocatorPlatform].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockGeolocatorPlatform extends _i1.Mock
-    implements _i4.GeolocatorPlatform {
+    implements _i5.GeolocatorPlatform {
   MockGeolocatorPlatform() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i6.LocationPermission> checkPermission() =>
+  _i6.Future<_i7.LocationPermission> checkPermission() =>
       (super.noSuchMethod(
             Invocation.method(#checkPermission, []),
-            returnValue: _i5.Future<_i6.LocationPermission>.value(
-              _i6.LocationPermission.denied,
+            returnValue: _i6.Future<_i7.LocationPermission>.value(
+              _i7.LocationPermission.denied,
             ),
           )
-          as _i5.Future<_i6.LocationPermission>);
+          as _i6.Future<_i7.LocationPermission>);
 
   @override
-  _i5.Future<_i6.LocationPermission> requestPermission() =>
+  _i6.Future<_i7.LocationPermission> requestPermission() =>
       (super.noSuchMethod(
             Invocation.method(#requestPermission, []),
-            returnValue: _i5.Future<_i6.LocationPermission>.value(
-              _i6.LocationPermission.denied,
+            returnValue: _i6.Future<_i7.LocationPermission>.value(
+              _i7.LocationPermission.denied,
             ),
           )
-          as _i5.Future<_i6.LocationPermission>);
+          as _i6.Future<_i7.LocationPermission>);
 
   @override
-  _i5.Future<bool> isLocationServiceEnabled() =>
+  _i6.Future<bool> isLocationServiceEnabled() =>
       (super.noSuchMethod(
             Invocation.method(#isLocationServiceEnabled, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
-  _i5.Future<_i2.Position?> getLastKnownPosition({
+  _i6.Future<_i2.Position?> getLastKnownPosition({
     bool? forceLocationManager = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getLastKnownPosition, [], {
               #forceLocationManager: forceLocationManager,
             }),
-            returnValue: _i5.Future<_i2.Position?>.value(),
+            returnValue: _i6.Future<_i2.Position?>.value(),
           )
-          as _i5.Future<_i2.Position?>);
+          as _i6.Future<_i2.Position?>);
 
   @override
-  _i5.Future<_i2.Position> getCurrentPosition({
+  _i6.Future<_i2.Position> getCurrentPosition({
     _i2.LocationSettings? locationSettings,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getCurrentPosition, [], {
               #locationSettings: locationSettings,
             }),
-            returnValue: _i5.Future<_i2.Position>.value(
+            returnValue: _i6.Future<_i2.Position>.value(
               _FakePosition_0(
                 this,
                 Invocation.method(#getCurrentPosition, [], {
@@ -106,67 +113,67 @@ class MockGeolocatorPlatform extends _i1.Mock
               ),
             ),
           )
-          as _i5.Future<_i2.Position>);
+          as _i6.Future<_i2.Position>);
 
   @override
-  _i5.Stream<_i6.ServiceStatus> getServiceStatusStream() =>
+  _i6.Stream<_i7.ServiceStatus> getServiceStatusStream() =>
       (super.noSuchMethod(
             Invocation.method(#getServiceStatusStream, []),
-            returnValue: _i5.Stream<_i6.ServiceStatus>.empty(),
+            returnValue: _i6.Stream<_i7.ServiceStatus>.empty(),
           )
-          as _i5.Stream<_i6.ServiceStatus>);
+          as _i6.Stream<_i7.ServiceStatus>);
 
   @override
-  _i5.Stream<_i2.Position> getPositionStream({
+  _i6.Stream<_i2.Position> getPositionStream({
     _i2.LocationSettings? locationSettings,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getPositionStream, [], {
               #locationSettings: locationSettings,
             }),
-            returnValue: _i5.Stream<_i2.Position>.empty(),
+            returnValue: _i6.Stream<_i2.Position>.empty(),
           )
-          as _i5.Stream<_i2.Position>);
+          as _i6.Stream<_i2.Position>);
 
   @override
-  _i5.Future<_i6.LocationAccuracyStatus> requestTemporaryFullAccuracy({
+  _i6.Future<_i7.LocationAccuracyStatus> requestTemporaryFullAccuracy({
     required String? purposeKey,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#requestTemporaryFullAccuracy, [], {
               #purposeKey: purposeKey,
             }),
-            returnValue: _i5.Future<_i6.LocationAccuracyStatus>.value(
-              _i6.LocationAccuracyStatus.reduced,
+            returnValue: _i6.Future<_i7.LocationAccuracyStatus>.value(
+              _i7.LocationAccuracyStatus.reduced,
             ),
           )
-          as _i5.Future<_i6.LocationAccuracyStatus>);
+          as _i6.Future<_i7.LocationAccuracyStatus>);
 
   @override
-  _i5.Future<_i6.LocationAccuracyStatus> getLocationAccuracy() =>
+  _i6.Future<_i7.LocationAccuracyStatus> getLocationAccuracy() =>
       (super.noSuchMethod(
             Invocation.method(#getLocationAccuracy, []),
-            returnValue: _i5.Future<_i6.LocationAccuracyStatus>.value(
-              _i6.LocationAccuracyStatus.reduced,
+            returnValue: _i6.Future<_i7.LocationAccuracyStatus>.value(
+              _i7.LocationAccuracyStatus.reduced,
             ),
           )
-          as _i5.Future<_i6.LocationAccuracyStatus>);
+          as _i6.Future<_i7.LocationAccuracyStatus>);
 
   @override
-  _i5.Future<bool> openAppSettings() =>
+  _i6.Future<bool> openAppSettings() =>
       (super.noSuchMethod(
             Invocation.method(#openAppSettings, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
-  _i5.Future<bool> openLocationSettings() =>
+  _i6.Future<bool> openLocationSettings() =>
       (super.noSuchMethod(
             Invocation.method(#openLocationSettings, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
   double distanceBetween(
@@ -209,7 +216,7 @@ class MockGeolocatorPlatform extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCalendarRepository extends _i1.Mock
-    implements _i7.CalendarRepository {
+    implements _i8.CalendarRepository {
   MockCalendarRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -232,26 +239,63 @@ class MockCalendarRepository extends _i1.Mock
   );
 
   @override
-  _i5.Future<bool> checkPermissions() =>
+  _i4.SharedPreferencesAsync get prefs =>
       (super.noSuchMethod(
-            Invocation.method(#checkPermissions, []),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
-
-  @override
-  _i5.Future<List<_i7.UserCalendar>> getUserCalendars() =>
-      (super.noSuchMethod(
-            Invocation.method(#getUserCalendars, []),
-            returnValue: _i5.Future<List<_i7.UserCalendar>>.value(
-              <_i7.UserCalendar>[],
+            Invocation.getter(#prefs),
+            returnValue: _FakeSharedPreferencesAsync_2(
+              this,
+              Invocation.getter(#prefs),
             ),
           )
-          as _i5.Future<List<_i7.UserCalendar>>);
+          as _i4.SharedPreferencesAsync);
 
   @override
-  _i5.Future<List<_i7.UserCalendarEvent>> getEvents(
-    List<_i7.UserCalendar>? selectedCalendars,
+  set prefs(_i4.SharedPreferencesAsync? _prefs) => super.noSuchMethod(
+    Invocation.setter(#prefs, _prefs),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i6.Future<bool> checkPermissions() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkPermissions, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<List<_i8.UserCalendar>> getUserCalendars({
+    dynamic preferredCalendarsOnly = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getUserCalendars, [], {
+              #preferredCalendarsOnly: preferredCalendarsOnly,
+            }),
+            returnValue: _i6.Future<List<_i8.UserCalendar>>.value(
+              <_i8.UserCalendar>[],
+            ),
+          )
+          as _i6.Future<List<_i8.UserCalendar>>);
+
+  @override
+  _i6.Future<bool> isCalendarPreferred(_i8.UserCalendar? cal) =>
+      (super.noSuchMethod(
+            Invocation.method(#isCalendarPreferred, [cal]),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<bool> setUserCalendarPreferredState(_i8.UserCalendar? cal) =>
+      (super.noSuchMethod(
+            Invocation.method(#setUserCalendarPreferredState, [cal]),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<List<_i8.UserCalendarEvent>> getEvents(
+    List<_i8.UserCalendar>? selectedCalendars,
     Duration? timeSpan,
     DateTime? utcStart,
   ) =>
@@ -261,15 +305,15 @@ class MockCalendarRepository extends _i1.Mock
               timeSpan,
               utcStart,
             ]),
-            returnValue: _i5.Future<List<_i7.UserCalendarEvent>>.value(
-              <_i7.UserCalendarEvent>[],
+            returnValue: _i6.Future<List<_i8.UserCalendarEvent>>.value(
+              <_i8.UserCalendarEvent>[],
             ),
           )
-          as _i5.Future<List<_i7.UserCalendarEvent>>);
+          as _i6.Future<List<_i8.UserCalendarEvent>>);
 
   @override
-  _i5.Future<List<_i7.UserCalendarEvent>> getEventsOnLocalDate(
-    List<_i7.UserCalendar>? selectedCalendars,
+  _i6.Future<List<_i8.UserCalendarEvent>> getEventsOnLocalDate(
+    List<_i8.UserCalendar>? selectedCalendars,
     int? offset,
   ) =>
       (super.noSuchMethod(
@@ -277,33 +321,33 @@ class MockCalendarRepository extends _i1.Mock
               selectedCalendars,
               offset,
             ]),
-            returnValue: _i5.Future<List<_i7.UserCalendarEvent>>.value(
-              <_i7.UserCalendarEvent>[],
+            returnValue: _i6.Future<List<_i8.UserCalendarEvent>>.value(
+              <_i8.UserCalendarEvent>[],
             ),
           )
-          as _i5.Future<List<_i7.UserCalendarEvent>>);
+          as _i6.Future<List<_i8.UserCalendarEvent>>);
 
   @override
-  _i5.Future<_i7.UserCalendarEvent?> getNextClassEvent(
-    List<_i7.UserCalendar>? selectedCalendars,
+  _i6.Future<_i8.UserCalendarEvent?> getNextClassEvent(
+    List<_i8.UserCalendar>? selectedCalendars,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getNextClassEvent, [selectedCalendars]),
-            returnValue: _i5.Future<_i7.UserCalendarEvent?>.value(),
+            returnValue: _i6.Future<_i8.UserCalendarEvent?>.value(),
           )
-          as _i5.Future<_i7.UserCalendarEvent?>);
+          as _i6.Future<_i8.UserCalendarEvent?>);
 
   @override
-  _i5.Future<_i8.ConcordiaRoom?> getNextClassRoom(
-    List<_i7.UserCalendar>? selectedCalendars,
-    _i9.BuildingViewModel? buildingViewModel,
+  _i6.Future<_i9.ConcordiaRoom?> getNextClassRoom(
+    List<_i8.UserCalendar>? selectedCalendars,
+    _i10.BuildingViewModel? buildingViewModel,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getNextClassRoom, [
               selectedCalendars,
               buildingViewModel,
             ]),
-            returnValue: _i5.Future<_i8.ConcordiaRoom?>.value(),
+            returnValue: _i6.Future<_i9.ConcordiaRoom?>.value(),
           )
-          as _i5.Future<_i8.ConcordiaRoom?>);
+          as _i6.Future<_i9.ConcordiaRoom?>);
 }

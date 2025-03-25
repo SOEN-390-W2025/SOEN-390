@@ -1,5 +1,7 @@
 // ignore_for_file: unused_local_variable, avoid_catches_without_on_clauses
 
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import '../../data/domain-model/floor_routable_point.dart';
 import '../../data/services/routecalculation_service.dart';
@@ -104,7 +106,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       height = size.height;
       notifyListeners();
     } catch (e) {
-      debugPrint('Error getting SVG dimensions: $e');
+      dev.log('Error getting SVG dimensions: $e');
     }
   }
 
@@ -129,7 +131,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
         calculateTimeAndDistanceEstimates();
       }
     } catch (e) {
-      debugPrint('Error calculating route: $e');
+      dev.log('Error calculating route: $e');
     } finally {
       isLoading = false;
       notifyListeners();

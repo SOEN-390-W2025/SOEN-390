@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -223,7 +224,7 @@ class NextClassDirectionsPreviewState
           : "";
       setState(() => _staticMapUrl = newMapUrl);
     } on Error catch (e) {
-      debugPrint("Error fetching location: $e");
+      dev.log("Error fetching location: $e");
     } finally {
       setState(() => _isFetchingInitialLocation = false);
     }
