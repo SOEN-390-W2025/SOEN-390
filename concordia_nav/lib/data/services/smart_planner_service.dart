@@ -15,6 +15,7 @@ import 'places_service.dart';
 class SmartPlannerService {
   final PlacesRepository _placesRepository;
   OpenAIChatCompletionModel? _response;
+  Location? _startLocation;
 
   SmartPlannerService(
       {OpenAIChatCompletionModel? response, PlacesService? placesService})
@@ -98,9 +99,11 @@ class SmartPlannerService {
     }
 
     // Then we'll try outdoor places. To save on real-time calls to the Google
-    // Places API, we can hard-code a midpoint between both SGW and LOY, which
-    // encompasses a large-enough radius to cover a variety of places.
-    const midpointForCampuses = LatLng(45.47800, -73.60885);
+    // Places API, we can use the starting location (or use the a midpoint
+    // between both campuses) to search for a variety of places.
+    final midpointForCampuses = _startLocation != null
+        ? LatLng(_startLocation!.lat, _startLocation!.lng)
+        : const LatLng(45.47800, -73.60885);
     final nearbyPlaces = await _placesRepository.getNearbyPlaces(
       location: midpointForCampuses,
       radius: 15000,
@@ -148,6 +151,7 @@ class SmartPlannerService {
     required DateTime startTime,
     required Location startLocation,
   }) async {
+    _startLocation = startLocation;
     // functions and function_call have been deprecated since v4.1.3 of the
     // dart_openai package, so we instead opt to just use tools. A single
     // add_task function is what lets us add items to either the events List or
