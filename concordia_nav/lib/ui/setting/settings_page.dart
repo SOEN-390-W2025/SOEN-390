@@ -68,7 +68,7 @@ class SettingsPageState extends State<SettingsPage> {
               icon: Icons.phone,
               title: 'Contact',
               onTap: () {
-                // TODO: Implement navigation to Contact page.
+                Navigator.pushNamed(context, '/ContactPage');
               },
             ),
             SettingsTile(
