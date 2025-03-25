@@ -85,6 +85,7 @@ dependencies:
   logger: ^2.5.0
   google_places_flutter: ^2.1.0
   dart_openai: ^5.1.0
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
