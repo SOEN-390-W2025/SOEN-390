@@ -219,7 +219,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
 
   String removeBuildingAbbreviation(String room, String buildingAbbreviation) {
     // Ensure the building abbreviation is not in the formatted room string
-    String formattedRoom = formatRoom(room);
+    final String formattedRoom = formatRoom(room);
 
     // If the formatted room starts with the building abbreviation, remove it
     if (formattedRoom.startsWith(buildingAbbreviation)) {
