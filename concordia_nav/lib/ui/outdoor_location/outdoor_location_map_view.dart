@@ -113,6 +113,32 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     }
   }
 
+  Future<void> _useStandardRoute() async {
+    await _mapViewModel.fetchRoutesForAllModes(
+        'Your Location', _destinationController.text);
+    if (!mounted) return;
+    final preferences =
+        Provider.of<PreferencesModel>(context, listen: false);
+    final mode = _mapTransportPreferenceToTravelMode(
+        preferences.selectedTransportation);
+    if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
+      await _mapViewModel.setActiveModeForRoute(mode);
+    } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
+      await _mapViewModel
+          .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
+    }
+  }
+
+  Future<void> _setPreference(Polyline polyline) async {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    final mode = _mapTransportPreferenceToTravelMode(
+        preferences.selectedTransportation);
+
+    _mapViewModel.multiModeRoutes[mode] = polyline;
+    await _mapViewModel.setActiveModeForRoute(mode);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _updatePath() async {
     if (!mounted) return;
     final start = widget.providedJourneyStart;
@@ -139,13 +165,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       );
 
       if (!mounted) return;
-      final preferences = Provider.of<PreferencesModel>(context, listen: false);
-      final mode = _mapTransportPreferenceToTravelMode(
-          preferences.selectedTransportation);
-
-      _mapViewModel.multiModeRoutes[mode] = polyline;
-      await _mapViewModel.setActiveModeForRoute(mode);
-      if (mounted) setState(() {});
+      await _setPreference(polyline);
       return;
     }
 
@@ -157,19 +177,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         await _calculateCustomRouteToPOI();
       } else {
         // Use standard route to building
-        await _mapViewModel.fetchRoutesForAllModes(
-            'Your Location', _destinationController.text);
-        if (!mounted) return;
-        final preferences =
-            Provider.of<PreferencesModel>(context, listen: false);
-        final mode = _mapTransportPreferenceToTravelMode(
-            preferences.selectedTransportation);
-        if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
-          await _mapViewModel.setActiveModeForRoute(mode);
-        } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
-          await _mapViewModel
-              .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
-        }
+        await _useStandardRoute();
       }
       if (!mounted) return;
       setState(() {});
