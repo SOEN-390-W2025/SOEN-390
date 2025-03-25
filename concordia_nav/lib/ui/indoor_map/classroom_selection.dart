@@ -58,7 +58,9 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
     final List<String> classrooms = await BuildingViewModel()
         .getRoomsForFloor(widget.building, widget.floor)
         .then((rooms) {
-      return rooms.map((room) {
+      return rooms
+        .where((room) => !room.roomNumber.startsWith('0'))
+        .map((room) {
         final String hyphen = room.roomNumber.split('-').first;
         String roomNumber = room.roomNumber;
         if (hyphen.length == 1) {
