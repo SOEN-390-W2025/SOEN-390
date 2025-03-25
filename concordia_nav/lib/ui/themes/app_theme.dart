@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -22,6 +24,10 @@ class AppTheme {
       bodyColor: Colors.black,  // Primary text color
       displayColor: Colors.black,
     ),
+    cardTheme: const CardTheme(
+      color: Colors.white,
+    ),
+    cardColor: Colors.white,
   );
 
   // Stream controller to notify about theme changes
@@ -54,6 +60,7 @@ class AppTheme {
         'backgroundColor': _currentTheme.scaffoldBackgroundColor.toString(),
         'primaryTextColor': (_currentTheme.textTheme.bodyLarge?.color ?? Colors.black).toString(),
         'secondaryTextColor': _currentTheme.colorScheme.onPrimary.toString(),
+        'cardColor': _currentTheme.cardColor.toString(),
       };
 
       // Save as JSON string
@@ -79,6 +86,7 @@ class AppTheme {
           backgroundColor: Color(int.parse(themeData['backgroundColor'])),
           primaryTextColor: Color(int.parse(themeData['primaryTextColor'])),
           secondaryTextColor: Color(int.parse(themeData['secondaryTextColor'])),
+          cardColor: Color(int.parse(themeData['cardColor'])),
         );
 
         // Update theme without saving (to avoid recursion)
@@ -98,10 +106,12 @@ class AppTheme {
     required Color backgroundColor,
     required Color primaryTextColor,
     required Color secondaryTextColor,
+    required Color cardColor,
   }) {
     return ThemeData(
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
+      cardColor: cardColor,
       colorScheme: ColorScheme.fromSwatch().copyWith(
         primary: primaryColor,
         secondary: secondaryColor,
@@ -116,6 +126,13 @@ class AppTheme {
       textTheme: ThemeData.light().textTheme.apply(
         bodyColor: primaryTextColor,
         displayColor: primaryTextColor,
+      ),
+      cardTheme: CardTheme(
+        color: cardColor,
+        elevation: 2.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor,
@@ -141,6 +158,7 @@ class AppTheme {
     _currentTheme = ThemeData(
       primaryColor: const Color.fromRGBO(146, 35, 56, 1),
       scaffoldBackgroundColor: Colors.white,
+      cardColor: Colors.white,
       colorScheme: ColorScheme.fromSwatch().copyWith(
         primary: const Color.fromRGBO(146, 35, 56, 1),
         secondary: const Color.fromRGBO(233, 211, 215, 1),
@@ -155,6 +173,13 @@ class AppTheme {
       textTheme: const TextTheme().apply(
         bodyColor: Colors.black,
         displayColor: Colors.black,
+      ),
+      cardTheme: CardTheme(
+        color: Colors.white,
+        elevation: 2.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color.fromRGBO(146, 35, 56, 1),

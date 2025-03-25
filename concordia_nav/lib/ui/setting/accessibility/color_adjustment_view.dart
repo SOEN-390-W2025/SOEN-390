@@ -18,6 +18,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
   late Color _backgroundColor;
   late Color _primaryTextColor;
   late Color _secondaryTextColor;
+  late Color _cardColor;
 
   // Create a preview theme
   late ThemeData _previewTheme;
@@ -31,6 +32,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
     _backgroundColor = AppTheme.theme.scaffoldBackgroundColor;
     _primaryTextColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
     _secondaryTextColor = AppTheme.theme.colorScheme.onPrimary;
+    _cardColor = AppTheme.theme.cardColor;
 
     // Initialize preview theme
     _updatePreviewTheme();
@@ -44,6 +46,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
       backgroundColor: _backgroundColor,
       primaryTextColor: _primaryTextColor,
       secondaryTextColor: _secondaryTextColor,
+      cardColor: _cardColor,
     );
   }
 
@@ -106,6 +109,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
       _backgroundColor = AppTheme.theme.scaffoldBackgroundColor;
       _primaryTextColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
       _secondaryTextColor = AppTheme.theme.colorScheme.onPrimary;
+      _cardColor = AppTheme.theme.cardColor;
       _updatePreviewTheme();
     });
   }
@@ -166,15 +170,27 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
           ),
           const SizedBox(height: 16),
 
-          // Preview primary text
-          Text(
-            'This is how primary text will appear',
-            style: TextStyle(
-              color: _primaryTextColor,
-              fontSize: 16,
+          // Preview card
+          Card(
+            color: _cardColor,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Card Preview',
+                    style: TextStyle(
+                      color: _primaryTextColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 8),
+
+          const SizedBox(height: 12),
 
           // Preview primary button
           ElevatedButton(
@@ -190,7 +206,7 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
           // Preview secondary button
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: _secondaryColor),
+              side: BorderSide(color: _primaryColor),
               foregroundColor: _primaryColor,
             ),
             onPressed: () {},
@@ -245,6 +261,11 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                   'Background color',
                   _backgroundColor,
                   (color) => setState(() => _backgroundColor = color)
+                ),
+                _buildColorRow(
+                  'Card color',
+                  _cardColor,
+                  (color) => setState(() => _cardColor = color)
                 ),
                 _buildColorRow(
                   'Primary text color',
@@ -324,11 +345,12 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                       
                       // Show success message
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).clearSnackBars();
+                         ScaffoldMessenger.of(context).clearSnackBars();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Theme reset to default'))
                         );
                       }
+                     
                     },
                     child: const Text(
                       'Reset to default',
