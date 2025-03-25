@@ -1,12 +1,12 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/domain-model/poi.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
+import '../../utils/settings/preferences_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
@@ -269,9 +269,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           }
         });
       }
-
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+    } on Error catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
   }
@@ -286,6 +284,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   @override
   Widget build(BuildContext context) {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    _directionsViewModel.measurementUnit = preferences.selectedMeasurementUnit;
+
     return ChangeNotifierProvider.value(
       value: _directionsViewModel,
       child:
