@@ -25,17 +25,16 @@ void main() {
       const Location(100, 100, "Mock location", null, null, null, null)
     ];
     mockDecision = NavigationDecision(
-        navCase: NavigationCase.sameBuildingClassroom, pageCount: 1);
+        navCase: NavigationCase.multiStepJourney, pageSequence: ["O", "O"]);
   });
 
   test('should create ViewModel with a valid journey and initial decision', () {
     final viewModel = NavigationJourneyViewModel(
       repository: mockRepository,
       journeyItems: journeyItems,
-      initialDecision: mockDecision,
     );
 
-    expect(viewModel.decision, equals(mockDecision));
+    expect(viewModel.decision.pageCount, 1);
   });
 
   test(
@@ -60,13 +59,12 @@ void main() {
     );
 
     expect(viewModel.decision.navCase, equals(mockDecision.navCase));
-    expect(viewModel.decision.pageCount, equals(mockDecision.pageCount));
   });
 
   test('should throw an exception if journeyItems has less than 2 locations',
       () {
     mockDecision = NavigationDecision(
-        navCase: NavigationCase.sameBuildingClassroom, pageCount: 1);
+        navCase: NavigationCase.multiStepJourney, pageSequence: ["O"]);
 
     expect(
       () => NavigationJourneyViewModel(

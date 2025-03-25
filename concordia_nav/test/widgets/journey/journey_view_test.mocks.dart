@@ -34,9 +34,17 @@ class MockNavigationDecision extends _i1.Mock
   _i2.NavigationCase get navCase =>
       (super.noSuchMethod(
             Invocation.getter(#navCase),
-            returnValue: _i2.NavigationCase.sameBuildingClassroom,
+            returnValue: _i2.NavigationCase.multiStepJourney,
           )
           as _i2.NavigationCase);
+
+  @override
+  List<String> get pageSequence =>
+      (super.noSuchMethod(
+            Invocation.getter(#pageSequence),
+            returnValue: <String>[],
+          )
+          as List<String>);
 
   @override
   int get pageCount =>

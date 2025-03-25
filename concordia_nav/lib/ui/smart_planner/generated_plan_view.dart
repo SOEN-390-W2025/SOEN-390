@@ -30,6 +30,15 @@ class GeneratedPlanView extends StatelessWidget {
       }
     }
 
+    // for the time being we're using the Location objects in events and in
+    // todolocations which will be replaced with the optimized plan once
+    // the TSP logic has been implemented.
+    final journeyItems = [
+      plan.startLocation,
+      ...plan.events.map((e) => e.$2),
+      ...plan.todoLocations.map((t) => t.$2),
+    ];
+
     // Events and todoLocations will be merged into a single timeline list
     final timelineItems = <Map<String, dynamic>>[];
 
@@ -113,9 +122,14 @@ class GeneratedPlanView extends StatelessWidget {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 5.0, right: 5.0),
         child: ElevatedButton(
-          onPressed: () {
-            // TODO: Implement directions from generated plan
-          },
+          onPressed: () => Navigator.pushNamed(
+            context,
+            '/NavigationJourneyPage',
+            arguments: {
+              'journeyName': 'Smart Plan Directions',
+              'journeyItems': journeyItems,
+            },
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
             padding:
