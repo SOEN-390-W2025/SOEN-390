@@ -15,6 +15,7 @@ import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/journey/journey_view.dart';
 import 'ui/next_class/next_class_directions_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
+import 'ui/setting/contact/contact_page.dart';
 import 'utils/logger_util.dart';
 import 'ui/poi/nearby_poi_map.dart';
 import 'ui/poi/poi_choice_view.dart';
@@ -160,6 +161,7 @@ class MyApp extends StatelessWidget {
               category: args['category'],
             );
           },
+          '/ContactPage': (context) => const ContactPage(),
         },
       ),
     );
