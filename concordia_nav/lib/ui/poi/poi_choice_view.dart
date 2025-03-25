@@ -114,20 +114,24 @@ class _POIChoiceViewState extends State<POIChoiceView>
   Widget _buildMainScreen(POIViewModel viewModel) {
     return Scaffold(
       appBar: customAppBar(context, 'POI List'),
-      body: Column(
-        children: [
-          _buildSearchBar(viewModel),
-          _buildTabBar(),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildIndoorTab(viewModel),
-                _buildOutdoorTab(viewModel),
-              ],
+      body: Semantics(
+        label:
+            'Browse indoor and outdoor points of interest near the University.',
+        child: Column(
+          children: [
+            _buildSearchBar(viewModel),
+            _buildTabBar(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildIndoorTab(viewModel),
+                  _buildOutdoorTab(viewModel),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

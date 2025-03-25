@@ -386,40 +386,44 @@ class _CalendarViewState extends State<CalendarView> {
         builder: (context, viewModel, _) {
           return Scaffold(
             appBar: customAppBar(context, 'Calendar'),
-            body: Column(
-              children: [
-                // Loading indicator or error message
-                if (viewModel.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(color: Color(0xFF962e42)),
-                  ),
+            body: Semantics(
+              label: 'View the selected Calendar details.',
+              child: Column(
+                children: [
+                  // Loading indicator or error message
+                  if (viewModel.isLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child:
+                          CircularProgressIndicator(color: Color(0xFF962e42)),
+                    ),
 
-                if (viewModel.errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      viewModel.errorMessage!,
-                      style: const TextStyle(color: Colors.red),
+                  if (viewModel.errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        viewModel.errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+
+                  // Calendar week view
+                  Expanded(
+                    child: DayView(
+                      controller: eventController,
+                      eventTileBuilder: _eventTileBuilder,
+                      showVerticalLine: true,
+                      minDay: DateTime.now(),
+                      maxDay: DateTime.now().add(const Duration(days: 7)),
+                      initialDay: DateTime.now(),
+                      heightPerMinute: 1,
+                      eventArranger: const SideEventArranger(),
+                      startHour: 5,
+                      endHour: 22,
                     ),
                   ),
-
-                // Calendar week view
-                Expanded(
-                  child: DayView(
-                    controller: eventController,
-                    eventTileBuilder: _eventTileBuilder,
-                    showVerticalLine: true,
-                    minDay: DateTime.now(),
-                    maxDay: DateTime.now().add(const Duration(days: 7)),
-                    initialDay: DateTime.now(),
-                    heightPerMinute: 1,
-                    eventArranger: const SideEventArranger(),
-                    startHour: 5,
-                    endHour: 22,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

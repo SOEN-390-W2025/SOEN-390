@@ -115,12 +115,15 @@ class CampusMapPageState extends State<CampusMapPage> {
         builder: (context, mapViewModel, child) {
           return Scaffold(
             appBar: _buildAppBar(context),
-            body: Stack(
-              children: [
-                _buildMapFutureBuilder(context),
-                _buildSearchBar(context),
-                _buildBuildingInfoDrawer(),
-              ],
+            body: Semantics(
+              label: 'Search for buildings or explore the campus map.',
+              child: Stack(
+                children: [
+                  _buildMapFutureBuilder(context),
+                  _buildSearchBar(context),
+                  _buildBuildingInfoDrawer(),
+                ],
+              ),
             ),
           );
         },

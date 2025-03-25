@@ -207,148 +207,152 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CommonAppBar(title: "Smart Planner"),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Optimize your campus route by minimizing walking time and outdoor exposure. "
-              "Enter your tasks, get an efficient plan, and follow step-by-step directions.",
-              style: TextStyle(fontSize: 14),
-              textAlign: TextAlign.justify,
-            ),
-            const SizedBox(height: 20),
-            Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black,
-                    blurRadius: 0.5,
-                  ),
-                ],
+      body: Semantics(
+        label:
+            'Enter your tasks into the Smart Planer with a starting location to generate an optimized plan.',
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Optimize your campus route by minimizing walking time and outdoor exposure. "
+                "Enter your tasks, get an efficient plan, and follow step-by-step directions.",
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.justify,
               ),
-              child: TextField(
-                controller: _planController,
-                textAlignVertical: TextAlignVertical.top,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                cursorColor: const Color(0xFF962e42),
-                decoration: InputDecoration(
-                  hintText: "Create new plan...",
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 10.0),
-                  child: Text(
-                    "Source location",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _buildingSelector(context),
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          blurRadius: 0.5,
-                        ),
-                      ],
+              const SizedBox(height: 20),
+              Container(
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black,
+                      blurRadius: 0.5,
                     ),
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: _sourceController,
-                        textAlignVertical: TextAlignVertical.center,
-                        decoration: InputDecoration(
-                          hintText: "Pick a source location...",
-                          hintStyle:
-                              TextStyle(color: Colors.grey[500], fontSize: 14),
-                          border: InputBorder.none,
-                          prefixIcon: Icon(
-                            Icons.location_on,
-                            color: Theme.of(context).primaryColor,
+                  ],
+                ),
+                child: TextField(
+                  controller: _planController,
+                  textAlignVertical: TextAlignVertical.top,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  cursorColor: const Color(0xFF962e42),
+                  decoration: InputDecoration(
+                    hintText: "Create new plan...",
+                    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10.0),
+                    child: Text(
+                      "Source location",
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _buildingSelector(context),
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black,
+                            blurRadius: 0.5,
+                          ),
+                        ],
+                      ),
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: _sourceController,
+                          textAlignVertical: TextAlignVertical.center,
+                          decoration: InputDecoration(
+                            hintText: "Pick a source location...",
+                            hintStyle: TextStyle(
+                                color: Colors.grey[500], fontSize: 14),
+                            border: InputBorder.none,
+                            prefixIcon: Icon(
+                              Icons.location_on,
+                              color: Theme.of(context).primaryColor,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                if (isFetchingNearestBuilding)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 10.0, top: 5.0),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          "Detecting nearby building...",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (locationEnabled && !useCurrentLocation)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _sourceController.text = "Your location";
-                          useCurrentLocation = true;
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 4.0,
-                        ),
-                        minimumSize: const Size(0, 30),
-                      ),
-                      child: const Text(
-                        "Use current location",
-                        style: TextStyle(
-                          fontSize: 10.0,
-                          color: Colors.white,
-                        ),
+                  if (isFetchingNearestBuilding)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 10.0, top: 5.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "Detecting nearby building...",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                else
-                  const SizedBox(),
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Error: $_errorMessage",
-                      style: const TextStyle(color: Colors.red),
+                  if (locationEnabled && !useCurrentLocation)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _sourceController.text = "Your location";
+                            useCurrentLocation = true;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 4.0,
+                          ),
+                          minimumSize: const Size(0, 30),
+                        ),
+                        child: const Text(
+                          "Use current location",
+                          style: TextStyle(
+                            fontSize: 10.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Error: $_errorMessage",
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     ),
-                  ),
-                const SizedBox(height: 20),
-                _buildSmartPlannerGuide(context),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 20),
+                  _buildSmartPlannerGuide(context),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: Padding(
@@ -406,7 +410,7 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
           style: TextStyle(fontSize: 14),
         ),
         const Text(
-          ' • For classrooms, make sure to add a "." between floor and room number (e.g. H 9.27).',
+          '• For classrooms, make sure to add a "." between floor and room number (e.g. H 9.27).',
           style: TextStyle(fontSize: 13),
         ),
         const SizedBox(height: 8),

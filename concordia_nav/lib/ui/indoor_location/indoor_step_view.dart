@@ -53,24 +53,23 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
     _temporaryEndRoom = _isMultiFloorRoute ? 'connection' : widget.endRoom;
 
     _viewModel = widget.viewModel ??
-    (!_isMultiFloorRoute
-        ? VirtualStepGuideViewModel(
-            sourceRoom: widget.sourceRoom,
-            building: widget.building,
-            floor: extractFloor(widget.sourceRoom),
-            endRoom: _temporaryEndRoom,
-            isDisability: widget.isDisability,
-            vsync: this,
-            selectedPOI: widget.selectedPOI
-          )
-        : VirtualStepGuideViewModel(
-            sourceRoom: widget.sourceRoom,
-            building: widget.building,
-            floor: extractFloor(widget.sourceRoom),
-            endRoom: _temporaryEndRoom,
-            isDisability: widget.isDisability,
-            vsync: this,
-          ));
+        (!_isMultiFloorRoute
+            ? VirtualStepGuideViewModel(
+                sourceRoom: widget.sourceRoom,
+                building: widget.building,
+                floor: extractFloor(widget.sourceRoom),
+                endRoom: _temporaryEndRoom,
+                isDisability: widget.isDisability,
+                vsync: this,
+                selectedPOI: widget.selectedPOI)
+            : VirtualStepGuideViewModel(
+                sourceRoom: widget.sourceRoom,
+                building: widget.building,
+                floor: extractFloor(widget.sourceRoom),
+                endRoom: _temporaryEndRoom,
+                isDisability: widget.isDisability,
+                vsync: this,
+              ));
 
     _viewModel.initializeRoute().then((_) {
       if (mounted) {
@@ -118,10 +117,11 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
           selectedPOI: widget.selectedPOI,
         );
       } else {
-        final String firstDigit = extractFloor(widget.endRoom).startsWith('S') ||
-              RegExp(r'^\d$').hasMatch(extractFloor(widget.endRoom))
-          ? extractFloor(widget.endRoom)
-          : '1';
+        final String firstDigit =
+            extractFloor(widget.endRoom).startsWith('S') ||
+                    RegExp(r'^\d$').hasMatch(extractFloor(widget.endRoom))
+                ? extractFloor(widget.endRoom)
+                : '1';
         _viewModel = VirtualStepGuideViewModel(
           sourceRoom: 'connection',
           building: widget.building,
@@ -131,7 +131,7 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
           vsync: this,
         );
       }
-      
+
       _viewModel.initializeRoute().then((_) {
         if (mounted) {
           _timer = Timer(const Duration(milliseconds: 300), () {
@@ -161,23 +161,27 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
             backgroundColor: Colors.white,
             body: viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : Stack(
-                    children: [
-                      _buildFloorPlanView(viewModel),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: _buildGuidanceBox(viewModel),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: _buildTravelInfoBox(viewModel),
-                          ),
-                        ],
-                      ),
-                    ],
+                : Semantics(
+                    label:
+                        'Follow each instruction step to get to your destination.',
+                    child: Stack(
+                      children: [
+                        _buildFloorPlanView(viewModel),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: _buildGuidanceBox(viewModel),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: _buildTravelInfoBox(viewModel),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
           );
         },
