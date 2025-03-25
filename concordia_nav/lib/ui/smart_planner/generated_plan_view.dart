@@ -34,6 +34,7 @@ class GeneratedPlanView extends StatelessWidget {
     // todolocations which will be replaced with the optimized plan once
     // the TSP logic has been implemented.
     final journeyItems = [
+      plan.startLocation,
       ...plan.events.map((e) => e.$2),
       ...plan.todoLocations.map((t) => t.$2),
     ];
