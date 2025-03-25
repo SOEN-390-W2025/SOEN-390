@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class AppTheme {
   // Use a static variable to store the current theme
@@ -31,10 +33,62 @@ class AppTheme {
   // Getter for the theme change stream
   static ValueNotifier<ThemeData> get themeChangeNotifier => _themeChangeNotifier;
 
-  // Method to update the theme
-  static void updateTheme(ThemeData newTheme) {
+  // Method to update the theme and save to preferences
+  static Future<void> updateTheme(ThemeData newTheme) async {
     _currentTheme = newTheme;
     _themeChangeNotifier.value = newTheme;
+
+    // Save theme settings
+    await saveThemeToPrefs();
+  }
+
+  // Save theme settings to SharedPreferences
+  static Future<void> saveThemeToPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Convert theme colors to a map for storage
+      final Map<String, String> themeData = {
+        'primaryColor': _currentTheme.primaryColor.toString(),
+        'secondaryColor': _currentTheme.colorScheme.secondary.toString(),
+        'backgroundColor': _currentTheme.scaffoldBackgroundColor.toString(),
+        'primaryTextColor': (_currentTheme.textTheme.bodyLarge?.color ?? Colors.black).toString(),
+        'secondaryTextColor': _currentTheme.colorScheme.onPrimary.toString(),
+      };
+
+      // Save as JSON string
+      await prefs.setString('app_theme', jsonEncode(themeData));
+    } catch (e) {
+      debugPrint('Error saving theme: $e');
+    }
+  }
+
+  // Load theme settings from SharedPreferences
+  static Future<void> loadSavedTheme() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? themeStr = prefs.getString('app_theme');
+
+      if (themeStr != null) {
+        final Map<String, dynamic> themeData = jsonDecode(themeStr);
+
+        // Create theme from saved values
+        final newTheme = createTheme(
+          primaryColor: Color(int.parse(themeData['primaryColor'])),
+          secondaryColor: Color(int.parse(themeData['secondaryColor'])),
+          backgroundColor: Color(int.parse(themeData['backgroundColor'])),
+          primaryTextColor: Color(int.parse(themeData['primaryTextColor'])),
+          secondaryTextColor: Color(int.parse(themeData['secondaryTextColor'])),
+        );
+
+        // Update theme without saving (to avoid recursion)
+        _currentTheme = newTheme;
+        _themeChangeNotifier.value = newTheme;
+      }
+    } catch (e) {
+      debugPrint('Error loading theme: $e');
+      // If there's an error, use default theme
+    }
   }
 
   // Helper method to get a theme with specific colors
@@ -83,7 +137,7 @@ class AppTheme {
   }
 
   // Method to reset to default theme
-  static void resetToDefault() {
+  static Future<void> resetToDefault() async {
     _currentTheme = ThemeData(
       primaryColor: const Color.fromRGBO(146, 35, 56, 1),
       scaffoldBackgroundColor: Colors.white,
@@ -120,5 +174,9 @@ class AppTheme {
       ),
     );
     _themeChangeNotifier.value = _currentTheme;
+    
+    // Clear saved preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('app_theme');
   }
 }

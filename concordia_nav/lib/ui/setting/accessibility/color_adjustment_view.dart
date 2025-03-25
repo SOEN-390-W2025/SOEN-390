@@ -93,13 +93,13 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
     );
   }
 
-  void _updateAppTheme() {
+  Future<void> _updateAppTheme() async {
     // Update the app's theme with current color selections
-    AppTheme.updateTheme(_previewTheme);
+    await AppTheme.updateTheme(_previewTheme);
   }
 
-  void _resetToDefault() {
-    AppTheme.resetToDefault();
+  Future<void> _resetToDefault() async {
+    await AppTheme.resetToDefault();
     setState(() {
       _primaryColor = AppTheme.theme.primaryColor;
       _secondaryColor = AppTheme.theme.colorScheme.secondary;
@@ -229,8 +229,6 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 8),
 
                 // Color selection rows
                 _buildColorRow(
@@ -278,11 +276,22 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: () {
-                      _updateAppTheme();
+                    onPressed: () async {
+                      // Show loading indicator
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Theme updated successfully!'))
+                        const SnackBar(content: Text('Saving theme settings...'))
                       );
+                      
+                      // Update app theme
+                      await _updateAppTheme();
+                      
+                      // Show success message
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Theme updated successfully!'))
+                        );
+                      }
                     },
                     child: const Text(
                       'Save changes',
@@ -304,7 +313,23 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: _resetToDefault,
+                    onPressed: () async {
+                      // Show loading indicator
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Resetting theme...'))
+                      );
+                      
+                      // Reset theme
+                      await _resetToDefault();
+                      
+                      // Show success message
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Theme reset to default'))
+                        );
+                      }
+                    },
                     child: const Text(
                       'Reset to default',
                       style: TextStyle(fontSize: 16),

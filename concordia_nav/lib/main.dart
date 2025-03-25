@@ -34,6 +34,7 @@ import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
@@ -48,6 +49,16 @@ Future<void> main() async {
     dev.log('Error initializing building data manager',
         error: e, stackTrace: stackTrace);
   }
+
+  // Load saved theme before starting the app
+  try {
+    await AppTheme.loadSavedTheme();
+    LoggerUtil.info('Theme loaded successfully');
+  } catch (e) {
+    LoggerUtil.warning('Failed to load saved theme: $e');
+    // Continue with default theme if there's an error
+  }
+  
   runApp(const MyApp());
 }
 
