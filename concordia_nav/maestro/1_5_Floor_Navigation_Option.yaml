@@ -1,0 +1,7 @@
+appId: com.example.concordia_nav
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Floor Navigation"
+- tapOn: "Floor Navigation"
+- assertVisible: "Floor Navigation"
