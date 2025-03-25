@@ -109,15 +109,15 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   // Enhanced method to handle POI-based initialization
   void _handleSelectedPOI() {
     targetPOI = widget.selectedPOI!;
-    
+
     // Extract floor information
     startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
     endFloor = targetPOI!.floor;
-    
+
     // Determine if we're dealing with a multi-floor scenario
     isPOIOnDifferentFloor = startFloor != endFloor;
     isMultiFloor = isPOIOnDifferentFloor;
-    
+
     // Set the initial display floor based on source
     if (widget.sourceRoom.trim().toLowerCase() == 'your location') {
       // Start with the POI's floor when coming from "Your Location"
@@ -126,20 +126,22 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       // Otherwise start with the source floor
       displayFloor = startFloor;
     }
-    
+
     // Update the floor plan path
-    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
-    
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+
     // Set up the real room references
     realStartRoom = widget.sourceRoom;
-    realEndRoom = '${targetPOI!.buildingId} ${targetPOI!.floor}${targetPOI!.name}';
-    
+    realEndRoom =
+        '${targetPOI!.buildingId} ${targetPOI!.floor}${targetPOI!.name}';
+
     // If multi-floor, set the appropriate end room for the current floor view
     if (isPOIOnDifferentFloor) {
       // If we're on the starting floor, we need to navigate to the connection point
       if (displayFloor == startFloor) {
         widget.endRoom = 'connection';
-      } 
+      }
       // If we're on the destination floor, we need to navigate from the connection to the POI
       else if (displayFloor == endFloor) {
         widget.sourceRoom = 'connection';
@@ -149,7 +151,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       // If same floor, just navigate directly to the POI
       widget.endRoom = targetPOI!.name;
     }
-    
+
     // Set up display names for the UI
     from = realStartRoom;
     if (realStartRoom == yourLocation) {
@@ -159,11 +161,12 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     } else {
       from = '$buildingAbbreviation $realStartRoom';
     }
-    
+
     to = '${targetPOI!.name} (${targetPOI!.buildingId} ${targetPOI!.floor})';
-    
+
     dev.log('IndoorDirectionsView with POI: from: $from, to: $to');
-    dev.log('Multi-floor POI navigation: $isPOIOnDifferentFloor, display floor: $displayFloor');
+    dev.log(
+        'Multi-floor POI navigation: $isPOIOnDifferentFloor, display floor: $displayFloor');
   }
 
   // Original initialization logic moved to a separate method
@@ -178,7 +181,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       displayFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
     }
 
-    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+    floorPlanPath =
+        'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
 
     realStartRoom = widget.sourceRoom;
     realEndRoom = widget.endRoom;
@@ -204,7 +208,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
-    dev.log('IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
+    dev.log(
+        'IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
     dev.log('IndoorDirectionsView: from: $from, to: $to');
   }
 
@@ -265,7 +270,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         });
       }
 
-    // ignore: avoid_catches_without_on_clauses
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
@@ -289,85 +294,87 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           appBar: (widget.hideAppBar)
               ? null
               : customAppBar(context, 'Indoor Directions'),
-          body: Column(
-            children: [
-              Visibility(
-                visible: !widget.hideIndoorInputs,
-                child: LocationInfoWidget(
-                    from: from,
-                    to: to,
-                    building: widget.building,
-                    isDisability: disability,
-                    isPOI: widget.selectedPOI != null
+          body: Semantics(
+            label: 'Get information on floor plans, routes, and travel time.',
+            child: Column(
+              children: [
+                Visibility(
+                  visible: !widget.hideIndoorInputs,
+                  child: LocationInfoWidget(
+                      from: from,
+                      to: to,
+                      building: widget.building,
+                      isDisability: disability,
+                      isPOI: widget.selectedPOI != null),
                 ),
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    FloorPlanWidget(
-                      indoorMapViewModel: _indoorMapViewModel,
-                      floorPlanPath: floorPlanPath,
-                      viewModel: viewModel,
-                      semanticsLabel:
-                          'Floor plan of $buildingAbbreviation-$displayFloor',
-                      width: width,
-                      height: height,
-                    ),
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: AccessibilityButton(
-                        sourceRoom: widget.sourceRoom,
-                        endRoom: widget.endRoom,
-                        disability: disability,
-                        onDisabilityChanged: (value) {
-                          disability = !disability;
-                          _initializeRoute();
-                        },
+                Expanded(
+                  child: Stack(
+                    children: [
+                      FloorPlanWidget(
+                        indoorMapViewModel: _indoorMapViewModel,
+                        floorPlanPath: floorPlanPath,
+                        viewModel: viewModel,
+                        semanticsLabel:
+                            'Floor plan of $buildingAbbreviation-$displayFloor',
+                        width: width,
+                        height: height,
                       ),
-                    ),
-                    if (isPOIOnDifferentFloor)
                       Positioned(
                         top: 16,
-                        left: 16,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
+                        right: 16,
+                        child: AccessibilityButton(
+                          sourceRoom: widget.sourceRoom,
+                          endRoom: widget.endRoom,
+                          disability: disability,
+                          onDisabilityChanged: (value) {
+                            disability = !disability;
+                            _initializeRoute();
+                          },
+                        ),
+                      ),
+                      if (isPOIOnDifferentFloor)
+                        Positioned(
+                          top: 16,
+                          left: 16,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              'Floor $displayFloor',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
-                            ],
-                          ),
-                          child: Text(
-                            'Floor $displayFloor',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              BottomInfoWidget(
-                building: widget.building,
-                sourceRoom: realStartRoom,
-                endRoom: realEndRoom,
-                isDisability: disability,
-                eta: viewModel.eta,
-                distance: viewModel.distance,
-                isMultiFloor: isMultiFloor,
-                onNextFloor: handleNextFloorPress,
-                onPrevFloor: handlePrevFloorPress,
-                selectedPOI: widget.selectedPOI,
-              ),
-            ],
+                BottomInfoWidget(
+                  building: widget.building,
+                  sourceRoom: realStartRoom,
+                  endRoom: realEndRoom,
+                  isDisability: disability,
+                  eta: viewModel.eta,
+                  distance: viewModel.distance,
+                  isMultiFloor: isMultiFloor,
+                  onNextFloor: handleNextFloorPress,
+                  onPrevFloor: handlePrevFloorPress,
+                  selectedPOI: widget.selectedPOI,
+                ),
+              ],
+            ),
           ),
         );
       }),

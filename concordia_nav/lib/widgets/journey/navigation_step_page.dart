@@ -40,7 +40,10 @@ class _NavigationStepPageState extends State<NavigationStepPage> {
     final isLastStep = _currentIndex == widget.pageCount - 1;
     return Scaffold(
       appBar: customAppBar(context, widget.journeyName),
-      body: widget.pageBuilder(_currentIndex),
+      body: Semantics(
+        label: 'Navigation steps for your journey.',
+        child: widget.pageBuilder(_currentIndex),
+      ),
       bottomNavigationBar: Container(
         color: const Color(0xFF962E42),
         padding: const EdgeInsets.all(8.0),
