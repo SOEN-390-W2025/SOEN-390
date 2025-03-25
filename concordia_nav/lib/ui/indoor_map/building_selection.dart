@@ -56,42 +56,40 @@ class BuildingSelectionState extends State<BuildingSelection> {
             icon: Icons.location_on,
             iconColor: Theme.of(context).primaryColor,
           ),
-          Expanded(
-            child: FutureBuilder<List<String>>(
-              future: _buildingsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error loading buildings: ${snapshot.error}'),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                    child: Text('No buildings with floor data available'),
-                  );
-                } else {
-                  return SelectableList<String>(
-                    items: snapshot.data!,
-                    title: 'Select a building',
-                    searchController: searchController,
-                    onItemSelected: (building) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FloorSelection(
-                            building: building,
-                            endRoom: widget.endRoom,
-                            isSource: widget.isSource,
-                            isDisability: widget.isDisability,
-                          ),
+          FutureBuilder<List<String>>(
+            future: _buildingsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error loading buildings: ${snapshot.error}'),
+                );
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text('No buildings with floor data available'),
+                );
+              } else {
+                return SelectableList<String>(
+                  items: snapshot.data!,
+                  title: 'Select a building',
+                  searchController: searchController,
+                  onItemSelected: (building) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FloorSelection(
+                          building: building,
+                          endRoom: widget.endRoom,
+                          isSource: widget.isSource,
+                          isDisability: widget.isDisability,
                         ),
-                      );
-                    },
-                  );
-                }
-              },
-            ),
+                      ),
+                    );
+                  },
+                );
+              }
+            },
           ),
         ],
       ),
