@@ -341,6 +341,37 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   );
 
   @override
+  String formatRoom(String? room) =>
+      (super.noSuchMethod(
+            Invocation.method(#formatRoom, [room]),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.method(#formatRoom, [room]),
+            ),
+          )
+          as String);
+
+  @override
+  String removeBuildingAbbreviation(
+    String? room,
+    String? buildingAbbreviation,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#removeBuildingAbbreviation, [
+              room,
+              buildingAbbreviation,
+            ]),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.method(#removeBuildingAbbreviation, [
+                room,
+                buildingAbbreviation,
+              ]),
+            ),
+          )
+          as String);
+
+  @override
   void calculateTimeAndDistanceEstimates() => super.noSuchMethod(
     Invocation.method(#calculateTimeAndDistanceEstimates, []),
     returnValueForMissingStub: null,

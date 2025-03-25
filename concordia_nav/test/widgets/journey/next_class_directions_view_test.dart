@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/concordia_room.dart';
@@ -14,11 +16,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 
 import '../../map/map_viewmodel_test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
   dotenv.load(fileName: '.env');
 
   final testPosition = Position(
