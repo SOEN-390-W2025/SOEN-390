@@ -229,46 +229,48 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     if (_isLoading) {
       bodyContent = const Center(child: CircularProgressIndicator());
     } else if (_floorPlanExists) {
-      bodyContent = Stack(
-        children: [
-          FloorPlanWidget(
-            indoorMapViewModel: _indoorMapViewModel,
-            floorPlanPath: floorPlanPath,
-            semanticsLabel:
-                'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
-            width: width,
-            height: height,
+      bodyContent = Semantics(
+        label: 'Indoor location floor plans',
+        child: Stack(
+          children: [
+            FloorPlanWidget(
+                indoorMapViewModel: _indoorMapViewModel,
+                floorPlanPath: floorPlanPath,
+                semanticsLabel:
+                    'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
+                width: width,
+                height: height,
             pois: _poisOnCurrentFloor,
-            onPoiTap: _handlePoiTap,
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FloorPlanSearchWidget(
-                    searchController: _destinationController,
-                    building: widget.building,
-                    floor: 'Floor ${widget.floor}',
-                    disabled: true,
-                  ),
-                ],
+            onPoiTap: _handlePoiTap,),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloorPlanSearchWidget(
+                      searchController: _destinationController,
+                      building: widget.building,
+                      floor: 'Floor ${widget.floor}',
+                      disabled: true,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 80,
-            right: 16,
-            child: FloorButton(
-              floor: widget.floor!,
-              building: widget.building,
+            Positioned(
+              top: 80,
+              right: 16,
+              child: FloorButton(
+                floor: widget.floor!,
+                building: widget.building,
+              ),
             ),
-          ),
-          if (widget.room != null) _buildFooter(),
-        ],
+            if (widget.room != null) _buildFooter(),
+          ],
+        ),
       );
     } else {
       bodyContent = const Center(

@@ -22,7 +22,8 @@ class OutdoorLocationMapView extends StatefulWidget {
   final MapViewModel? mapViewModel;
   final bool hideAppBar;
   final bool hideInputs;
-  final Map<String, dynamic>? additionalData; // For Place data from NearbyPOIMapView
+  final Map<String, dynamic>?
+      additionalData; // For Place data from NearbyPOIMapView
 
   const OutdoorLocationMapView({
     super.key,
@@ -67,9 +68,11 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         searchList.add(building);
       }
     }
-    
+
     // Add POI name to search list if coming from POI view
-    if (_isFromPoi && _selectedPlace != null && !searchList.contains(_selectedPlace!.name)) {
+    if (_isFromPoi &&
+        _selectedPlace != null &&
+        !searchList.contains(_selectedPlace!.name)) {
       searchList.add(_selectedPlace!.name);
     }
   }
@@ -97,7 +100,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         await _mapViewModel.fetchRoutesForAllModes(
             'Your Location', _destinationController.text);
       }
-      
+
       if (!mounted) return;
       setState(() {});
     }
@@ -107,18 +110,19 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   // New method to calculate a route directly to a POI
   Future<void> _calculateCustomRouteToPOI() async {
     if (_poiDestinationLatLng == null) return;
-    
+
     try {
       // Get the user's current location
       final LatLng? origin = await _mapViewModel.fetchCurrentLocation();
       if (origin == null) {
         throw Exception('Could not determine your location');
       }
-      
+
       // Prepare strings for direction service
       final originStr = "${origin.latitude},${origin.longitude}";
-      final destStr = "${_poiDestinationLatLng!.latitude},${_poiDestinationLatLng!.longitude}";
-      
+      final destStr =
+          "${_poiDestinationLatLng!.latitude},${_poiDestinationLatLng!.longitude}";
+
       // Use the outdoor directions service to calculate routes
       final odsDirectionsService = ODSDirectionsService();
       final modes = [
@@ -127,7 +131,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         CustomTravelMode.bicycling,
         CustomTravelMode.transit,
       ];
-      
+
       // Clear existing routes
       _mapViewModel.multiModeRoutes.clear();
       _mapViewModel.travelTimes.clear();
@@ -143,7 +147,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             travelMode: gdaMode,
             polylineId: mode.toString(),
           );
-          
+
           if (result.polyline != null) {
             _mapViewModel.multiModeRoutes[mode] = result.polyline!;
             _mapViewModel.travelTimes[mode] = result.travelTime;
@@ -152,15 +156,14 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           }
         }
       }
-      
+
       // Set default travel mode
       if (_mapViewModel.multiModeRoutes.containsKey(CustomTravelMode.driving)) {
         await _mapViewModel.setActiveModeForRoute(CustomTravelMode.driving);
       } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
-        await _mapViewModel.setActiveModeForRoute(
-            _mapViewModel.multiModeRoutes.keys.first);
+        await _mapViewModel
+            .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
       }
-      
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -175,19 +178,24 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     super.initState();
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _sourceController = TextEditingController();
-    
+
     // Initialize POI-related variables
-    if (widget.additionalData != null && widget.additionalData!.containsKey('place')) {
+    if (widget.additionalData != null &&
+        widget.additionalData!.containsKey('place')) {
       _isFromPoi = true;
       _selectedPlace = widget.additionalData!['place'] as Place;
-      _poiDestinationLatLng = widget.additionalData!['destinationLatLng'] as LatLng?;
-      _destinationController = TextEditingController(text: _selectedPlace!.name);
+      _poiDestinationLatLng =
+          widget.additionalData!['destinationLatLng'] as LatLng?;
+      _destinationController =
+          TextEditingController(text: _selectedPlace!.name);
     } else {
-      _destinationController = TextEditingController(text: widget.building?.name ?? '');
+      _destinationController =
+          TextEditingController(text: widget.building?.name ?? '');
     }
-    
+
     _currentCampus = widget.campus;
-    _initialCameraPosition = _mapViewModel.getInitialCameraPosition(_currentCampus);
+    _initialCameraPosition =
+        _mapViewModel.getInitialCameraPosition(_currentCampus);
     checkLocationPermission();
     getSearchList();
     WidgetsBinding.instance.addObserver(this);
@@ -393,20 +401,26 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               context,
               _getAppBarTitle(),
             ),
-      body: Stack(
-        children: [
-          _buildMap(),
-          _buildTopPanel(),
-          _visibleKeyboardWidget(),
-          _buildBuildingInfoDrawer(),
-        ],
+      body: Semantics(
+        label:
+            'Outdoor map for Concordia campuses, points of interest, and directions.',
+        child: Stack(
+          children: [
+            _buildMap(),
+            _buildTopPanel(),
+            _visibleKeyboardWidget(),
+            _buildBuildingInfoDrawer(),
+          ],
+        ),
       ),
     );
   }
 
   Set<Marker> _addPOIMarker(Set<Marker> markers) {
     final allMarkers = markers;
-    if (_isFromPoi && _poiDestinationLatLng != null && _mapViewModel.destinationMarker == null) {
+    if (_isFromPoi &&
+        _poiDestinationLatLng != null &&
+        _mapViewModel.destinationMarker == null) {
       allMarkers.add(
         Marker(
           markerId: const MarkerId('poi_destination'),
@@ -430,7 +444,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
           future: _mapViewModel.getAllCampusPolygonsAndLabels(),
           builder: (context, polySnapshot) {
             // skip for tests
-            if (!Platform.environment.containsKey('FLUTTER_TEST')){
+            if (!Platform.environment.containsKey('FLUTTER_TEST')) {
               if (polySnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -441,7 +455,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             return ValueListenableBuilder<Set<Marker>>(
               valueListenable: _mapViewModel.shuttleMarkersNotifier,
               builder: (context, shuttleMarkers, _) {
-                Set<Marker> allMarkers = _buildAllMarkers(labelMarkers, shuttleMarkers);
+                Set<Marker> allMarkers =
+                    _buildAllMarkers(labelMarkers, shuttleMarkers);
                 // Add POI marker if coming from POI view and no route is calculated yet
                 allMarkers = _addPOIMarker(allMarkers);
 
