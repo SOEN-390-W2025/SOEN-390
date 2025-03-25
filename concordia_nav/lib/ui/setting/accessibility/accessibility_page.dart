@@ -11,13 +11,18 @@ class AccessibilityPage extends StatelessWidget {
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: customAppBar(context, 'Accessibility'),
       body: Semantics(
-        label: 'Explore general accessibility options.',
+        label: 'Accessibility options page',
+        hint: 'Explore and configure accessibility settings',
         child: Container(
           color: backgroundColor,
-          child: ListView(
-            children: _buildAccessibilityTiles(context),
+          child: ExcludeSemantics(
+            // Exclude default semantics from ListView since we're adding custom ones
+            child: ListView(
+              children: _buildAccessibilityTiles(context),
+            ),
           ),
         ),
       ),
@@ -28,6 +33,7 @@ class AccessibilityPage extends StatelessWidget {
     const accessibilityOptions = <Map<String, dynamic>>[
       {
         'title': 'Visual Accessibility',
+        'description': 'isual Accessibility options',
         'subOptions': [
           'Color adjustment',
           'Text-to-speech',
@@ -35,6 +41,7 @@ class AccessibilityPage extends StatelessWidget {
       },
       {
         'title': 'Hearing Accessibility',
+        'description': 'H earing Accessibility options',
         'subOptions': [
           'Subtitles and captions',
           'Visual alerts',
@@ -44,6 +51,7 @@ class AccessibilityPage extends StatelessWidget {
       },
       {
         'title': 'Physical and Motor Accessibility',
+        'description': 'Physical and Motor Accessibility options',
         'subOptions': [
           'Keyboard shortcuts',
           'Voice commands',
@@ -54,6 +62,7 @@ class AccessibilityPage extends StatelessWidget {
       },
       {
         'title': 'Cognitive Accessibility',
+        'description': 'Cognitive Accessibility options',
         'subOptions': [
           'Simplified interface',
           'Reading assistance',
@@ -63,6 +72,7 @@ class AccessibilityPage extends StatelessWidget {
       },
       {
         'title': 'General Accessibility',
+        'description': 'General accessibility options',
         'subOptions': [
           'Customizable controls',
           'On-Screen keyboard',
@@ -73,14 +83,20 @@ class AccessibilityPage extends StatelessWidget {
     ];
 
     return accessibilityOptions.map((option) {
-      return AccessibilityTile(
-        title: option['title'] as String,
-        subOptions: (option['subOptions'] as List<String>).map((title) {
-          return {
-            'title': title,
-            'onTap': () => _handleSubOptionTap(context, title),
-          };
-        }).toList(),
+      return Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: option['title'] as String,
+        hint: option['description'] as String,
+        child: AccessibilityTile(
+          title: option['title'] as String,
+          subOptions: (option['subOptions'] as List<String>).map((title) {
+            return {
+              'title': title,
+              'onTap': () => _handleSubOptionTap(context, title),
+            };
+          }).toList(),
+        ),
       );
     }).toList();
   }
