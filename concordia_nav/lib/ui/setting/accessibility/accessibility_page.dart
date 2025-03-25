@@ -22,8 +22,11 @@ class AccessibilityPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
       ),
-      body: ListView(
-        children: _buildAccessibilityTiles(),
+      body: Semantics(
+        label: 'Explore general accessibility options.',
+        child: ListView(
+          children: _buildAccessibilityTiles(),
+        ),
       ),
     );
   }

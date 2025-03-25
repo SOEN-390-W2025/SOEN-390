@@ -793,32 +793,36 @@ class NextClassDirectionsPreviewState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, "Next Class Directions"),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF962E42)),
-            )
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: _buildLocationInfo(),
-                ),
-                Expanded(
-                  child: AnimatedBuilder(
-                    animation: viewModel,
-                    builder: (context, _) {
-                      return PageView(
-                        controller: _pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        onPageChanged: (index) =>
-                            setState(() => _currentPage = index),
-                        children: _buildPagesForScenario(_determineScenario()),
-                      );
-                    },
+      body: Semantics(
+        label: 'Get navigation details to your next class.',
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF962E42)),
+              )
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _buildLocationInfo(),
                   ),
-                ),
-              ],
-            ),
+                  Expanded(
+                    child: AnimatedBuilder(
+                      animation: viewModel,
+                      builder: (context, _) {
+                        return PageView(
+                          controller: _pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          onPageChanged: (index) =>
+                              setState(() => _currentPage = index),
+                          children:
+                              _buildPagesForScenario(_determineScenario()),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+      ),
       bottomNavigationBar: _isLoading ||
               _determineScenario() == NextClassScenario.awaitingDirectionInputs
           ? null
