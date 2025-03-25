@@ -13,6 +13,7 @@ import '../../data/domain-model/room_category.dart';
 import '../../data/repositories/calendar.dart';
 import '../../data/repositories/navigation_decision_repository.dart';
 import '../../utils/building_viewmodel.dart';
+import '../../utils/journey/journey_viewmodel.dart';
 import '../../utils/next_class/next_class_directions_viewmodel.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
@@ -764,14 +765,18 @@ class NextClassDirectionsPreviewState
       updatedJourneyItems.add(_source);
       updatedJourneyItems.add(_destination);
 
+      final journey = [_source, _destination];
+      final overallSeq = buildOverallSequence(journey);
+      final pageSequence = overallSeq.map((entry) => entry.key).toList();
+
       final navigationDecision =
           NavigationDecisionRepository.determineNavigationDecision(
-              updatedJourneyItems);
+              updatedJourneyItems, pageSequence);
 
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => NavigationJourneyPage(
-            journeyName: "Next Class Directions",
+            journeyName: "Navigation to Next Class",
             journeyItems: updatedJourneyItems,
             decision: navigationDecision,
           ),

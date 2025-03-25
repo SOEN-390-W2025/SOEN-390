@@ -47,8 +47,15 @@ class _LocationSelectionState extends State<LocationSelection> {
   @override
   void initState() {
     super.initState();
-    _buildings = _buildingViewModel.getBuildings();
+    _loadBuildings();
     _checkMyLocationAvailability();
+  }
+
+  Future<void> _loadBuildings() async {
+    final buildings = await _buildingViewModel.getAvailableBuildings();
+    setState(() {
+      _buildings = buildings;
+    });
   }
 
   String _formatRoomNumber(String roomNumber) {
@@ -215,7 +222,7 @@ class _LocationSelectionState extends State<LocationSelection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.isSource) _buildSegmentedButton(),
-            if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
+            // if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
             if (_selectionMode == "selectClassroom") _buildSelectClassroom(),
             if (!widget.isSource) _buildCalendarLink(),
             if (_isLoading) _buildLoadingIndicator(),
@@ -285,20 +292,20 @@ class _LocationSelectionState extends State<LocationSelection> {
     );
   }
 
-  // Builds the outdoor location selection UI
-  Widget _buildOutdoorLocation() {
-    return Column(
-      children: [
-        _mapViewModel.buildPlaceAutocompleteTextField(
-          controller: TextEditingController(),
-          onPlaceSelected: (location) {
-            widget.onSelectionComplete(location);
-          },
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
+  // // Builds the outdoor location selection UI
+  // Widget _buildOutdoorLocation() {
+  //   return Column(
+  //     children: [
+  //       _mapViewModel.buildPlaceAutocompleteTextField(
+  //         controller: TextEditingController(),
+  //         onPlaceSelected: (location) {
+  //           widget.onSelectionComplete(location);
+  //         },
+  //       ),
+  //       const SizedBox(height: 16),
+  //     ],
+  //   );
+  // }
 
   // Builds the select classroom UI
   Widget _buildSelectClassroom() {
