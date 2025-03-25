@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import 'data/domain-model/concordia_building.dart';
 import 'data/domain-model/location.dart';
@@ -15,6 +16,7 @@ import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/journey/journey_view.dart';
 import 'ui/next_class/next_class_directions_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
+import 'ui/setting/preferences/preferences_view.dart';
 import 'utils/logger_util.dart';
 import 'ui/poi/nearby_poi_map.dart';
 import 'ui/poi/poi_choice_view.dart';
@@ -29,6 +31,7 @@ import 'ui/smart_planner/generated_plan_view.dart';
 import 'ui/smart_planner/smart_planner_view.dart';
 import 'ui/themes/app_theme.dart';
 import 'utils/poi/poi_viewmodel.dart';
+import 'utils/settings/preferences_viewmodel.dart';
 import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -47,7 +50,14 @@ Future<void> main() async {
     dev.log('Error initializing building data manager',
         error: e, stackTrace: stackTrace);
   }
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PreferencesModel()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -92,6 +102,7 @@ class MyApp extends StatelessWidget {
             );
           },
           '/AccessibilityPage': (context) => const AccessibilityPage(),
+          '/PreferencesPage': (context) => const PreferencesPage(),
           '/CalendarLinkView': (context) => const CalendarLinkView(),
           '/CalendarSelectionView': (context) => const CalendarSelectionView(),
           '/CalendarView': (context) => CalendarView(
