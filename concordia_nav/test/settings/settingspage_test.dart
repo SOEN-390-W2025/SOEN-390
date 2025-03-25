@@ -4,6 +4,7 @@ import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
+import 'package:concordia_nav/ui/setting/contact/contact_page.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
@@ -142,8 +143,8 @@ void main() {
       // Build the SettingsPage widget
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
-      // Verify that exactly 7 SettingsTile exist
-      expect(find.byType(SettingsTile), findsNWidgets(6));
+      // Verify that exactly 5 SettingsTile exist
+      expect(find.byType(SettingsTile), findsNWidgets(5));
     });
 
     testWidgets('list of SettingsTiles are accurate',
@@ -154,10 +155,6 @@ void main() {
       // Verify that the My Calendar SettingsTile text and icon are present
       expect(find.text('My calendar'), findsOneWidget);
       expect(find.byIcon(Icons.calendar_today), findsOneWidget);
-
-      // Verify that the Notifications SettingsTile text and icon are present
-      expect(find.text('Notifications'), findsOneWidget);
-      expect(find.byIcon(Icons.notifications), findsOneWidget);
 
       // Verify that the Preferences SettingsTile text and icon are present
       expect(find.text('Preferences'), findsOneWidget);
@@ -182,6 +179,7 @@ void main() {
       final routes = {
         '/': (context) => const SettingsPage(),
         '/AccessibilityPage': (context) => const AccessibilityPage(),
+        '/ContactPage': (context) => const ContactPage(),
       };
 
       // Build the SettingsPage widget
@@ -192,15 +190,7 @@ void main() {
 
       // Tap on My Calendar SettingsTile
       await tester.tap(find.text('My calendar'));
-      await tester.pump();
-
-      // Tap on Notifications SettingsTile
-      await tester.tap(find.text('Notifications'));
-      await tester.pump();
-
-      // Tap on Preferences SettingsTile
-      await tester.tap(find.text('Preferences'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Tap on Accessibility SettingsTile
       await tester.tap(find.text('Accessibility'));
@@ -210,11 +200,13 @@ void main() {
 
       // Tap on Contact SettingsTile
       await tester.tap(find.text('Contact'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
       // Tap on Guide SettingsTile
       await tester.tap(find.text('Guide'));
-      await tester.pump();
+      await tester.pumpAndSettle();
     });
   });
 }
