@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class IconLoader {
     try {
       data = await loadFunction(iconPath);
     } on FlutterError catch (e) {
-      debugPrint("Error loading icon $iconPath: $e");
+      dev.log("Error loading icon $iconPath: $e");
       data = await rootBundle.load('assets/icons/default.png');
     }
 

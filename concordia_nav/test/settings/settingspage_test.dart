@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
@@ -9,10 +11,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
 
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+
 import '../calendar/calendar_repository_test.mocks.dart';
 import '../calendar/calendar_view_test.mocks.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
+
   group('SettingsPage', () {
     late MockDeviceCalendarPlugin mockPlugin;
 
@@ -30,18 +39,20 @@ void main() {
             .thenAnswer((_) async => Result<bool>()..data = true);
 
         // Arrange: CalendarSelectionViewModel mock
-        final MockCalendarSelectionViewModel mockSelectionViewModel = MockCalendarSelectionViewModel(); 
+        final MockCalendarSelectionViewModel mockSelectionViewModel =
+            MockCalendarSelectionViewModel();
         final calendar1 = UserCalendar('1', 'Calendar 1');
         final calendar2 = UserCalendar('2', 'Calendar 2');
         final calendars = [calendar1, calendar2];
-        when(mockSelectionViewModel.loadCalendars()).thenAnswer((_) async => {});
+        when(mockSelectionViewModel.loadCalendars())
+            .thenAnswer((_) async => {});
         when(mockSelectionViewModel.calendars).thenReturn(calendars);
 
         // define routes needed for this test
         final routes = {
           '/': (context) => SettingsPage(plugin: mockPlugin),
-          '/CalendarSelectionView': (context) => CalendarSelectionView(
-              calendarViewModel: mockSelectionViewModel),
+          '/CalendarSelectionView': (context) =>
+              CalendarSelectionView(calendarViewModel: mockSelectionViewModel),
         };
 
         // Build the SettingsPage widget
