@@ -43,7 +43,7 @@ class TravellingSalesmanService {
             // ignore: prefer_adjacent_string_concatenation
             "TSP: working on gap starting ${lastEndTime.toIso8601String()}," +
                 " ending event ${nextEvent.$1} ${nextEvent.$3.toIso8601String()}");
-        final fitItems = await _fitTodoItems(lastEndTime, lastLocation,
+        final fitItems = await fitTodoItems(lastEndTime, lastLocation,
             nextEvent.$3, nextEvent.$2, todoLocations, false);
         // addAll gives buggy behaviour
         returnRoute.addAll(fitItems.$1);
@@ -58,7 +58,7 @@ class TravellingSalesmanService {
             "TSP: working on last segment starting " +
                 lastEndTime.toIso8601String() +
                 " and no fixed end");
-        final fitItems = await _fitTodoItems(
+        final fitItems = await fitTodoItems(
             lastEndTime, lastLocation, null, null, todoLocations, false);
         if (fitItems.$2.isNotEmpty) {
           // Because there is no end to the open period, this list should not be empty.
@@ -147,7 +147,7 @@ class TravellingSalesmanService {
             List<(String, Location, DateTime, DateTime)>,
             List<(String, Location, int)>
           )>
-      _fitTodoItems(
+      fitTodoItems(
           DateTime openPeriodStartTime,
           Location openPeriodStartLocation,
           DateTime? openPeriodEndTime,

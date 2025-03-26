@@ -227,6 +227,68 @@ void main() {
           result[1].$4, equals(result[1].$3.add(const Duration(minutes: 30))));
     });
 
+    test('Test _fitTodoItems with bubble swap optimization enabled', () async {
+      // Arrange
+      final openPeriodStartTime = DateTime.now();
+      const openPeriodStartLocation = Location(
+          37.7749,
+          -122.4194,
+          "San Francisco",
+          "Description",
+          "Category",
+          "Address",
+          "Building Code"); // San Francisco
+      final openPeriodEndTime = DateTime.now().add(const Duration(hours: 2));
+      const openPeriodEndLocation = Location(34.0522, -118.2437, "Los Angeles",
+          "Description", "Category", "Address", "Building Code"); // Los Angeles
+
+      // Todo items to be fitted into the schedule (events)
+      final todoItems = [
+        (
+          'Event 1',
+          const Location(37.7849, -122.4294, "Event 1", "Description",
+              "Category", "Address", "Building Code"),
+          600
+        ), // 10 minutes to visit
+        (
+          'Event 2',
+          const Location(37.7849, -122.4394, "Event 2", "Description",
+              "Category", "Address", "Building Code"),
+          900
+        ), // 15 minutes to visit
+        (
+          'Event 3',
+          const Location(37.7849, -122.4494, "Event 3", "Description",
+              "Category", "Address", "Building Code"),
+          300
+        ), // 5 minutes to visit
+      ];
+
+      // Act
+      final result = await TravellingSalesmanService.fitTodoItems(
+        openPeriodStartTime,
+        openPeriodStartLocation,
+        openPeriodEndTime,
+        openPeriodEndLocation,
+        todoItems,
+        true, // Enable bubble swap optimization
+      );
+
+      // Assert
+      // Verify the result has the expected todo items
+      expect(result.$1.length, 3); // 3 events should be scheduled
+
+      // Verify that the items are sorted according to their optimized order
+      expect(result.$1[0].$1, 'Event 1'); // Event 1 should come first
+      expect(result.$1[1].$1, 'Event 2'); // Event 2 should come second
+      expect(result.$1[2].$1, 'Event 3'); // Event 3 should come last
+
+      // Check if the last end time is consistent
+      final lastEventEndTime = result.$1.last.$4;
+      expect(lastEventEndTime.isAfter(openPeriodStartTime), isTrue);
+      expect(lastEventEndTime.isBefore(openPeriodEndTime), isTrue);
+    });
+
     test(
         'should recalculate stop times correctly with varying time spent at each stop',
         () async {
