@@ -75,7 +75,7 @@ class SettingsPageState extends State<SettingsPage> {
               icon: Icons.info_outline,
               title: 'Guide',
               onTap: () {
-                // TODO: Implement navigation to Guide page.
+                Navigator.pushNamed(context, '/GuidePage');
               },
             ),
           ],
