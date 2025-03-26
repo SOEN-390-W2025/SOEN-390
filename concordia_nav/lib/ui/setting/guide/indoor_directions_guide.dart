@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../common_app_bart.dart';
+import '../../../widgets/custom_appbar.dart';
 
 class IndoorDirectionsGuide extends StatelessWidget {
   const IndoorDirectionsGuide({super.key});
@@ -7,7 +7,7 @@ class IndoorDirectionsGuide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: "Guide"),
+      appBar: customAppBar(context, "Guide"),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),

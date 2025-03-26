@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../common_app_bart.dart';
+import '../../../widgets/custom_appbar.dart';
 
 class OutdoorDirectionsGuide extends StatelessWidget {
   const OutdoorDirectionsGuide({super.key});
@@ -8,7 +7,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: "Guide"),
+      appBar: customAppBar(context, "Guide"),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
