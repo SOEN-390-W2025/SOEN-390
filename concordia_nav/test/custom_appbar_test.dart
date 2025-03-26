@@ -103,11 +103,17 @@ void main() {
     // Test that the AppBar has an actions list with the correct icon
     testWidgets('should have an actions list with the correct icon',
         (WidgetTester tester) async {
-      // Build the customAppBar inside a MaterialApp
-      await tester.pumpWidget(const MaterialApp(home: const HomePage()));
+      // define routes needed for this test
+      final routes = {
+        '/HomePage': (context) => const HomePage(),
+        '/SettingsPage': (context) => const SettingsPage(),
+      };
 
-      // Ensure the widget tree is rendered
-      await tester.pump();
+      // Build the HomePage widget with the AppBar
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/HomePage',
+        routes: routes,
+      ));
 
       // Find the actions IconButton
       final IconButton leadingIconButton = tester.widget(

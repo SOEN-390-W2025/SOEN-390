@@ -217,7 +217,6 @@ class _LocationSelectionState extends State<LocationSelection> {
     // Get theme colors
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
-    
     return Scaffold(
       backgroundColor: backgroundColor,
       resizeToAvoidBottomInset: true,
@@ -241,19 +240,22 @@ class _LocationSelectionState extends State<LocationSelection> {
   ButtonSegment<String> _buildSegment(
       String value, IconData icon, String label, bool isEnabled) {
     // Get theme colors
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
-    
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     // Explicitly specify that the ButtonSegment is of type String
     return ButtonSegment<String>(
       value: value,
-      label: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-            fontSize: 12, color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
-      ),
-      icon: Icon(icon, color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
+      label: Text(label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            color: isEnabled ? textColor : secondaryTextColor.withAlpha(100),
+          )),
+      icon: Icon(icon,
+          color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
       enabled: isEnabled,
     );
   }
@@ -263,7 +265,7 @@ class _LocationSelectionState extends State<LocationSelection> {
     final primaryColor = Theme.of(context).primaryColor;
     final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
-    
+
     return Center(
       child: SegmentedButton<String>(
         selected: {_selectionMode},
@@ -271,6 +273,8 @@ class _LocationSelectionState extends State<LocationSelection> {
           // Ensure the list is of type List<ButtonSegment<String>>
           _buildSegment("myLocation", Icons.my_location, "My Location",
               _isMyLocationAvailable),
+          // _buildSegment(
+          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           // _buildSegment(
           //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           _buildSegment(
@@ -327,10 +331,11 @@ class _LocationSelectionState extends State<LocationSelection> {
       value: _selectedBuilding,
       items: _buildings
           .map((b) => DropdownMenuItem<String>(
-                value: b, 
+                value: b,
                 child: Text(
                   b,
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
               ))
           .toList(),
@@ -350,10 +355,11 @@ class _LocationSelectionState extends State<LocationSelection> {
       value: _selectedFloor,
       items: _floors
           .map((f) => DropdownMenuItem<String>(
-                value: f, 
+                value: f,
                 child: Text(
                   f,
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
               ))
           .toList(),
@@ -378,7 +384,8 @@ class _LocationSelectionState extends State<LocationSelection> {
                 value: room,
                 child: Text(
                   _formatRoomNumber(room.roomNumber),
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
               ))
           .toList(),
@@ -396,16 +403,16 @@ class _LocationSelectionState extends State<LocationSelection> {
   // Helper method for dropdown decoration
   InputDecoration _buildDropdownDecoration(String labelText) {
     final primaryColor = Theme.of(context).primaryColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     return InputDecoration(
       labelText: labelText,
       labelStyle: TextStyle(color: textColor),
       floatingLabelStyle: TextStyle(color: primaryColor),
-      border: OutlineInputBorder(
-          borderSide: BorderSide(color: primaryColor)),
-      enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: primaryColor)),
+      border: OutlineInputBorder(borderSide: BorderSide(color: primaryColor)),
+      enabledBorder:
+          OutlineInputBorder(borderSide: BorderSide(color: primaryColor)),
       focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: primaryColor, width: 2)),
     );
@@ -416,9 +423,11 @@ class _LocationSelectionState extends State<LocationSelection> {
     // Get theme colors
     final primaryColor = Theme.of(context).primaryColor;
     final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
-    
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     return Column(
       children: [
         const SizedBox(height: 24),
@@ -430,10 +439,9 @@ class _LocationSelectionState extends State<LocationSelection> {
               Text(
                 "Not sure where your next class is?",
                 style: TextStyle(
-                  fontWeight: FontWeight.bold, 
-                  fontSize: 16, 
-                  color: textColor
-                ),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: textColor),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -462,7 +470,7 @@ class _LocationSelectionState extends State<LocationSelection> {
   // Loading indicator for waiting state
   Widget _buildLoadingIndicator() {
     final primaryColor = Theme.of(context).primaryColor;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),

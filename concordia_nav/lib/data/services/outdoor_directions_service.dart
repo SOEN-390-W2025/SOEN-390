@@ -192,4 +192,44 @@ class ODSDirectionsService {
 
     return completer.future;
   }
+
+  /// Returns a travel time (in seconds) between two [Location] objects.
+  /// If no [travelMode] is specified, then the default is "walking".
+  ///
+  /// In case of an error, the duration time gets returned as 0 seconds.
+  // Future<int> getTravelTimeInSeconds(
+  //   Location origin,
+  //   Location destination, {
+  //   gda.TravelMode? travelMode,
+  // }) async {
+  //   try {
+  //     final request = gda.DirectionsRequest(
+  //       origin: "${origin.lat},${origin.lng}",
+  //       destination: "${destination.lat},${destination.lng}",
+  //       travelMode: travelMode ?? gda.TravelMode.walking,
+  //     );
+
+  //     final Completer<int> completer = Completer();
+  //     await directionsService.route(request,
+  //         (gda.DirectionsResult result, gda.DirectionsStatus? status) {
+  //       if (status == gda.DirectionsStatus.ok &&
+  //           result.routes != null &&
+  //           result.routes!.isNotEmpty) {
+  //         final route = result.routes!.first;
+  //         final leg =
+  //             route.legs?.isNotEmpty ?? false ? route.legs!.first : null;
+  //         final durationInSeconds = leg?.duration?.value;
+  //         completer.complete(durationInSeconds as FutureOr<int>?);
+  //       } else {
+  //         completer.complete(0);
+  //       }
+  //     });
+
+  //     return completer.future;
+  //   } on Error catch (e, stackTrace) {
+  //     debugPrint("Error fetching travel time: $e");
+  //     debugPrint("Stack trace: $stackTrace");
+  //     return 0;
+  //   }
+  // }
 }
