@@ -86,17 +86,13 @@ void main() {
 
   testWidgets('Selecting My Location triggers location fetching',
       (WidgetTester tester) async {
-    bool callbackInvoked = false;
-
     permission = 3;
 
     await tester.pumpWidget(
       MaterialApp(
         home: LocationSelection(
           isSource: true,
-          onSelectionComplete: (location) {
-            callbackInvoked = true;
-          },
+          onSelectionComplete: (location) {},
         ),
       ),
     );
