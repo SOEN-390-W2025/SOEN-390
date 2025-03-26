@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/guide_card.dart';
 import '../common_app_bart.dart';
 import 'campus_map_guide.dart';
+import 'indoor_directions_guide.dart';
 import 'next_class_directions_guide.dart';
 import 'outdoor_directions_guide.dart';
 
@@ -60,7 +61,7 @@ class _GuidePageState extends State<GuidePage> {
                 description:
                     "Navigate inside campus buildings with floor plans and guidance",
                 icon: Icons.meeting_room,
-                route: Placeholder(),
+                route: IndoorDirectionsGuide(),
               ),
               SizedBox(height: 14),
               GuideCard(
