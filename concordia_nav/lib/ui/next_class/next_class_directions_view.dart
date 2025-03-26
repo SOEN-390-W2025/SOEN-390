@@ -625,7 +625,6 @@ class NextClassDirectionsPreviewState
     // Get theme colors
     final primaryColor = Theme.of(context).primaryColor;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final cardColor = Theme.of(context).cardColor;
     final dividerColor = Theme.of(context).dividerColor;
     final destinationColor = Theme.of(context).primaryColor; // Keep custom destination pin color
     
@@ -634,7 +633,6 @@ class NextClassDirectionsPreviewState
 
     return Card(
       elevation: 0,
-      color: cardColor,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.zero,

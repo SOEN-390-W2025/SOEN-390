@@ -27,7 +27,7 @@ class AppTheme {
     cardTheme: const CardTheme(
       color: Colors.white,
     ),
-    cardColor: Colors.white,
+    cardColor: Colors.grey[100],
   );
 
   // Stream controller to notify about theme changes
@@ -158,7 +158,7 @@ class AppTheme {
     _currentTheme = ThemeData(
       primaryColor: const Color.fromRGBO(146, 35, 56, 1),
       scaffoldBackgroundColor: Colors.white,
-      cardColor: Colors.white,
+      cardColor: Colors.grey[100],
       colorScheme: ColorScheme.fromSwatch().copyWith(
         primary: const Color.fromRGBO(146, 35, 56, 1),
         secondary: const Color.fromRGBO(233, 211, 215, 1),
