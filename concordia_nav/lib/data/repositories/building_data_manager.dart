@@ -1,9 +1,16 @@
+// ignore_for_file: avoid_catches_without_on_clauses, prefer_final_locals
+
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../domain-model/concordia_floor_point.dart';
+import '../domain-model/concordia_room.dart';
+import '../domain-model/connection.dart';
+import '../domain-model/room_category.dart';
 import 'building_data.dart';
+import '../domain-model/poi.dart';
+
 import 'dart:developer' as dev;
 
 class BuildingDataManager {
@@ -61,23 +68,14 @@ class BuildingDataManager {
       return buildingDataCache![upperAbbr];
     }
 
-    try {
-      // Load only the specific building data using the loader class variable
-      final dataLoader = _loader ?? BuildingDataLoader(upperAbbr);
-      final buildingData = await dataLoader.load();
+    // Load only the specific building data using the loader class variable
+    final dataLoader = _loader ?? BuildingDataLoader(upperAbbr);
+    final buildingData = await dataLoader.load();
 
+    if (buildingData != null){
       buildingDataCache![upperAbbr] = buildingData;
       return buildingData;
-    } on FlutterError catch (e, stackTrace) {
-      dev.log('Error loading building data for $upperAbbr: $e',
-          error: e, stackTrace: stackTrace);
-      return null;
-    } 
-    on Exception catch (e, stackTrace) {
-      dev.log('Error loading building data for $upperAbbr: $e',
-          error: e, stackTrace: stackTrace);
-      return null;
-    }
+    } else {return null;}
   }
 
   /// Get the list of available building files using the AssetManifest API
@@ -276,10 +274,201 @@ class BuildingDataManager {
 
       // Log the JSON data
       dev.log('Building data as JSON:', error: jsonData);
-      // ignore: avoid_catches_without_on_clauses
     } catch (e, stackTrace) {
       dev.log('Error exporting building data to JSON',
           error: e, stackTrace: stackTrace);
     }
+  }
+
+  // Method to extract all POIs from all building files
+  static Future<List<POI>> getAllPOIs() async {
+    List<POI> allPOIs = [];
+
+    try {
+      // Get all building data paths
+      final buildingPaths = await BuildingDataManager.getBuildingDataPaths();
+      if (buildingPaths == null || buildingPaths.isEmpty) {
+        return allPOIs;
+      }
+
+      // Extract building IDs from file paths
+      final buildingIds = buildingPaths
+          .map((path) => path.split('/').last.split('.').first.toUpperCase())
+          .toList();
+
+      // Process each building
+      for (final buildingId in buildingIds) {
+        final pois = await extractPOIsFromBuilding(buildingId);
+        allPOIs.addAll(pois);
+      }
+    } catch (e, stackTrace) {
+      dev.log('Error extracting POIs', error: e, stackTrace: stackTrace);
+    }
+
+    return allPOIs;
+  }
+
+  static POI? _extractPOIsFromRoom(ConcordiaRoom room, String buildingId) {
+    // Skip rooms with categories we want to exclude or without entrance points
+    if (room.entrancePoint == null ||
+        room.category == RoomCategory.unknown ||
+        room.category == RoomCategory.auditorium ||
+        room.category == RoomCategory.classroom ||
+        room.category == RoomCategory.lab ||
+        room.category == RoomCategory.office ||
+        room.category == RoomCategory.maintenance) {
+      return null;
+    }
+
+    // Get POI category
+    POICategory poiCategory;
+    switch (room.category) {
+      case RoomCategory.washroom:
+        poiCategory = POICategory.washroom;
+        break;
+      case RoomCategory.waterFountain:
+        poiCategory = POICategory.waterFountain;
+        break;
+      case RoomCategory.restaurant:
+        poiCategory = POICategory.restaurant;
+        break;
+      case RoomCategory.police:
+        poiCategory = POICategory.police;
+        break;
+      default:
+        poiCategory = POICategory.other;
+        break;
+    }
+
+    // Add the POI with its category as the name
+    if (room.category != RoomCategory.unknown) {
+      final String name = _formatCategoryName(room.category.toString().split('.').last);
+      return POI(
+        id: '$buildingId-${room.entrancePoint!.floor.floorNumber}-${room.roomNumber}',
+        name: name,
+        buildingId: buildingId,
+        floor: room.entrancePoint!.floor.floorNumber.toString(),
+        category: poiCategory,
+        x: room.entrancePoint!.positionX,
+        y: room.entrancePoint!.positionY,
+      );
+    }
+    return null;
+  }
+
+  static List<POI> _addMultiplePoints(
+      List<POI> pois, List<ConcordiaFloorPoint> points, String buildingId, 
+      Connection connection, POICategory poiCategory) {
+    List<POI> poisPerFloor = pois;
+    for (int i = 0; i < points.length; i++) {
+      final point = points[i];
+      poisPerFloor.add(POI(
+        id: '$buildingId-${point.floor.floorNumber}-${connection.name.replaceAll(" ", "-")}-$i',
+        name: connection.name,
+        buildingId: buildingId,
+        floor: point.floor.floorNumber.toString(),
+        category: poiCategory,
+        x: point.positionX,
+        y: point.positionY,
+      ));
+    }
+    return poisPerFloor;
+  }
+
+  static List<POI> _pointsPerFloor(List<POI> pois, List<ConcordiaFloorPoint> points, String buildingId, 
+      Connection connection, POICategory poiCategory) {
+    List<POI> poisPerFloor = pois;
+    if (points.isNotEmpty) {
+      if (points.length == 1) {
+        // Single point
+        final point = points.first;
+        poisPerFloor.add(POI(
+          id: '$buildingId-${point.floor.floorNumber}-${connection.name.replaceAll(" ", "-")}',
+          name: connection.name,
+          buildingId: buildingId,
+          floor: point.floor.floorNumber.toString(),
+          category: poiCategory,
+          x: point.positionX,
+          y: point.positionY,
+        ));
+      } else {
+        // Multiple points - add with index suffix
+        poisPerFloor = _addMultiplePoints(poisPerFloor, points, buildingId, connection, poiCategory);
+      }
+    }
+    return poisPerFloor;
+  }
+
+  static POICategory _getPOICategory(Connection connection){
+    if (connection.name.toLowerCase().contains('elevator')) {
+      return POICategory.elevator;
+    } else if (connection.name.toLowerCase().contains('escalator')) {
+      return POICategory.escalator;
+    } else if (connection.name.toLowerCase().contains('stair')) {
+      return POICategory.stairs;
+    } else {
+      return POICategory.other;
+    }
+  }
+
+  // Method to extract POIs from a specific building
+  static Future<List<POI>> extractPOIsFromBuilding(String buildingId) async {
+    List<POI> pois = [];
+
+    try {
+      // Get building data
+      final buildingData = await BuildingDataManager.getBuildingData(buildingId);
+      if (buildingData == null) return [];
+
+      // Extract POIs from rooms
+      buildingData.roomsByFloor.forEach((floor, rooms) {
+        for (final room in rooms) {
+          final poi = _extractPOIsFromRoom(room, buildingId);
+          if (poi != null) {
+            pois.add(poi);
+          }
+        }
+      });
+
+      // Extract POIs from connections
+      for (final connection in buildingData.connections) {
+        POICategory poiCategory = _getPOICategory(connection);
+
+        // For each floor in the connection
+        connection.floorPoints.forEach((floorKey, points) {
+          // Handle both single point and multiple points per floor
+          pois = _pointsPerFloor(pois, points, buildingId, connection, poiCategory);
+        });
+      }
+
+      // Add outdoor exit point
+      final exitPoint = buildingData.outdoorExitPoint;
+      pois.add(POI(
+        id: '$buildingId-${exitPoint.floor.floorNumber}-exit',
+        name: 'Exit',
+        buildingId: buildingId,
+        floor: exitPoint.floor.floorNumber.toString(),
+        category: POICategory.exit,
+        x: exitPoint.positionX,
+        y: exitPoint.positionY,
+      ));
+
+    } catch (e, stackTrace) {
+      dev.log('Error extracting POIs from building $buildingId', 
+          error: e, stackTrace: stackTrace);
+    }
+
+    return pois;
+  }
+
+  // Helper method to format category names
+  static String _formatCategoryName(String category) {
+    // Convert camelCase to Title Case with spaces
+    final result = category.replaceAllMapped(
+      RegExp(r'(?<=[a-z])[A-Z]'),
+      (Match m) => ' ${m.group(0)}'
+    );
+
+    return '${result[0].toUpperCase()}${result.substring(1)}';
   }
 }

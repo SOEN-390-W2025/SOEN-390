@@ -1,21 +1,26 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/domain-model/location.dart';
+import 'package:concordia_nav/data/domain-model/place.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/outdoor_directions_service.dart';
 import 'package:concordia_nav/ui/search/search_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/compact_location_search_widget.dart';
-import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:concordia_nav/widgets/map_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
+import 'package:google_directions_api/google_directions_api.dart' as gda;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 import '../map/map_viewmodel_test.mocks.dart';
 import 'outdoor_directions_test.mocks.dart';
+import '../settings/preferences_view_test.mocks.dart';
 
 @GenerateMocks([gda.DirectionsService, ODSDirectionsService])
 void main() async {
@@ -28,6 +33,7 @@ void main() async {
   late MockDirectionsService mockDirectionsService;
   late TextEditingController originController;
   late TextEditingController destinationController;
+  late MockPreferencesModel mockPreferencesModel;
 
   const Marker mockMarker = Marker(
     markerId: MarkerId('mock_marker'),
@@ -90,7 +96,7 @@ void main() async {
     when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
       return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
     });
-
+    when(mockMapViewModel.fetchCurrentLocation()).thenAnswer((_) async => const LatLng(45.4215, -75.6992));
     when(mockMapService.checkAndRequestLocationPermission())
         .thenAnswer((_) async => true);
 
@@ -102,10 +108,138 @@ void main() async {
         .thenReturn(ValueNotifier<Set<Marker>>({}));
     when(mockMapViewModel.staticBusStopMarkers).thenReturn({});
     when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    when(mockMapViewModel.multiModeRoutes).thenReturn(<CustomTravelMode, Polyline>{});
+    when(mockMapViewModel.activePolylines).thenReturn(<Polyline>{});
 
     mockDirectionsService = MockDirectionsService();
     directionsService = ODSDirectionsService();
     directionsService.directionsService = mockDirectionsService;
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
+  });
+
+  group('fetchStaticMapUrl', () {
+    test('should return a valid static map URL with polyline', () async {
+      // Arrange
+      const originAddress = "New York, NY";
+      const destinationAddress = "Los Angeles, CA";
+      const width = 600;
+      const height = 400;
+
+      // Mock the DirectionsService to return a valid response with a polyline
+      when(mockDirectionsService.route(any, any)).thenAnswer((invocation) {
+        final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+            invocation.positionalArguments[1];
+
+        // Simulate an immediate API response
+        callback(
+          const gda.DirectionsResult(routes: [
+            gda.DirectionsRoute(
+              overviewPolyline:
+                  gda.OverviewPolyline(points: "encodedPolylineExample"),
+            ),
+          ]),
+          gda.DirectionsStatus.ok,
+        );
+
+        return Future.value();
+      });
+
+      // Act
+      final url = await directionsService.fetchStaticMapUrl(
+        originAddress: originAddress,
+        destinationAddress: destinationAddress,
+        width: width,
+        height: height,
+      );
+
+      // Assert
+      expect(url, isNotNull);
+      expect(url!.contains("https://maps.googleapis.com/maps/api/staticmap"),
+          isTrue);
+      expect(
+          url.contains(
+              "path=color:0xDE3355|weight:5|enc:encodedPolylineExample"),
+          isTrue);
+    });
+
+    test('should return a valid static map URL with only markers', () async {
+      // Arrange
+      const originAddress = "New York, NY";
+      const destinationAddress = "Los Angeles, CA";
+      const width = 600;
+      const height = 400;
+
+      // Mock the DirectionsService to return a response without a polyline
+      when(mockDirectionsService.route(any, any)).thenAnswer((invocation) {
+        final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+            invocation.positionalArguments[1];
+
+        // Simulate an API response without polyline
+        callback(
+          const gda.DirectionsResult(routes: [
+            gda.DirectionsRoute(
+              overviewPolyline: gda.OverviewPolyline(points: ""),
+            ),
+          ]),
+          gda.DirectionsStatus.ok,
+        );
+
+        return Future.value();
+      });
+
+      // Act
+      final url = await directionsService.fetchStaticMapUrl(
+        originAddress: originAddress,
+        destinationAddress: destinationAddress,
+        width: width,
+        height: height,
+      );
+
+      // Assert
+      expect(url, isNotNull);
+      expect(url!.contains("https://maps.googleapis.com/maps/api/staticmap"),
+          isTrue);
+      expect(url.contains("markers="), isTrue);
+      expect(url.contains("path=color:0xDE3355|weight:5|enc:"), isFalse);
+    });
+
+    test('should return a valid static map URL when API fails', () async {
+      // Arrange
+      const originAddress = "New York, NY";
+      const destinationAddress = "Los Angeles, CA";
+      const width = 600;
+      const height = 400;
+
+      // Mock the DirectionsService to simulate an API failure
+      when(mockDirectionsService.route(any, any)).thenAnswer((invocation) {
+        final Function(gda.DirectionsResult, gda.DirectionsStatus?) callback =
+            invocation.positionalArguments[1];
+
+        // Simulate API failure
+        callback(
+          const gda.DirectionsResult(routes: []),
+          gda.DirectionsStatus.notFound,
+        );
+
+        return Future.value();
+      });
+
+      // Act
+      final url = await directionsService.fetchStaticMapUrl(
+        originAddress: originAddress,
+        destinationAddress: destinationAddress,
+        width: width,
+        height: height,
+      );
+
+      // Assert
+      expect(url, isNotNull);
+      expect(url!.contains("https://maps.googleapis.com/maps/api/staticmap"),
+          isTrue);
+      expect(url.contains("markers="), isTrue);
+    });
   });
 
   testWidgets(
@@ -184,13 +318,18 @@ void main() async {
     final mapViewModel = mockMapViewModel;
 
     // Build the widget tree
-    await tester.pumpWidget(MaterialApp(
-      home: OutdoorLocationMapView(
-        campus: campus,
-        building: BuildingRepository.h,
-        mapViewModel: mapViewModel,
-      ),
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: campus,
+                  building: BuildingRepository.h,
+                  mapViewModel: mapViewModel,
+                ),
+              )
+      )
+    );
 
     // Find the "Get Directions" button in the widget tree
     final buttonFinder = find.text('Get Directions');
@@ -205,7 +344,7 @@ void main() async {
     await tester.pump();
 
     // Verify that the fetchRoutesForAllModes method was called
-    verify(mockMapViewModel.fetchRoutesForAllModes(any, any)).called(1);
+    verify(mockMapViewModel.fetchRoutesForAllModes(any, any)).called(2);
   });
 
   testWidgets('widgets are present in the page', (WidgetTester tester) async {
@@ -225,10 +364,17 @@ void main() async {
         .thenAnswer((_) async {});
 
     // Build the widget tree
-    await tester.pumpWidget(MaterialApp(
-      home: OutdoorLocationMapView(
-          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                ),
+              )
+      )
+    );
 
     // Enter text in the search bars
     await tester.enterText(find.byType(TextField).first, origin);
@@ -246,6 +392,75 @@ void main() async {
 
     // Pump the widget again to reflect the UI update
     await tester.pump();
+  });
+
+  testWidgets('outdoorLocationMapView with pois', (WidgetTester tester) async {
+    // Arrange
+    final place = Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]);
+
+    when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
+
+    // Build the widget tree
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                  additionalData: {"place": place, 
+                        "destinationLatLng": const LatLng(45.4215, -75.6992)}),
+                ),
+      )
+    );
+    await tester.pump();
+
+    final destination = find.byType(CompactSearchCardWidget).evaluate().single.widget as CompactSearchCardWidget;
+    expect(destination.destinationController.text, place.name);
+    expect(find.text("Directions to Allons Burger"), findsOneWidget);
+  });
+
+  testWidgets('outdoorLocationMapView with destination marker', (WidgetTester tester) async {
+    // Arrange
+    final place = Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]);
+
+    when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
+    when(mockMapViewModel.destinationMarker).thenReturn(null);
+
+    // Build the widget tree
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                  additionalData: {"place": place, 
+                      "destinationLatLng": const LatLng(45.4215, -75.6992)}),
+                ),
+      )
+    );
+    await tester.pump();
+
+    expect(find.byType(GoogleMap), findsOneWidget);
   });
 
   test('fetchWalkingPolyline returns a polyline', () async {
@@ -363,10 +578,17 @@ void main() async {
     });
 
     // Build the widget with mock MapViewModel
-    await tester.pumpWidget(MaterialApp(
-      home: OutdoorLocationMapView(
-          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                ),
+              )
+      )
+    );
 
     // Wait for the FutureBuilders to resolve
     await tester.pumpAndSettle();
@@ -405,10 +627,17 @@ void main() async {
     });
 
     // Build the widget with mock MapViewModel
-    await tester.pumpWidget(MaterialApp(
-      home: OutdoorLocationMapView(
-          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                ),
+              )
+      )
+    );
 
     // Wait for the FutureBuilders to resolve
     await tester.pumpAndSettle();
@@ -451,10 +680,17 @@ void main() async {
     });
 
     // Build the widget with mock MapViewModel
-    await tester.pumpWidget(MaterialApp(
-      home: OutdoorLocationMapView(
-          campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel),
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                ),
+              )
+      )
+    );
 
     // Wait for the FutureBuilders to resolve
     await tester.pumpAndSettle();
@@ -465,6 +701,114 @@ void main() async {
     // verify setActiveModeForRoute was called
     verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.walking))
         .called(1);
+  });
+
+  testWidgets('tapping a mode chip sets it as active mode',
+      (WidgetTester tester) async {
+    // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    final time = {
+      CustomTravelMode.driving: "5",
+      CustomTravelMode.walking: "20",
+      CustomTravelMode.bicycling: "10",
+      CustomTravelMode.transit: "10"
+    };
+
+    // mock travelTimes to not be null
+    when(mockMapViewModel.travelTimes).thenReturn(time);
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.transit);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit))
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Transit');
+
+    // Build the widget with mock MapViewModel
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                ),
+              )
+      )
+    );
+
+    // Wait for the FutureBuilders to resolve
+    await tester.pumpAndSettle();
+
+    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit)).called(1);
+  });
+
+  testWidgets('with default destination',
+      (WidgetTester tester) async {
+    // Mocking the getCampusPolygonsAndLabels method to return fake data
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getAllCampusPolygonsAndLabels())
+        .thenAnswer((_) async => {
+              "polygons": <Polygon>{
+                const Polygon(polygonId: PolygonId('polygon1'))
+              },
+              "labels": <Marker>{const Marker(markerId: MarkerId('marker1'))}
+            });
+    final time = {
+      CustomTravelMode.driving: "5",
+      CustomTravelMode.walking: "20",
+      CustomTravelMode.bicycling: "10",
+      CustomTravelMode.transit: "10"
+    };
+
+    // mock travelTimes to not be null
+    when(mockMapViewModel.travelTimes).thenReturn(time);
+    when(mockMapViewModel.selectedTravelMode)
+        .thenReturn(CustomTravelMode.transit);
+    when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
+
+    when(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit))
+        .thenAnswer((_) async => true);
+    when(mockMapViewModel.getInitialCameraPosition(any)).thenAnswer((_) async {
+      return const CameraPosition(target: LatLng(45.4215, -75.6992), zoom: 10);
+    });
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Transit');
+    when(mockMapViewModel.odsDirectionsService).thenReturn(directionsService);
+
+    const start = Location(45.4215, -75.6992, "Start", null, null, null, null);
+    const end = Location(45.4215, -75.6992, "End", null, null, null, null);
+    // Build the widget with mock MapViewModel
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                home: OutdoorLocationMapView(
+                  campus: ConcordiaCampus.sgw,
+                  mapViewModel: mockMapViewModel,
+                  building: BuildingRepository.h,
+                  providedJourneyStart: start,
+                  providedJourneyDest: end,
+                ),
+              )
+      )
+    );
+
+    // Wait for the FutureBuilders to resolve
+    await tester.pumpAndSettle();
+
+    verify(mockMapViewModel.setActiveModeForRoute(CustomTravelMode.transit)).called(1);
   });
 
   group('outdoor directions appBar', () {
@@ -478,16 +822,23 @@ void main() async {
           .thenReturn(<CustomTravelMode, String>{});
 
       // Build the outdoor directions view widget
-      await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(
-              key: UniqueKey(),
-              campus: ConcordiaCampus.sgw,
-              mapViewModel: mockMapViewModel)));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: OutdoorLocationMapView(
+                    key: UniqueKey(),
+                    campus: ConcordiaCampus.sgw,
+                    mapViewModel: mockMapViewModel,
+                  ),
+                )
+        )
+      );
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Outdoor Location'), findsOneWidget);
+      expect(find.text('Sir George Williams Campus'), findsOneWidget);
     });
 
     testWidgets('appBar has the right title', (WidgetTester tester) async {
@@ -504,14 +855,22 @@ void main() async {
       when(mockMapViewModel.travelTimes)
           .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
-      await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(
-              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: OutdoorLocationMapView(
+                    campus: ConcordiaCampus.sgw,
+                    mapViewModel: mockMapViewModel,
+                  ),
+                )
+        )
+      );
       await tester.pump();
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Outdoor Location'), findsOneWidget);
+      expect(find.text('Sir George Williams Campus'), findsOneWidget);
     });
   });
 
@@ -530,9 +889,17 @@ void main() async {
       when(mockMapViewModel.travelTimes)
           .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
-      await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(
-              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: OutdoorLocationMapView(
+                    campus: ConcordiaCampus.sgw,
+                    mapViewModel: mockMapViewModel,
+                  ),
+                )
+        )
+      );
       await tester.pump();
 
       // Verify that two TextFields exist
@@ -554,11 +921,17 @@ void main() async {
       when(mockMapViewModel.travelTimes)
           .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
-      await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(
-        campus: ConcordiaCampus.sgw,
-        mapViewModel: mockMapViewModel,
-      )));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: OutdoorLocationMapView(
+                    campus: ConcordiaCampus.sgw,
+                    mapViewModel: mockMapViewModel,
+                  ),
+                )
+        )
+      );
       await tester.pump();
 
       // Find the source TextField
@@ -588,9 +961,17 @@ void main() async {
       when(mockMapViewModel.travelTimes)
           .thenReturn(<CustomTravelMode, String>{});
       // Build the outdoor directions view widget
-      await tester.pumpWidget(MaterialApp(
-          home: OutdoorLocationMapView(
-              campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel)));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: OutdoorLocationMapView(
+                    campus: ConcordiaCampus.sgw,
+                    mapViewModel: mockMapViewModel,
+                  ),
+                )
+        )
+      );
       await tester.pump();
 
       // Find the destination Textfield

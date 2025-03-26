@@ -41,49 +41,45 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CommonAppBar(title: "Settings"),
-      body: ListView(
-        children: [
-          SettingsTile(
-            icon: Icons.calendar_today,
-            title: 'My calendar',
-            onTap: () => checkCalendarPermission(),
-          ),
-          SettingsTile(
-            icon: Icons.notifications,
-            title: 'Notifications',
-            onTap: () {
-              // TODO: Implement navigation to Notifications page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.tune,
-            title: 'Preferences',
-            onTap: () {
-              // TODO: Implement navigation to Preferences page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.accessibility,
-            title: 'Accessibility',
-            onTap: () {
-              Navigator.pushNamed(context, '/AccessibilityPage');
-            },
-          ),
-          SettingsTile(
-            icon: Icons.phone,
-            title: 'Contact',
-            onTap: () {
-              // TODO: Implement navigation to Contact page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.info_outline,
-            title: 'Guide',
-            onTap: () {
-              // TODO: Implement navigation to Guide page.
-            },
-          ),
-        ],
+      body: Semantics(
+        label: 'Customize the preferences of the application.',
+        child: ListView(
+          children: [
+            SettingsTile(
+              icon: Icons.calendar_today,
+              title: 'My calendar',
+              onTap: () => checkCalendarPermission(),
+            ),
+            SettingsTile(
+              icon: Icons.tune,
+              title: 'Preferences',
+              onTap: () {
+                Navigator.pushNamed(context, '/PreferencesPage');
+              },
+            ),
+            SettingsTile(
+              icon: Icons.accessibility,
+              title: 'Accessibility',
+              onTap: () {
+                Navigator.pushNamed(context, '/AccessibilityPage');
+              },
+            ),
+            SettingsTile(
+              icon: Icons.phone,
+              title: 'Contact',
+              onTap: () {
+                Navigator.pushNamed(context, '/ContactPage');
+              },
+            ),
+            SettingsTile(
+              icon: Icons.info_outline,
+              title: 'Guide',
+              onTap: () {
+                // TODO: Implement navigation to Guide page.
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

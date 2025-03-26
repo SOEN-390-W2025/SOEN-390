@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -47,7 +48,7 @@ class PolygonLoader {
       return {"polygons": polygons, "labels": labelPositions};
     } on Error catch (e) {
       if (kDebugMode) {
-        print('Error loading polygons: $e');
+        dev.log('Error loading polygons: $e');
       }
       return {"polygons": {}, "labels": {}};
     }

@@ -1,18 +1,31 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
+import 'package:concordia_nav/ui/setting/contact/contact_page.dart';
+import 'package:concordia_nav/ui/setting/preferences/preferences_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 
 import '../calendar/calendar_repository_test.mocks.dart';
 import '../calendar/calendar_view_test.mocks.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
+
   group('SettingsPage', () {
     late MockDeviceCalendarPlugin mockPlugin;
 
@@ -30,18 +43,20 @@ void main() {
             .thenAnswer((_) async => Result<bool>()..data = true);
 
         // Arrange: CalendarSelectionViewModel mock
-        final MockCalendarSelectionViewModel mockSelectionViewModel = MockCalendarSelectionViewModel(); 
+        final MockCalendarSelectionViewModel mockSelectionViewModel =
+            MockCalendarSelectionViewModel();
         final calendar1 = UserCalendar('1', 'Calendar 1');
         final calendar2 = UserCalendar('2', 'Calendar 2');
         final calendars = [calendar1, calendar2];
-        when(mockSelectionViewModel.loadCalendars()).thenAnswer((_) async => {});
+        when(mockSelectionViewModel.loadCalendars())
+            .thenAnswer((_) async => {});
         when(mockSelectionViewModel.calendars).thenReturn(calendars);
 
         // define routes needed for this test
         final routes = {
           '/': (context) => SettingsPage(plugin: mockPlugin),
-          '/CalendarSelectionView': (context) => CalendarSelectionView(
-              calendarViewModel: mockSelectionViewModel),
+          '/CalendarSelectionView': (context) =>
+              CalendarSelectionView(calendarViewModel: mockSelectionViewModel),
         };
 
         // Build the SettingsPage widget
@@ -131,8 +146,8 @@ void main() {
       // Build the SettingsPage widget
       await tester.pumpWidget(const MaterialApp(home: const SettingsPage()));
 
-      // Verify that exactly 7 SettingsTile exist
-      expect(find.byType(SettingsTile), findsNWidgets(6));
+      // Verify that exactly 5 SettingsTile exist
+      expect(find.byType(SettingsTile), findsNWidgets(5));
     });
 
     testWidgets('list of SettingsTiles are accurate',
@@ -143,10 +158,6 @@ void main() {
       // Verify that the My Calendar SettingsTile text and icon are present
       expect(find.text('My calendar'), findsOneWidget);
       expect(find.byIcon(Icons.calendar_today), findsOneWidget);
-
-      // Verify that the Notifications SettingsTile text and icon are present
-      expect(find.text('Notifications'), findsOneWidget);
-      expect(find.byIcon(Icons.notifications), findsOneWidget);
 
       // Verify that the Preferences SettingsTile text and icon are present
       expect(find.text('Preferences'), findsOneWidget);
@@ -167,29 +178,34 @@ void main() {
 
     testWidgets('SettingsTile onPress is possible',
         (WidgetTester tester) async {
+      final mockPreferencesModel = MockPreferencesModel();
+      when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+      when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
+
       // define routes needed for this test
       final routes = {
         '/': (context) => const SettingsPage(),
         '/AccessibilityPage': (context) => const AccessibilityPage(),
+        '/PreferencesPage': (context) => const PreferencesPage(),
+        '/ContactPage': (context) => const ContactPage(),
       };
 
       // Build the SettingsPage widget
-      await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
-        routes: routes,
-      ));
-
-      // Tap on My Calendar SettingsTile
-      await tester.tap(find.text('My calendar'));
-      await tester.pump();
-
-      // Tap on Notifications SettingsTile
-      await tester.tap(find.text('Notifications'));
-      await tester.pump();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
+      );
 
       // Tap on Preferences SettingsTile
       await tester.tap(find.text('Preferences'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
       // Tap on Accessibility SettingsTile
       await tester.tap(find.text('Accessibility'));
@@ -199,10 +215,16 @@ void main() {
 
       // Tap on Contact SettingsTile
       await tester.tap(find.text('Contact'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
 
       // Tap on Guide SettingsTile
       await tester.tap(find.text('Guide'));
+      await tester.pumpAndSettle();
+
+      // Tap on My Calendar SettingsTile
+      await tester.tap(find.text('My calendar'));
       await tester.pump();
     });
   });

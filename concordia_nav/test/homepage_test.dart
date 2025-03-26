@@ -1,19 +1,29 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
+import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
+import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
+import 'package:concordia_nav/data/domain-model/concordia_room.dart';
+import 'package:concordia_nav/data/domain-model/location.dart';
+import 'package:concordia_nav/data/domain-model/room_category.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
+import 'package:concordia_nav/ui/next_class/next_class_directions_view.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/ui/poi/poi_choice_view.dart';
 import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 import 'map/map_viewmodel_test.mocks.dart';
+import 'settings/preferences_view_test.mocks.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +31,7 @@ void main() async {
 
   late MockMapViewModel mockMapViewModel;
   late MockMapService mockMapService;
+  late MockPreferencesModel mockPreferencesModel;
 
   const Marker mockMarker = Marker(
     markerId: MarkerId('mock_marker'),
@@ -59,6 +70,9 @@ void main() async {
     when(mockMapViewModel.originMarker).thenReturn(mockMarker);
     when(mockMapViewModel.destinationMarker).thenReturn(mockMarker);
     when(mockMapViewModel.activePolylines).thenReturn(mockPolylines);
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   testWidgets('HomePage should render correctly', (WidgetTester tester) async {
@@ -78,14 +92,14 @@ void main() async {
     expect(find.text('LOY map'), findsOneWidget);
     expect(find.byIcon(Icons.map), findsNWidgets(2));
 
-    // Verify that the Outdoor directions and Next class directions FeatureCards are present
+    // Verify that the Outdoor directions and Navigation to Next Class FeatureCards are present
     expect(find.text('Outdoor directions'), findsOneWidget);
-    expect(find.text('Next class directions'), findsOneWidget);
+    expect(find.text('Navigation to Next Class'), findsOneWidget);
     expect(find.byIcon(Icons.maps_home_work), findsOneWidget);
     expect(find.byIcon(Icons.calendar_today), findsOneWidget);
 
-    // Verify that the Indoor directions and Find nearby facilities FeatureCards are present
-    expect(find.text('Indoor directions'), findsOneWidget);
+    // Verify that the Floor Navigation and Find nearby facilities FeatureCards are present
+    expect(find.text('Floor Navigation'), findsOneWidget);
     expect(find.text('Find nearby facilities'), findsOneWidget);
     expect(find.byIcon(Icons.meeting_room), findsOneWidget);
     expect(find.byIcon(Icons.wash), findsOneWidget);
@@ -214,7 +228,7 @@ void main() async {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Indoor Directions navigation should work',
+  testWidgets('Floor Navigation navigation should work',
       (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
@@ -228,10 +242,20 @@ void main() async {
       routes: routes,
     ));
 
-    // Tap on the Indoor directions FeatureCard
-    await tester.tap(find.text('Indoor directions'));
+    // Tap on the Floor Navigation FeatureCard
+    await tester.tap(find.byIcon(Icons.meeting_room));
     await tester.pumpAndSettle(); // Wait for navigation to complete
-    expect(find.text('Indoor Directions'), findsOneWidget);
+    expect(find.text('Floor Navigation'), findsOneWidget);
+
+    // Scroll down until the 'Floor Navigation' is visible
+    while (!tester.any(find.text('Floor Navigation'))) {
+      await tester.drag(
+          find.byType(Scrollable), const Offset(0, -300)); // drag up
+      await tester.pumpAndSettle(); // Wait for the scroll to finish
+    }
+
+    // Verify if the 'Floor Navigation' text is visible after scrolling
+    expect(find.text('Floor Navigation'), findsOneWidget);
 
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -253,16 +277,13 @@ void main() async {
       routes: routes,
     ));
 
-    // Tap on the Find nearby facilities FeatureCard
-    await tester.tap(find.byIcon(Icons.wash));
-    await tester.pumpAndSettle(); // Wait for navigation to complete
-
     // Tap the back button in the app bar
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Next Class navigation should work', (WidgetTester tester) async {
+  testWidgets('Next Class navigation should work with two classrooms',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
@@ -270,6 +291,27 @@ void main() async {
           sourceRoom: 'Your location',
           building: 'Hall Building',
           endRoom: '901'),
+      '/NextClassDirectionsPreview': (context) {
+        final routeArgs = ModalRoute.of(context)!.settings.arguments;
+        List<Location> locations = [
+          ConcordiaRoom(
+              'H-801',
+              RoomCategory.classroom,
+              ConcordiaFloor("1", BuildingRepository.h),
+              ConcordiaFloorPoint(
+                  ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
+          ConcordiaRoom(
+              'H-805',
+              RoomCategory.classroom,
+              ConcordiaFloor("1", BuildingRepository.h),
+              ConcordiaFloorPoint(
+                  ConcordiaFloor("1", BuildingRepository.h), 0, 0))
+        ];
+        if (routeArgs is List<Location>) {
+          locations = routeArgs;
+        }
+        return NextClassDirectionsPreview(journeyItems: locations);
+      },
     };
 
     // Build the HomePage widget
@@ -278,7 +320,7 @@ void main() async {
       routes: routes,
     ));
 
-    // Tap on the Next Class directions FeatureCard
+    // Tap on the Navigation to Next Class FeatureCard
     await tester.tap(find.byIcon(Icons.calendar_today));
     await tester.pumpAndSettle(); // Wait for navigation to complete
 
@@ -304,13 +346,13 @@ void main() async {
             mapViewModel: mockMapViewModel,
           ),
       '/OutdoorLocationMapView': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-                return OutdoorLocationMapView(
-                  campus: args['campus'] as ConcordiaCampus,
-                  mapViewModel: mockMapViewModel,
-                );
-            },
+        final args =
+            ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        return OutdoorLocationMapView(
+          campus: args['campus'] as ConcordiaCampus,
+          mapViewModel: mockMapViewModel,
+        );
+      },
     };
 
     when(mockMapViewModel.selectedBuildingNotifier)
@@ -342,10 +384,15 @@ void main() async {
     });
 
     // Build the HomePage widget
-    await tester.pumpWidget(MaterialApp(
-      initialRoute: '/',
-      routes: routes,
-    ));
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                initialRoute: '/',
+                routes: routes,
+              ),
+      )
+    );
 
     // Tap on the Outdoor Directions FeatureCard
     await tester.tap(find.text("Outdoor directions"));
@@ -356,13 +403,14 @@ void main() async {
     await tester.pumpAndSettle(); // Wait for navigation to complete
   });
 
-  testWidgets('Smart Planner navigation should work', (WidgetTester tester) async {
+  testWidgets('Smart Planner navigation should work',
+      (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
       '/': (context) => const HomePage(),
       '/SmartPlannerView': (context) => const SmartPlannerView(),
     };
-    
+
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
       initialRoute: '/',

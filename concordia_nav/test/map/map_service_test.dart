@@ -186,7 +186,6 @@ Future<void> main() async {
     var service = true; // locationService set to true
 
     // ensure plugin is initialized
-    TestWidgetsFlutterBinding.ensureInitialized();
     const MethodChannel locationChannel =
         MethodChannel('flutter.baseflow.com/geolocator');
 

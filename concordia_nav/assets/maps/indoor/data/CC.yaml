@@ -4,6 +4,10 @@ floors:
 
 rooms:
   "1":
+    - roomNumber: "0001"
+      category: waterFountain
+      floor: "1"
+      entrancePoint: { x: 214, y: 92 }
     - roomNumber: "1"
       category: classroom
       floor: "1"
@@ -178,7 +182,7 @@ connections:
     waitTimePerFloorSeconds: 25
     floors: ["1"]
     floorPoints:
-      "1": 
+      "1":
         - { x: 365, y: 350, floor: "1" }
         - { x: 1365, y: 340, floor: "1" }
         - { x: 2667, y: 320, floor: "1" }

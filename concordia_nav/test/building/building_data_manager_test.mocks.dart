@@ -5,8 +5,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i5;
 
-import 'package:concordia_nav/data/repositories/building_data.dart' as _i2;
-import 'package:flutter/services.dart' as _i3;
+import 'package:concordia_nav/data/repositories/building_data.dart' as _i3;
+import 'package:flutter/services.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i4;
 
@@ -24,15 +24,10 @@ import 'package:mockito/src/dummies.dart' as _i4;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeBuildingData_0 extends _i1.SmartFake implements _i2.BuildingData {
-  _FakeBuildingData_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [AssetManifest].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAssetManifest extends _i1.Mock implements _i3.AssetManifest {
+class MockAssetManifest extends _i1.Mock implements _i2.AssetManifest {
   MockAssetManifest() {
     _i1.throwOnMissingStub(this);
   }
@@ -46,16 +41,16 @@ class MockAssetManifest extends _i1.Mock implements _i3.AssetManifest {
           as List<String>);
 
   @override
-  List<_i3.AssetMetadata>? getAssetVariants(String? key) =>
+  List<_i2.AssetMetadata>? getAssetVariants(String? key) =>
       (super.noSuchMethod(Invocation.method(#getAssetVariants, [key]))
-          as List<_i3.AssetMetadata>?);
+          as List<_i2.AssetMetadata>?);
 }
 
 /// A class which mocks [BuildingDataLoader].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBuildingDataLoader extends _i1.Mock
-    implements _i2.BuildingDataLoader {
+    implements _i3.BuildingDataLoader {
   MockBuildingDataLoader() {
     _i1.throwOnMissingStub(this);
   }
@@ -72,12 +67,10 @@ class MockBuildingDataLoader extends _i1.Mock
           as String);
 
   @override
-  _i5.Future<_i2.BuildingData> load() =>
+  _i5.Future<_i3.BuildingData?> load() =>
       (super.noSuchMethod(
             Invocation.method(#load, []),
-            returnValue: _i5.Future<_i2.BuildingData>.value(
-              _FakeBuildingData_0(this, Invocation.method(#load, [])),
-            ),
+            returnValue: _i5.Future<_i3.BuildingData?>.value(),
           )
-          as _i5.Future<_i2.BuildingData>);
+          as _i5.Future<_i3.BuildingData?>);
 }

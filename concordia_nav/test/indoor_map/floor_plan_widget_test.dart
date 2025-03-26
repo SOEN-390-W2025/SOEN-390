@@ -1,9 +1,9 @@
 import 'dart:ui';
-
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/connection.dart';
 import 'package:concordia_nav/data/domain-model/indoor_route.dart';
+import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/indoor_location/floor_plan_widget.dart';
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart';
@@ -74,6 +74,59 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No floor plans exist at this time.'), findsOneWidget);
+  });
+
+  testWidgets('FloorPlanWidget with pois', (WidgetTester tester) async {
+    final pois = [
+      POI(id: "1", name: "washroom", buildingId:"H", floor: "1", category: POICategory.washroom, 
+          x: 492, y: 678),
+      POI(id: "2", name: "washroom", buildingId:"H", floor: "1", category: POICategory.washroom, 
+          x: 564, y: 711),
+      POI(id: "3", name: "washroom", buildingId:"H", floor: "1", category: POICategory.washroom, 
+          x: 815, y: 915)];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FloorPlanWidget(
+            indoorMapViewModel: mockIndoorMapViewModel,
+            floorPlanPath: 'assets/floor_plan.svg',
+            semanticsLabel: 'Test Floor Plan',
+            width: testWidth,
+            height: testHeight,
+            pois: pois,
+            onPoiTap: (poi) => {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Image), findsAtLeast(1));
+  });
+
+  testWidgets('FloorPlanWidget with current location', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FloorPlanWidget(
+            indoorMapViewModel: mockIndoorMapViewModel,
+            floorPlanPath: 'assets/floor_plan.svg',
+            semanticsLabel: 'Test Floor Plan',
+            width: testWidth,
+            height: testHeight,
+            currentLocation: const Offset(45.4215, -75.6992),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // find white circle marker
+    final container = find.byType(Container).evaluate().single.widget as Container;
+    final locationMarker = container.decoration as BoxDecoration;
+    expect(find.byType(Container), findsOneWidget);
+    expect(locationMarker.color, Colors.white);
+    expect(locationMarker.shape, BoxShape.circle);
   });
 
   group('Indoor Path Tests', () {

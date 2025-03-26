@@ -3,16 +3,19 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
-import 'dart:ui' as _i9;
+import 'dart:async' as _i5;
+import 'dart:ui' as _i12;
 
-import 'package:calendar_view/calendar_view.dart' as _i7;
-import 'package:concordia_nav/data/repositories/calendar.dart' as _i3;
-import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart' as _i5;
-import 'package:concordia_nav/utils/calendar_viewmodel.dart' as _i6;
+import 'package:calendar_view/calendar_view.dart' as _i10;
+import 'package:concordia_nav/data/domain-model/concordia_room.dart' as _i6;
+import 'package:concordia_nav/data/repositories/calendar.dart' as _i4;
+import 'package:concordia_nav/utils/building_viewmodel.dart' as _i7;
+import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart' as _i8;
+import 'package:concordia_nav/utils/calendar_viewmodel.dart' as _i9;
 import 'package:device_calendar/device_calendar.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:mockito/src/dummies.dart' as _i11;
+import 'package:shared_preferences/shared_preferences.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -34,11 +37,17 @@ class _FakeDeviceCalendarPlugin_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeSharedPreferencesAsync_1 extends _i1.SmartFake
+    implements _i3.SharedPreferencesAsync {
+  _FakeSharedPreferencesAsync_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [CalendarRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCalendarRepository extends _i1.Mock
-    implements _i3.CalendarRepository {
+    implements _i4.CalendarRepository {
   MockCalendarRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -61,26 +70,63 @@ class MockCalendarRepository extends _i1.Mock
   );
 
   @override
-  _i4.Future<bool> checkPermissions() =>
+  _i3.SharedPreferencesAsync get prefs =>
       (super.noSuchMethod(
-            Invocation.method(#checkPermissions, []),
-            returnValue: _i4.Future<bool>.value(false),
-          )
-          as _i4.Future<bool>);
-
-  @override
-  _i4.Future<List<_i3.UserCalendar>> getUserCalendars() =>
-      (super.noSuchMethod(
-            Invocation.method(#getUserCalendars, []),
-            returnValue: _i4.Future<List<_i3.UserCalendar>>.value(
-              <_i3.UserCalendar>[],
+            Invocation.getter(#prefs),
+            returnValue: _FakeSharedPreferencesAsync_1(
+              this,
+              Invocation.getter(#prefs),
             ),
           )
-          as _i4.Future<List<_i3.UserCalendar>>);
+          as _i3.SharedPreferencesAsync);
 
   @override
-  _i4.Future<List<_i3.UserCalendarEvent>> getEvents(
-    List<_i3.UserCalendar>? selectedCalendars,
+  set prefs(_i3.SharedPreferencesAsync? _prefs) => super.noSuchMethod(
+    Invocation.setter(#prefs, _prefs),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i5.Future<bool> checkPermissions() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkPermissions, []),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<List<_i4.UserCalendar>> getUserCalendars({
+    dynamic preferredCalendarsOnly = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getUserCalendars, [], {
+              #preferredCalendarsOnly: preferredCalendarsOnly,
+            }),
+            returnValue: _i5.Future<List<_i4.UserCalendar>>.value(
+              <_i4.UserCalendar>[],
+            ),
+          )
+          as _i5.Future<List<_i4.UserCalendar>>);
+
+  @override
+  _i5.Future<bool> isCalendarPreferred(_i4.UserCalendar? cal) =>
+      (super.noSuchMethod(
+            Invocation.method(#isCalendarPreferred, [cal]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<bool> setUserCalendarPreferredState(_i4.UserCalendar? cal) =>
+      (super.noSuchMethod(
+            Invocation.method(#setUserCalendarPreferredState, [cal]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<List<_i4.UserCalendarEvent>> getEvents(
+    List<_i4.UserCalendar>? selectedCalendars,
     Duration? timeSpan,
     DateTime? utcStart,
   ) =>
@@ -90,15 +136,15 @@ class MockCalendarRepository extends _i1.Mock
               timeSpan,
               utcStart,
             ]),
-            returnValue: _i4.Future<List<_i3.UserCalendarEvent>>.value(
-              <_i3.UserCalendarEvent>[],
+            returnValue: _i5.Future<List<_i4.UserCalendarEvent>>.value(
+              <_i4.UserCalendarEvent>[],
             ),
           )
-          as _i4.Future<List<_i3.UserCalendarEvent>>);
+          as _i5.Future<List<_i4.UserCalendarEvent>>);
 
   @override
-  _i4.Future<List<_i3.UserCalendarEvent>> getEventsOnLocalDate(
-    List<_i3.UserCalendar>? selectedCalendars,
+  _i5.Future<List<_i4.UserCalendarEvent>> getEventsOnLocalDate(
+    List<_i4.UserCalendar>? selectedCalendars,
     int? offset,
   ) =>
       (super.noSuchMethod(
@@ -106,47 +152,71 @@ class MockCalendarRepository extends _i1.Mock
               selectedCalendars,
               offset,
             ]),
-            returnValue: _i4.Future<List<_i3.UserCalendarEvent>>.value(
-              <_i3.UserCalendarEvent>[],
+            returnValue: _i5.Future<List<_i4.UserCalendarEvent>>.value(
+              <_i4.UserCalendarEvent>[],
             ),
           )
-          as _i4.Future<List<_i3.UserCalendarEvent>>);
+          as _i5.Future<List<_i4.UserCalendarEvent>>);
+
+  @override
+  _i5.Future<_i4.UserCalendarEvent?> getNextClassEvent(
+    List<_i4.UserCalendar>? selectedCalendars,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassEvent, [selectedCalendars]),
+            returnValue: _i5.Future<_i4.UserCalendarEvent?>.value(),
+          )
+          as _i5.Future<_i4.UserCalendarEvent?>);
+
+  @override
+  _i5.Future<_i6.ConcordiaRoom?> getNextClassRoom(
+    List<_i4.UserCalendar>? selectedCalendars,
+    _i7.BuildingViewModel? buildingViewModel,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextClassRoom, [
+              selectedCalendars,
+              buildingViewModel,
+            ]),
+            returnValue: _i5.Future<_i6.ConcordiaRoom?>.value(),
+          )
+          as _i5.Future<_i6.ConcordiaRoom?>);
 }
 
 /// A class which mocks [CalendarSelectionViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCalendarSelectionViewModel extends _i1.Mock
-    implements _i5.CalendarSelectionViewModel {
+    implements _i8.CalendarSelectionViewModel {
   MockCalendarSelectionViewModel() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  set calendarRepository(_i3.CalendarRepository? repo) => super.noSuchMethod(
+  set calendarRepository(_i4.CalendarRepository? repo) => super.noSuchMethod(
     Invocation.setter(#calendarRepository, repo),
     returnValueForMissingStub: null,
   );
 
   @override
-  List<_i3.UserCalendar> get calendars =>
+  List<_i4.UserCalendar> get calendars =>
       (super.noSuchMethod(
             Invocation.getter(#calendars),
-            returnValue: <_i3.UserCalendar>[],
+            returnValue: <_i4.UserCalendar>[],
           )
-          as List<_i3.UserCalendar>);
+          as List<_i4.UserCalendar>);
 
   @override
-  _i4.Future<void> loadCalendars() =>
+  _i5.Future<void> loadCalendars() =>
       (super.noSuchMethod(
             Invocation.method(#loadCalendars, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  bool isCalendarSelected(_i3.UserCalendar? calendar) =>
+  bool isCalendarSelected(_i4.UserCalendar? calendar) =>
       (super.noSuchMethod(
             Invocation.method(#isCalendarSelected, [calendar]),
             returnValue: false,
@@ -154,31 +224,31 @@ class MockCalendarSelectionViewModel extends _i1.Mock
           as bool);
 
   @override
-  void selectCalendar(_i3.UserCalendar? calendar) => super.noSuchMethod(
+  void selectCalendar(_i4.UserCalendar? calendar) => super.noSuchMethod(
     Invocation.method(#selectCalendar, [calendar]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void unselectCalendar(_i3.UserCalendar? calendar) => super.noSuchMethod(
+  void unselectCalendar(_i4.UserCalendar? calendar) => super.noSuchMethod(
     Invocation.method(#unselectCalendar, [calendar]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void toggleCalendarSelection(_i3.UserCalendar? calendar) =>
+  void toggleCalendarSelection(_i4.UserCalendar? calendar) =>
       super.noSuchMethod(
         Invocation.method(#toggleCalendarSelection, [calendar]),
         returnValueForMissingStub: null,
       );
 
   @override
-  List<_i3.UserCalendar> getSelectedCalendars() =>
+  List<_i4.UserCalendar> getSelectedCalendars() =>
       (super.noSuchMethod(
             Invocation.method(#getSelectedCalendars, []),
-            returnValue: <_i3.UserCalendar>[],
+            returnValue: <_i4.UserCalendar>[],
           )
-          as List<_i3.UserCalendar>);
+          as List<_i4.UserCalendar>);
 
   @override
   void selectCalendarsByDisplayName(String? displayName) => super.noSuchMethod(
@@ -187,49 +257,49 @@ class MockCalendarSelectionViewModel extends _i1.Mock
   );
 
   @override
-  List<_i3.UserCalendar> getSelectedCalendarsByDisplayName(
+  List<_i4.UserCalendar> getSelectedCalendarsByDisplayName(
     String? displayName,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getSelectedCalendarsByDisplayName, [
               displayName,
             ]),
-            returnValue: <_i3.UserCalendar>[],
+            returnValue: <_i4.UserCalendar>[],
           )
-          as List<_i3.UserCalendar>);
+          as List<_i4.UserCalendar>);
 }
 
 /// A class which mocks [CalendarViewModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
+class MockCalendarViewModel extends _i1.Mock implements _i9.CalendarViewModel {
   MockCalendarViewModel() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i3.UserCalendar> get allCalendars =>
+  List<_i4.UserCalendar> get allCalendars =>
       (super.noSuchMethod(
             Invocation.getter(#allCalendars),
-            returnValue: <_i3.UserCalendar>[],
+            returnValue: <_i4.UserCalendar>[],
           )
-          as List<_i3.UserCalendar>);
+          as List<_i4.UserCalendar>);
 
   @override
-  List<_i3.UserCalendar> get selectedCalendars =>
+  List<_i4.UserCalendar> get selectedCalendars =>
       (super.noSuchMethod(
             Invocation.getter(#selectedCalendars),
-            returnValue: <_i3.UserCalendar>[],
+            returnValue: <_i4.UserCalendar>[],
           )
-          as List<_i3.UserCalendar>);
+          as List<_i4.UserCalendar>);
 
   @override
-  List<_i3.UserCalendarEvent> get events =>
+  List<_i4.UserCalendarEvent> get events =>
       (super.noSuchMethod(
             Invocation.getter(#events),
-            returnValue: <_i3.UserCalendarEvent>[],
+            returnValue: <_i4.UserCalendarEvent>[],
           )
-          as List<_i3.UserCalendarEvent>);
+          as List<_i4.UserCalendarEvent>);
 
   @override
   bool get isLoading =>
@@ -237,8 +307,14 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
           as bool);
 
   @override
-  set calendarRepository(_i3.CalendarRepository? repo) => super.noSuchMethod(
+  set calendarRepository(_i4.CalendarRepository? repo) => super.noSuchMethod(
     Invocation.setter(#calendarRepository, repo),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set eventsList(List<_i4.UserCalendarEvent>? events) => super.noSuchMethod(
+    Invocation.setter(#eventsList, events),
     returnValueForMissingStub: null,
   );
 
@@ -248,29 +324,29 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
           as bool);
 
   @override
-  _i4.Future<void> initialize({_i3.UserCalendar? selectedCalendar}) =>
+  _i5.Future<void> initialize({_i4.UserCalendar? selectedCalendar}) =>
       (super.noSuchMethod(
             Invocation.method(#initialize, [], {
               #selectedCalendar: selectedCalendar,
             }),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  List<_i7.CalendarEventData<Object?>> getCalendarEventData() =>
+  List<_i10.CalendarEventData<Object?>> getCalendarEventData() =>
       (super.noSuchMethod(
             Invocation.method(#getCalendarEventData, []),
-            returnValue: <_i7.CalendarEventData<Object?>>[],
+            returnValue: <_i10.CalendarEventData<Object?>>[],
           )
-          as List<_i7.CalendarEventData<Object?>>);
+          as List<_i10.CalendarEventData<Object?>>);
 
   @override
-  String formatEventTime(_i3.UserCalendarEvent? event) =>
+  String formatEventTime(_i4.UserCalendarEvent? event) =>
       (super.noSuchMethod(
             Invocation.method(#formatEventTime, [event]),
-            returnValue: _i8.dummyValue<String>(
+            returnValue: _i11.dummyValue<String>(
               this,
               Invocation.method(#formatEventTime, [event]),
             ),
@@ -281,7 +357,7 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
   String getBuildingAbbreviation(String? location) =>
       (super.noSuchMethod(
             Invocation.method(#getBuildingAbbreviation, [location]),
-            returnValue: _i8.dummyValue<String>(
+            returnValue: _i11.dummyValue<String>(
               this,
               Invocation.method(#getBuildingAbbreviation, [location]),
             ),
@@ -289,13 +365,13 @@ class MockCalendarViewModel extends _i1.Mock implements _i6.CalendarViewModel {
           as String);
 
   @override
-  void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i9.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

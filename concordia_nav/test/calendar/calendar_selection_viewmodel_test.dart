@@ -1,20 +1,26 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:concordia_nav/data/repositories/calendar.dart';
 import 'package:concordia_nav/utils/calendar_selection_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import '../indoor_map/indoor_routing_service_test.mocks.dart';
 
 @GenerateMocks([CalendarRepository])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
   late MockCalendarRepository mockCalendarRepository;
 
   setUp(() {
     mockCalendarRepository = MockCalendarRepository();
   });
 
-  group('CalendarSelectionViewModel tests', (){
+  group('CalendarSelectionViewModel tests', () {
     test('loadCalendars updates the list of calendars', () async {
       // Arrange: checkPermissions accepted mock
       when(mockCalendarRepository.checkPermissions())
@@ -25,10 +31,10 @@ void main() {
       final calendars = [calendar1, calendar2];
       when(mockCalendarRepository.getUserCalendars())
           .thenAnswer((_) async => calendars);
-      
+
       final calendarSelectionViewModel = CalendarSelectionViewModel();
       calendarSelectionViewModel.calendarRepository = mockCalendarRepository;
-      
+
       // Act
       await calendarSelectionViewModel.loadCalendars();
 
@@ -41,10 +47,10 @@ void main() {
       // Arrange: checkPermissions accepted mock
       when(mockCalendarRepository.checkPermissions())
           .thenAnswer((_) async => false);
-      
+
       final calendarSelectionViewModel = CalendarSelectionViewModel();
       calendarSelectionViewModel.calendarRepository = mockCalendarRepository;
-      
+
       expect(calendarSelectionViewModel.loadCalendars(), throwsException);
     });
 
@@ -87,7 +93,8 @@ void main() {
       expect(calendarSelectionViewModel.isCalendarSelected(calendar), false);
     });
 
-    test('getSelectedCalendars returns the list of selected calendars', () async {
+    test('getSelectedCalendars returns the list of selected calendars',
+        () async {
       // Arrange: checkPermissions accepted mock
       when(mockCalendarRepository.checkPermissions())
           .thenAnswer((_) async => true);
@@ -98,7 +105,7 @@ void main() {
       final calendars = [calendar1, calendar2, calendar3];
       when(mockCalendarRepository.getUserCalendars())
           .thenAnswer((_) async => calendars);
-      
+
       final calendarSelectionViewModel = CalendarSelectionViewModel();
       calendarSelectionViewModel.calendarRepository = mockCalendarRepository;
       await calendarSelectionViewModel.loadCalendars();
@@ -106,14 +113,16 @@ void main() {
       calendarSelectionViewModel.selectCalendar(calendar3);
 
       // Act
-      final selectedCalendars = calendarSelectionViewModel.getSelectedCalendars();
+      final selectedCalendars =
+          calendarSelectionViewModel.getSelectedCalendars();
 
       // Assert
       expect(selectedCalendars[0], calendar1);
       expect(selectedCalendars[1], calendar3);
     });
 
-    test('selectCalendarsByDisplayName selects calendar by its display name', () async {
+    test('selectCalendarsByDisplayName selects calendar by its display name',
+        () async {
       // Arrange: checkPermissions accepted mock
       when(mockCalendarRepository.checkPermissions())
           .thenAnswer((_) async => true);
@@ -124,7 +133,7 @@ void main() {
       final calendars = [calendar1, calendar2, calendar3];
       when(mockCalendarRepository.getUserCalendars())
           .thenAnswer((_) async => calendars);
-      
+
       final calendarSelectionViewModel = CalendarSelectionViewModel();
       calendarSelectionViewModel.calendarRepository = mockCalendarRepository;
       await calendarSelectionViewModel.loadCalendars();
@@ -136,7 +145,9 @@ void main() {
       expect(calendarSelectionViewModel.isCalendarSelected(calendar1), true);
     });
 
-    test('getSelectedCalendarsByDisplayName returns a list of calendars matching display name', () async {
+    test(
+        'getSelectedCalendarsByDisplayName returns a list of calendars matching display name',
+        () async {
       // Arrange: checkPermissions accepted mock
       when(mockCalendarRepository.checkPermissions())
           .thenAnswer((_) async => true);
@@ -147,7 +158,7 @@ void main() {
       final calendars = [calendar1, calendar2, calendar3];
       when(mockCalendarRepository.getUserCalendars())
           .thenAnswer((_) async => calendars);
-      
+
       final calendarSelectionViewModel = CalendarSelectionViewModel();
       calendarSelectionViewModel.calendarRepository = mockCalendarRepository;
       await calendarSelectionViewModel.loadCalendars();
@@ -155,7 +166,8 @@ void main() {
       calendarSelectionViewModel.selectCalendar(calendar3);
 
       // Act
-      final selectedCalendars = calendarSelectionViewModel.getSelectedCalendarsByDisplayName('Calendar 1');
+      final selectedCalendars = calendarSelectionViewModel
+          .getSelectedCalendarsByDisplayName('Calendar 1');
 
       // Assert
       expect(selectedCalendars[0], calendar1);

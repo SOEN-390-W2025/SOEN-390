@@ -1,10 +1,11 @@
 // ignore_for_file: prefer_const_declarations
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../data/domain-model/poi.dart';
 import '../../utils/indoor_step_viewmodel.dart';
+import '../../utils/settings/preferences_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import 'floor_plan_widget.dart';
 
@@ -16,6 +17,7 @@ class VirtualStepGuideView extends StatefulWidget {
   final bool isDisability;
   final bool isMultiFloor;
   final VirtualStepGuideViewModel? viewModel;
+  final POI? selectedPOI;
 
   const VirtualStepGuideView({
     super.key,
@@ -26,6 +28,7 @@ class VirtualStepGuideView extends StatefulWidget {
     required this.isMultiFloor,
     this.isDisability = false,
     this.viewModel,
+    this.selectedPOI,
   });
 
   @override
@@ -38,7 +41,6 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   bool _firstRouteCompleted = false;
   late String _temporaryEndRoom;
   late Timer _timer;
-
   late bool _isMultiFloorRoute;
   final String yourLocationString = 'Your Location';
 
@@ -50,14 +52,24 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
     _temporaryEndRoom = _isMultiFloorRoute ? 'connection' : widget.endRoom;
 
     _viewModel = widget.viewModel ??
-        VirtualStepGuideViewModel(
-          sourceRoom: widget.sourceRoom,
-          building: widget.building,
-          floor: widget.floor,
-          endRoom: _temporaryEndRoom,
-          isDisability: widget.isDisability,
-          vsync: this,
-        );
+        (!_isMultiFloorRoute
+            ? VirtualStepGuideViewModel(
+                sourceRoom: widget.sourceRoom,
+                building: widget.building,
+                floor: extractFloor(widget.sourceRoom),
+                endRoom: _temporaryEndRoom,
+                isDisability: widget.isDisability,
+                vsync: this,
+                selectedPOI: widget.selectedPOI,
+              )
+            : VirtualStepGuideViewModel(
+                sourceRoom: widget.sourceRoom,
+                building: widget.building,
+                floor: extractFloor(widget.sourceRoom),
+                endRoom: _temporaryEndRoom,
+                isDisability: widget.isDisability,
+                vsync: this,
+              ));
 
     _viewModel.initializeRoute().then((_) {
       if (mounted) {
@@ -72,20 +84,19 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   String extractFloor(String roomName) {
     if (roomName == yourLocationString) return '1';
 
-    // Remove any building prefix if present (like "H " or "MB ")
-    final cleanedRoom = roomName.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
-
-    // If the first character is alphabetic, get first two characters
-    if (cleanedRoom.isNotEmpty && RegExp(r'^[a-zA-Z]').hasMatch(cleanedRoom)) {
-      // For alphanumeric floors, take the first two characters
-      return cleanedRoom.length >= 2
-          ? cleanedRoom.substring(0, 2)
-          : cleanedRoom;
+    // If the room name starts with "S", return the first character and first digit after it
+    if (roomName.isNotEmpty && roomName[0] == 'S') {
+      final firstDigit = RegExp(r'\d').stringMatch(roomName) ?? '1';
+      return roomName[0] + firstDigit;
     }
-    // Otherwise if it starts with a digit, just get the first digit
-    else if (cleanedRoom.isNotEmpty &&
-        RegExp(r'^[0-9]').hasMatch(cleanedRoom)) {
-      return cleanedRoom.substring(0, 1);
+
+    // If it doesn't start with "S", find the left-most digit (ignore spaces or building prefix)
+    else if (roomName.isNotEmpty) {
+      // Use regex to find the first digit in the room name
+      final firstDigit =
+          RegExp(r'\d').stringMatch(roomName.replaceAll(' ', ''));
+      return firstDigit ??
+          '1'; // Return the first digit found, or '1' if no digit is found
     }
 
     // Fallback
@@ -95,18 +106,32 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   void _proceedToSecondRoute() {
     setState(() {
       _firstRouteCompleted = true;
-      final String firstDigit =
-          widget.endRoom.replaceAll(RegExp(r'\D'), '').isNotEmpty
-              ? widget.endRoom.replaceAll(RegExp(r'\D'), '')[0]
-              : widget.floor;
-      _viewModel = VirtualStepGuideViewModel(
-        sourceRoom: yourLocationString,
-        building: widget.building,
-        floor: firstDigit,
-        endRoom: widget.endRoom,
-        isDisability: widget.isDisability,
-        vsync: this,
-      );
+      if (widget.selectedPOI != null) {
+        _viewModel = VirtualStepGuideViewModel(
+          sourceRoom: 'connection',
+          building: widget.building,
+          floor: widget.selectedPOI!.floor,
+          endRoom: widget.endRoom,
+          isDisability: widget.isDisability,
+          vsync: this,
+          selectedPOI: widget.selectedPOI,
+        );
+      } else {
+        final String firstDigit =
+            extractFloor(widget.endRoom).startsWith('S') ||
+                    RegExp(r'^\d$').hasMatch(extractFloor(widget.endRoom))
+                ? extractFloor(widget.endRoom)
+                : '1';
+        _viewModel = VirtualStepGuideViewModel(
+          sourceRoom: 'connection',
+          building: widget.building,
+          floor: firstDigit,
+          endRoom: widget.endRoom,
+          isDisability: widget.isDisability,
+          vsync: this,
+        );
+      }
+
       _viewModel.initializeRoute().then((_) {
         if (mounted) {
           _timer = Timer(const Duration(milliseconds: 300), () {
@@ -127,20 +152,39 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
 
   @override
   Widget build(BuildContext context) {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    _viewModel.measurementUnit = preferences.selectedMeasurementUnit;
+
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Consumer<VirtualStepGuideViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
             appBar: customAppBar(context, 'Step-by-Step Guide'),
+            backgroundColor: Colors.white,
             body: viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : Column(
-                    children: [
-                      _buildGuidanceBox(viewModel),
-                      _buildFloorPlanView(viewModel),
-                      _buildTravelInfoBox(viewModel),
-                    ],
+                : Semantics(
+                    label:
+                        'Follow each instruction step to get to your destination.',
+                    child: Stack(
+                      children: [
+                        _buildFloorPlanView(viewModel),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: _buildGuidanceBox(viewModel),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: _buildTravelInfoBox(viewModel),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
           );
         },
@@ -149,7 +193,7 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   }
 
   Widget _buildFloorPlanView(VirtualStepGuideViewModel viewModel) {
-    return Expanded(
+    return Positioned(
       child: Stack(
         children: [
           FloorPlanWidget(
@@ -188,7 +232,6 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Time estimate column
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -212,8 +255,6 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ),
             ],
           ),
-
-          // Distance estimate column
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -237,8 +278,6 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
               ),
             ],
           ),
-
-          // Exit button
           ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.exit_to_app, color: Colors.white),
@@ -262,10 +301,8 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
         viewModel.currentStepIndex >= viewModel.navigationSteps.length - 1;
     final currentStep = viewModel.navigationSteps[viewModel.currentStepIndex];
 
-    // Determine button text and action
     final buttonConfig = _getButtonConfig(isFinalStep, viewModel);
 
-    // Update step titles and descriptions based on multi-floor route conditions
     _updateStepForMultiFloorRoute(currentStep);
 
     return _buildGuidanceContainer(
@@ -382,10 +419,20 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Opacity(
-          opacity: isFirstStep ? 0.5 : 1.0, // Fade when disabled
+          opacity: isFirstStep ? 0.5 : 1.0,
           child: ElevatedButton(
             onPressed:
                 isFirstStep ? null : () => viewModel.previousStep(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF962E42),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              textStyle:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             child: const Text('Back'),
           ),
         ),
@@ -398,6 +445,16 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
         ),
         ElevatedButton(
           onPressed: buttonConfig.onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF962E42),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            textStyle:
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           child: Text(buttonConfig.text),
         ),
       ],

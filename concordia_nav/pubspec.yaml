@@ -82,6 +82,10 @@ dependencies:
   flutter_svg: ^2.0.17
   intl: ^0.20.2
   calendar_view: ^1.4.0
+  logger: ^2.5.0
+  google_places_flutter: ^2.1.0
+  dart_openai: ^5.1.0
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
@@ -134,6 +138,14 @@ flutter:
     - assets/maps/indoor/floorplans/MBS2.svg
     - assets/maps/indoor/floorplans/VL1.svg
     - assets/maps/indoor/floorplans/VL2.svg
+    - assets/icons/pois/elevator.png
+    - assets/icons/pois/escalator.png
+    - assets/icons/pois/exit.png
+    - assets/icons/pois/police.png
+    - assets/icons/pois/restaurant.png
+    - assets/icons/pois/stairs.png
+    - assets/icons/pois/washroom.png
+    - assets/icons/pois/waterFountain.png
     - assets/icons/default.png
     - assets/icons/destination.png
     - assets/icons/origin.png

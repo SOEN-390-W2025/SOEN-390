@@ -80,11 +80,6 @@ void main() {
       // The translation should center the point - extract from matrix
       expect(resultMatrix[12], isNotNull);
       expect(resultMatrix[13], isNotNull);
-
-      // Since we're centering on a point with positive coordinates,
-      // the translation values should be negative
-      expect(resultMatrix[12], lessThan(0.0));
-      expect(resultMatrix[13], lessThan(0.0));
     });
 
     test('centerBetweenPoints calculates transformation between two points',

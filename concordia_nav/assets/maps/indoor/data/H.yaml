@@ -11,6 +11,14 @@ floors:
 # Rooms that don't have a number start from 0001
 rooms:
   "1":
+    - roomNumber: "0001"
+      category: washroom
+      floor: "1"
+      entrancePoint: { x: 492, y: 678 }
+    - roomNumber: "0002"
+      category: waterFountain
+      floor: "1"
+      entrancePoint: { x: 564, y: 711 }
     - roomNumber: "2-3"
       category: police
       floor: "1"
@@ -184,6 +192,10 @@ rooms:
       floor: "1"
       entrancePoint: { x: 332, y: 154 }
   "2":
+    - roomNumber: "0001"
+      category: waterFountain
+      floor: "2"
+      entrancePoint: { x: 289, y: 428 }
     - roomNumber: "22"
       category: office
       floor: "2"
@@ -205,6 +217,10 @@ rooms:
       floor: "2"
       entrancePoint: { x: 880, y: 595 }
   "8":
+    - roomNumber: "0001"
+      category: waterFountain
+      floor: "8"
+      entrancePoint: { x: 723, y: 168 }
     - roomNumber: "1"
       category: classroom
       floor: "8"
@@ -398,6 +414,14 @@ rooms:
       category: washroom
       floor: "9"
       entrancePoint: { x: 378, y: 805 }
+    - roomNumber: "0003"
+      category: waterFountain
+      floor: "9"
+      entrancePoint: { x: 378, y: 812 }
+    - roomNumber: "0004"
+      category: waterFountain
+      floor: "9"
+      entrancePoint: { x: 243, y: 338 }
     - roomNumber: "2-1"
       category: unknown
       floor: "9"

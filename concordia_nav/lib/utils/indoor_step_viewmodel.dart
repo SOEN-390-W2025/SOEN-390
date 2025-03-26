@@ -1,5 +1,7 @@
 // ignore_for_file: unused_local_variable, avoid_catches_without_on_clauses
 
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import '../../data/domain-model/floor_routable_point.dart';
 import '../../data/services/routecalculation_service.dart';
@@ -7,6 +9,7 @@ import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import '../data/domain-model/indoor_route.dart';
+import '../data/domain-model/poi.dart';
 
 // Model classes moved from the view to the model layer
 class NavigationStep {
@@ -49,6 +52,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
   final String floor;
   final String endRoom;
   bool disability;
+  POI? selectedPOI;
 
   // Dependencies
   final IndoorDirectionsViewModel directionsViewModel;
@@ -62,6 +66,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
   double width = 1024.0;
   double height = 1024.0;
 
+  String measurementUnit = 'Metric';
   List<double> stepDistanceMeters = [];
   List<int> stepTimeSeconds = [];
 
@@ -73,9 +78,10 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     required this.sourceRoom,
     required this.building,
     required this.floor,
-    required this.endRoom,
+    this.endRoom = '',
     required bool isDisability,
     required TickerProvider vsync,
+    this.selectedPOI,
     IndoorDirectionsViewModel? directionsViewModel,
   })  : directionsViewModel =
             directionsViewModel ?? IndoorDirectionsViewModel(),
@@ -101,7 +107,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       height = size.height;
       notifyListeners();
     } catch (e) {
-      debugPrint('Error getting SVG dimensions: $e');
+      dev.log('Error getting SVG dimensions: $e');
     }
   }
 
@@ -110,15 +116,23 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await directionsViewModel.calculateRoute(
-          building, floor, sourceRoom, endRoom, disability);
+      if (selectedPOI != null) {
+        // Use POI for route calculation
+        await directionsViewModel.calculateRoute(
+            building, floor, sourceRoom, endRoom, disability,
+            destinationPOI: selectedPOI);
+      } else {
+        // Use endRoom for route calculation
+        await directionsViewModel.calculateRoute(
+            building, floor, sourceRoom, endRoom, disability);
+      }
 
       if (directionsViewModel.calculatedRoute != null) {
         _generateNavigationSteps();
         calculateTimeAndDistanceEstimates();
       }
     } catch (e) {
-      debugPrint('Error calculating route: $e');
+      dev.log('Error calculating route: $e');
     } finally {
       isLoading = false;
       notifyListeners();
@@ -200,6 +214,24 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     ));
   }
 
+  String formatRoom(String room) {
+    return room.replaceAllMapped(RegExp(r'^S(\d)(\d*)$'), (match) {
+      return 'S${match[1]}.${match[2]}';
+    });
+  }
+
+  String removeBuildingAbbreviation(String room, String buildingAbbreviation) {
+    // Ensure the building abbreviation is not in the formatted room string
+    final String formattedRoom = formatRoom(room);
+
+    // If the formatted room starts with the building abbreviation, remove it
+    if (formattedRoom.startsWith(buildingAbbreviation)) {
+      return formattedRoom.substring(buildingAbbreviation.length).trim();
+    }
+
+    return formattedRoom;
+  }
+
   void _handleSecondBuilding(IndoorRoute route) {
     navigationSteps.add(NavigationStep(
       title: 'Building Transition',
@@ -253,7 +285,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     navigationSteps.add(NavigationStep(
       title: 'Start',
       description:
-          'Begin navigation from ${sourceRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
+          'Begin navigation from ${sourceRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${removeBuildingAbbreviation(sourceRoom, buildingAbbreviation)}'}',
       focusPoint: directionsViewModel.startLocation,
       zoomLevel: 1.3,
       icon: Icons.my_location,
@@ -281,15 +313,25 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       _handleSecondBuilding(route);
     }
 
-    // Add final arrival step
-    navigationSteps.add(NavigationStep(
-      title: 'Destination',
-      description:
-          'You have reached your destination: ${endRoom == yourLocation ? yourLocation : '$buildingAbbreviation ${endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '')}'}',
-      focusPoint: directionsViewModel.endLocation,
-      zoomLevel: 1.3,
-      icon: Icons.place,
-    ));
+    // Add final arrival step - customize for POI if available
+    if (selectedPOI != null) {
+      navigationSteps.add(NavigationStep(
+        title: 'Destination',
+        description: 'You have reached ${selectedPOI!.name}',
+        focusPoint: directionsViewModel.endLocation,
+        zoomLevel: 1.3,
+        icon: getPOICategoryIcon(selectedPOI!.category),
+      ));
+    } else {
+      navigationSteps.add(NavigationStep(
+        title: 'Destination',
+        description:
+            'You have reached your destination: ${endRoom == yourLocation ? 'Main Entrance' : '$buildingAbbreviation ${removeBuildingAbbreviation(endRoom, buildingAbbreviation)}'}',
+        focusPoint: directionsViewModel.endLocation,
+        zoomLevel: 1.3,
+        icon: Icons.place,
+      ));
+    }
 
     // Ensure we have at least one step
     if (navigationSteps.isEmpty) {
@@ -376,51 +418,6 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
   }
 
-  // List<dynamic> calculatePortionAfterFirstConnection(IndoorRoute route,
-  //     double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
-  //   double totalDistance = totalDistanceEstimateMeters;
-  //   int totalTime = totalTimeEstimateMinutes;
-  //   int stepIndex = navigationSteps.length - 1; // Default to destination
-
-  //   // Find the first turn after the connection
-  //   for (int i = 0; i < navigationSteps.length; i++) {
-  //     if (navigationSteps[i].title == route.firstIndoorConnection?.name) {
-  //       stepIndex = i + 1;
-  //       break;
-  //     }
-  //   }
-
-  //   RouteCalculationService.calculateSegmentMetrics(
-  //       route.firstIndoorPortionFromConnection,
-  //       onResult: (distanceMeters, timeSeconds) {
-  //     stepDistanceMeters[stepIndex] = distanceMeters;
-  //     stepTimeSeconds[stepIndex] = timeSeconds;
-  //     totalDistance += distanceMeters;
-  //     totalTime += (timeSeconds / 60).ceil();
-  //   });
-  //   return [totalDistance, totalTime];
-  // }
-
-  // List<dynamic> _calculateSecondPortion(IndoorRoute route,
-  //     double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
-  //   double totalDistance = totalDistanceEstimateMeters;
-  //   int totalTime = totalTimeEstimateMinutes;
-  //   final int buildingTransitionIndex = navigationSteps
-  //       .indexWhere((step) => step.title == 'Building Transition');
-
-  //   if (buildingTransitionIndex >= 0) {
-  //     RouteCalculationService.calculateSegmentMetrics(
-  //         route.secondIndoorPortionToConnection,
-  //         onResult: (distanceMeters, timeSeconds) {
-  //       stepDistanceMeters[buildingTransitionIndex + 1] = distanceMeters;
-  //       stepTimeSeconds[buildingTransitionIndex + 1] = timeSeconds;
-  //       totalDistance += distanceMeters;
-  //       totalTime += (timeSeconds / 60).ceil();
-  //     });
-  //   }
-  //   return [totalDistance, totalTime];
-  // }
-
   void calculateTimeAndDistanceEstimates() {
     final route = directionsViewModel.calculatedRoute;
     if (route == null) return;
@@ -464,49 +461,6 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       }
     }
 
-    // // Calculate for portion after first connection
-    // if (route.firstIndoorPortionFromConnection != null &&
-    //     route.firstIndoorPortionFromConnection!.length > 1) {
-    //   final results = calculatePortionAfterFirstConnection(
-    //       route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
-    //   totalDistanceEstimateMeters = results[0];
-    //   totalTimeEstimateMinutes = results[1];
-    // }
-
-    // // Handle second building portions if applicable
-    // if (route.secondIndoorPortionToConnection != null) {
-    //   final results = _calculateSecondPortion(
-    //       route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
-    //   totalDistanceEstimateMeters = results[0];
-    //   totalTimeEstimateMinutes = results[1];
-    // }
-
-    // if (route.secondIndoorConnection != null &&
-    //     route.secondIndoorPortionFromConnection != null) {
-    //   final int connectionIndex = navigationSteps.indexWhere(
-    //       (step) => step.title == route.secondIndoorConnection!.name);
-
-    //   if (connectionIndex >= 0) {
-    //     final int waitTimeSeconds =
-    //         RouteCalculationService.getConnectionWaitTime(
-    //             route.secondIndoorConnection!,
-    //             route.secondIndoorPortionToConnection![0].floor.name,
-    //             route.secondIndoorPortionFromConnection![0].floor.name);
-
-    //     stepTimeSeconds[connectionIndex] = waitTimeSeconds;
-    //     totalTimeEstimateMinutes += (waitTimeSeconds / 60).ceil();
-    //   }
-
-    //   RouteCalculationService.calculateSegmentMetrics(
-    //       route.secondIndoorPortionFromConnection,
-    //       onResult: (distanceMeters, timeSeconds) {
-    //     stepDistanceMeters[navigationSteps.length - 1] = distanceMeters;
-    //     stepTimeSeconds[navigationSteps.length - 1] = timeSeconds;
-    //     totalDistanceEstimateMeters += distanceMeters;
-    //     totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
-    //   });
-    // }
-
     notifyListeners();
   }
 
@@ -526,7 +480,36 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       return "N/A";
     }
     final meters = stepDistanceMeters[currentStepIndex];
-    return RouteCalculationService.formatDistance(meters);
+    return RouteCalculationService.formatDistance(
+      meters,
+      measurementUnit: measurementUnit,
+    );
+  }
+
+  // Helper method to get appropriate icon for POI category
+  IconData getPOICategoryIcon(POICategory category) {
+    switch (category) {
+      case POICategory.washroom:
+        return Icons.wc;
+      case POICategory.waterFountain:
+        return Icons.water_drop;
+      case POICategory.restaurant:
+        return Icons.restaurant;
+      case POICategory.elevator:
+        return Icons.elevator;
+      case POICategory.escalator:
+        return Icons.escalator;
+      case POICategory.stairs:
+        return Icons.stairs;
+      case POICategory.exit:
+        return Icons.exit_to_app;
+      case POICategory.police:
+        return Icons.local_police;
+      case POICategory.other:
+      // ignore: unreachable_switch_default
+      default:
+        return Icons.place;
+    }
   }
 
   // Helper method to get remaining time
@@ -550,6 +533,9 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       remainingMeters += stepDistanceMeters[i];
     }
 
-    return RouteCalculationService.formatDistance(remainingMeters);
+    return RouteCalculationService.formatDistance(
+      remainingMeters,
+      measurementUnit: measurementUnit,
+    );
   }
 }
