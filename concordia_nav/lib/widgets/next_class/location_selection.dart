@@ -271,8 +271,8 @@ class _LocationSelectionState extends State<LocationSelection> {
           // Ensure the list is of type List<ButtonSegment<String>>
           _buildSegment("myLocation", Icons.my_location, "My Location",
               _isMyLocationAvailable),
-          _buildSegment(
-              "outdoorLocation", Icons.location_on, "Outdoor Location", true),
+          // _buildSegment(
+          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           _buildSegment(
               "selectClassroom", Icons.meeting_room, "Select Classroom", true),
         ],
