@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/guide_card.dart';
 import '../common_app_bart.dart';
 import 'campus_map_guide.dart';
+import 'outdoor_directions_guide.dart';
 
 class GuidePage extends StatefulWidget {
   const GuidePage({super.key});
@@ -43,7 +44,7 @@ class _GuidePageState extends State<GuidePage> {
                 description:
                     "Get directions between campus buildings or your location",
                 icon: Icons.maps_home_work,
-                route: Placeholder(),
+                route: OutdoorDirectionsGuide(),
               ),
               SizedBox(height: 14),
               GuideCard(
