@@ -73,21 +73,22 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
         centerTitle: true,
         leading: leadingIcon,
         actions: [
-          IconButton(
-            onPressed: () {
-              // If a custom function is provided, use it; otherwise, use the default function
-              if (onActionPressed != null) {
-                onActionPressed();
-              } else if (isHomePage) {
-                Navigator.pushNamed(context, '/SmartPlannerView');
-              }
-            },
-            icon: actionIcon ??
-                Icon(
-                  Icons.edit_note,
-                  color: onPrimaryColor,
-                ),
-          ),
+          if (onActionPressed != null || isHomePage)
+            IconButton(
+              onPressed: () {
+                // If a custom function is provided, use it; otherwise, use the default function
+                if (onActionPressed != null) {
+                  onActionPressed();
+                } else if (isHomePage) {
+                  Navigator.pushNamed(context, '/SmartPlannerView');
+                }
+              },
+              icon: actionIcon ??
+                  Icon(
+                    Icons.edit_note,
+                    color: onPrimaryColor,
+                  ),
+            ),
         ],
         elevation: 0,
       ),
