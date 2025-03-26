@@ -14,6 +14,12 @@ class POIBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -28,12 +34,17 @@ class POIBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   poi.name,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                    "Building: $buildingName, Floor: ${poi.floor}"),
+                  "Building: $buildingName, Floor: ${poi.floor}",
+                  style: TextStyle(color: secondaryTextColor),
+                ),
               ],
             ),
           ),
@@ -53,11 +64,12 @@ class POIBottomSheet extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+              backgroundColor: primaryColor,
+              foregroundColor: onPrimaryColor,
             ),
-            child: const Text(
+            child: Text(
               'Directions',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: onPrimaryColor),
             ),
           ),
         ],
