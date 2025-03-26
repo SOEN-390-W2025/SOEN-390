@@ -79,7 +79,7 @@ class TravellingSalesmanService {
   /// Returns the travel time between two locations in seconds. Needs to support indoor
   /// locations (subclasses of locations) via indoor routing and outdoor locations via
   /// outdoor routing.
-  static Future<int> _getTravelTime(
+  static Future<int> getTravelTime(
       Location origin, Location destination) async {
     if (origin == destination) {
       dev.log("o = d");
@@ -98,31 +98,36 @@ class TravellingSalesmanService {
   /// calls to _getTravelTime. It might be a candidate to replace the implementation
   /// here with one that approximates locally simply based on lat/lng, even if we use
   /// the 'real' implementation elsewhere.
-  static Future<int> _getOverallRouteTime(Location start, Location? end, List<(String, Location, DateTime, DateTime)> stops) async {
-    if (stops.isEmpty && end != null) return await _getTravelTime(start, end);
+  static Future<int> getOverallRouteTime(Location start, Location? end,
+      List<(String, Location, DateTime, DateTime)> stops) async {
+    if (stops.isEmpty && end != null) return await getTravelTime(start, end);
     if (stops.isEmpty) return 0;
-    int sum = await _getTravelTime(start, stops[0].$2);
+    int sum = await getTravelTime(start, stops[0].$2);
     Location lastLocation = stops[0].$2;
     for (int i = 1; i < stops.length; i++) {
-      sum += await _getTravelTime(lastLocation, stops[i].$2);
+      sum += await getTravelTime(lastLocation, stops[i].$2);
       lastLocation = stops[i].$2;
     }
     if (end != null) {
-      sum += await _getTravelTime(lastLocation, end);
+      sum += await getTravelTime(lastLocation, end);
     }
     return sum;
   }
 
   /// When you re-order events as part of an optimization, you need to re-order the
   /// times you give for each stop based on new travel times. This method does that.
-  static Future<List<(String, Location, DateTime, DateTime)>> _recalculateStopTimes(Location start, DateTime startTime, List<(String, Location, DateTime, DateTime)> stops) async {
-    final List<(String, Location, DateTime, DateTime)> copyOfList = List.from(stops);
+  static Future<List<(String, Location, DateTime, DateTime)>>
+      recalculateStopTimes(Location start, DateTime startTime,
+          List<(String, Location, DateTime, DateTime)> stops) async {
+    final List<(String, Location, DateTime, DateTime)> copyOfList =
+        List.from(stops);
     Location lastLocation = start;
     DateTime lastEndTime = startTime;
     for (int i = 0; i < stops.length; i++) {
       final Duration timeSpentThere = stops[i].$4.difference(stops[i].$3);
       // Update start time based on travel time
-      final DateTime newStartTime = lastEndTime.add(Duration(seconds: await _getTravelTime(lastLocation, stops[i].$2)));
+      final DateTime newStartTime = lastEndTime.add(
+          Duration(seconds: await getTravelTime(lastLocation, stops[i].$2)));
       // Update end time based on time spent there
       final DateTime newEndTime = newStartTime.add(timeSpentThere);
       stops[i] = (stops[i].$1, stops[i].$2, newStartTime, newEndTime);
@@ -147,7 +152,8 @@ class TravellingSalesmanService {
           Location openPeriodStartLocation,
           DateTime? openPeriodEndTime,
           Location? openPeriodEndLocation,
-          List<(String, Location, int)> todoItems, bool doBubbleSwapOptim) async {
+          List<(String, Location, int)> todoItems,
+          bool doBubbleSwapOptim) async {
     // Copy since not a value type
     final List<(String, Location, int)> remainingItems = List.from(todoItems);
     List<(String, Location, DateTime, DateTime)> returnTodoItems = [];
@@ -163,7 +169,7 @@ class TravellingSalesmanService {
       int? travelTimeToNearestNeighbour;
       for (int i = 0; i < remainingItems.length; i++) {
         final int travelTimeToI =
-            await _getTravelTime(lastLocation, remainingItems[i].$2);
+            await getTravelTime(lastLocation, remainingItems[i].$2);
         if (travelTimeToNearestNeighbour == null ||
             travelTimeToI < travelTimeToNearestNeighbour) {
           // Check if we can still reach the destination on time adding this location
@@ -172,7 +178,7 @@ class TravellingSalesmanService {
           if (openPeriodEndTime != null && openPeriodEndLocation != null) {
             final DateTime itemIEndTime = lastEndTime
                 .add(Duration(seconds: (travelTimeToI + remainingItems[i].$3)));
-            final int travelTimeIToEnd = await _getTravelTime(
+            final int travelTimeIToEnd = await getTravelTime(
                 remainingItems[i].$2, openPeriodEndLocation);
             if (itemIEndTime
                     .add(Duration(seconds: travelTimeIToEnd))
@@ -213,21 +219,25 @@ class TravellingSalesmanService {
 
     // Locally optimize the todoItems we built based on nearest neighbour, by passing
     // through the list with a "bubble-swap" approach. It examines neighbouring pairs of
-    // edges, and if the route would be more efficient 
+    // edges, and if the route would be more efficient
     if (returnTodoItems.length > 1 && doBubbleSwapOptim) {
       bool cleanPass;
       do {
         cleanPass = true;
-        final int originalTravelTime = await _getOverallRouteTime(openPeriodStartLocation, openPeriodEndLocation, returnTodoItems);
+        final int originalTravelTime = await getOverallRouteTime(
+            openPeriodStartLocation, openPeriodEndLocation, returnTodoItems);
         for (int i = 0; i < (returnTodoItems.length - 1); i++) {
-          final List<(String, Location, DateTime, DateTime)> copyOfList = List.from(returnTodoItems);
+          final List<(String, Location, DateTime, DateTime)> copyOfList =
+              List.from(returnTodoItems);
           final temp = copyOfList[i];
           copyOfList[i] = copyOfList[i + 1];
           copyOfList[i + 1] = temp;
-          final int newTravelTime = await _getOverallRouteTime(openPeriodStartLocation, openPeriodEndLocation, copyOfList);
+          final int newTravelTime = await getOverallRouteTime(
+              openPeriodStartLocation, openPeriodEndLocation, copyOfList);
           if (newTravelTime < originalTravelTime) {
             cleanPass = false;
-            returnTodoItems = await _recalculateStopTimes(openPeriodStartLocation, openPeriodStartTime, returnTodoItems);
+            returnTodoItems = await recalculateStopTimes(
+                openPeriodStartLocation, openPeriodStartTime, returnTodoItems);
           }
         }
       } while (!cleanPass);
@@ -236,7 +246,7 @@ class TravellingSalesmanService {
     // start -> x -> end non-optimable
     // start -> x non-optimable
     // start -> x1 -> x2 (-> end) - calculate overall route length with swapping x1 and x2, then pass through again until (clean)
-    // start -> x1 -> x2 -> x3 -> end - calculate 
+    // start -> x1 -> x2 -> x3 -> end - calculate
 
     return (returnTodoItems, remainingItems);
   }
