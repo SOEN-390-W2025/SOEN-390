@@ -77,7 +77,7 @@ class _SearchViewState extends State<SearchView> {
                         borderSide: BorderSide(color: primaryColor), // Color when focused
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: secondaryTextColor?.withOpacity(0.5) ?? Colors.grey), // Color when not focused
+                        borderSide: BorderSide(color: secondaryTextColor?.withAlpha(150) ?? Colors.grey), // Color when not focused
                       ),
                     ),
                   ),

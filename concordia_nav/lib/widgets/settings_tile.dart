@@ -40,7 +40,7 @@ class SettingsTile extends StatelessWidget {
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
-          color: primaryColor.withOpacity(0.7),
+          color: primaryColor.withAlpha(150),
           size: 16,
         ),
         contentPadding: const EdgeInsets.all(10),

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_campus.dart';

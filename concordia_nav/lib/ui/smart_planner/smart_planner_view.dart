@@ -458,7 +458,7 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
             text:
                 'I have to attend a seminar at the J.W. McConnell Building from 9 am to 9:30 am, I have a lecture in H 9.27 from 10:00 am to 11:00 am, and go to a coffee shop for 30 minutes, and I also have to go to Hall Building for 20 minutes.',
           ),
-          style: TextStyle(fontSize: 13, color: textColor?.withOpacity(0.9)),
+          style: TextStyle(fontSize: 13, color: textColor?.withAlpha(150)),
         ),
       ],
     ),
