@@ -65,7 +65,6 @@ Future<void> main() async {
     // Continue with default theme if there's an error
   }
 
-  runApp(const MyApp());
   runApp(
     MultiProvider(
       providers: [
