@@ -8,6 +8,7 @@ import 'package:concordia_nav/data/domain-model/travelling_salesman_request.dart
 import 'package:concordia_nav/data/repositories/places_repository.dart';
 import 'package:concordia_nav/data/services/places_service.dart';
 import 'package:concordia_nav/data/services/smart_planner_service.dart';
+import 'package:concordia_nav/data/services/travelling_salesman_service.dart';
 import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:concordia_nav/ui/smart_planner/generated_plan_view.dart';
 import 'package:concordia_nav/ui/smart_planner/smart_planner_view.dart';
@@ -181,6 +182,215 @@ void main() {
     when(mockMapViewModel.checkLocationAccess()).thenAnswer((_) async => true);
   });
 
+  group('_recalculateStopTimes', () {
+    test('should recalculate stop times correctly with a simple route',
+        () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      final DateTime startTime =
+          DateTime(2025, 3, 24, 8, 0); // Start at 8:00 AM
+      const Location stop1 = Location(45.5018, -73.5674, "Stop 1",
+          "Description", "Category", "Address", "Building Code");
+      const Location stop2 = Location(45.5019, -73.5675, "Stop 2",
+          "Description", "Category", "Address", "Building Code");
+
+      final List<(String, Location, DateTime, DateTime)> stops = [
+        (
+          "Stop 1",
+          stop1,
+          DateTime(2025, 3, 24, 8, 30),
+          DateTime(2025, 3, 24, 9, 0)
+        ), // 30 minutes spent
+        (
+          "Stop 2",
+          stop2,
+          DateTime(2025, 3, 24, 9, 30),
+          DateTime(2025, 3, 24, 10, 0)
+        ), // 30 minutes spent
+      ];
+
+      // Act
+      final List<(String, Location, DateTime, DateTime)> result =
+          await TravellingSalesmanService.recalculateStopTimes(
+              start, startTime, stops);
+
+      // Assert
+      // Check if times for each stop were recalculated correctly
+      expect(result[0].$3, equals(startTime.add(const Duration(minutes: 30))));
+      expect(
+          result[0].$4, equals(result[0].$3.add(const Duration(minutes: 30))));
+
+      expect(
+          result[1].$3, equals(result[0].$4.add(const Duration(minutes: 30))));
+      expect(
+          result[1].$4, equals(result[1].$3.add(const Duration(minutes: 30))));
+    });
+
+    test('Test _fitTodoItems with bubble swap optimization enabled', () async {
+      // Arrange
+      final openPeriodStartTime = DateTime.now();
+      const openPeriodStartLocation = Location(
+          37.7749,
+          -122.4194,
+          "San Francisco",
+          "Description",
+          "Category",
+          "Address",
+          "Building Code"); // San Francisco
+      final openPeriodEndTime = DateTime.now().add(const Duration(hours: 2));
+      const openPeriodEndLocation = Location(34.0522, -118.2437, "Los Angeles",
+          "Description", "Category", "Address", "Building Code"); // Los Angeles
+
+      // Todo items to be fitted into the schedule (events)
+      final todoItems = [
+        (
+          'Event 1',
+          const Location(37.7849, -122.4294, "Event 1", "Description",
+              "Category", "Address", "Building Code"),
+          600
+        ), // 10 minutes to visit
+        (
+          'Event 2',
+          const Location(37.7849, -122.4394, "Event 2", "Description",
+              "Category", "Address", "Building Code"),
+          900
+        ), // 15 minutes to visit
+        (
+          'Event 3',
+          const Location(37.7849, -122.4494, "Event 3", "Description",
+              "Category", "Address", "Building Code"),
+          300
+        ), // 5 minutes to visit
+      ];
+
+      // Act
+      final result = await TravellingSalesmanService.fitTodoItems(
+        openPeriodStartTime,
+        openPeriodStartLocation,
+        openPeriodEndTime,
+        openPeriodEndLocation,
+        todoItems,
+        true, // Enable bubble swap optimization
+      );
+
+      // Assert
+      // Verify the result has the expected todo items
+      expect(result.$1.length, 3); // 3 events should be scheduled
+
+      // Verify that the items are sorted according to their optimized order
+      expect(result.$1[0].$1, 'Event 1'); // Event 1 should come first
+      expect(result.$1[1].$1, 'Event 2'); // Event 2 should come second
+      expect(result.$1[2].$1, 'Event 3'); // Event 3 should come last
+
+      // Check if the last end time is consistent
+      final lastEventEndTime = result.$1.last.$4;
+      expect(lastEventEndTime.isAfter(openPeriodStartTime), isTrue);
+      expect(lastEventEndTime.isBefore(openPeriodEndTime), isTrue);
+    });
+
+    test(
+        'should recalculate stop times correctly with varying time spent at each stop',
+        () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      final DateTime startTime =
+          DateTime(2025, 3, 24, 8, 0); // Start at 8:00 AM
+      const Location stop1 = Location(45.5018, -73.5674, "Stop 1",
+          "Description", "Category", "Address", "Building Code");
+      const Location stop2 = Location(45.5019, -73.5675, "Stop 2",
+          "Description", "Category", "Address", "Building Code");
+
+      final List<(String, Location, DateTime, DateTime)> stops = [
+        (
+          "Stop 1",
+          stop1,
+          DateTime(2025, 3, 24, 8, 30),
+          DateTime(2025, 3, 24, 9, 30)
+        ), // 1 hour spent
+        (
+          "Stop 2",
+          stop2,
+          DateTime(2025, 3, 24, 10, 0),
+          DateTime(2025, 3, 24, 10, 30)
+        ), // 30 minutes spent
+      ];
+
+      // Act
+      final List<(String, Location, DateTime, DateTime)> result =
+          await TravellingSalesmanService.recalculateStopTimes(
+              start, startTime, stops);
+
+      // Assert
+      // Check if times for each stop were recalculated correctly
+      expect(result[0].$3, equals(startTime.add(const Duration(minutes: 30))));
+      expect(result[0].$4, equals(result[0].$3.add(const Duration(hours: 1))));
+
+      expect(
+          result[1].$3, equals(result[0].$4.add(const Duration(minutes: 30))));
+      expect(
+          result[1].$4, equals(result[1].$3.add(const Duration(minutes: 30))));
+    });
+
+    test('should handle multiple stops and recalculate times correctly',
+        () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      final DateTime startTime =
+          DateTime(2025, 3, 24, 8, 0); // Start at 8:00 AM
+      const Location stop1 = Location(45.5018, -73.5674, "Stop 1",
+          "Description", "Category", "Address", "Building Code");
+      const Location stop2 = Location(45.5019, -73.5675, "Stop 2",
+          "Description", "Category", "Address", "Building Code");
+      const Location stop3 = Location(45.5020, -73.5676, "Stop 3",
+          "Description", "Category", "Address", "Building Code");
+
+      final List<(String, Location, DateTime, DateTime)> stops = [
+        (
+          "Stop 1",
+          stop1,
+          DateTime(2025, 3, 24, 8, 30),
+          DateTime(2025, 3, 24, 9, 0)
+        ), // 30 minutes spent
+        (
+          "Stop 2",
+          stop2,
+          DateTime(2025, 3, 24, 9, 30),
+          DateTime(2025, 3, 24, 10, 0)
+        ), // 30 minutes spent
+        (
+          "Stop 3",
+          stop3,
+          DateTime(2025, 3, 24, 10, 30),
+          DateTime(2025, 3, 24, 11, 0)
+        ), // 30 minutes spent
+      ];
+
+      // Act
+      final List<(String, Location, DateTime, DateTime)> result =
+          await TravellingSalesmanService.recalculateStopTimes(
+              start, startTime, stops);
+
+      // Assert
+      // Check if times for each stop were recalculated correctly
+      expect(result[0].$3, equals(startTime.add(const Duration(minutes: 30))));
+      expect(
+          result[0].$4, equals(result[0].$3.add(const Duration(minutes: 30))));
+
+      expect(
+          result[1].$3, equals(result[0].$4.add(const Duration(minutes: 30))));
+      expect(
+          result[1].$4, equals(result[1].$3.add(const Duration(minutes: 30))));
+
+      expect(
+          result[2].$3, equals(result[1].$4.add(const Duration(minutes: 30))));
+      expect(
+          result[2].$4, equals(result[2].$3.add(const Duration(minutes: 30))));
+    });
+  });
+
   group('SmartPlannerView Flow Tests', () {
     late PlacesService placesService;
     late MockClient mockClient;
@@ -344,14 +554,14 @@ void main() {
         (WidgetTester tester) async {
       // Build our app and trigger a frame.
       final routes = {
-        '/': (context) => const HomePage(),
+        '/HomePage': (context) => const HomePage(),
         '/SmartPlannerView': (context) =>
             SmartPlannerView(mapViewModel: mockMapViewModel),
       };
 
       // Build the HomePage widget
       await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
+        initialRoute: '/HomePage',
         routes: routes,
       ));
 
@@ -373,13 +583,19 @@ void main() {
             "Place A",
             const Location(45.5017, -73.5673, "Place A", "Description",
                 "Category", "Address", "Building Code"),
-            900
+            900 // Time to spend at this location in seconds (15 minutes)
           ),
           (
             "Place B",
-            const Location(45.5017, -73.5673, "Place A", "Description",
+            const Location(45.5017, -73.5673, "Place B", "Description",
                 "Category", "Address", "Building Code"),
-            1200
+            1200 // Time to spend at this location in seconds (20 minutes)
+          ),
+          (
+            "Place C",
+            const Location(45.5018, -73.5680, "Place C", "Description",
+                "Category", "Address", "Building Code"),
+            600 // Time to spend at this location in seconds (10 minutes)
           ),
         ],
         [
@@ -387,21 +603,31 @@ void main() {
             "Meeting",
             const Location(45.5017, -73.5673, "Place A", "Description",
                 "Category", "Address", "Building Code"),
-            DateTime(2025, 3, 24, 14, 0),
-            DateTime(2025, 3, 24, 15, 0)
-          )
+            DateTime(2025, 3, 24, 9, 30), // Meeting starts at 9:30 AM
+            DateTime(2025, 3, 24, 10, 30) // Meeting ends at 10:30 AM
+          ),
+          (
+            "Lunch Break",
+            const Location(45.5020, -73.5675, "Place D", "Description",
+                "Category", "Address", "Building Code"),
+            DateTime(2025, 3, 24, 12, 0), // Lunch starts at 12:00 PM
+            DateTime(2025, 3, 24, 13, 0) // Lunch ends at 1:00 PM
+          ),
         ],
-        DateTime(2025, 3, 24, 9, 0),
+        DateTime(2025, 3, 24, 9, 0), // Start time for the route at 9:00 AM
         const Location(45.5017, -73.5673, "Place A", "Description", "Category",
-            "Address", "Building Code"),
+            "Address", "Building Code"), // Start location at Place A
       );
+
+      final optimizedRoute =
+          await TravellingSalesmanService.getSalesmanRoute(samplePlan);
+      final startLocation = samplePlan.startLocation;
 
       final routes = {
         '/': (context) => SmartPlannerView(mapViewModel: mockMapViewModel),
         '/GeneratedPlanView': (context) {
           return GeneratedPlanView(
-            plan: samplePlan,
-          );
+              optimizedRoute: optimizedRoute, startLocation: startLocation);
         }
       };
 
@@ -441,6 +667,112 @@ void main() {
       // Check if source is updated
       expect(find.byType(TextField).at(1),
           findsOneWidget); // Second TextField is source
+    });
+
+    test('should return travel time for an empty stop list with end location',
+        () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      const Location end = Location(45.5020, -73.5675, "End", "Description",
+          "Category", "Address", "Building Code");
+
+      // Act
+      final int result =
+          await TravellingSalesmanService.getOverallRouteTime(start, end, []);
+
+      // Assert
+      expect(result,
+          equals(await TravellingSalesmanService.getTravelTime(start, end)));
+    });
+
+    test('should return 0 for empty stop list with no end location', () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      const Location? end = null;
+
+      // Act
+      final int result =
+          await TravellingSalesmanService.getOverallRouteTime(start, end, []);
+
+      // Assert
+      expect(result, equals(0)); // No travel if no stops and no end
+    });
+
+    test(
+        'should return the correct travel time with multiple stops and end location',
+        () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      const Location end = Location(45.5020, -73.5675, "End", "Description",
+          "Category", "Address", "Building Code");
+
+      const Location stop1 = Location(45.5018, -73.5674, "Stop 1",
+          "Description", "Category", "Address", "Building Code");
+      const Location stop2 = Location(45.5019, -73.5676, "Stop 2",
+          "Description", "Category", "Address", "Building Code");
+
+      final List<(String, Location, DateTime, DateTime)> stops = [
+        (
+          "Stop 1",
+          stop1,
+          DateTime(2025, 3, 24, 10, 0),
+          DateTime(2025, 3, 24, 10, 30)
+        ),
+        (
+          "Stop 2",
+          stop2,
+          DateTime(2025, 3, 24, 11, 0),
+          DateTime(2025, 3, 24, 11, 30)
+        ),
+      ];
+
+      // Act
+      final int result = await TravellingSalesmanService.getOverallRouteTime(
+          start, end, stops);
+
+      // Assert
+      final int expectedTravelTime =
+          await TravellingSalesmanService.getTravelTime(start, stop1) +
+              await TravellingSalesmanService.getTravelTime(stop1, stop2) +
+              await TravellingSalesmanService.getTravelTime(stop2, end);
+
+      expect(result, equals(expectedTravelTime));
+    });
+
+    test(
+        'should return the correct travel time for a single stop with end location',
+        () async {
+      // Arrange
+      const Location start = Location(45.5017, -73.5673, "Start", "Description",
+          "Category", "Address", "Building Code");
+      const Location end = Location(45.5020, -73.5675, "End", "Description",
+          "Category", "Address", "Building Code");
+
+      const Location stop1 = Location(45.5018, -73.5674, "Stop 1",
+          "Description", "Category", "Address", "Building Code");
+
+      final List<(String, Location, DateTime, DateTime)> stops = [
+        (
+          "Stop 1",
+          stop1,
+          DateTime(2025, 3, 24, 10, 0),
+          DateTime(2025, 3, 24, 10, 30)
+        ),
+      ];
+
+      // Act
+      final int result = await TravellingSalesmanService.getOverallRouteTime(
+          start, end, stops);
+
+      // Assert
+      final int expectedTravelTime =
+          await TravellingSalesmanService.getTravelTime(start, stop1) +
+              await TravellingSalesmanService.getTravelTime(stop1, end);
+
+      expect(result, equals(expectedTravelTime));
     });
 
     testWidgets(

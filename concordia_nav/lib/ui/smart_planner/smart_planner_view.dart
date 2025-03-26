@@ -6,7 +6,6 @@ import '../../data/repositories/building_repository.dart';
 import '../../data/services/smart_planner_service.dart';
 import '../../utils/map_viewmodel.dart';
 import '../../data/domain-model/location.dart';
-import '../../data/domain-model/travelling_salesman_request.dart';
 import '../setting/common_app_bart.dart';
 import 'generated_plan_view.dart';
 
@@ -33,7 +32,6 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   bool useCurrentLocation = false;
   bool _isLoading = false;
   String? _errorMessage;
-  TravellingSalesmanRequest? _plannerRequest;
 
   @override
   void initState() {
@@ -157,18 +155,18 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
 
     try {
       dev.log("Generating plan with prompt: ${_planController.text}");
-      _plannerRequest = await _smartPlannerService.generatePlannerData(
+      final optimizedRoute = await _smartPlannerService.generateOptimizedRoute(
         prompt: _planController.text,
         startTime: startTime,
         startLocation: startLocation,
       );
       if (!mounted) return;
-      dev.log(
-          "Plan generated with ${_plannerRequest!.events.length} events and ${_plannerRequest!.todoLocations.length} todoLocations");
+      dev.log("Optimized plan generated with ${optimizedRoute.length} stops");
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => GeneratedPlanView(plan: _plannerRequest!),
+          builder: (context) => GeneratedPlanView(
+              startLocation: startLocation, optimizedRoute: optimizedRoute),
         ),
       );
     } on Error catch (e) {
@@ -209,7 +207,7 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
       appBar: const CommonAppBar(title: "Smart Planner"),
       body: Semantics(
         label:
-            'Enter your tasks into the Smart Planer with a starting location to generate an optimized plan.',
+            'Enter your tasks into the Smart Planner with a starting location to generate an optimized plan.',
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(

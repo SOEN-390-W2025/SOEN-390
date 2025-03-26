@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import 'data/domain-model/concordia_building.dart';
 import 'data/domain-model/location.dart';
-import 'data/domain-model/travelling_salesman_request.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'data/repositories/calendar.dart';
 import 'ui/campus_map/campus_map_view.dart';
@@ -118,7 +117,9 @@ class MyApp extends StatelessWidget {
             final args = ModalRoute.of(context)!.settings.arguments
                 as Map<String, dynamic>;
             return GeneratedPlanView(
-                plan: args['plan'] as TravellingSalesmanRequest);
+                startLocation: args['startLocation'] as Location,
+                optimizedRoute: args['optimizedRoute']
+                    as List<(String, Location, DateTime, DateTime)>);
           },
           '/IndoorDirectionsView': (context) {
             final args = ModalRoute.of(context)!.settings.arguments
