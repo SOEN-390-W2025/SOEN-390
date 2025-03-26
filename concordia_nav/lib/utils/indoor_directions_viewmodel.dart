@@ -28,6 +28,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   IndoorRoute? _calculatedRoute;
   Offset _startLocation = Offset.zero;
   Offset _endLocation = Offset.zero;
+  String measurementUnit = 'Metric';
 
   // Getters
   bool get isLoading => _isLoading;
@@ -110,12 +111,12 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
   }
 
   ConcordiaFloorPoint? getRegularStartPoint(
-      BuildingData buildingData, String floor, {String? connection}) {
-
+      BuildingData buildingData, String floor,
+      {String? connection}) {
     if (floor == '1' && connection != 'connection') {
       return buildingData.outdoorExitPoint;
     }
-      
+
     // Try escalators first if no disability
     try {
       Connection escalatorConnection = buildingData.connections
@@ -187,15 +188,17 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<ConcordiaFloorPoint?> _getStartPoint(String sourceRoomClean, String building, 
-        String floor, bool disability) async {
+  Future<ConcordiaFloorPoint?> _getStartPoint(String sourceRoomClean,
+      String building, String floor, bool disability) async {
     ConcordiaFloorPoint? startPositionPoint;
     if (sourceRoomClean == 'Your Location') {
       startPositionPoint = await getStartPoint(building, floor, disability, '');
     } else if (sourceRoomClean == 'connection') {
-      startPositionPoint = await getStartPoint(building, floor, disability, 'connection');
+      startPositionPoint =
+          await getStartPoint(building, floor, disability, 'connection');
     } else {
-      startPositionPoint = await getPositionPoint(building, floor, sourceRoomClean);
+      startPositionPoint =
+          await getPositionPoint(building, floor, sourceRoomClean);
     }
     return startPositionPoint;
   }
@@ -209,10 +212,12 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     POI? destinationPOI,
   }) async {
     try {
-      final sourceRoomClean = sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
+      final sourceRoomClean =
+          sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
       final endRoomClean = endRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
 
-      final buildingAbbreviation = _buildingViewModel.getBuildingAbbreviation(building)!;
+      final buildingAbbreviation =
+          _buildingViewModel.getBuildingAbbreviation(building)!;
 
       // Get the building data using BuildingDataManager
       final BuildingData? buildingData =
@@ -229,18 +234,21 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       dev.log('End room: $endRoomClean');
       dev.log('Floor: $floor');
       if (destinationPOI != null) {
-        dev.log('Using POI destination: ${destinationPOI.name} at (${destinationPOI.x}, ${destinationPOI.y})');
+        dev.log(
+            'Using POI destination: ${destinationPOI.name} at (${destinationPOI.x}, ${destinationPOI.y})');
       }
 
       // Get start location
-      startPositionPoint = await _getStartPoint(sourceRoomClean, building, floor, disability);
+      startPositionPoint =
+          await _getStartPoint(sourceRoomClean, building, floor, disability);
 
       // Get end location
       if (destinationPOI != null) {
         // Create a ConcordiaFloor object for the POI's floor
-        final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByAbbreviation(destinationPOI.buildingId)!;
+        final ConcordiaBuilding buildingObj = _buildingViewModel
+            .getBuildingByAbbreviation(destinationPOI.buildingId)!;
         final poiFloor = ConcordiaFloor(destinationPOI.floor, buildingObj);
-        
+
         // Use POI coordinates directly with the correct floor
         endPositionPoint = ConcordiaFloorPoint(
           poiFloor,
@@ -250,18 +258,24 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       } else if (endRoomClean == 'Your Location') {
         endPositionPoint = await getStartPoint(building, floor, disability, '');
       } else if (endRoomClean == 'connection') {
-        endPositionPoint = await getStartPoint(building, floor, disability, 'connection');
+        endPositionPoint =
+            await getStartPoint(building, floor, disability, 'connection');
       } else if (endRoomClean.toLowerCase() == 'ma') {
-        endPositionPoint = await getStartPoint(building, floor, disability, mainEntranceString);
+        endPositionPoint = await getStartPoint(
+            building, floor, disability, mainEntranceString);
       } else {
-        endPositionPoint = await getPositionPoint(building, floor, endRoomClean);
+        endPositionPoint =
+            await getPositionPoint(building, floor, endRoomClean);
       }
 
       if (startPositionPoint != null && endPositionPoint != null) {
-        _startLocation = Offset(startPositionPoint.positionX, startPositionPoint.positionY);
-        _endLocation = Offset(endPositionPoint.positionX, endPositionPoint.positionY);
+        _startLocation =
+            Offset(startPositionPoint.positionX, startPositionPoint.positionY);
+        _endLocation =
+            Offset(endPositionPoint.positionX, endPositionPoint.positionY);
 
-        final ConcordiaBuilding buildingObj = _buildingViewModel.getBuildingByName(building)!;
+        final ConcordiaBuilding buildingObj =
+            _buildingViewModel.getBuildingByName(building)!;
         final currentFloor = ConcordiaFloor(floor, buildingObj);
 
         // Create FloorRoutablePoint for start and end
@@ -287,18 +301,23 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
         // Calculate ETA and distance using the shared service
         if (_calculatedRoute != null) {
-          double totalDistance = RouteCalculationService.calculateTotalDistanceFromRoute(_calculatedRoute!);
+          double totalDistance =
+              RouteCalculationService.calculateTotalDistanceFromRoute(
+                  _calculatedRoute!);
 
           // Convert pixels to meters
-          double conversionFactor = _getPixelToMeterConversionFactor(currentFloor);
+          double conversionFactor =
+              _getPixelToMeterConversionFactor(currentFloor);
           double distanceInMeters = totalDistance * conversionFactor;
 
           // Get travel time
-          double travelTimeSeconds = _calculatedRoute!.getIndoorTravelTimeSeconds();
+          double travelTimeSeconds =
+              _calculatedRoute!.getIndoorTravelTimeSeconds();
 
           // Format outputs using the shared service
           eta = RouteCalculationService.formatDetailedTime(travelTimeSeconds);
-          distance = RouteCalculationService.formatDistance(distanceInMeters);
+          distance = RouteCalculationService.formatDistance(distanceInMeters,
+              measurementUnit: measurementUnit);
         } else {
           eta = "Unknown";
           distance = "Unknown";
@@ -311,7 +330,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       distance = "Unknown";
       rethrow;
     }
-}
+  }
 
   double _getPixelToMeterConversionFactor(ConcordiaFloor floor) {
     if (floor.pixelsPerSecond > 0) {

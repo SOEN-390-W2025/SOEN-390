@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
@@ -12,6 +13,7 @@ import '../../data/domain-model/location.dart';
 import '../../data/domain-model/place.dart';
 import '../../data/services/outdoor_directions_service.dart';
 import '../../utils/building_viewmodel.dart';
+import '../../utils/settings/preferences_viewmodel.dart';
 import '../../widgets/building_info_drawer.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
@@ -84,6 +86,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   void checkLocationPermission() {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
+      if (!mounted) return;
       setState(() {
         _sourceController.text = _yourLocationString;
         _locationPermissionGranted = hasPermission;
@@ -95,7 +98,49 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     });
   }
 
+  CustomTravelMode _mapTransportPreferenceToTravelMode(String preference) {
+    switch (preference.toLowerCase()) {
+      case 'driving':
+        return CustomTravelMode.driving;
+      case 'walking':
+        return CustomTravelMode.walking;
+      case 'biking':
+        return CustomTravelMode.bicycling;
+      case 'transit':
+        return CustomTravelMode.transit;
+      default:
+        return CustomTravelMode.driving;
+    }
+  }
+
+  Future<void> _useStandardRoute() async {
+    await _mapViewModel.fetchRoutesForAllModes(
+        'Your Location', _destinationController.text);
+    if (!mounted) return;
+    final preferences =
+        Provider.of<PreferencesModel>(context, listen: false);
+    final mode = _mapTransportPreferenceToTravelMode(
+        preferences.selectedTransportation);
+    if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
+      await _mapViewModel.setActiveModeForRoute(mode);
+    } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
+      await _mapViewModel
+          .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
+    }
+  }
+
+  Future<void> _setPreference(Polyline polyline) async {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    final mode = _mapTransportPreferenceToTravelMode(
+        preferences.selectedTransportation);
+
+    _mapViewModel.multiModeRoutes[mode] = polyline;
+    await _mapViewModel.setActiveModeForRoute(mode);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _updatePath() async {
+    if (!mounted) return;
     final start = widget.providedJourneyStart;
     final end = widget.providedJourneyDest;
 
@@ -119,9 +164,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         width: 5,
       );
 
-      _mapViewModel.multiModeRoutes[CustomTravelMode.driving] = polyline;
-      await _mapViewModel.setActiveModeForRoute(CustomTravelMode.driving);
-      setState(() {});
+      if (!mounted) return;
+      await _setPreference(polyline);
       return;
     }
 
@@ -133,18 +177,50 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         await _calculateCustomRouteToPOI();
       } else {
         // Use standard route to building
-        await _mapViewModel.fetchRoutesForAllModes(
-            'Your Location', _destinationController.text);
+        await _useStandardRoute();
       }
-
       if (!mounted) return;
       setState(() {});
     }
     first = false;
   }
 
+  Future<void> _setDefaultTravelMode() async {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    final mode = _mapTransportPreferenceToTravelMode(
+        preferences.selectedTransportation);
+    if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
+      await _mapViewModel.setActiveModeForRoute(mode);
+    } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
+      await _mapViewModel
+          .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
+    }
+  }
+
+  Future<void> _calculateTravelModes(
+      CustomTravelMode mode, ODSDirectionsService odsDirectionsService,
+      String originStr, String destStr) async {
+    final gdaMode = toGdaTravelMode(mode);
+    if (gdaMode != null) {
+      final result = await odsDirectionsService.fetchRouteResult(
+        originAddress: originStr,
+        destinationAddress: destStr,
+        travelMode: gdaMode,
+        polylineId: mode.toString(),
+      );
+
+      if (result.polyline != null) {
+        _mapViewModel.multiModeRoutes[mode] = result.polyline!;
+        _mapViewModel.travelTimes[mode] = result.travelTime;
+      } else {
+        _mapViewModel.travelTimes[mode] = "--";
+      }
+    }
+  }
+
   // New method to calculate a route directly to a POI
   Future<void> _calculateCustomRouteToPOI() async {
+    if (!mounted) return;
     if (_poiDestinationLatLng == null) return;
 
     try {
@@ -175,31 +251,12 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
       // Calculate each travel mode
       for (var mode in modes) {
-        final gdaMode = toGdaTravelMode(mode);
-        if (gdaMode != null) {
-          final result = await odsDirectionsService.fetchRouteResult(
-            originAddress: originStr,
-            destinationAddress: destStr,
-            travelMode: gdaMode,
-            polylineId: mode.toString(),
-          );
-
-          if (result.polyline != null) {
-            _mapViewModel.multiModeRoutes[mode] = result.polyline!;
-            _mapViewModel.travelTimes[mode] = result.travelTime;
-          } else {
-            _mapViewModel.travelTimes[mode] = "--";
-          }
-        }
+        await _calculateTravelModes(mode, odsDirectionsService, originStr, destStr);
       }
 
       // Set default travel mode
-      if (_mapViewModel.multiModeRoutes.containsKey(CustomTravelMode.driving)) {
-        await _mapViewModel.setActiveModeForRoute(CustomTravelMode.driving);
-      } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
-        await _mapViewModel
-            .setActiveModeForRoute(_mapViewModel.multiModeRoutes.keys.first);
-      }
+      if (!mounted) return;
+      await _setDefaultTravelMode();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -236,9 +293,16 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     getSearchList();
     WidgetsBinding.instance.addObserver(this);
 
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    final mode =
+        _mapTransportPreferenceToTravelMode(preferences.selectedTransportation);
+    _mapViewModel.setActiveModeForRoute(mode);
+
     if (_destinationController.text.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _updatePath();
+        if (mounted) {
+          _updatePath();
+        }
       });
     }
   }

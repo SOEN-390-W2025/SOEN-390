@@ -50,17 +50,10 @@ class SettingsPageState extends State<SettingsPage> {
               onTap: () => checkCalendarPermission(),
             ),
             SettingsTile(
-              icon: Icons.notifications,
-              title: 'Notifications',
-              onTap: () {
-                // TODO: Implement navigation to Notifications page.
-              },
-            ),
-            SettingsTile(
               icon: Icons.tune,
               title: 'Preferences',
               onTap: () {
-                // TODO: Implement navigation to Preferences page.
+                Navigator.pushNamed(context, '/PreferencesPage');
               },
             ),
             SettingsTile(
@@ -74,7 +67,7 @@ class SettingsPageState extends State<SettingsPage> {
               icon: Icons.phone,
               title: 'Contact',
               onTap: () {
-                // TODO: Implement navigation to Contact page.
+                Navigator.pushNamed(context, '/ContactPage');
               },
             ),
             SettingsTile(

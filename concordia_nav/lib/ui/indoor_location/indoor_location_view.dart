@@ -10,6 +10,7 @@ import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
+import '../../widgets/poi_bottom_sheet.dart';
 import 'floor_plan_widget.dart';
 import 'indoor_directions_view.dart';
 import 'dart:developer' as dev;
@@ -155,55 +156,9 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   void _handlePoiTap(POI poi) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    poi.name,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                      "Building: ${widget.building.name}, Floor: ${poi.floor}"),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => IndoorDirectionsView(
-                      sourceRoom: 'Your Location',
-                      building: widget.building.name,
-                      endRoom: '${poi.buildingId} ${poi.floor}${poi.name}',
-                      selectedPOI: poi,
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-              ),
-              child: const Text(
-                'Directions',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
+      builder: (context) => POIBottomSheet(
+        buildingName: widget.building.name, 
+        poi: poi)
     );
   }
 

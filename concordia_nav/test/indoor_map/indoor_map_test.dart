@@ -1,17 +1,41 @@
+import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_map/classroom_selection.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:concordia_nav/ui/indoor_map/building_selection.dart';
+import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
 
-  group('IndoorMapView Widget Tests', () {
-    testWidgets('IndoorMapView should render correctly with non-constant key',
+  group('BuildingSelection Widget Tests', () {
+    testWidgets('Selecting a building brings to FloorSelection',
         (WidgetTester tester) async {
       // Build the IndoorMapView widget
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: BuildingSelection(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // tap on a building
+      expect(find.text("Hall Building"), findsOneWidget);
+      await tester.tap(find.text("Hall Building"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Hall Building"), findsOneWidget);
+      expect(find.text("Floor 1"), findsOneWidget);
+    });
+
+    testWidgets('BuildingSelection should render correctly with non-constant key',
+        (WidgetTester tester) async {
+      // Build the BuildingSelection widget
       await tester.pumpWidget(
         MaterialApp(
           home: BuildingSelection(key: UniqueKey()),
@@ -22,34 +46,17 @@ void main() {
       expect(find.text('Floor Navigation'), findsOneWidget);
     });
 
-    testWidgets('IndoorMapView should render correctly',
+    testWidgets('BuildingSelection should render correctly',
         (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: BuildingSelection(),
-          ),
-        );
+      // Build the BuildingSelection widget
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: BuildingSelection(),
+        ),
+      );
 
-        // Verify that the custom app bar is rendered with the correct title
-        expect(find.text('Floor Navigation'), findsOneWidget);
-      });
-    });
-
-    testWidgets('CustomAppBar should have the correct title',
-        (WidgetTester tester) async {
-      await tester.runAsync(() async {
-        // Build the IndoorMapView widget
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: BuildingSelection(),
-          ),
-        );
-
-        // Verify that the custom app bar has the correct title
-        expect(find.text('Floor Navigation'), findsOneWidget);
-      });
+      // Verify that the custom app bar is rendered with the correct title
+      expect(find.text('Floor Navigation'), findsOneWidget);
     });
   });
 
@@ -209,11 +216,28 @@ void main() {
         const building = 'Hall Building';
         const floor = 'Floor 1';
         const classroom = '102-3';
+        final mockPreferencesModel = MockPreferencesModel();
+        when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+        when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
+
+        // define routes needed for this test
+        final routes = {
+          '/': (context) => const ClassroomSelection(building: building, floor: floor),
+          'IndoorDirectionsView': (context) => IndoorDirectionsView(
+            sourceRoom: 'Your Location', building: building, 
+            endRoom: classroom)
+        };
 
         // Build the widget
-        await tester.pumpWidget(const MaterialApp(
-          home: ClassroomSelection(building: building, floor: floor),
-        ));
+        await tester.pumpWidget(
+          ChangeNotifierProvider<PreferencesModel>(
+            create: (BuildContext context) => mockPreferencesModel,
+            child: MaterialApp(
+                    initialRoute: '/',
+                    routes: routes,
+                  ),
+          )
+        );
         await tester.pump();
 
         // Make sure the element is visible before tapping

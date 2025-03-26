@@ -1,12 +1,12 @@
 // ignore_for_file: must_be_immutable, avoid_catches_without_on_clauses
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/domain-model/poi.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
+import '../../utils/settings/preferences_viewmodel.dart';
 import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
@@ -127,10 +127,10 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     try {
       // Get POIs from the POIMapViewModel
       _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
-        buildingAbbreviation, 
+        buildingAbbreviation,
         displayFloor
       );
-      
+
       if (mounted) {
         setState(() {});
       }
@@ -314,6 +314,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   @override
   Widget build(BuildContext context) {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    _directionsViewModel.measurementUnit = preferences.selectedMeasurementUnit;
+
     return ChangeNotifierProvider.value(
       value: _directionsViewModel,
       child:

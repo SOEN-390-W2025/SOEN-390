@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:concordia_nav/data/domain-model/concordia_floor.dart';
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart';
 import 'package:concordia_nav/data/domain-model/concordia_room.dart';
@@ -8,17 +10,23 @@ import 'package:concordia_nav/ui/home/homepage_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/next_class/next_class_directions_view.dart';
 import 'package:concordia_nav/utils/next_class/next_class_directions_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
-
+import 'package:provider/provider.dart';
+import '../../settings/preferences_view_test.mocks.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import '../../map/map_viewmodel_test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
   dotenv.load(fileName: '.env');
 
   final testPosition = Position(
@@ -70,6 +78,7 @@ void main() {
 
   late NextClassViewModel viewModel;
   late MockODSDirectionsService mockService;
+  late MockPreferencesModel mockPreferencesModel;
 
   setUp(() {
     mockService = MockODSDirectionsService();
@@ -86,6 +95,9 @@ void main() {
       width: anyNamed('width'),
       height: anyNamed('height'),
     )).thenAnswer((_) async => 'https://placehold.co/600x400');
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   group('NextClassDirectionsPreview Tests', () {
@@ -110,10 +122,15 @@ void main() {
       };
 
       // Build the HomePage widget
-      await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
-        routes: routes,
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
+      );
 
       // Tap on the Next Class directions FeatureCard
       await tester.tap(find.byIcon(Icons.calendar_today));
@@ -124,7 +141,7 @@ void main() {
       await tester.pumpAndSettle(); // Wait for navigation to complete
     });
 
-    testWidgets('Next Class navigation should work with one classroom',
+    testWidgets('Next Class navigation should work with a ConcordiaRoom',
         (WidgetTester tester) async {
       // define routes needed for this test
       final routes = {
@@ -152,10 +169,15 @@ void main() {
       };
 
       // Build the HomePage widget
-      await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
-        routes: routes,
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
+      );
 
       // Tap on the Next Class directions FeatureCard
       await tester.tap(find.byIcon(Icons.calendar_today));
@@ -175,17 +197,35 @@ void main() {
           ConcordiaRoom("3", RoomCategory.classroom, room, entrancePoint);
       final destination =
           ConcordiaRoom("7", RoomCategory.classroom, room, entrancePoint);
+      
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => NextClassDirectionsPreview(
+            journeyItems: [source, destination], viewModel: viewModel),
+        '/HomePage': (context) =>
+            const HomePage(), // Make sure you have a HomePage widget
+      };
 
       // Initialize the widget with these locations and add the /HomePage route
-      await tester.pumpWidget(MaterialApp(
-        routes: {
-          '/': (context) => NextClassDirectionsPreview(
-              journeyItems: [source, destination], viewModel: viewModel),
-          '/HomePage': (context) =>
-              const HomePage(), // Make sure you have a HomePage widget
-        },
-        initialRoute: '/',
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
+      );
 
       // Check if the source and destination names are displayed correctly
       expect(find.text('Hall Building, 8.3 (SGW Campus)'), findsOneWidget);
@@ -257,10 +297,15 @@ void main() {
           ConcordiaRoom("07", RoomCategory.classroom, room2, entrancePoint);
 
       // Initialize the widget with these locations
-      await tester.pumpWidget(MaterialApp(
-        home: NextClassDirectionsPreview(
-            journeyItems: [source, destination], viewModel: viewModel),
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: NextClassDirectionsPreview(
+                    journeyItems: [source, destination], viewModel: viewModel),
+                ),
+        )
+      );
 
       // Check if the source and destination names are displayed correctly
       expect(find.text('Hall Building, 8.04 (SGW Campus)'), findsOneWidget);

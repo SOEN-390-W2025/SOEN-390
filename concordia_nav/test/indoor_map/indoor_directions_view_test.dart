@@ -1,12 +1,15 @@
 import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/indoor/location_info_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,16 +19,25 @@ void main() {
 
   late Widget view;
   late IndoorDirectionsViewModel mockDirectionsViewModel;
+  late MockPreferencesModel mockPreferencesModel;
 
   setUp(() {
     mockDirectionsViewModel = IndoorDirectionsViewModel();
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   group('IndoorDirectionsView', () {
     testWidgets('handles previous floor press correctly',
         (WidgetTester tester) async {
-      view = ChangeNotifierProvider<IndoorDirectionsViewModel>(
-        create: (_) => mockDirectionsViewModel,
+      view = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<IndoorDirectionsViewModel>(
+            create: (_) => mockDirectionsViewModel),
+          ChangeNotifierProvider<PreferencesModel>(
+            create: (_) => mockPreferencesModel)
+        ],
         child: MaterialApp(
           home: IndoorDirectionsView(
             sourceRoom: 'H 921',
@@ -36,6 +48,7 @@ void main() {
       );
 
       await tester.pumpWidget(view);
+      await tester.pumpAndSettle();
 
       final state = tester
           .state<IndoorDirectionsViewState>(find.byType(IndoorDirectionsView));
@@ -55,16 +68,50 @@ void main() {
       expect(IndoorDirectionsViewState.isMultiFloor, true);
     });
 
+    testWidgets('get room name',
+        (WidgetTester tester) async {
+      view = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<IndoorDirectionsViewModel>(
+            create: (_) => mockDirectionsViewModel),
+          ChangeNotifierProvider<PreferencesModel>(
+            create: (_) => mockPreferencesModel)
+        ],
+        child: MaterialApp(
+          home: IndoorDirectionsView(
+            sourceRoom: 'H 921',
+            building: 'Hall Building',
+            endRoom: 'H 830',
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(view);
+      await tester.pumpAndSettle();
+
+      final state = tester
+          .state<IndoorDirectionsViewState>(find.byType(IndoorDirectionsView));
+
+      String room = state.roomName('H 902');
+      expect(room, "H 902");
+      
+      room = state.roomName("902");
+      expect(room, "H 902");
+    });
+
     testWidgets('IndoorDirectionsView renders correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: yourLocationString,
-            building: 'Hall Building',
-            endRoom: 'H 110',
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: IndoorDirectionsView(
+                    sourceRoom: yourLocationString,
+                    building: 'Hall Building',
+                    endRoom: 'H 110',
+                  ),
+                ),
+        )
       );
       await tester.pumpAndSettle();
 
@@ -79,14 +126,17 @@ void main() {
       final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", 
           category: POICategory.washroom, x: 492, y: 678);
       await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: yourLocationString,
-            building: 'Hall Building',
-            endRoom: 'H 110',
-            selectedPOI: poi,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: IndoorDirectionsView(
+                    sourceRoom: yourLocationString,
+                    building: 'Hall Building',
+                    endRoom: 'H 110',
+                    selectedPOI: poi,
+                  ),
+                ),
+        )
       );
       await tester.pumpAndSettle();
 
@@ -99,14 +149,17 @@ void main() {
       final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "9", 
           category: POICategory.washroom, x: 593, y: 778);
       await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: yourLocationString,
-            building: 'Hall Building',
-            endRoom: 'H 937',
-            selectedPOI: poi,
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: IndoorDirectionsView(
+                    sourceRoom: yourLocationString,
+                    building: 'Hall Building',
+                    endRoom: 'H 937',
+                    selectedPOI: poi,
+                  ),
+                ),
+        )
       );
       await tester.pumpAndSettle();
       
@@ -117,13 +170,16 @@ void main() {
     testWidgets('Start button exists and can be tapped',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: IndoorDirectionsView(
-            sourceRoom: yourLocationString,
-            building: 'Hall Building',
-            endRoom: 'H110',
-          ),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  home: IndoorDirectionsView(
+                    sourceRoom: yourLocationString,
+                    building: 'Hall Building',
+                    endRoom: 'H110',
+                  ),
+                ),
+        )
       );
       await tester.pumpAndSettle();
 

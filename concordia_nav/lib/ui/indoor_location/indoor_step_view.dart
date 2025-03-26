@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_declarations
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/domain-model/poi.dart';
 import '../../utils/indoor_step_viewmodel.dart';
+import '../../utils/settings/preferences_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import 'floor_plan_widget.dart';
 
@@ -41,7 +41,6 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
   bool _firstRouteCompleted = false;
   late String _temporaryEndRoom;
   late Timer _timer;
-
   late bool _isMultiFloorRoute;
   final String yourLocationString = 'Your Location';
 
@@ -61,7 +60,8 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
                 endRoom: _temporaryEndRoom,
                 isDisability: widget.isDisability,
                 vsync: this,
-                selectedPOI: widget.selectedPOI)
+                selectedPOI: widget.selectedPOI,
+              )
             : VirtualStepGuideViewModel(
                 sourceRoom: widget.sourceRoom,
                 building: widget.building,
@@ -152,6 +152,9 @@ class VirtualStepGuideViewState extends State<VirtualStepGuideView>
 
   @override
   Widget build(BuildContext context) {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    _viewModel.measurementUnit = preferences.selectedMeasurementUnit;
+
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Consumer<VirtualStepGuideViewModel>(
