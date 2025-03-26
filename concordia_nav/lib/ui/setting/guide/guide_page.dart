@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/guide_card.dart';
 import '../common_app_bart.dart';
 import 'campus_map_guide.dart';
+import 'next_class_directions_guide.dart';
 import 'outdoor_directions_guide.dart';
 
 class GuidePage extends StatefulWidget {
@@ -51,7 +52,7 @@ class _GuidePageState extends State<GuidePage> {
                 title: "Next class directions",
                 description: "Quick navigation to your upcoming class",
                 icon: Icons.calendar_today,
-                route: Placeholder(),
+                route: NextClassDirectionsGuide(),
               ),
               SizedBox(height: 14),
               GuideCard(

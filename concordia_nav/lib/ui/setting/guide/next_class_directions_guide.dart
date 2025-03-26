@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../common_app_bart.dart';
 
-class CampusMapGuide extends StatelessWidget {
-  const CampusMapGuide({super.key});
+class NextClassDirectionsGuide extends StatelessWidget {
+  const NextClassDirectionsGuide({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,12 +15,12 @@ class CampusMapGuide extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Campus map",
+                "Next class directions",
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 4),
               const Text(
-                "Explore the entire campus with our map",
+                "Quick directions to your upcoming classes",
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 16),
@@ -30,7 +30,7 @@ class CampusMapGuide extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.asset(
-                      'assets/images/guide/campus_map_1.png',
+                      'assets/images/guide/next_class_directions_1.png',
                       width: 150,
                     ),
                   ),
@@ -48,7 +48,7 @@ class CampusMapGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Building information",
+                    "Next class direction",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -56,20 +56,56 @@ class CampusMapGuide extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(left: 14),
                 child: Text(
-                  "Tap on any building's marker to see details of the building",
+                  "Display directions between your location and your next class's location",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/campus_map_2.png',
-                      width: 200,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Center(
+                    child: Card(
+                      elevation: 4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          'assets/images/guide/outdoor_directions_2.png',
+                          width: 150,
+                        ),
+                      ),
                     ),
                   ),
+                  Center(
+                    child: Card(
+                      elevation: 4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          'assets/images/guide/next_class_directions_2.png',
+                          width: 150,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.circle, size: 8, color: Colors.black),
+                  SizedBox(width: 6),
+                  Text(
+                    "Automatic schedule sync",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 14),
+                child: Text(
+                  "Your direction is automatically synced with your class timetable",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 20),
@@ -79,7 +115,7 @@ class CampusMapGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Search functionality",
+                    "Real-time update",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -87,20 +123,8 @@ class CampusMapGuide extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(left: 14),
                 child: Text(
-                  "Find a specific building",
+                  "Get a real time update for your next class room",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/campus_map_3.png',
-                      width: 250,
-                    ),
-                  ),
                 ),
               ),
             ],

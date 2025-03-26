@@ -39,7 +39,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Key features",
+                "Key features:",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
