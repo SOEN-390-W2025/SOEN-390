@@ -16,6 +16,11 @@ class SelectableList<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final cardColor = Theme.of(context).cardColor;
+
     final List<T> filteredItems = items.where((item) {
       final String query = searchController.text.toLowerCase();
       return item.toString().toLowerCase().contains(query);
@@ -27,7 +32,11 @@ class SelectableList<T> extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+            style: TextStyle(
+              fontSize: 18, 
+              fontWeight: FontWeight.normal,
+              color: textColor,
+            ),
           ),
           const SizedBox(height: 16),
           ...filteredItems.map(
@@ -40,7 +49,8 @@ class SelectableList<T> extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0.0,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: cardColor,
+                    foregroundColor: primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -48,10 +58,11 @@ class SelectableList<T> extends StatelessWidget {
                   ),
                   child: Text(
                     item.toString(),
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textColor,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ),
               );

@@ -62,17 +62,22 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Loading location screen
   Widget _buildLoadingLocationScreen() {
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: customAppBar(context, 'Loading Location'),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
+            CircularProgressIndicator(color: primaryColor),
+            const SizedBox(height: 16),
             Text(
               'Determining your location...',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
           ],
         ),
@@ -82,7 +87,13 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Location error screen
   Widget _buildLocationErrorScreen(POIViewModel viewModel) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    final errorColor = Theme.of(context).colorScheme.error;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: customAppBar(context, 'Location Required'),
       body: Center(
         child: Padding(
@@ -90,17 +101,21 @@ class _POIChoiceViewState extends State<POIChoiceView>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Could not determine your location. Please check location permissions.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.red,
+                  color: errorColor,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => viewModel.refreshLocation(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: onPrimaryColor,
+                ),
                 child: const Text('Retry'),
               ),
             ],
@@ -112,7 +127,10 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Main screen with tabs
   Widget _buildMainScreen(POIViewModel viewModel) {
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: customAppBar(context, 'POI List'),
       body: Semantics(
         label:
@@ -138,20 +156,29 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Tab bar
   Widget _buildTabBar() {
+    final primaryColor = Theme.of(context).primaryColor;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     return TabBar(
       controller: _tabController,
       tabs: const [
         Tab(text: 'Indoor'),
         Tab(text: 'Outdoor'),
       ],
-      labelColor: Theme.of(context).primaryColor,
-      unselectedLabelColor: Colors.grey,
-      indicatorColor: Theme.of(context).primaryColor,
+      labelColor: primaryColor,
+      unselectedLabelColor: secondaryTextColor,
+      indicatorColor: primaryColor,
     );
   }
 
   // Search bar
   Widget _buildSearchBar(POIViewModel viewModel) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    final dividerColor = Theme.of(context).dividerColor;
+
     // Set the controller's text to match the current query value
     _searchController.text = viewModel.globalSearchQuery;
 
@@ -162,7 +189,7 @@ class _POIChoiceViewState extends State<POIChoiceView>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey[400]!,
+                color: dividerColor.withAlpha(100),
                 spreadRadius: 1,
                 blurRadius: 2,
                 offset: const Offset(0, 2),
@@ -172,25 +199,26 @@ class _POIChoiceViewState extends State<POIChoiceView>
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              fillColor: Colors.white,
+              fillColor: cardColor,
               filled: true,
               labelText: 'Search POIs',
-              prefixIcon: const Icon(Icons.search),
+              labelStyle: TextStyle(color: secondaryTextColor),
+              prefixIcon: Icon(Icons.search, color: secondaryTextColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
-                borderSide: const BorderSide(color: Colors.grey),
+                borderSide: BorderSide(color: dividerColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
-                borderSide: const BorderSide(color: Colors.grey),
+                borderSide: BorderSide(color: dividerColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                borderSide: BorderSide(color: primaryColor),
               ),
               suffixIcon: viewModel.globalSearchQuery.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: Icon(Icons.clear, color: secondaryTextColor),
                       onPressed: () {
                         _searchController.clear();
                         viewModel.setGlobalSearchQuery('');
@@ -198,7 +226,7 @@ class _POIChoiceViewState extends State<POIChoiceView>
                     )
                   : null,
             ),
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(color: textColor),
             onChanged: (query) => viewModel.setGlobalSearchQuery(query),
           ),
         ));
@@ -206,17 +234,20 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Indoor tab content
   Widget _buildIndoorTab(POIViewModel viewModel) {
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     return Column(
       children: [
-        const Align(
+        Align(
           alignment: Alignment.centerLeft,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
             child: Text(
               'Select a nearby indoor facility',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w400,
+                color: textColor,
               ),
             ),
           ),
@@ -230,8 +261,10 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Indoor content (loading, error, or grid)
   Widget _buildIndoorContent(POIViewModel viewModel) {
+    final primaryColor = Theme.of(context).primaryColor;
+
     if (viewModel.isLoadingIndoor) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: primaryColor));
     }
 
     if (viewModel.errorIndoor.isNotEmpty) {
@@ -292,17 +325,20 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Outdoor tab content
   Widget _buildOutdoorTab(POIViewModel viewModel) {
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     return Column(
       children: [
-        const Align(
+        Align(
           alignment: Alignment.centerLeft,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
             child: Text(
               'Select a nearby outdoor facility',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w400,
+                color: textColor,
               ),
             ),
           ),
@@ -316,8 +352,10 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Outdoor content (loading, error, or grid)
   Widget _buildOutdoorContent(POIViewModel viewModel) {
+    final primaryColor = Theme.of(context).primaryColor;
+
     if (viewModel.isLoadingOutdoor) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: primaryColor));
     }
 
     if (viewModel.errorOutdoor.isNotEmpty) {
@@ -360,12 +398,17 @@ class _POIChoiceViewState extends State<POIChoiceView>
   }
 
   // Reusable POI/category card
-  Widget _buildPOICard(
-      {required String poiName,
-      required IconData iconData,
-      required VoidCallback onTap}) {
+  Widget _buildPOICard({
+    required String poiName,
+    required IconData iconData,
+    required VoidCallback onTap
+  }) {
+    final cardColor = Theme.of(context).cardColor;
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     return Material(
-      color: Colors.grey[200],
+      color: cardColor,
       borderRadius: BorderRadius.circular(20),
       elevation: 2,
       child: InkWell(
@@ -381,14 +424,15 @@ class _POIChoiceViewState extends State<POIChoiceView>
                   poiName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
+                    color: textColor,
                   ),
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(iconData),
+              Icon(iconData, color: primaryColor),
             ],
           ),
         ),
@@ -398,18 +442,26 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Reusable error state widget
   Widget _buildErrorState(String errorMessage, VoidCallback onRetry) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    final errorColor = Theme.of(context).colorScheme.error;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             'Error: $errorMessage',
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(color: errorColor),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: onRetry,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: onPrimaryColor,
+            ),
             child: const Text('Retry'),
           ),
         ],
@@ -419,10 +471,12 @@ class _POIChoiceViewState extends State<POIChoiceView>
 
   // Reusable empty state widget
   Widget _buildEmptyState(String message) {
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     return Center(
       child: Text(
         message,
-        style: const TextStyle(fontSize: 16),
+        style: TextStyle(fontSize: 16, color: textColor),
         textAlign: TextAlign.center,
       ),
     );

@@ -5,7 +5,7 @@ import '../../data/domain-model/poi.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
-import '../../utils/poi/poi_map_viewmodel.dart'; // New ViewModel
+import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../utils/poi/poi_viewmodel.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/floor_button.dart';
@@ -75,12 +75,16 @@ class _POIMapViewState extends State<POIMapView>
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     // Use ChangeNotifierProvider for reactive UI updates
     return ChangeNotifierProvider.value(
       value: _poiMapViewModel,
       child: Consumer<POIMapViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
+            backgroundColor: backgroundColor,
             appBar: customAppBar(
               context,
               '${viewModel.nearestBuilding?.name ?? "Building"} - ${widget.poiName}',
@@ -97,15 +101,19 @@ class _POIMapViewState extends State<POIMapView>
   }
 
   Widget _buildBody(POIMapViewModel viewModel) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: primaryColor));
     } else if (viewModel.errorMessage.isNotEmpty) {
       return _buildErrorView(viewModel);
     } else if (!viewModel.floorPlanExists) {
-      return const Center(
+      return Center(
         child: Text(
           'No floor plans exist at this time.',
-          style: TextStyle(fontSize: 18),
+          style: TextStyle(fontSize: 18, color: textColor),
         ),
       );
     } else {
@@ -122,13 +130,18 @@ class _POIMapViewState extends State<POIMapView>
   }
 
   Widget _buildErrorView(POIMapViewModel viewModel) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    final errorColor = Theme.of(context).colorScheme.error;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             viewModel.errorMessage,
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(color: errorColor),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -136,6 +149,10 @@ class _POIMapViewState extends State<POIMapView>
             onPressed: () => viewModel.retry(
                 initialBuilding: widget.initialBuilding,
                 initialFloor: widget.initialFloor),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: onPrimaryColor,
+            ),
             child: const Text('Retry'),
           ),
         ],
@@ -144,6 +161,11 @@ class _POIMapViewState extends State<POIMapView>
   }
 
   Widget _buildFloorPlanView(POIMapViewModel viewModel) {
+    // Get theme colors
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final shadowColor = Theme.of(context).shadowColor;
+
     return Column(
       children: [
         Expanded(
@@ -181,11 +203,11 @@ class _POIMapViewState extends State<POIMapView>
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(225),
+                      color: cardColor.withAlpha(150),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(100),
+                          color: shadowColor.withAlpha(100),
                           blurRadius: 5,
                           spreadRadius: 1,
                         ),
@@ -193,9 +215,10 @@ class _POIMapViewState extends State<POIMapView>
                     ),
                     child: Text(
                       'No ${widget.poiName} within ${viewModel.searchRadius} meters on floor ${viewModel.selectedFloor}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: textColor,
                       ),
                     ),
                   ),
@@ -217,6 +240,7 @@ class _POIMapViewState extends State<POIMapView>
   }
 
   void _showPOIDetails(POI poi, POIMapViewModel viewModel) {
+
     showModalBottomSheet(
       context: context,
       builder: (context) => POIBottomSheet(

@@ -248,13 +248,12 @@ class _LocationSelectionState extends State<LocationSelection> {
     // Explicitly specify that the ButtonSegment is of type String
     return ButtonSegment<String>(
       value: value,
-      label: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
+      label: Text(label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
             fontSize: 12,
-            color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
-      ),
+            color: isEnabled ? textColor : secondaryTextColor.withAlpha(100),
+          )),
       icon: Icon(icon,
           color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
       enabled: isEnabled,
@@ -274,6 +273,8 @@ class _LocationSelectionState extends State<LocationSelection> {
           // Ensure the list is of type List<ButtonSegment<String>>
           _buildSegment("myLocation", Icons.my_location, "My Location",
               _isMyLocationAvailable),
+          // _buildSegment(
+          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           // _buildSegment(
           //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           _buildSegment(

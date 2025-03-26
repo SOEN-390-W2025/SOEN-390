@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,7 @@ import 'ui/next_class/next_class_directions_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
 import 'ui/setting/preferences/preferences_view.dart';
 import 'ui/setting/contact/contact_page.dart';
+import 'ui/setting/accessibility/color_adjustment_view.dart';
 import 'utils/logger_util.dart';
 import 'ui/poi/nearby_poi_map.dart';
 import 'ui/poi/poi_choice_view.dart';
@@ -36,6 +39,7 @@ import 'widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:calendar_view/calendar_view.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
@@ -50,6 +54,16 @@ Future<void> main() async {
     dev.log('Error initializing building data manager',
         error: e, stackTrace: stackTrace);
   }
+
+  // Load saved theme before starting the app
+  try {
+    await AppTheme.loadSavedTheme();
+    LoggerUtil.info('Theme loaded successfully');
+  } catch (e) {
+    LoggerUtil.warning('Failed to load saved theme: $e');
+    // Continue with default theme if there's an error
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -60,8 +74,37 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late ThemeData _currentTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTheme = AppTheme.theme;
+    
+    // Listen for theme changes
+    AppTheme.themeChangeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    // Remove the listener when the widget is disposed
+    AppTheme.themeChangeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    setState(() {
+      _currentTheme = AppTheme.theme;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +112,7 @@ class MyApp extends StatelessWidget {
       controller: EventController(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
+        theme: _currentTheme,
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
@@ -173,6 +216,7 @@ class MyApp extends StatelessWidget {
               category: args['category'],
             );
           },
+          '/ColorAdjustmentView': (context) => const ColorAdjustmentView(),
           '/ContactPage': (context) => const ContactPage(),
         },
       ),

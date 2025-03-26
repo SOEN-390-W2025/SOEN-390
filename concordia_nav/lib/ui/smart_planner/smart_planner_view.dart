@@ -6,7 +6,7 @@ import '../../data/repositories/building_repository.dart';
 import '../../data/services/smart_planner_service.dart';
 import '../../utils/map_viewmodel.dart';
 import '../../data/domain-model/location.dart';
-import '../setting/common_app_bart.dart';
+import '../../widgets/custom_appbar.dart';
 import 'generated_plan_view.dart';
 
 class SmartPlannerView extends StatefulWidget {
@@ -180,13 +180,20 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   }
 
   Future<void> _buildingSelector(BuildContext context) async {
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
     final result = await showModalBottomSheet<String>(
       context: context,
+      backgroundColor: cardColor,
       builder: (context) => ListView.builder(
         itemCount: buildings.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(buildings[index]),
+            title: Text(
+              buildings[index],
+              style: TextStyle(color: textColor),
+            ),
             onTap: () => Navigator.pop(context, buildings[index]),
           );
         },
@@ -203,8 +210,18 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    final dividerColor = Theme.of(context).dividerColor;
+
     return Scaffold(
-      appBar: const CommonAppBar(title: "Smart Planner"),
+      backgroundColor: backgroundColor,
+      appBar: customAppBar(context, "Smart Planner"),
       body: Semantics(
         label:
             'Enter your tasks into the Smart Planner with a starting location to generate an optimized plan.',
@@ -213,10 +230,10 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Optimize your campus route by minimizing walking time and outdoor exposure. "
                 "Enter your tasks, get an efficient plan, and follow step-by-step directions.",
-                style: TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 14, color: textColor),
                 textAlign: TextAlign.justify,
               ),
               const SizedBox(height: 20),
@@ -224,12 +241,13 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                 margin: const EdgeInsets.all(10),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 0.5,
+                      color: dividerColor,
+                      blurRadius: 1.0,
+                      spreadRadius: 0.5,
                     ),
                   ],
                 ),
@@ -238,10 +256,12 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                   textAlignVertical: TextAlignVertical.top,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
-                  cursorColor: const Color(0xFF962e42),
+                  cursorColor: primaryColor,
+                  style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     hintText: "Create new plan...",
-                    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+                    hintStyle:
+                        TextStyle(color: secondaryTextColor, fontSize: 14),
                     border: InputBorder.none,
                   ),
                 ),
@@ -250,11 +270,11 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 10.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10.0),
                     child: Text(
                       "Source location",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      style: TextStyle(fontSize: 12, color: secondaryTextColor),
                     ),
                   ),
                   GestureDetector(
@@ -263,12 +283,13 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                       margin: const EdgeInsets.all(10),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: cardColor,
                         borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Colors.black,
-                            blurRadius: 0.5,
+                            color: dividerColor,
+                            blurRadius: 1.0,
+                            spreadRadius: 0.5,
                           ),
                         ],
                       ),
@@ -276,14 +297,15 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                         child: TextField(
                           controller: _sourceController,
                           textAlignVertical: TextAlignVertical.center,
+                          style: TextStyle(color: textColor),
                           decoration: InputDecoration(
                             hintText: "Pick a source location...",
                             hintStyle: TextStyle(
-                                color: Colors.grey[500], fontSize: 14),
+                                color: secondaryTextColor, fontSize: 14),
                             border: InputBorder.none,
                             prefixIcon: Icon(
                               Icons.location_on,
-                              color: Theme.of(context).primaryColor,
+                              color: primaryColor,
                             ),
                           ),
                         ),
@@ -291,19 +313,24 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                     ),
                   ),
                   if (isFetchingNearestBuilding)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 10.0, top: 5.0),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0, top: 5.0),
                       child: Row(
                         children: [
                           SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(primaryColor),
+                            ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
                             "Detecting nearby building...",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                            style: TextStyle(
+                                fontSize: 12, color: secondaryTextColor),
                           ),
                         ],
                       ),
@@ -319,18 +346,23 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
+                          backgroundColor: primaryColor,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12.0,
                             vertical: 4.0,
                           ),
                           minimumSize: const Size(0, 30),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
                         ),
-                        child: const Text(
+                        child: Text(
                           "Use current location",
                           style: TextStyle(
                             fontSize: 10.0,
-                            color: Colors.white,
+                            color: secondaryTextColor,
                           ),
                         ),
                       ),
@@ -362,14 +394,21 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
               ? _generatePlan
               : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: primaryColor,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            disabledBackgroundColor: primaryColor.withAlpha(100),
+            disabledForegroundColor:
+                Theme.of(context).colorScheme.onPrimary.withAlpha(100),
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             minimumSize: const Size(150, 40),
           ),
           child: _isLoading
-              ? const CircularProgressIndicator(color: Color(0xFF962e42))
-              : const Text("Make Plan", style: TextStyle(color: Colors.white)),
+              ? CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.onPrimary)
+              : Text("Make Plan",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary)),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -378,14 +417,22 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
 }
 
 Widget _buildSmartPlannerGuide(BuildContext context) {
+  // Get theme colors
+  final primaryColor = Theme.of(context).primaryColor;
+  final secondaryColor = Theme.of(context).colorScheme.secondary;
+  final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     decoration: BoxDecoration(
-      // ignore: deprecated_member_use
-      color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+      color: secondaryColor.withAlpha(100),
       borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: secondaryColor.withAlpha(100),
+        width: 1,
+      ),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,33 +442,34 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).primaryColor,
+            color: primaryColor,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           '• For events, provide both a start and an end time (e.g. "from 10:00 am to 11:00 am").',
-          style: TextStyle(fontSize: 14),
+          style: TextStyle(fontSize: 14, color: textColor),
         ),
-        const Text(
+        Text(
           '• For free-time tasks, please provide a duration (e.g. "for 30 minutes").',
-          style: TextStyle(fontSize: 14),
+          style: TextStyle(fontSize: 14, color: textColor),
         ),
-        const Text(
+        Text(
           '• For classrooms, make sure to add a "." between floor and room number (e.g. H 9.27).',
-          style: TextStyle(fontSize: 13),
+          style: TextStyle(fontSize: 13, color: textColor),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Example:',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.bold, color: textColor),
         ),
-        const Text.rich(
-          TextSpan(
+        Text.rich(
+          const TextSpan(
             text:
                 'I have to attend a seminar at the J.W. McConnell Building from 9 am to 9:30 am, I have a lecture in H 9.27 from 10:00 am to 11:00 am, and go to a coffee shop for 30 minutes, and I also have to go to Hall Building for 20 minutes.',
           ),
-          style: TextStyle(fontSize: 13),
+          style: TextStyle(fontSize: 13, color: textColor?.withAlpha(150)),
         ),
       ],
     ),

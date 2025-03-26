@@ -7,6 +7,10 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
   final isCampusMapPage =
       ModalRoute.of(context)?.settings.name == '/CampusMapPage';
 
+  // Get theme colors
+  final primaryColor = Theme.of(context).primaryColor;
+  final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+  
   Widget leadingIcon;
 
   if (isHomePage) {
@@ -14,9 +18,9 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
       onPressed: () {
         Navigator.pushNamed(context, '/SettingsPage');
       },
-      icon: const Icon(
+      icon: Icon(
         Icons.settings,
-        color: Colors.white,
+        color: onPrimaryColor,
       ),
     );
   } else if (isCampusMapPage) {
@@ -24,9 +28,9 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
       onPressed: () {
         Navigator.pushReplacementNamed(context, '/HomePage'); // Navigate back
       },
-      icon: const Icon(
+      icon: Icon(
         Icons.arrow_back,
-        color: Colors.white,
+        color: onPrimaryColor,
       ),
     );
   } else {
@@ -34,9 +38,9 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
       onPressed: () {
         Navigator.pop(context); // Navigate back
       },
-      icon: const Icon(
+      icon: Icon(
         Icons.arrow_back,
-        color: Colors.white,
+        color: onPrimaryColor,
       ),
     );
   }
@@ -55,33 +59,36 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
         ],
       ),
       child: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: primaryColor,
         title: FittedBox(
           fit: BoxFit.fitWidth,
-          child: Text(title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              )),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: onPrimaryColor,
+              fontSize: 20,
+            ),
+          ),
         ),
         centerTitle: true,
         leading: leadingIcon,
         actions: [
-          IconButton(
-            onPressed: () {
-              // If a custom function is provided, use it; otherwise, use the default function
-              if (onActionPressed != null) {
-                onActionPressed();
-              } else if (isHomePage) {
-                Navigator.pushNamed(context, '/SmartPlannerView');
-              }
-            },
-            icon: actionIcon ??
-                const Icon(
-                  Icons.edit_note,
-                  color: Colors.white,
-                ),
-          ),
+          if (onActionPressed != null || isHomePage)
+            IconButton(
+              onPressed: () {
+                // If a custom function is provided, use it; otherwise, use the default function
+                if (onActionPressed != null) {
+                  onActionPressed();
+                } else if (isHomePage) {
+                  Navigator.pushNamed(context, '/SmartPlannerView');
+                }
+              },
+              icon: actionIcon ??
+                  Icon(
+                    Icons.edit_note,
+                    color: onPrimaryColor,
+                  ),
+            ),
         ],
         elevation: 0,
       ),
