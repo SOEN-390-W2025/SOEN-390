@@ -11,6 +11,7 @@ import '../repositories/building_repository.dart';
 import '../repositories/building_data_manager.dart';
 import 'helpers/smart_planner_helpers.dart';
 import 'places_service.dart';
+import 'travelling_salesman_service.dart';
 
 class SmartPlannerService {
   final PlacesRepository _placesRepository;
@@ -319,5 +320,20 @@ class SmartPlannerService {
     final validEvents = validateEvents(events, planDay);
     return TravellingSalesmanRequest(
         todos, validEvents, startTime, startLocation);
+  }
+
+  Future<List<(String, Location, DateTime, DateTime)>> generateOptimizedRoute({
+    required String prompt,
+    required DateTime startTime,
+    required Location startLocation,
+  }) async {
+    final request = await generatePlannerData(
+      prompt: prompt,
+      startTime: startTime,
+      startLocation: startLocation,
+    );
+    final optimizedRoute =
+        await TravellingSalesmanService.getSalesmanRoute(request);
+    return optimizedRoute;
   }
 }

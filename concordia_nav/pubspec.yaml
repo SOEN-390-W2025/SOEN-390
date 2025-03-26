@@ -38,7 +38,7 @@ scripts:
     check: flutter analyze
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
-  coverage: flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
+  coverage: rps gen && flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
   codecov:
     windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
     mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
@@ -85,6 +85,7 @@ dependencies:
   logger: ^2.5.0
   google_places_flutter: ^2.1.0
   dart_openai: ^5.1.0
+  flutter_colorpicker: ^1.0.3
   shared_preferences: ^2.5.2
 
 dev_dependencies:
@@ -121,76 +122,15 @@ flutter:
     - .env
     - assets/config/
     - assets/icons/
+    - assets/icons/pois/
     - assets/images/
-    - assets/maps/outdoor/all/polygons.json
-    - assets/maps/outdoor/sgw/polygons.json
-    - assets/maps/outdoor/loy/polygons.json
-    - assets/maps/outdoor/shuttle_bus_routes/loy_to_sgw.json
-    - assets/maps/outdoor/shuttle_bus_routes/sgw_to_loy.json
-    - assets/maps/outdoor/shuttle_bus_schedules/monday_thursday.json
-    - assets/maps/outdoor/shuttle_bus_schedules/friday.json
-    - assets/maps/indoor/floorplans/CC1.svg
-    - assets/maps/indoor/floorplans/H1.svg
-    - assets/maps/indoor/floorplans/H2.svg
-    - assets/maps/indoor/floorplans/H8.svg
-    - assets/maps/indoor/floorplans/H9.svg
-    - assets/maps/indoor/floorplans/MB1.svg
-    - assets/maps/indoor/floorplans/MBS2.svg
-    - assets/maps/indoor/floorplans/VL1.svg
-    - assets/maps/indoor/floorplans/VL2.svg
-    - assets/icons/pois/elevator.png
-    - assets/icons/pois/escalator.png
-    - assets/icons/pois/exit.png
-    - assets/icons/pois/police.png
-    - assets/icons/pois/restaurant.png
-    - assets/icons/pois/stairs.png
-    - assets/icons/pois/washroom.png
-    - assets/icons/pois/waterFountain.png
-    - assets/icons/default.png
-    - assets/icons/destination.png
-    - assets/icons/origin.png
-    - assets/icons/shuttle_bus.png
-    - assets/icons/shuttle_bus_station.png
-    - assets/icons/AD.png
-    - assets/icons/CC.png
-    - assets/icons/CJ.png
-    - assets/icons/CL.png
-    - assets/icons/EV.png
-    - assets/icons/ER.png
-    - assets/icons/FB.png
-    - assets/icons/FC.png
-    - assets/icons/FG.png
-    - assets/icons/GE.png
-    - assets/icons/GM.png
-    - assets/icons/HA.png
-    - assets/icons/H.png
-    - assets/icons/HU.png
-    - assets/icons/LB.png
-    - assets/icons/LS.png
-    - assets/icons/MB.png
-    - assets/icons/PC.png
-    - assets/icons/PS.png
-    - assets/icons/PT.png
-    - assets/icons/PY.png
-    - assets/icons/RA.png
-    - assets/icons/RF.png
-    - assets/icons/SC.png
-    - assets/icons/SP.png
-    - assets/icons/TD.png
-    - assets/icons/VA.png
-    - assets/icons/VE.png
-    - assets/icons/VL.png
+    - assets/maps/indoor/data/
+    - assets/maps/indoor/floorplans/
     - assets/maps/outdoor/all/
     - assets/maps/outdoor/loy/
     - assets/maps/outdoor/sgw/
     - assets/maps/outdoor/shuttle_bus_routes/
     - assets/maps/outdoor/shuttle_bus_schedules/
-    - assets/maps/indoor/data/CC.yaml
-    - assets/maps/indoor/data/H.yaml
-    - assets/maps/indoor/data/VL.yaml
-    - assets/maps/indoor/data/MB.yaml
-    - assets/maps/indoor/floorplans/
-    - assets/images/guide/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

@@ -4,6 +4,9 @@ inputs:
   google-maps-api-key:
     description: "Google Maps API key"
     required: true
+  openai-api-key:
+    description: "OpenAI API key"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -13,3 +16,4 @@ runs:
         mkdir -p concordia_nav
         touch concordia_nav/.env
         echo "GOOGLE_MAPS_API_KEY=${{ inputs.google-maps-api-key }}" >> concordia_nav/.env
+        echo "OPENAI_API_KEY=${{ inputs.openai-api-key }}" >> concordia_nav/.env

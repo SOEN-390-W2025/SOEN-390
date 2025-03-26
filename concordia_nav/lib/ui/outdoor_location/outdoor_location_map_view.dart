@@ -450,11 +450,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
               child: ElevatedButton(
                 onPressed: _updatePath,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
-                child: const Text(
+                child: Text(
                   'Get Directions',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary
+                  ),
                 ),
               ),
             ),
@@ -464,14 +466,14 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             Container(
               width: 50,
               height: 50,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color.fromRGBO(146, 35, 56, 1),
+                color: Theme.of(context).colorScheme.primary,
               ),
               child: IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.navigation_outlined,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
                 onPressed: () {
                   final destination = _mapViewModel.destinationMarker!.position;

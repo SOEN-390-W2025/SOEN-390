@@ -1,4 +1,5 @@
 import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
+import 'package:concordia_nav/ui/setting/accessibility/color_adjustment_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/widgets/accessibility_tile.dart';
 import 'package:flutter/material.dart';
@@ -59,9 +60,10 @@ void main() {
       (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
-      '/': (context) => const HomePage(),
+      '/HomePage': (context) => const HomePage(),
       '/SettingsPage': (context) => const SettingsPage(),
       '/AccessibilityPage': (context) => const AccessibilityPage(),
+      '/ColorAdjustmentView': (context) => const ColorAdjustmentView(),
     };
 
     // Build the HomePage widget
@@ -79,9 +81,11 @@ void main() {
     expect(find.text('Visual Accessibility'), findsOneWidget);
     await tester.tap(find.text('Visual Accessibility'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Text size and style'));
+    await tester.tap(find.text('Color adjustment'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Visual Accessibility'));
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Text-to-speech'));
     await tester.pumpAndSettle();
 
     // Press the Visual accessibility button

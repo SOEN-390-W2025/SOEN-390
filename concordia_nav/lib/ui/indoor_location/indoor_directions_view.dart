@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, avoid_catches_without_on_clauses
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -127,14 +127,13 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
     try {
       // Get POIs from the POIMapViewModel
       _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
-        buildingAbbreviation, 
+        buildingAbbreviation,
         displayFloor
       );
-      
+
       if (mounted) {
         setState(() {});
       }
-    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       dev.log('Error loading POIs in IndoorDirectionsView: $e');
     }
@@ -299,7 +298,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           }
         });
       }
-    } on Error catch (e) {
+
+    } catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
   }

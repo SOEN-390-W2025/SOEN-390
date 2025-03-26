@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_appbar.dart';
 import '../../widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
-
-import 'common_app_bart.dart';
 
 class SettingsPage extends StatefulWidget {
   final DeviceCalendarPlugin?
@@ -40,7 +39,7 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: "Settings"),
+      appBar: customAppBar(context, "Settings"),
       body: Semantics(
         label: 'Customize the preferences of the application.',
         child: ListView(
