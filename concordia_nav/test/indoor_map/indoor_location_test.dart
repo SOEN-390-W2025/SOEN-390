@@ -2,11 +2,14 @@ import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/concordia_campus.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_directions_view.dart';
 import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/floor_button.dart';
-import 'package:concordia_nav/widgets/zoom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +47,7 @@ void main() {
           home: IndoorLocationView(building: building,),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text('Directions'), findsNothing);
     });
@@ -54,7 +58,7 @@ void main() {
           home: IndoorLocationView(building: building, floor: '1'),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(FloorButton), findsOneWidget);
     });
@@ -74,31 +78,30 @@ void main() {
       expect(find.text('Select a floor'), findsOneWidget);
     });
 
-    testWidgets('Tapping zoombuttons adjust zoom of svg', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: IndoorLocationView(building: building, floor: '1'),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.byType(ZoomButton), findsNWidgets(2));
-
-      await tester.tap(find.byType(ZoomButton).first);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byType(ZoomButton).last);
-      await tester.pumpAndSettle();
-    });
-
     testWidgets('Tapping Directions button navigates to IndoorDirectionsView',
         (WidgetTester tester) async {
+      final mockPreferencesModel = MockPreferencesModel();
+      when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+      when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
+
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => const IndoorLocationView(building: building, room: 'H 110'),
+        'IndoorDirectionsView': (context) => IndoorDirectionsView(
+          sourceRoom: 'Your Location', building: building.name, 
+          endRoom: 'H 110')
+      };
+
       await tester.pumpWidget(
-        const MaterialApp(
-          home: IndoorLocationView(building: building, room: 'H 110'),
-        ),
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Directions'));
       await tester.pumpAndSettle();
@@ -114,6 +117,8 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
+
       expect(find.text(building.name), findsOneWidget);
     });
   });
@@ -123,7 +128,7 @@ void main() {
       // Build the indoor location view widget
       await tester.pumpWidget(const MaterialApp(
           home: IndoorLocationView(building: building)));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Verify that the appBar exists and has the right title
       expect(find.byType(AppBar), findsOneWidget);

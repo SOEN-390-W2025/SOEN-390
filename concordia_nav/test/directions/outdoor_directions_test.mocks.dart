@@ -143,10 +143,15 @@ class MockODSDirectionsService extends _i1.Mock
   @override
   _i4.Future<List<_i6.LatLng>> fetchRoute(
     String? originAddress,
-    String? destinationAddress,
-  ) =>
+    String? destinationAddress, {
+    _i2.TravelMode? transport,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchRoute, [originAddress, destinationAddress]),
+            Invocation.method(
+              #fetchRoute,
+              [originAddress, destinationAddress],
+              {#transport: transport},
+            ),
             returnValue: _i4.Future<List<_i6.LatLng>>.value(<_i6.LatLng>[]),
           )
           as _i4.Future<List<_i6.LatLng>>);
@@ -154,11 +159,34 @@ class MockODSDirectionsService extends _i1.Mock
   @override
   _i4.Future<List<_i6.LatLng>> fetchRouteFromCoords(
     _i6.LatLng? origin,
-    _i6.LatLng? destination,
-  ) =>
+    _i6.LatLng? destination, {
+    _i2.TravelMode? transport,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchRouteFromCoords, [origin, destination]),
+            Invocation.method(
+              #fetchRouteFromCoords,
+              [origin, destination],
+              {#transport: transport},
+            ),
             returnValue: _i4.Future<List<_i6.LatLng>>.value(<_i6.LatLng>[]),
           )
           as _i4.Future<List<_i6.LatLng>>);
+
+  @override
+  _i4.Future<String?> fetchStaticMapUrl({
+    required String? originAddress,
+    required String? destinationAddress,
+    required int? width,
+    required int? height,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchStaticMapUrl, [], {
+              #originAddress: originAddress,
+              #destinationAddress: destinationAddress,
+              #width: width,
+              #height: height,
+            }),
+            returnValue: _i4.Future<String?>.value(),
+          )
+          as _i4.Future<String?>);
 }

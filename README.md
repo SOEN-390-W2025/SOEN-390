@@ -51,6 +51,7 @@ The following variables can be configured:
 | Variable            | Description                       | Value                      |
 | ------------------- | --------------------------------- | -------------------------- |
 | GOOGLE_MAPS_API_KEY | Used to integrate Google Maps API | `YOUR_GOOGLE_MAPS_API_KEY` |
+| OPENAI_API_KEY      | Used to integrate OpenAI API      | `YOUR_OPENAI_API_KEY`      |
 
 ## Generating RPS Scripts
 
@@ -113,3 +114,8 @@ You can use the `rps ci` command to run all of them sequentially.
 You can use the [codecov VsCode Extension](https://docs.codecov.com/docs/vscode-extension) to visualize the code coverage.
 
 > Make sure to upload the most recent coverage report to get the latest reporting.
+
+### Third-Party Libraries
+This project uses the following third-party libraries:
+
+- calendar_view by Simform Solutions (MIT License)

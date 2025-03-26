@@ -4,7 +4,7 @@ appId: com.example.concordia_nav
     clearState: true
 - assertVisible: "Outdoor directions"
 - tapOn: "Outdoor directions"
-- assertVisible: "Outdoor Location"
+- assertVisible: "Sir George Williams Campus"
 - assertVisible: Google Map
 - assertVisible: "Your Location"
 - assertVisible: "Enter Destination"

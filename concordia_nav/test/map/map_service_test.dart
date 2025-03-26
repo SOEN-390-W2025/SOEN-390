@@ -165,50 +165,6 @@ Future<void> main() async {
         ),
       )).called(1);
     });
-
-    test('zoomIn should animate camera', () async {
-      // Arrange
-      const currentZoom = 10.50;
-      realMapService.setMapController(mockGoogleMapController);
-      when(mockGoogleMapController.getZoomLevel())
-          .thenAnswer((_) async => currentZoom);
-
-      await realMapService.zoomIn();
-
-      verify(mockGoogleMapController.animateCamera(
-        argThat(
-          isA<CameraUpdate>().having(
-            (update) => update.toString(),
-            'CameraUpdate',
-            CameraUpdate.zoomTo(
-              currentZoom + 1,
-            ).toString(),
-          ),
-        ),
-      )).called(1);
-    });
-
-    test('zoomOut should animate camera', () async {
-      // Arrange
-      const currentZoom = 10.50;
-      realMapService.setMapController(mockGoogleMapController);
-      when(mockGoogleMapController.getZoomLevel())
-          .thenAnswer((_) async => currentZoom);
-
-      await realMapService.zoomOut();
-
-      verify(mockGoogleMapController.animateCamera(
-        argThat(
-          isA<CameraUpdate>().having(
-            (update) => update.toString(),
-            'CameraUpdate',
-            CameraUpdate.zoomTo(
-              currentZoom - 1,
-            ).toString(),
-          ),
-        ),
-      )).called(1);
-    });
   });
 
   group('test geolocator methods', () {
@@ -230,7 +186,6 @@ Future<void> main() async {
     var service = true; // locationService set to true
 
     // ensure plugin is initialized
-    TestWidgetsFlutterBinding.ensureInitialized();
     const MethodChannel locationChannel =
         MethodChannel('flutter.baseflow.com/geolocator');
 

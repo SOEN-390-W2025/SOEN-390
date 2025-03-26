@@ -5,6 +5,7 @@ import 'package:concordia_nav/ui/indoor_location/indoor_location_view.dart';
 import 'package:concordia_nav/ui/outdoor_location/outdoor_location_map_view.dart';
 import 'package:concordia_nav/utils/building_drawer_viewmodel.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/floor_plan_search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -13,9 +14,11 @@ import 'package:concordia_nav/widgets/building_info_drawer.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 import '../map/map_viewmodel_test.mocks.dart';
 import 'building_info_drawer_test.mocks.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../settings/preferences_view_test.mocks.dart';
 
 @GenerateMocks([BuildingInfoDrawerViewModel])
 class TestTickerProvider extends TickerProvider {
@@ -31,6 +34,7 @@ void main() async {
   late MockMapViewModel mockMapViewModel;
   late MockMapService mockMapService;
   late OutdoorLocationMapView mockMapView;
+  late MockPreferencesModel mockPreferencesModel;
 
   final Map<CustomTravelMode, String> mockTravelTimes = {
     CustomTravelMode.walking: "15 mins",
@@ -144,6 +148,9 @@ void main() async {
 
     mockMapView = OutdoorLocationMapView(
         campus: ConcordiaCampus.sgw, mapViewModel: mockMapViewModel);
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   testWidgets('Close button calls drawerViewModel.closeDrawer',
@@ -175,17 +182,24 @@ void main() async {
 
   testWidgets('Test BuildingInfoDrawer with mock map view',
       (WidgetTester tester) async {
-    // Use the mock map view
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: BuildingInfoDrawer(
+    // define routes needed for this test
+    final routes = {
+      '/': (context) => BuildingInfoDrawer(
             building: BuildingRepository.h,
             onClose: () => true,
             outdoorLocationMapView: mockMapView, // Pass the mock map view here
           ),
-        ),
-      ),
+      '/OutdoorLocationMapView': (context) => mockMapView
+    };
+    // Use the mock map view
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+                initialRoute: '/',
+                routes: routes,
+              ),
+      )
     );
 
     await tester.pumpAndSettle();

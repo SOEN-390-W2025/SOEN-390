@@ -92,16 +92,31 @@ class RouteCalculationService {
   }
 
   // Shared formatting methods
-  static String formatDistance(double meters) {
-    if (meters < 10) {
-      return "${meters.toStringAsFixed(1)} m";
-    } else if (meters < 100) {
-      return "${meters.round()} m";
-    } else if (meters < 1000) {
-      return "${meters.round()} m";
+  static String formatDistance(double meters,
+      {String measurementUnit = 'Metric'}) {
+    if (measurementUnit == 'Imperial') {
+      final double yards = meters * 1.09361;
+      if (yards < 10) {
+        return "${yards.toStringAsFixed(1)} yd";
+      } else if (yards < 100) {
+        return "${yards.round()} yd";
+      } else if (yards < 1000) {
+        return "${yards.round()} yd";
+      } else {
+        final miles = yards / 1760;
+        return "${miles.toStringAsFixed(1)} mi";
+      }
     } else {
-      final kilometers = meters / 1000;
-      return "${kilometers.toStringAsFixed(1)} km";
+      if (meters < 10) {
+        return "${meters.toStringAsFixed(1)} m";
+      } else if (meters < 100) {
+        return "${meters.round()} m";
+      } else if (meters < 1000) {
+        return "${meters.round()} m";
+      } else {
+        final kilometers = meters / 1000;
+        return "${kilometers.toStringAsFixed(1)} km";
+      }
     }
   }
 

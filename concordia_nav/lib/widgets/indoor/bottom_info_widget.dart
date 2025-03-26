@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../data/domain-model/poi.dart';
 import '../../ui/indoor_location/indoor_step_view.dart';
 
 class BottomInfoWidget extends StatefulWidget {
@@ -11,6 +12,7 @@ class BottomInfoWidget extends StatefulWidget {
   final VoidCallback? onNextFloor;
   final VoidCallback? onPrevFloor;
   final String distance;
+  final POI? selectedPOI;
 
   const BottomInfoWidget({
     super.key,
@@ -23,6 +25,7 @@ class BottomInfoWidget extends StatefulWidget {
     this.onNextFloor,
     this.onPrevFloor,
     required this.distance,
+    this.selectedPOI,
   });
 
   @override
@@ -110,6 +113,7 @@ class _BottomInfoWidgetState extends State<BottomInfoWidget> {
                           isDisability: widget.isDisability,
                           floor: floor,
                           isMultiFloor: widget.isMultiFloor,
+                          selectedPOI: widget.selectedPOI,
                         ),
                       ),
                     );

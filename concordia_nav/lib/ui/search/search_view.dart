@@ -51,83 +51,87 @@ class _SearchViewState extends State<SearchView> {
         appBar: customAppBar(context, 'Search'),
         body: Consumer<SearchViewModel>(
           builder: (context, viewModel, child) {
-            return Column(
-              children: [
-                TextField(
-                  onChanged: (query) {
-                    viewModel
-                        .filterBuildings(query); // Filter buildings on input
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Search for a building',
-                    prefixIcon: Icon(Icons.search),
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Colors.grey), // Color when focused
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey), // Color when not focused
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // List of filtered buildings
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: viewModel.filteredBuildings.isEmpty
-                        ? searchList.length
-                        : viewModel.filteredBuildings.length,
-                    itemBuilder: (context, index) {
-                      final String building =
-                          viewModel.filteredBuildings.isEmpty
-                              ? searchList[index]
-                              : viewModel.filteredBuildings[index];
-
-                      final bool isSelected = _selectedBuilding == building;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedBuilding =
-                                building; // Update the selected building
-                          });
-
-                          Navigator.pop(context, [
-                            building,
-                            _currentLocation
-                          ]); // Return the selected building
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color.fromARGB(132, 158, 158, 158)
-                                : null, // Change color if selected
-                            border: const Border(
-                              bottom: BorderSide(
-                                color: Colors
-                                    .grey, // Border color between each item
-                                width: 0.5, // Border thickness
-                              ),
-                            ),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              building,
-                              style: TextStyle(
-                                color: isSelected ? Colors.black : null,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
+            return Semantics(
+              label:
+                  'Type to filter and select a building from those available.',
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: (query) {
+                      viewModel
+                          .filterBuildings(query); // Filter buildings on input
                     },
+                    decoration: const InputDecoration(
+                      labelText: 'Search for a building',
+                      prefixIcon: Icon(Icons.search),
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Color when focused
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Color when not focused
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  // List of filtered buildings
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: viewModel.filteredBuildings.isEmpty
+                          ? searchList.length
+                          : viewModel.filteredBuildings.length,
+                      itemBuilder: (context, index) {
+                        final String building =
+                            viewModel.filteredBuildings.isEmpty
+                                ? searchList[index]
+                                : viewModel.filteredBuildings[index];
+
+                        final bool isSelected = _selectedBuilding == building;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedBuilding =
+                                  building; // Update the selected building
+                            });
+
+                            Navigator.pop(context, [
+                              building,
+                              _currentLocation
+                            ]); // Return the selected building
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color.fromARGB(132, 158, 158, 158)
+                                  : null, // Change color if selected
+                              border: const Border(
+                                bottom: BorderSide(
+                                  color: Colors
+                                      .grey, // Border color between each item
+                                  width: 0.5, // Border thickness
+                                ),
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                building,
+                                style: TextStyle(
+                                  color: isSelected ? Colors.black : null,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),

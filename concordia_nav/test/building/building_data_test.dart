@@ -78,19 +78,21 @@ void main() {
       final buildingData = await buildingDataLoader.load();
 
       // Assert
-      expect(buildingData.building, building);
-      expect(buildingData.floors, floors);
-      expect(buildingData.outdoorExitPoint.floor, ConcordiaFloor("1", building, 1));
+      expect(buildingData?.building, building);
+      expect(buildingData?.floors, floors);
+      expect(buildingData?.outdoorExitPoint.floor, ConcordiaFloor("1", building, 1));
     });
 
-    test('load() non existant building throws flutterError', () async {
+    test('load() non existant building returns null', () async {
       // Arrange
       const building = ConcordiaBuilding(45.4215, -75.6992, "test",
          "test", "Montreal", "QC", "WAA AAA", "WAA", ConcordiaCampus.sgw);
       final buildingDataLoader = BuildingDataLoader(building.abbreviation);
 
-      // Verify that load() on non existant building throws an error
-      expect(buildingDataLoader.load(), throwsFlutterError);
+      final result = await buildingDataLoader.load();
+
+      // Verify that load() on non existant building returns null
+      expect(result, isNull);
     });
   });
 }

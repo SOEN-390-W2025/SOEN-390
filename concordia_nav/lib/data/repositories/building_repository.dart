@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
@@ -223,8 +224,29 @@ class BuildingRepository {
     (BuildingRepository.hu.abbreviation): hu,
   };
 
+  static Map<String, ConcordiaBuilding> buildingByName = {
+    (BuildingRepository.h.name): h,
+    (BuildingRepository.lb.name): lb,
+    (BuildingRepository.er.name): er,
+    (BuildingRepository.ls.name): ls,
+    (BuildingRepository.gm.name): gm,
+    (BuildingRepository.ev.name): ev,
+    (BuildingRepository.mb.name): mb,
+    (BuildingRepository.fb.name): fb,
+    (BuildingRepository.fg.name): fg,
+    (BuildingRepository.cl.name): cl,
+    (BuildingRepository.vl.name): vl,
+    (BuildingRepository.fc.name): fc,
+    (BuildingRepository.ad.name): ad,
+    (BuildingRepository.cj.name): cj,
+    (BuildingRepository.sp.name): sp,
+    (BuildingRepository.cc.name): cc,
+    (BuildingRepository.hu.name): hu,
+  };
+
   /// Helper method to load polygons and label positions from a specified path.
-  static Future<Map<String, dynamic>> _loadPolygonsAndLabels(String path) async {
+  static Future<Map<String, dynamic>> _loadPolygonsAndLabels(
+      String path) async {
     try {
       final String jsonString = await rootBundle.loadString(path);
       final Map<String, dynamic> jsonData = json.decode(jsonString);
@@ -246,14 +268,15 @@ class BuildingRepository {
       return {"polygons": polygons, "labels": labelPositions};
     } on Error catch (e) {
       if (kDebugMode) {
-        print('Error loading building polygons and labels: $e');
+        dev.log('Error loading building polygons and labels: $e');
       }
       return {"polygons": {}, "labels": {}};
     }
   }
 
   /// Loads polygons and label positions (centroids for markers) from assets for a specific campus.
-  static Future<Map<String, dynamic>> loadBuildingPolygonsAndLabels(String campusName) async {
+  static Future<Map<String, dynamic>> loadBuildingPolygonsAndLabels(
+      String campusName) async {
     final String path = 'assets/maps/outdoor/$campusName/polygons.json';
     return await _loadPolygonsAndLabels(path);
   }
@@ -263,7 +286,7 @@ class BuildingRepository {
     const String path = 'assets/maps/outdoor/all/polygons.json';
     return await _loadPolygonsAndLabels(path);
   }
-  
+
   /// Uses LatLngBounds to find the center (centroid) of a polygon.
   static LatLng _calculateBoundsCenter(List<LatLng> points) {
     double sumLat = 0;

@@ -1,24 +1,29 @@
-import 'dart:async';
+// ignore_for_file: must_be_immutable
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../data/domain-model/poi.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
+import '../../utils/settings/preferences_viewmodel.dart';
+import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../widgets/accessibility_button.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/indoor/bottom_info_widget.dart';
 import '../../widgets/indoor/location_info_widget.dart';
-import '../../widgets/zoom_buttons.dart';
 import 'floor_plan_widget.dart';
 import '../../utils/indoor_map_viewmodel.dart';
 import 'dart:developer' as dev;
 
-// ignore: must_be_immutable
 class IndoorDirectionsView extends StatefulWidget {
   final String building;
   late String endRoom;
   late String sourceRoom;
   final bool isDisability;
+  final bool hideAppBar;
+  final bool hideIndoorInputs;
+  final POI? selectedPOI;
 
   IndoorDirectionsView({
     super.key,
@@ -26,6 +31,9 @@ class IndoorDirectionsView extends StatefulWidget {
     required this.building,
     required this.endRoom,
     this.isDisability = false,
+    this.hideAppBar = false,
+    this.hideIndoorInputs = false,
+    this.selectedPOI,
   });
 
   @override
@@ -46,13 +54,16 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   late String displayFloor;
   static bool isMultiFloor = false;
   Timer? _timer;
-
-  final _maxScale = 1.5;
-  final _minScale = 0.6;
+  bool isPOIOnDifferentFloor = false;
+  POI? targetPOI;
 
   late IndoorMapViewModel _indoorMapViewModel;
   late IndoorDirectionsViewModel _directionsViewModel;
   late BuildingViewModel _buildingViewModel;
+  late POIMapViewModel _poiMapViewModel;
+
+  // POI-related state variables
+  List<POI> _poisOnCurrentFloor = [];
 
   static const yourLocation = 'Your Location';
 
@@ -64,34 +75,28 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
   @override
   void initState() {
     super.initState();
+    // Initialize ViewModels
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
-
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+    
+    // Initialize POIMapViewModel as a service
+    _poiMapViewModel = POIMapViewModel.asService(
+      buildingViewModel: _buildingViewModel,
+      indoorDirectionsViewModel: _directionsViewModel,
+      indoorMapViewModel: _indoorMapViewModel
+    );
 
     disability = widget.isDisability;
     buildingAbbreviation =
-        _buildingViewModel.getBuildingAbbreviation(widget.building)!;
-    if (widget.sourceRoom != yourLocation) {
-      displayFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+        _buildingViewModel.getBuildingByName(widget.building)!.abbreviation;
+
+    // If we have a POI passed directly, use its coordinates instead of the room
+    if (widget.selectedPOI != null) {
+      _handleSelectedPOI();
     } else {
-      displayFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
-    }
-
-    floorPlanPath =
-        'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
-
-    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
-    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
-    realStartRoom = widget.sourceRoom;
-    realEndRoom = widget.endRoom;
-
-    // Check if source and destination are on different floors
-    if (widget.sourceRoom != 'Your Location' && startFloor != endFloor) {
-      isMultiFloor = true;
-      widget.endRoom = 'connection';
-    } else {
-      isMultiFloor = false;
+      // Original logic when no POI is provided
+      _initializeWithRoomNames();
     }
 
     _indoorMapViewModel.setInitialCameraPosition(
@@ -100,8 +105,127 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
       offsetY: -50.0,
     );
 
-    from = realStartRoom;
+    getSvgSize();
+    _initializeRoute();
+    
+    // Load POIs for the current floor from the POIMapViewModel
+    _loadPOIsForCurrentFloor();
 
+    // Initialize multi-floor view if needed
+    if (isMultiFloor) {
+      if (realStartRoom == yourLocation) {
+        handleNextFloorPress();
+      } else if (isPOIOnDifferentFloor && displayFloor == startFloor) {
+        // If we're on the start floor and need to go to a POI on a different floor
+        handlePrevFloorPress();
+      }
+    }
+  }
+  
+  // Method to load POIs for the current floor using POIMapViewModel
+  Future<void> _loadPOIsForCurrentFloor() async {
+    try {
+      // Get POIs from the POIMapViewModel
+      _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
+        buildingAbbreviation, 
+        displayFloor
+      );
+      
+      if (mounted) {
+        setState(() {});
+      }
+    // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      dev.log('Error loading POIs in IndoorDirectionsView: $e');
+    }
+  }
+
+  // Enhanced method to handle POI-based initialization
+  void _handleSelectedPOI() {
+    targetPOI = widget.selectedPOI!;
+
+    // Extract floor information
+    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    endFloor = targetPOI!.floor;
+
+    // Determine if we're dealing with a multi-floor scenario
+    isPOIOnDifferentFloor = startFloor != endFloor;
+    isMultiFloor = isPOIOnDifferentFloor;
+
+    // Set the initial display floor based on source
+    if (widget.sourceRoom.trim().toLowerCase() == 'your location') {
+      // Start with the POI's floor when coming from "Your Location"
+      displayFloor = endFloor;
+    } else {
+      // Otherwise start with the source floor
+      displayFloor = startFloor;
+    }
+
+    // Update the floor plan path
+    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+
+    // Set up the real room references
+    realStartRoom = widget.sourceRoom;
+    realEndRoom = '${targetPOI!.buildingId} ${targetPOI!.floor}${targetPOI!.name}';
+
+    // If multi-floor, set the appropriate end room for the current floor view
+    if (isPOIOnDifferentFloor) {
+      // If we're on the starting floor, we need to navigate to the connection point
+      if (displayFloor == startFloor) {
+        widget.endRoom = 'connection';
+      }
+      // If we're on the destination floor, we need to navigate from the connection to the POI
+      else if (displayFloor == endFloor) {
+        widget.sourceRoom = 'connection';
+        widget.endRoom = targetPOI!.name;
+      }
+    } else {
+      // If same floor, just navigate directly to the POI
+      widget.endRoom = targetPOI!.name;
+    }
+
+    // Set up display names for the UI
+    from = realStartRoom;
+    if (realStartRoom == yourLocation) {
+      from = yourLocation;
+    } else if (hasFullRoomName(realStartRoom)) {
+      from = realStartRoom;
+    } else {
+      from = '$buildingAbbreviation $realStartRoom';
+    }
+
+    to = '${targetPOI!.name} (${targetPOI!.buildingId} ${targetPOI!.floor})';
+
+    dev.log('IndoorDirectionsView with POI: from: $from, to: $to');
+    dev.log('Multi-floor POI navigation: $isPOIOnDifferentFloor, display floor: $displayFloor');
+  }
+
+  // Original initialization logic moved to a separate method
+  void _initializeWithRoomNames() {
+    // extractFloor() returns "1" for "main entrance" or "Your Location"
+    startFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    endFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
+
+    if (widget.sourceRoom.trim().toLowerCase() != 'your location') {
+      displayFloor = _indoorMapViewModel.extractFloor(widget.sourceRoom);
+    } else {
+      displayFloor = _indoorMapViewModel.extractFloor(widget.endRoom);
+    }
+
+    floorPlanPath = 'assets/maps/indoor/floorplans/$buildingAbbreviation$displayFloor.svg';
+
+    realStartRoom = widget.sourceRoom;
+    realEndRoom = widget.endRoom;
+
+    // Check if source and destination are on different floors
+    if (startFloor != endFloor) {
+      isMultiFloor = true;
+      widget.endRoom = 'connection';
+    } else {
+      isMultiFloor = false;
+    }
+
+    from = realStartRoom;
     if (realStartRoom == yourLocation) {
       from = yourLocation;
     } else if (hasFullRoomName(realStartRoom)) {
@@ -114,17 +238,15 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         ? realEndRoom
         : '$buildingAbbreviation $realEndRoom';
 
-    dev.log('realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
-    dev.log('from: $from, to: $to');
-    getSvgSize();
-
-    _initializeRoute();
+    dev.log('IndoorDirectionsView: realStartRoom: $realStartRoom, realEndRoom: $realEndRoom');
+    dev.log('IndoorDirectionsView: from: $from, to: $to');
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _indoorMapViewModel.dispose();
+    _poiMapViewModel.dispose();
     super.dispose();
   }
 
@@ -150,12 +272,14 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   Future<void> _initializeRoute() async {
     try {
+      // Enhanced routing initialization with better POI support
       await _directionsViewModel.calculateRoute(
         widget.building,
         displayFloor,
         widget.sourceRoom,
         widget.endRoom,
         disability,
+        destinationPOI: displayFloor == endFloor ? widget.selectedPOI : null,
       );
 
       if (_directionsViewModel.startLocation != Offset.zero &&
@@ -175,8 +299,7 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
           }
         });
       }
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+    } on Error catch (e) {
       _showErrorMessage('Error calculating route: $e');
     }
   }
@@ -191,99 +314,101 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   @override
   Widget build(BuildContext context) {
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    _directionsViewModel.measurementUnit = preferences.selectedMeasurementUnit;
+
     return ChangeNotifierProvider.value(
       value: _directionsViewModel,
       child:
           Consumer<IndoorDirectionsViewModel>(builder: (context, viewModel, _) {
         return Scaffold(
-          appBar: customAppBar(context, 'Indoor Directions'),
-          body: Column(
-            children: [
-              LocationInfoWidget(
-                  from: from,
-                  to: to,
-                  building: widget.building,
-                  isDisability: disability),
-              Expanded(
-                child: Stack(
-                  children: [
-                    FloorPlanWidget(
-                      indoorMapViewModel: _indoorMapViewModel,
-                      floorPlanPath: floorPlanPath,
-                      viewModel: viewModel,
-                      semanticsLabel:
-                          'Floor plan of $buildingAbbreviation-$startFloor',
-                      width: width,
-                      height: height,
-                    ),
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: AccessibilityButton(
-                        sourceRoom: widget.sourceRoom,
-                        endRoom: widget.endRoom,
-                        disability: disability,
-                        onDisabilityChanged: (value) {
-                          disability = !disability;
-                          _initializeRoute(); // Recalculate route with new setting
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      top: 76,
-                      right: 16,
-                      child: Column(
-                        children: [
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final double currentScale =
-                                  currentMatrix.getMaxScaleOnAxis();
-                              if (currentScale < _maxScale) {
-                                final Matrix4 zoomedInMatrix = currentMatrix
-                                  ..scale(1.2);
-                                _indoorMapViewModel.animateTo(zoomedInMatrix);
-                              }
-                            },
-                            icon: Icons.add,
-                            isZoomInButton: true,
-                          ),
-                          ZoomButton(
-                            onTap: () {
-                              final Matrix4 currentMatrix = _indoorMapViewModel
-                                  .transformationController.value
-                                  .clone();
-                              final double currentScale =
-                                  currentMatrix.getMaxScaleOnAxis();
-                              if (currentScale > _minScale) {
-                                final Matrix4 zoomedOutMatrix = currentMatrix
-                                  ..scale(0.8);
-                                _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                              }
-                            },
-                            icon: Icons.remove,
-                            isZoomInButton: false,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+          appBar: (widget.hideAppBar)
+              ? null
+              : customAppBar(context, 'Floor Navigation'),
+          body: Semantics(
+            label: 'Get information on floor plans, routes, and travel time.',
+            child: Column(
+              children: [
+                Visibility(
+                  visible: !widget.hideIndoorInputs,
+                  child: LocationInfoWidget(
+                      from: from,
+                      to: to,
+                      building: widget.building,
+                      isDisability: disability,
+                      isPOI: widget.selectedPOI != null
+                  ),
                 ),
-              ),
-              BottomInfoWidget(
-                building: widget.building,
-                sourceRoom: realStartRoom,
-                endRoom: realEndRoom,
-                isDisability: disability,
-                eta: viewModel.eta,
-                distance: viewModel.distance,
-                isMultiFloor: isMultiFloor,
-                onNextFloor: handleNextFloorPress,
-                onPrevFloor: handlePrevFloorPress,
-              ),
-            ],
+                Expanded(
+                  child: Stack(
+                    children: [
+                      FloorPlanWidget(
+                        indoorMapViewModel: _indoorMapViewModel,
+                        floorPlanPath: floorPlanPath,
+                        viewModel: viewModel,
+                        semanticsLabel:
+                            'Floor plan of $buildingAbbreviation-$displayFloor',
+                        width: width,
+                        height: height,
+                        pois: _poisOnCurrentFloor,
+                        onPoiTap: null,
+                      ),
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: AccessibilityButton(
+                          sourceRoom: widget.sourceRoom,
+                          endRoom: widget.endRoom,
+                          disability: disability,
+                          onDisabilityChanged: (value) {
+                            disability = !disability;
+                            _initializeRoute();
+                          },
+                        ),
+                      ),
+                      if (isPOIOnDifferentFloor)
+                        Positioned(
+                          top: 16,
+                          left: 16,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              'Floor $displayFloor',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                BottomInfoWidget(
+                  building: widget.building,
+                  sourceRoom: realStartRoom,
+                  endRoom: realEndRoom,
+                  isDisability: disability,
+                  eta: viewModel.eta,
+                  distance: viewModel.distance,
+                  isMultiFloor: isMultiFloor,
+                  onNextFloor: handleNextFloorPress,
+                  onPrevFloor: handlePrevFloorPress,
+                  selectedPOI: widget.selectedPOI,
+                ),
+              ],
+            ),
           ),
         );
       }),
@@ -314,6 +439,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         );
 
         getSvgSize();
+
+        // Load POIs for the new floor
+        _loadPOIsForCurrentFloor();
       }
     });
 
@@ -322,13 +450,8 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
 
   void handlePrevFloorPress() {
     setState(() {
-      if (realEndRoom == yourLocation) {
-        widget.sourceRoom = 'connection';
-        widget.endRoom = realEndRoom;
-      } else {
-        widget.sourceRoom = yourLocation;
-        widget.endRoom = realEndRoom;
-      }
+      widget.sourceRoom = 'connection';
+      widget.endRoom = realEndRoom;
 
       isMultiFloor = true;
 
@@ -345,6 +468,9 @@ class IndoorDirectionsViewState extends State<IndoorDirectionsView>
         );
 
         getSvgSize(); // Ensure floor plan dimensions update
+
+        // Load POIs for the new floor
+        _loadPOIsForCurrentFloor();
       }
     });
 

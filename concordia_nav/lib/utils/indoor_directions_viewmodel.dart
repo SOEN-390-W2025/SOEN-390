@@ -7,6 +7,7 @@ import '../data/domain-model/concordia_building.dart';
 import '../data/domain-model/concrete_floor_routable_point.dart';
 import '../data/domain-model/connection.dart';
 import '../data/domain-model/indoor_route.dart';
+import '../data/domain-model/poi.dart';
 import '../data/repositories/building_data.dart';
 import '../data/repositories/building_data_manager.dart';
 import '../data/services/indoor_routing_service.dart';
@@ -17,20 +18,31 @@ import 'dart:developer' as dev;
 
 class IndoorDirectionsViewModel extends ChangeNotifier {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
+  final String mainEntranceString = "main entrance";
 
+  bool _isLoading = false;
+  String? _errorMessage;
   bool _isAccessibilityMode = false;
-  String eta = 'Calculating...';
-  String distance = 'Calculating...';
+  String eta = 'N/A';
+  String distance = 'N/A';
   IndoorRoute? _calculatedRoute;
   Offset _startLocation = Offset.zero;
   Offset _endLocation = Offset.zero;
+  String measurementUnit = 'Metric';
 
   // Getters
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
   bool get isAccessibilityMode => _isAccessibilityMode;
   IndoorRoute? get calculatedRoute => _calculatedRoute;
   Offset get startLocation => _startLocation;
   Offset get endLocation => _endLocation;
 
+  set endLocation(Offset? value) {
+    _endLocation = value!;
+    notifyListeners(); // Assuming you're using a state management library
+  }
+  
   // Method to toggle accessibility mode
   void toggleAccessibilityMode(bool value) {
     _isAccessibilityMode = value;
@@ -50,6 +62,10 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
     if (buildingData == null) {
       return null;
+    }
+
+    if (room.toLowerCase() == mainEntranceString) {
+      return buildingData.outdoorExitPoint;
     }
 
     // Get the list of rooms for the given floor
@@ -94,8 +110,13 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
-  ConcordiaFloorPoint? _getRegularStartPoint(
-      BuildingData buildingData, String floor) {
+  ConcordiaFloorPoint? getRegularStartPoint(
+      BuildingData buildingData, String floor,
+      {String? connection}) {
+    if (floor == '1' && connection != 'connection') {
+      return buildingData.outdoorExitPoint;
+    }
+
     // Try escalators first if no disability
     try {
       Connection escalatorConnection = buildingData.connections
@@ -135,7 +156,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
         building.abbreviation.toUpperCase());
 
     // If floor is "1", return the outdoor exit point
-    if (connection != 'connection' && floor == '1') {
+    if (((connection == mainEntranceString) || (connection != "connection")) &&
+        floor == '1') {
       return buildingData!.outdoorExitPoint;
     }
 
@@ -145,7 +167,7 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     }
 
     // For non-disability case, try regular start points
-    return _getRegularStartPoint(buildingData!, floor);
+    return getRegularStartPoint(buildingData!, floor, connection: connection);
   }
 
   Future<ConcordiaFloorPoint?> _getAccessibleStartPoint(
@@ -166,8 +188,29 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<void> calculateRoute(String building, String floor, String sourceRoom,
-      String endRoom, bool disability) async {
+  Future<ConcordiaFloorPoint?> _getStartPoint(String sourceRoomClean,
+      String building, String floor, bool disability) async {
+    ConcordiaFloorPoint? startPositionPoint;
+    if (sourceRoomClean == 'Your Location') {
+      startPositionPoint = await getStartPoint(building, floor, disability, '');
+    } else if (sourceRoomClean == 'connection') {
+      startPositionPoint =
+          await getStartPoint(building, floor, disability, 'connection');
+    } else {
+      startPositionPoint =
+          await getPositionPoint(building, floor, sourceRoomClean);
+    }
+    return startPositionPoint;
+  }
+
+  Future<void> calculateRoute(
+    String building,
+    String floor,
+    String sourceRoom,
+    String endRoom,
+    bool disability, {
+    POI? destinationPOI,
+  }) async {
     try {
       final sourceRoomClean =
           sourceRoom.replaceAll(RegExp(r'^[a-zA-Z]{1,2} '), '');
@@ -190,25 +233,36 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
       dev.log('Source room: $sourceRoomClean');
       dev.log('End room: $endRoomClean');
       dev.log('Floor: $floor');
-
-      // Get start location
-      if (sourceRoomClean == 'Your Location') {
-        startPositionPoint =
-            await getStartPoint(building, floor, disability, '');
-      } else if (sourceRoomClean == 'connection') {
-        startPositionPoint =
-            await getStartPoint(building, floor, disability, 'connection');
-      } else {
-        startPositionPoint =
-            await getPositionPoint(building, floor, sourceRoomClean);
+      if (destinationPOI != null) {
+        dev.log(
+            'Using POI destination: ${destinationPOI.name} at (${destinationPOI.x}, ${destinationPOI.y})');
       }
 
+      // Get start location
+      startPositionPoint =
+          await _getStartPoint(sourceRoomClean, building, floor, disability);
+
       // Get end location
-      if (endRoomClean == 'Your Location') {
+      if (destinationPOI != null) {
+        // Create a ConcordiaFloor object for the POI's floor
+        final ConcordiaBuilding buildingObj = _buildingViewModel
+            .getBuildingByAbbreviation(destinationPOI.buildingId)!;
+        final poiFloor = ConcordiaFloor(destinationPOI.floor, buildingObj);
+
+        // Use POI coordinates directly with the correct floor
+        endPositionPoint = ConcordiaFloorPoint(
+          poiFloor,
+          destinationPOI.x.toDouble(),
+          destinationPOI.y.toDouble(),
+        );
+      } else if (endRoomClean == 'Your Location') {
         endPositionPoint = await getStartPoint(building, floor, disability, '');
       } else if (endRoomClean == 'connection') {
         endPositionPoint =
             await getStartPoint(building, floor, disability, 'connection');
+      } else if (endRoomClean.toLowerCase() == 'ma') {
+        endPositionPoint = await getStartPoint(
+            building, floor, disability, mainEntranceString);
       } else {
         endPositionPoint =
             await getPositionPoint(building, floor, endRoomClean);
@@ -226,30 +280,30 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
         // Create FloorRoutablePoint for start and end
         final startRoutablePoint = ConcreteFloorRoutablePoint(
-          floor: currentFloor,
+          floor: startPositionPoint.floor,
           positionX: startPositionPoint.positionX,
           positionY: startPositionPoint.positionY,
         );
 
         final endRoutablePoint = ConcreteFloorRoutablePoint(
-          floor: currentFloor,
+          floor: endPositionPoint.floor,
           positionX: endPositionPoint.positionX,
           positionY: endPositionPoint.positionY,
         );
 
         // Calculate route based on accessibility mode
-        _calculatedRoute = IndoorRoutingService.getIndoorRoute(buildingData,
-            startRoutablePoint, endRoutablePoint, _isAccessibilityMode);
+        _calculatedRoute = IndoorRoutingService.getIndoorRoute(
+          buildingData,
+          startRoutablePoint,
+          endRoutablePoint,
+          _isAccessibilityMode,
+        );
 
         // Calculate ETA and distance using the shared service
         if (_calculatedRoute != null) {
           double totalDistance =
               RouteCalculationService.calculateTotalDistanceFromRoute(
                   _calculatedRoute!);
-
-          final ConcordiaBuilding buildingObj =
-              _buildingViewModel.getBuildingByName(building)!;
-          final currentFloor = ConcordiaFloor(floor, buildingObj);
 
           // Convert pixels to meters
           double conversionFactor =
@@ -262,7 +316,8 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
 
           // Format outputs using the shared service
           eta = RouteCalculationService.formatDetailedTime(travelTimeSeconds);
-          distance = RouteCalculationService.formatDistance(distanceInMeters);
+          distance = RouteCalculationService.formatDistance(distanceInMeters,
+              measurementUnit: measurementUnit);
         } else {
           eta = "Unknown";
           distance = "Unknown";
@@ -289,7 +344,58 @@ class IndoorDirectionsViewModel extends ChangeNotifier {
     return 0.05;
   }
 
+  // A single method to check if directions are available for a location
+  Future<bool> areDirectionsAvailableForLocation(String? location) async {
+    if (location == null) return false;
+
+    // Extract floor plan name from location
+    final String floorPlanName = _getFloorPlanName(location);
+    final String floorPlanPath =
+        'assets/maps/indoor/floorplans/$floorPlanName.svg';
+
+    // Check if floor plan exists
+    return await checkFloorPlanExists(floorPlanPath);
+  }
+
+  // Helper to extract floor plan name - moved from calendar view
+  String _getFloorPlanName(String location) {
+    // Split the string by spaces
+    final List<String> parts = location.split(" ");
+    if (parts.length < 2) {
+      return location; // Return original if no space found
+    }
+
+    final String building = parts[0];
+    final String roomNumber = parts[1];
+
+    // Check if roomNumber starts with a letter
+    if (roomNumber.isNotEmpty && RegExp(r'[A-Za-z]').hasMatch(roomNumber[0])) {
+      // If roomNumber starts with a letter, return building + first two characters
+      if (roomNumber.length > 1) {
+        return building + roomNumber[0] + roomNumber[1];
+      } else {
+        return building + roomNumber[0];
+      }
+    } else {
+      // For regular cases, return building + first character of roomNumber
+      if (roomNumber.isNotEmpty) {
+        return building + roomNumber[0];
+      }
+    }
+
+    return building; // Fallback if roomNumber is empty
+  }
+
+  Future<bool> checkFloorPlanExists(String floorPlanPath) async {
+    return await IndoorRoutingService().checkFloorPlanExists(floorPlanPath);
+  }
+
   Future<Size> getSvgDimensions(String svgPath) async {
     return await IndoorRoutingService().getSvgDimensions(svgPath);
+  }
+
+  void forceEndLocation(Offset location) {
+    _endLocation = location;
+    notifyListeners();
   }
 }

@@ -41,32 +41,50 @@ PreferredSizeWidget customAppBar(BuildContext context, String title,
     );
   }
 
-  return AppBar(
-    backgroundColor: Theme.of(context).primaryColor,
-    title: FittedBox(
-      fit: BoxFit.fitWidth,
-      child: Text(title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-          )),
-    ),
-    centerTitle: true,
-    leading: leadingIcon,
-    actions: [
-      IconButton(
-        onPressed: () {
-          // If a custom function is provided, use it; otherwise, use the default function
-          if (onActionPressed != null) {
-            onActionPressed();
-          }
-        },
-        icon: actionIcon ??
-            const Icon(
-              Icons.menu,
-              color: Colors.white,
-            ),
+  return PreferredSize(
+    preferredSize: const Size.fromHeight(56.0),
+    child: Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha((0.3 * 255).toInt()),
+            blurRadius: 6,
+            spreadRadius: 1,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
-    ],
+      child: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        title: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Text(title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              )),
+        ),
+        centerTitle: true,
+        leading: leadingIcon,
+        actions: [
+          IconButton(
+            onPressed: () {
+              // If a custom function is provided, use it; otherwise, use the default function
+              if (onActionPressed != null) {
+                onActionPressed();
+              } else if (isHomePage) {
+                Navigator.pushNamed(context, '/SmartPlannerView');
+              }
+            },
+            icon: actionIcon ??
+                const Icon(
+                  Icons.edit_note,
+                  color: Colors.white,
+                ),
+          ),
+        ],
+        elevation: 0,
+      ),
+    ),
   );
 }

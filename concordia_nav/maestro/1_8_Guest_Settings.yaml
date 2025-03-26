@@ -13,4 +13,4 @@ appId: com.example.concordia_nav
     commands:
       - tapOn: "Link"
       - tapOn: "Allow"
-- assertVisible: "Calendar"
+- assertVisible: "Calendar Selection"

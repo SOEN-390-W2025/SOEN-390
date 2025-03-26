@@ -15,6 +15,10 @@ rooms:
       category: washroom
       floor: "1"
       entrancePoint: { x: 784, y: 684 }
+    - roomNumber: "0003"
+      category: waterFountain
+      floor: "1"
+      entrancePoint: { x: 714, y: 684 }
     - roomNumber: "22"
       category: classroom
       floor: "1"
@@ -24,6 +28,10 @@ rooms:
       category: washroom
       floor: "2"
       entrancePoint: { x: 754, y: 780 }
+    - roomNumber: "0002" 
+      category: washroom
+      floor: "2"
+      entrancePoint: { x: 823, y: 780 }
     - roomNumber: "0002"
       category: unknown
       floor: "2"

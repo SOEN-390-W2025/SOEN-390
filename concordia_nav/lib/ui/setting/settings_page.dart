@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
 
+import 'common_app_bart.dart';
+
 class SettingsPage extends StatefulWidget {
   final DeviceCalendarPlugin?
       plugin; // Optional parameter for dependency injection
@@ -28,7 +30,7 @@ class SettingsPageState extends State<SettingsPage> {
     if (mounted) {
       if (hasPermissions.isSuccess && hasPermissions.data == true) {
         // If permissions are granted, navigate to CalendarView
-        await Navigator.pushNamed(context, '/CalendarView');
+        await Navigator.pushNamed(context, '/CalendarSelectionView');
       } else {
         await Navigator.pushNamed(context, '/CalendarLinkView');
       }
@@ -38,69 +40,46 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-          ),
+      appBar: const CommonAppBar(title: "Settings"),
+      body: Semantics(
+        label: 'Customize the preferences of the application.',
+        child: ListView(
+          children: [
+            SettingsTile(
+              icon: Icons.calendar_today,
+              title: 'My calendar',
+              onTap: () => checkCalendarPermission(),
+            ),
+            SettingsTile(
+              icon: Icons.tune,
+              title: 'Preferences',
+              onTap: () {
+                Navigator.pushNamed(context, '/PreferencesPage');
+              },
+            ),
+            SettingsTile(
+              icon: Icons.accessibility,
+              title: 'Accessibility',
+              onTap: () {
+                Navigator.pushNamed(context, '/AccessibilityPage');
+              },
+            ),
+            SettingsTile(
+              icon: Icons.phone,
+              title: 'Contact',
+              onTap: () {
+                Navigator.pushNamed(context, '/ContactPage');
+              },
+            ),
+            SettingsTile(
+              icon: Icons.info_outline,
+              title: 'Guide',
+              onTap: () {
+                // TODO: Implement navigation to Guide page.
+              },
+            ),
+          ],
         ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: ListView(
-        children: [
-          SettingsTile(
-            icon: Icons.calendar_today,
-            title: 'My calendar',
-            onTap: () => checkCalendarPermission(),
-          ),
-          SettingsTile(
-            icon: Icons.notifications,
-            title: 'Notifications',
-            onTap: () {
-              // TODO: Implement navigation to Notifications page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.tune,
-            title: 'Preferences',
-            onTap: () {
-              // TODO: Implement navigation to Preferences page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.accessibility,
-            title: 'Accessibility',
-            onTap: () {
-              Navigator.pushNamed(context, '/AccessibilityPage');
-            },
-          ),
-          SettingsTile(
-            icon: Icons.phone,
-            title: 'Contact',
-            onTap: () {
-              // TODO: Implement navigation to Contact page.
-            },
-          ),
-          SettingsTile(
-            icon: Icons.info_outline,
-            title: 'Guide',
-            onTap: () {
-              // TODO: Implement navigation to Guide page.
-            },
-          ),
-        ],
       ),
     );
   }

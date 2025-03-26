@@ -1,5 +1,5 @@
+import 'package:concordia_nav/data/domain-model/shuttle_route_details.dart';
 import 'package:concordia_nav/data/repositories/outdoor_directions_repository.dart';
-import 'package:concordia_nav/utils/map_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,13 +20,13 @@ void main() {
   });
 
   group('loadShuttleRoute', () {
-    test('should return correct list of LatLng for SGWtoLOY', () async {
+    test('should return correct list of LatLng for campusSGWtoLOY', () async {
       const jsonString =
           '[{"lat": 45.495, "lng": -73.578}, {"lat": 45.496, "lng": -73.579}]';
       when(mockAssetBundle.loadString(any)).thenAnswer((_) async => jsonString);
 
-      final result =
-          await repository.loadShuttleRoute(ShuttleRouteDirection.SGWtoLOY);
+      final result = await repository
+          .loadShuttleRoute(ShuttleRouteDirection.campusSGWtoLOY);
 
       expect(result,
           [const LatLng(45.495, -73.578), const LatLng(45.496, -73.579)]);

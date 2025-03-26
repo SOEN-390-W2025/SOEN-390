@@ -1,11 +1,16 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
 import 'package:flutter/material.dart';
 import '../../data/domain-model/concordia_building.dart';
+import '../../data/domain-model/poi.dart';
+import '../../utils/building_viewmodel.dart';
 import '../../utils/indoor_directions_viewmodel.dart';
 import '../../utils/indoor_map_viewmodel.dart';
+import '../../utils/poi/poi_map_viewmodel.dart';
 import '../../widgets/floor_button.dart';
 import '../../widgets/floor_plan_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
-import '../../widgets/zoom_buttons.dart';
+import '../../widgets/poi_bottom_sheet.dart';
 import 'floor_plan_widget.dart';
 import 'indoor_directions_view.dart';
 import 'dart:developer' as dev;
@@ -27,21 +32,35 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   late TextEditingController _destinationController;
 
   late IndoorMapViewModel _indoorMapViewModel;
+  late IndoorDirectionsViewModel _directionsViewModel;
+  late BuildingViewModel _buildingViewModel;
+  late POIMapViewModel _poiMapViewModel;
 
   late String floorPlanPath;
   double width = 1024.0;
   double height = 1024.0;
-  final double _maxScale = 1.5;
-  final double _minScale = 0.6;
   bool _floorPlanExists = true;
   bool _isLoading = true;
-  late IndoorDirectionsViewModel _directionsViewModel;
+  bool _hasPannedToRoom = false;
+  
+  // POI-related state variables
+  List<POI> _poisOnCurrentFloor = [];
   
   @override
   void initState() {
     super.initState();
+    // Initialize ViewModels
     _directionsViewModel = IndoorDirectionsViewModel();
+    _buildingViewModel = BuildingViewModel();
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
+    
+    // Initialize POIMapViewModel as a service
+    _poiMapViewModel = POIMapViewModel.asService(
+      buildingViewModel: _buildingViewModel,
+      indoorDirectionsViewModel: _directionsViewModel,
+      indoorMapViewModel: _indoorMapViewModel
+    );
+    
     floorPlanPath =
         'assets/maps/indoor/floorplans/${widget.building.abbreviation}${widget.floor}.svg';
     _checkIfFloorPlanExists();
@@ -54,6 +73,25 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
       offsetX: -50.0,
       offsetY: -50.0,
     );
+    
+    // Load POIs for current floor from the POIMapViewModel
+    _loadPOIsForCurrentFloor();
+  }
+
+  Future<void> _loadPOIsForCurrentFloor() async {
+    try {
+      // Get POIs from the POIMapViewModel
+      _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
+        widget.building.abbreviation, 
+        widget.floor ?? '1'
+      );
+      
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      dev.log('Error loading POIs in IndoorLocationView: $e');
+    }
   }
 
   Future<void> _getSvgSize() async {
@@ -77,9 +115,57 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     });
   }
 
+  // Method to pan to the selected room
+  Future<void> _panToSelectedRoom(BuildContext context) async {
+    if (widget.room != null && !_hasPannedToRoom && _floorPlanExists && !_isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        try {
+          // Get room position from the directionsViewModel
+          final roomPoint = await _directionsViewModel.getPositionPoint(
+            widget.building.name,
+            widget.floor ?? '1',
+            widget.room!,
+          );
+          
+          if (roomPoint != null && context.mounted) {
+            // Create an Offset from the room position
+            final roomPosition = Offset(roomPoint.positionX, roomPoint.positionY);
+            
+            // Calculate screen size for centering
+            final screenSize = MediaQuery.of(context).size;
+            
+            // Use centerOnPoint from IndoorMapViewModel to pan to the room
+            _indoorMapViewModel.centerOnPoint(roomPosition, screenSize);
+            
+            // Mark as panned to avoid repeating
+            setState(() {
+              _hasPannedToRoom = true;
+            });
+            
+            dev.log('Panned to room: ${widget.room} at position $roomPosition');
+          } else {
+            dev.log('Could not find position for room: ${widget.room}');
+          }
+        } catch (e) {
+          dev.log('Error panning to room: $e');
+        }
+      });
+    }
+  }
+
+  void _handlePoiTap(POI poi) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => POIBottomSheet(
+        buildingName: widget.building.name, 
+        poi: poi)
+    );
+  }
+
   @override
   void dispose() {
     _indoorMapViewModel.dispose();
+    _poiMapViewModel.dispose();
     _destinationController.dispose();
     super.dispose();
   }
@@ -87,6 +173,11 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   @override
   Widget build(BuildContext context) {
     dev.log(_floorPlanExists.toString());
+    
+    // Try to pan to the selected room when the floor plan is loaded
+    if (!_isLoading && _floorPlanExists && widget.room != null && !_hasPannedToRoom) {
+      _panToSelectedRoom(context);
+    }
 
     // Extracted body content decision into a separate statement
     Widget bodyContent;
@@ -94,82 +185,49 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     if (_isLoading) {
       bodyContent = const Center(child: CircularProgressIndicator());
     } else if (_floorPlanExists) {
-      bodyContent = Stack(
-        children: [
-          FloorPlanWidget(
-            indoorMapViewModel: _indoorMapViewModel,
-            floorPlanPath: floorPlanPath,
-            semanticsLabel:
-                'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
-            width: width,
-            height: height
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FloorPlanSearchWidget(
-                    searchController: _destinationController,
-                    building: widget.building,
-                    floor: 'Floor ${widget.floor}',
-                    disabled: true,
-                  ),
-                ],
+      bodyContent = Semantics(
+        label: 'Indoor location floor plans',
+        child: Stack(
+          children: [
+            FloorPlanWidget(
+              indoorMapViewModel: _indoorMapViewModel,
+              floorPlanPath: floorPlanPath,
+              semanticsLabel:
+                  'Floor plan of ${widget.building.abbreviation}-${widget.floor}',
+              width: width,
+              height: height,
+              pois: _poisOnCurrentFloor,
+              onPoiTap: _handlePoiTap,
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloorPlanSearchWidget(
+                      searchController: _destinationController,
+                      building: widget.building,
+                      floor: 'Floor ${widget.floor}',
+                      disabled: true,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 80,
-            right: 16,
-            child: FloorButton(
-              floor: widget.floor!,
-              building: widget.building,
+            Positioned(
+              top: 80,
+              right: 16,
+              child: FloorButton(
+                floor: widget.floor!,
+                building: widget.building,
+              ),
             ),
-          ),
-          Positioned(
-            top: 140,
-            right: 16,
-            child: Column(
-              children: [
-                ZoomButton(
-                  onTap: () {
-                    final Matrix4 currentMatrix = _indoorMapViewModel
-                        .transformationController.value
-                        .clone();
-                    final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                    if (currentScale < _maxScale) {
-                      final Matrix4 zoomedInMatrix = currentMatrix
-                        ..scale(1.2);
-                      _indoorMapViewModel.animateTo(zoomedInMatrix);
-                    }
-                  },
-                  icon: Icons.add,
-                  isZoomInButton: true,
-                ),
-                ZoomButton(
-                  onTap: () {
-                    final Matrix4 currentMatrix = _indoorMapViewModel
-                        .transformationController.value
-                        .clone();
-                    final double currentScale = currentMatrix.getMaxScaleOnAxis();
-                    if (currentScale > _minScale) {
-                      final Matrix4 zoomedOutMatrix = currentMatrix
-                        ..scale(0.8);
-                      _indoorMapViewModel.animateTo(zoomedOutMatrix);
-                    }
-                  },
-                  icon: Icons.remove,
-                  isZoomInButton: false,
-                ),
-              ],
-            ),
-          ),
-          if (widget.room != null) _buildFooter(),
-        ],
+            if (widget.room != null) _buildFooter(),
+          ],
+        ),
       );
     } else {
       bodyContent = const Center(

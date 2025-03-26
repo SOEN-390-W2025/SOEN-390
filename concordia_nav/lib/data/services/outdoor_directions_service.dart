@@ -119,12 +119,16 @@ class ODSDirectionsService {
   /// A helper method to fetch a driving route as a list of [LatLng] points.
   /// This is maintained for backward compatibility with `fetchRouteFromCoords()`.
   Future<List<LatLng>> fetchRoute(
-      String originAddress, String destinationAddress) async {
+    String originAddress,
+    String destinationAddress, {
+    gda.TravelMode? transport,
+  }) async {
     final routeResult = await fetchRouteResult(
       originAddress: originAddress,
       destinationAddress: destinationAddress,
-      travelMode: gda.TravelMode.driving, // default to driving
+      travelMode: transport ?? gda.TravelMode.driving, // default to driving
     );
+
     if (routeResult.polyline != null) {
       return routeResult.polyline!.points;
     } else {
@@ -134,10 +138,98 @@ class ODSDirectionsService {
 
   /// Fetches a route using origin coordinates and a destination address.
   Future<List<LatLng>> fetchRouteFromCoords(
-      LatLng origin, LatLng destination) async {
+    LatLng origin,
+    LatLng destination, {
+    gda.TravelMode? transport,
+  }) async {
     final originString = "${origin.latitude},${origin.longitude}";
     final destinationString =
         "${destination.latitude},${destination.longitude}";
-    return fetchRoute(originString, destinationString);
+    return fetchRoute(originString, destinationString, transport: transport);
   }
+
+  /// Fetches a static map URL based on the origin and destination addresses.
+  Future<String?> fetchStaticMapUrl({
+    required String originAddress,
+    required String destinationAddress,
+    required int width,
+    required int height,
+  }) async {
+    const String baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
+    final String sizeParam = "${width}x$height";
+    final String markers =
+        "markers=icon:http://maps.google.com/mapfiles/kml/shapes/man.png|$originAddress"
+        "&markers=icon:http://maps.google.com/mapfiles/kml/paddle/red-stars.png|$destinationAddress";
+
+    final request = gda.DirectionsRequest(
+      origin: originAddress,
+      destination: destinationAddress,
+    );
+
+    final Completer<String?> completer = Completer();
+
+    await directionsService.route(request,
+        (gda.DirectionsResult result, gda.DirectionsStatus? status) {
+      if (status == gda.DirectionsStatus.ok &&
+          result.routes != null &&
+          result.routes!.isNotEmpty) {
+        final route = result.routes!.first;
+        final encodedPolyline = route.overviewPolyline?.points;
+
+        if (encodedPolyline != null && encodedPolyline.isNotEmpty) {
+          final String path =
+              "path=color:0xDE3355|weight:5|enc:$encodedPolyline";
+          completer.complete(
+              "$baseUrl?size=$sizeParam&$markers&$path&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}");
+          return;
+        }
+      }
+
+      // Fallback: No route available, show markers only
+      completer.complete(
+          "$baseUrl?size=$sizeParam&$markers&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}");
+    });
+
+    return completer.future;
+  }
+
+  /// Returns a travel time (in seconds) between two [Location] objects.
+  /// If no [travelMode] is specified, then the default is "walking".
+  ///
+  /// In case of an error, the duration time gets returned as 0 seconds.
+  // Future<int> getTravelTimeInSeconds(
+  //   Location origin,
+  //   Location destination, {
+  //   gda.TravelMode? travelMode,
+  // }) async {
+  //   try {
+  //     final request = gda.DirectionsRequest(
+  //       origin: "${origin.lat},${origin.lng}",
+  //       destination: "${destination.lat},${destination.lng}",
+  //       travelMode: travelMode ?? gda.TravelMode.walking,
+  //     );
+
+  //     final Completer<int> completer = Completer();
+  //     await directionsService.route(request,
+  //         (gda.DirectionsResult result, gda.DirectionsStatus? status) {
+  //       if (status == gda.DirectionsStatus.ok &&
+  //           result.routes != null &&
+  //           result.routes!.isNotEmpty) {
+  //         final route = result.routes!.first;
+  //         final leg =
+  //             route.legs?.isNotEmpty ?? false ? route.legs!.first : null;
+  //         final durationInSeconds = leg?.duration?.value;
+  //         completer.complete(durationInSeconds as FutureOr<int>?);
+  //       } else {
+  //         completer.complete(0);
+  //       }
+  //     });
+
+  //     return completer.future;
+  //   } on Error catch (e, stackTrace) {
+  //     debugPrint("Error fetching travel time: $e");
+  //     debugPrint("Stack trace: $stackTrace");
+  //     return 0;
+  //   }
+  // }
 }
