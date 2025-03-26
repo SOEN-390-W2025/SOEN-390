@@ -214,7 +214,11 @@ class _LocationSelectionState extends State<LocationSelection> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -235,6 +239,12 @@ class _LocationSelectionState extends State<LocationSelection> {
   // Segmented button for source
   ButtonSegment<String> _buildSegment(
       String value, IconData icon, String label, bool isEnabled) {
+    // Get theme colors
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     // Explicitly specify that the ButtonSegment is of type String
     return ButtonSegment<String>(
       value: value,
@@ -242,14 +252,21 @@ class _LocationSelectionState extends State<LocationSelection> {
         label,
         textAlign: TextAlign.center,
         style: TextStyle(
-            fontSize: 12, color: isEnabled ? Colors.black : Colors.grey),
+            fontSize: 12,
+            color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
       ),
-      icon: Icon(icon, color: isEnabled ? Colors.black : Colors.grey),
+      icon: Icon(icon,
+          color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
       enabled: isEnabled,
     );
   }
 
   Widget _buildSegmentedButton() {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+
     return Center(
       child: SegmentedButton<String>(
         selected: {_selectionMode},
@@ -257,8 +274,8 @@ class _LocationSelectionState extends State<LocationSelection> {
           // Ensure the list is of type List<ButtonSegment<String>>
           _buildSegment("myLocation", Icons.my_location, "My Location",
               _isMyLocationAvailable),
-          _buildSegment(
-              "outdoorLocation", Icons.location_on, "Outdoor Location", true),
+          // _buildSegment(
+          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           _buildSegment(
               "selectClassroom", Icons.meeting_room, "Select Classroom", true),
         ],
@@ -274,38 +291,23 @@ class _LocationSelectionState extends State<LocationSelection> {
         style: ButtonStyle(
           foregroundColor: WidgetStateProperty.resolveWith<Color>(
             (states) => states.contains(WidgetState.selected)
-                ? Colors.white
-                : Colors.black,
+                ? onPrimaryColor
+                : Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
           ),
           backgroundColor: WidgetStateProperty.resolveWith<Color>(
             (states) => states.contains(WidgetState.selected)
-                ? const Color(0xFF922238)
-                : Colors.grey[300]!,
+                ? primaryColor
+                : secondaryColor.withAlpha(100),
           ),
           iconColor: WidgetStateProperty.resolveWith<Color>(
             (states) => states.contains(WidgetState.selected)
-                ? Colors.white
-                : Colors.black,
+                ? onPrimaryColor
+                : Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
           ),
         ),
       ),
     );
   }
-
-  // // Builds the outdoor location selection UI
-  // Widget _buildOutdoorLocation() {
-  //   return Column(
-  //     children: [
-  //       _mapViewModel.buildPlaceAutocompleteTextField(
-  //         controller: TextEditingController(),
-  //         onPlaceSelected: (location) {
-  //           widget.onSelectionComplete(location);
-  //         },
-  //       ),
-  //       const SizedBox(height: 16),
-  //     ],
-  //   );
-  // }
 
   // Builds the select classroom UI
   Widget _buildSelectClassroom() {
@@ -327,7 +329,14 @@ class _LocationSelectionState extends State<LocationSelection> {
       decoration: _buildDropdownDecoration("Select Building"),
       value: _selectedBuilding,
       items: _buildings
-          .map((b) => DropdownMenuItem<String>(value: b, child: Text(b)))
+          .map((b) => DropdownMenuItem<String>(
+                value: b,
+                child: Text(
+                  b,
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
+              ))
           .toList(),
       onChanged: (value) async {
         setState(() {
@@ -344,7 +353,14 @@ class _LocationSelectionState extends State<LocationSelection> {
       decoration: _buildDropdownDecoration("Select Floor"),
       value: _selectedFloor,
       items: _floors
-          .map((f) => DropdownMenuItem<String>(value: f, child: Text(f)))
+          .map((f) => DropdownMenuItem<String>(
+                value: f,
+                child: Text(
+                  f,
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
+              ))
           .toList(),
       onChanged: (value) async {
         setState(() {
@@ -365,7 +381,11 @@ class _LocationSelectionState extends State<LocationSelection> {
       items: _rooms
           .map((room) => DropdownMenuItem<ConcordiaRoom>(
                 value: room,
-                child: Text(_formatRoomNumber(room.roomNumber)),
+                child: Text(
+                  _formatRoomNumber(room.roomNumber),
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
               ))
           .toList(),
       onChanged: (value) {
@@ -381,21 +401,32 @@ class _LocationSelectionState extends State<LocationSelection> {
 
   // Helper method for dropdown decoration
   InputDecoration _buildDropdownDecoration(String labelText) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     return InputDecoration(
       labelText: labelText,
-      labelStyle: const TextStyle(color: Colors.black),
-      floatingLabelStyle: const TextStyle(color: Colors.black),
-      border: const OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF922238))),
-      enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF922238))),
-      focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF922238), width: 2)),
+      labelStyle: TextStyle(color: textColor),
+      floatingLabelStyle: TextStyle(color: primaryColor),
+      border: OutlineInputBorder(borderSide: BorderSide(color: primaryColor)),
+      enabledBorder:
+          OutlineInputBorder(borderSide: BorderSide(color: primaryColor)),
+      focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: primaryColor, width: 2)),
     );
   }
 
   // Builds the link to the calendar for non-source users
   Widget _buildCalendarLink() {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     return Column(
       children: [
         const SizedBox(height: 24),
@@ -404,24 +435,27 @@ class _LocationSelectionState extends State<LocationSelection> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 "Not sure where your next class is?",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: textColor),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 "Connect your course calendar to let us help you. Or, if you've already linked a calendar, you can access it here:",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               ElevatedButton.icon(
-                icon: const Icon(Icons.calendar_today, color: Colors.white),
+                icon: Icon(Icons.calendar_today, color: onPrimaryColor),
                 label: const Text("Course Calendar"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF922238),
-                  foregroundColor: Colors.white,
+                  backgroundColor: primaryColor,
+                  foregroundColor: onPrimaryColor,
                 ),
                 onPressed: checkCalendarPermission,
               ),
@@ -434,10 +468,12 @@ class _LocationSelectionState extends State<LocationSelection> {
 
   // Loading indicator for waiting state
   Widget _buildLoadingIndicator() {
-    return const Center(
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: CircularProgressIndicator(color: Color(0xFF962e42)),
+        padding: const EdgeInsets.all(8.0),
+        child: CircularProgressIndicator(color: primaryColor),
       ),
     );
   }

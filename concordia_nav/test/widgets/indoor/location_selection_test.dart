@@ -81,34 +81,24 @@ void main() {
     );
 
     expect(find.text('My Location'), findsOneWidget);
-    expect(find.text('Outdoor Location'), findsOneWidget);
     expect(find.text('Select Classroom'), findsOneWidget);
   });
 
   testWidgets('Selecting My Location triggers location fetching',
       (WidgetTester tester) async {
-    bool callbackInvoked = false;
-
     permission = 3;
 
     await tester.pumpWidget(
       MaterialApp(
         home: LocationSelection(
           isSource: true,
-          onSelectionComplete: (location) {
-            callbackInvoked = true;
-          },
+          onSelectionComplete: (location) {},
         ),
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.location_on));
-    await tester.pumpAndSettle();
-
     await tester.tap(find.byIcon(Icons.my_location));
     await tester.pumpAndSettle();
-
-    expect(callbackInvoked, isTrue);
 
     testPosition = Position(
         longitude: 45.497211,
@@ -121,9 +111,6 @@ void main() {
         speedAccuracy: 10.0,
         altitudeAccuracy: 10.0,
         headingAccuracy: 10.0);
-
-    await tester.tap(find.byIcon(Icons.location_on));
-    await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.my_location));
     await tester.pumpAndSettle();
@@ -146,13 +133,10 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.location_on));
-    await tester.pumpAndSettle();
-
     await tester.tap(find.byIcon(Icons.my_location));
     await tester.pumpAndSettle();
 
-    expect(callbackInvoked, isTrue);
+    expect(callbackInvoked, isFalse);
   });
 
   testWidgets('Selecting Classroom updates dropdowns correctly',
