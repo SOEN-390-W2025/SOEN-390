@@ -5,81 +5,121 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class AppTheme {
-  // Use a static variable to store the current theme
-  static ThemeData _currentTheme = ThemeData(
-    primaryColor: const Color.fromRGBO(146, 35, 56, 1),
-    scaffoldBackgroundColor: Colors.white,
-    colorScheme: ColorScheme.fromSwatch().copyWith(
+  static ThemeData _currentTheme = _defaultTheme();
+  static final _themeChangeNotifier = ValueNotifier<ThemeData>(_currentTheme);
+
+  static ThemeData get theme => _currentTheme;
+  static ValueNotifier<ThemeData> get themeChangeNotifier =>
+      _themeChangeNotifier;
+
+  static ThemeData _defaultTheme() {
+    return ThemeData(
+      primaryColor: const Color.fromRGBO(146, 35, 56, 1),
+      scaffoldBackgroundColor: Colors.white,
+      cardColor: Colors.grey[100],
+      colorScheme: _defaultColorScheme(),
+      iconTheme: _defaultIconTheme(),
+      textTheme: _defaultTextTheme(),
+      cardTheme: _defaultCardTheme(),
+      appBarTheme: _defaultAppBarTheme(),
+      elevatedButtonTheme: _defaultElevatedButtonTheme(),
+      outlinedButtonTheme: _defaultOutlinedButtonTheme(),
+    );
+  }
+
+  static ColorScheme _defaultColorScheme() {
+    return ColorScheme.fromSwatch().copyWith(
       primary: const Color.fromRGBO(146, 35, 56, 1),
       secondary: const Color.fromRGBO(233, 211, 215, 1),
       surface: Colors.white,
-      onPrimary: Colors.white, // Text on primary color backgrounds
-      onSecondary: Colors.black, // Text on secondary color backgrounds
-      onSurface: Colors.black, // Text on surface/background
-    ),
-    iconTheme: const IconThemeData(
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+    );
+  }
+
+  static IconThemeData _defaultIconTheme() {
+    return const IconThemeData(
       color: Color.fromRGBO(146, 35, 56, 1),
-    ),
-    textTheme: const TextTheme().apply(
-      bodyColor: Colors.black,  // Primary text color
+    );
+  }
+
+  static TextTheme _defaultTextTheme() {
+    return const TextTheme().apply(
+      bodyColor: Colors.black,
       displayColor: Colors.black,
-    ),
-    cardTheme: const CardTheme(
+    );
+  }
+
+  static CardTheme _defaultCardTheme() {
+    return CardTheme(
       color: Colors.white,
-    ),
-    cardColor: Colors.grey[100],
-  );
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+    );
+  }
 
-  // Stream controller to notify about theme changes
-  static final _themeChangeNotifier = ValueNotifier<ThemeData>(_currentTheme);
+  static AppBarTheme _defaultAppBarTheme() {
+    return const AppBarTheme(
+      backgroundColor: Color.fromRGBO(146, 35, 56, 1),
+      foregroundColor: Colors.white,
+    );
+  }
 
-  // Getter for the current theme
-  static ThemeData get theme => _currentTheme;
+  static ElevatedButtonThemeData _defaultElevatedButtonTheme() {
+    return ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
 
-  // Getter for the theme change stream
-  static ValueNotifier<ThemeData> get themeChangeNotifier => _themeChangeNotifier;
+  static OutlinedButtonThemeData _defaultOutlinedButtonTheme() {
+    return OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(color: Color.fromRGBO(146, 35, 56, 1)),
+        foregroundColor: const Color.fromRGBO(146, 35, 56, 1),
+      ),
+    );
+  }
 
-  // Method to update the theme and save to preferences
   static Future<void> updateTheme(ThemeData newTheme) async {
     _currentTheme = newTheme;
     _themeChangeNotifier.value = newTheme;
-
-    // Save theme settings
     await saveThemeToPrefs();
   }
 
-  // Save theme settings to SharedPreferences
   static Future<void> saveThemeToPrefs() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-
-      // Convert theme colors to a map for storage
       final Map<String, String> themeData = {
-        'primaryColor': _currentTheme.primaryColor.toString(),
-        'secondaryColor': _currentTheme.colorScheme.secondary.toString(),
-        'backgroundColor': _currentTheme.scaffoldBackgroundColor.toString(),
-        'primaryTextColor': (_currentTheme.textTheme.bodyLarge?.color ?? Colors.black).toString(),
-        'secondaryTextColor': _currentTheme.colorScheme.onPrimary.toString(),
-        'cardColor': _currentTheme.cardColor.toString(),
+        'primaryColor': _currentTheme.primaryColor.value.toString(),
+        'secondaryColor': _currentTheme.colorScheme.secondary.value.toString(),
+        'backgroundColor':
+            _currentTheme.scaffoldBackgroundColor.value.toString(),
+        'primaryTextColor':
+            (_currentTheme.textTheme.bodyLarge?.color ?? Colors.black)
+                .value
+                .toString(),
+        'secondaryTextColor':
+            _currentTheme.colorScheme.onPrimary.value.toString(),
+        'cardColor': _currentTheme.cardColor.value.toString(),
       };
-
-      // Save as JSON string
       await prefs.setString('app_theme', jsonEncode(themeData));
     } catch (e) {
       debugPrint('Error saving theme: $e');
     }
   }
 
-  // Load theme settings from SharedPreferences
   static Future<void> loadSavedTheme() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? themeStr = prefs.getString('app_theme');
-
       if (themeStr != null) {
         final Map<String, dynamic> themeData = jsonDecode(themeStr);
-
-        // Create theme from saved values
         final newTheme = createTheme(
           primaryColor: Color(int.parse(themeData['primaryColor'])),
           secondaryColor: Color(int.parse(themeData['secondaryColor'])),
@@ -88,18 +128,14 @@ class AppTheme {
           secondaryTextColor: Color(int.parse(themeData['secondaryTextColor'])),
           cardColor: Color(int.parse(themeData['cardColor'])),
         );
-
-        // Update theme without saving (to avoid recursion)
         _currentTheme = newTheme;
         _themeChangeNotifier.value = newTheme;
       }
     } catch (e) {
       debugPrint('Error loading theme: $e');
-      // If there's an error, use default theme
     }
   }
 
-  // Helper method to get a theme with specific colors
   static ThemeData createTheme({
     required Color primaryColor,
     required Color secondaryColor,
@@ -116,14 +152,12 @@ class AppTheme {
         primary: primaryColor,
         secondary: secondaryColor,
         surface: backgroundColor,
-        onPrimary: secondaryTextColor, // Text on primary colored elements
-        onSecondary: primaryTextColor, // Text on secondary colored elements
-        onSurface: primaryTextColor, // Text on surface/background
+        onPrimary: secondaryTextColor,
+        onSecondary: primaryTextColor,
+        onSurface: primaryTextColor,
       ),
-      iconTheme: IconThemeData(
-        color: primaryColor,
-      ),
-      textTheme: ThemeData.light().textTheme.apply(
+      iconTheme: IconThemeData(color: primaryColor),
+      textTheme: TextTheme().apply(
         bodyColor: primaryTextColor,
         displayColor: primaryTextColor,
       ),
@@ -136,12 +170,12 @@ class AppTheme {
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor,
-        foregroundColor: secondaryTextColor, // Usually white text on colored app bar
+        foregroundColor: secondaryTextColor,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
-          foregroundColor: secondaryTextColor, // Usually white text on colored button
+          foregroundColor: secondaryTextColor,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -153,54 +187,9 @@ class AppTheme {
     );
   }
 
-  // Method to reset to default theme
   static Future<void> resetToDefault() async {
-    _currentTheme = ThemeData(
-      primaryColor: const Color.fromRGBO(146, 35, 56, 1),
-      scaffoldBackgroundColor: Colors.white,
-      cardColor: Colors.grey[100],
-      colorScheme: ColorScheme.fromSwatch().copyWith(
-        primary: const Color.fromRGBO(146, 35, 56, 1),
-        secondary: const Color.fromRGBO(233, 211, 215, 1),
-        surface: Colors.white,
-        onPrimary: Colors.white, // Text on primary color (white text on burgundy)
-        onSecondary: Colors.black, // Text on secondary color (black text on light pink)
-        onSurface: Colors.black, // Text on surface (black text on white background)
-      ),
-      iconTheme: const IconThemeData(
-        color: Color.fromRGBO(146, 35, 56, 1),
-      ),
-      textTheme: const TextTheme().apply(
-        bodyColor: Colors.black,
-        displayColor: Colors.black,
-      ),
-      cardTheme: CardTheme(
-        color: Colors.white,
-        elevation: 2.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color.fromRGBO(146, 35, 56, 1),
-        foregroundColor: Colors.white,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromRGBO(146, 35, 56, 1),
-          foregroundColor: Colors.white,
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color.fromRGBO(146, 35, 56, 1)),
-          foregroundColor: const Color.fromRGBO(146, 35, 56, 1),
-        ),
-      ),
-    );
+    _currentTheme = _defaultTheme();
     _themeChangeNotifier.value = _currentTheme;
-    
-    // Clear saved preferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('app_theme');
   }
