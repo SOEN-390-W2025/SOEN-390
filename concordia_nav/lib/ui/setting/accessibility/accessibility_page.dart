@@ -102,85 +102,32 @@ class AccessibilityPage extends StatelessWidget {
   }
 
   void _handleSubOptionTap(BuildContext context, String option) {
-    switch (option) {
-      case 'Color adjustment':
-        Navigator.pushNamed(context, '/ColorAdjustmentView');
-        break;
-
-      case 'Text-to-speech':
-        dev.log('Text-to-Speech enabled');
-        break;
-
-      case 'Subtitles and captions':
-        dev.log('Subtitles enabled');
-        break;
-
-      case 'Visual alerts':
-        dev.log('Flashing alerts activated');
-        break;
-
-      case 'Hearing aid compatibility':
-        dev.log('Hearing aid compatibility turned on');
-        break;
-
-      case 'Mono audio':
-        dev.log('Mono audio enabled');
-        break;
-
-      case 'Keyboard shortcuts':
-        dev.log('Keyboard shortcuts opened');
-        break;
-
-      case 'Voice commands':
-        dev.log('Voice command settings opened');
-        break;
-
-      case 'Customizable gestures':
-        dev.log('Gesture settings updated');
-        break;
-
-      case 'Assistive touch':
-        dev.log('Assistive touch activated');
-        break;
-
-      case 'Dwell timing':
-        dev.log('Dwell timing adjusted');
-        break;
-
-      case 'Simplified interface':
-        dev.log('Simplified mode enabled');
-        break;
-
-      case 'Reading assistance':
-        dev.log('Reading assistance enabled');
-        break;
-
-      case 'Context summaries':
-        dev.log('Context summaries activated');
-        break;
-
-      case 'Time extension':
-        dev.log('Extended time granted');
-        break;
-
-      case 'Customizable controls':
-        dev.log('Control customization opened');
-        break;
-
-      case 'On-Screen keyboard':
-        dev.log('On-Screen keyboard activated');
-        break;
-
-      case 'Real-time translation':
-        dev.log('Real-time translation enabled');
-        break;
-
-      case 'Feedback':
-        dev.log('Feedback form opened');
-        break;
-
-      default:
-        dev.log('Unknown option selected');
+    if (option == 'Color adjustment') {
+      Navigator.pushNamed(context, '/ColorAdjustmentView');
+      return;
     }
+
+    final Map<String, String> logMessages = {
+      'Text-to-speech': 'Text-to-Speech enabled',
+      'Subtitles and captions': 'Subtitles enabled',
+      'Visual alerts': 'Flashing alerts activated',
+      'Hearing aid compatibility': 'Hearing aid compatibility turned on',
+      'Mono audio': 'Mono audio enabled',
+      'Keyboard shortcuts': 'Keyboard shortcuts opened',
+      'Voice commands': 'Voice command settings opened',
+      'Customizable gestures': 'Gesture settings updated',
+      'Assistive touch': 'Assistive touch activated',
+      'Dwell timing': 'Dwell timing adjusted',
+      'Simplified interface': 'Simplified mode enabled',
+      'Reading assistance': 'Reading assistance enabled',
+      'Context summaries': 'Context summaries activated',
+      'Time extension': 'Extended time granted',
+      'Customizable controls': 'Control customization opened',
+      'On-Screen keyboard': 'On-Screen keyboard activated',
+      'Real-time translation': 'Real-time translation enabled',
+      'Feedback': 'Feedback form opened',
+    };
+
+    dev.log(logMessages[option] ?? 'Unknown option selected');
   }
 }
