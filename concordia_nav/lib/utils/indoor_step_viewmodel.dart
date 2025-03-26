@@ -66,6 +66,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
   double width = 1024.0;
   double height = 1024.0;
 
+  String measurementUnit = 'Metric';
   List<double> stepDistanceMeters = [];
   List<int> stepTimeSeconds = [];
 
@@ -319,7 +320,7 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
         description: 'You have reached ${selectedPOI!.name}',
         focusPoint: directionsViewModel.endLocation,
         zoomLevel: 1.3,
-        icon: _getPOICategoryIcon(selectedPOI!.category),
+        icon: getPOICategoryIcon(selectedPOI!.category),
       ));
     } else {
       navigationSteps.add(NavigationStep(
@@ -417,51 +418,6 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
     }
   }
 
-  // List<dynamic> calculatePortionAfterFirstConnection(IndoorRoute route,
-  //     double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
-  //   double totalDistance = totalDistanceEstimateMeters;
-  //   int totalTime = totalTimeEstimateMinutes;
-  //   int stepIndex = navigationSteps.length - 1; // Default to destination
-
-  //   // Find the first turn after the connection
-  //   for (int i = 0; i < navigationSteps.length; i++) {
-  //     if (navigationSteps[i].title == route.firstIndoorConnection?.name) {
-  //       stepIndex = i + 1;
-  //       break;
-  //     }
-  //   }
-
-  //   RouteCalculationService.calculateSegmentMetrics(
-  //       route.firstIndoorPortionFromConnection,
-  //       onResult: (distanceMeters, timeSeconds) {
-  //     stepDistanceMeters[stepIndex] = distanceMeters;
-  //     stepTimeSeconds[stepIndex] = timeSeconds;
-  //     totalDistance += distanceMeters;
-  //     totalTime += (timeSeconds / 60).ceil();
-  //   });
-  //   return [totalDistance, totalTime];
-  // }
-
-  // List<dynamic> _calculateSecondPortion(IndoorRoute route,
-  //     double totalDistanceEstimateMeters, int totalTimeEstimateMinutes) {
-  //   double totalDistance = totalDistanceEstimateMeters;
-  //   int totalTime = totalTimeEstimateMinutes;
-  //   final int buildingTransitionIndex = navigationSteps
-  //       .indexWhere((step) => step.title == 'Building Transition');
-
-  //   if (buildingTransitionIndex >= 0) {
-  //     RouteCalculationService.calculateSegmentMetrics(
-  //         route.secondIndoorPortionToConnection,
-  //         onResult: (distanceMeters, timeSeconds) {
-  //       stepDistanceMeters[buildingTransitionIndex + 1] = distanceMeters;
-  //       stepTimeSeconds[buildingTransitionIndex + 1] = timeSeconds;
-  //       totalDistance += distanceMeters;
-  //       totalTime += (timeSeconds / 60).ceil();
-  //     });
-  //   }
-  //   return [totalDistance, totalTime];
-  // }
-
   void calculateTimeAndDistanceEstimates() {
     final route = directionsViewModel.calculatedRoute;
     if (route == null) return;
@@ -505,49 +461,6 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       }
     }
 
-    // // Calculate for portion after first connection
-    // if (route.firstIndoorPortionFromConnection != null &&
-    //     route.firstIndoorPortionFromConnection!.length > 1) {
-    //   final results = calculatePortionAfterFirstConnection(
-    //       route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
-    //   totalDistanceEstimateMeters = results[0];
-    //   totalTimeEstimateMinutes = results[1];
-    // }
-
-    // // Handle second building portions if applicable
-    // if (route.secondIndoorPortionToConnection != null) {
-    //   final results = _calculateSecondPortion(
-    //       route, totalDistanceEstimateMeters, totalTimeEstimateMinutes);
-    //   totalDistanceEstimateMeters = results[0];
-    //   totalTimeEstimateMinutes = results[1];
-    // }
-
-    // if (route.secondIndoorConnection != null &&
-    //     route.secondIndoorPortionFromConnection != null) {
-    //   final int connectionIndex = navigationSteps.indexWhere(
-    //       (step) => step.title == route.secondIndoorConnection!.name);
-
-    //   if (connectionIndex >= 0) {
-    //     final int waitTimeSeconds =
-    //         RouteCalculationService.getConnectionWaitTime(
-    //             route.secondIndoorConnection!,
-    //             route.secondIndoorPortionToConnection![0].floor.name,
-    //             route.secondIndoorPortionFromConnection![0].floor.name);
-
-    //     stepTimeSeconds[connectionIndex] = waitTimeSeconds;
-    //     totalTimeEstimateMinutes += (waitTimeSeconds / 60).ceil();
-    //   }
-
-    //   RouteCalculationService.calculateSegmentMetrics(
-    //       route.secondIndoorPortionFromConnection,
-    //       onResult: (distanceMeters, timeSeconds) {
-    //     stepDistanceMeters[navigationSteps.length - 1] = distanceMeters;
-    //     stepTimeSeconds[navigationSteps.length - 1] = timeSeconds;
-    //     totalDistanceEstimateMeters += distanceMeters;
-    //     totalTimeEstimateMinutes += (timeSeconds / 60).ceil();
-    //   });
-    // }
-
     notifyListeners();
   }
 
@@ -567,11 +480,14 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       return "N/A";
     }
     final meters = stepDistanceMeters[currentStepIndex];
-    return RouteCalculationService.formatDistance(meters);
+    return RouteCalculationService.formatDistance(
+      meters,
+      measurementUnit: measurementUnit,
+    );
   }
 
   // Helper method to get appropriate icon for POI category
-  IconData _getPOICategoryIcon(POICategory category) {
+  IconData getPOICategoryIcon(POICategory category) {
     switch (category) {
       case POICategory.washroom:
         return Icons.wc;
@@ -617,6 +533,9 @@ class VirtualStepGuideViewModel extends ChangeNotifier {
       remainingMeters += stepDistanceMeters[i];
     }
 
-    return RouteCalculationService.formatDistance(remainingMeters);
+    return RouteCalculationService.formatDistance(
+      remainingMeters,
+      measurementUnit: measurementUnit,
+    );
   }
 }

@@ -403,6 +403,11 @@ class MockPOIMapViewModel extends _i1.Mock implements _i11.POIMapViewModel {
   }
 
   @override
+  List<_i5.POI> get allPOIs =>
+      (super.noSuchMethod(Invocation.getter(#allPOIs), returnValue: <_i5.POI>[])
+          as List<_i5.POI>);
+
+  @override
   List<_i5.POI> get matchingPOIs =>
       (super.noSuchMethod(
             Invocation.getter(#matchingPOIs),
@@ -432,6 +437,14 @@ class MockPOIMapViewModel extends _i1.Mock implements _i11.POIMapViewModel {
   @override
   bool get isLoading =>
       (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
+  bool get isLoadingAllPOIs =>
+      (super.noSuchMethod(
+            Invocation.getter(#isLoadingAllPOIs),
+            returnValue: false,
+          )
           as bool);
 
   @override
@@ -503,6 +516,17 @@ class MockPOIMapViewModel extends _i1.Mock implements _i11.POIMapViewModel {
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i8.Future<List<_i5.POI>> getPOIsForBuildingAndFloor(
+    String? buildingId,
+    String? floor,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getPOIsForBuildingAndFloor, [buildingId, floor]),
+            returnValue: _i8.Future<List<_i5.POI>>.value(<_i5.POI>[]),
+          )
+          as _i8.Future<List<_i5.POI>>);
 
   @override
   _i8.Future<void> loadPOIData({

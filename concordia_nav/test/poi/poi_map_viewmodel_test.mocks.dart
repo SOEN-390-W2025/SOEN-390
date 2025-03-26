@@ -90,6 +90,23 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   );
 
   @override
+  String get measurementUnit =>
+      (super.noSuchMethod(
+            Invocation.getter(#measurementUnit),
+            returnValue: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#measurementUnit),
+            ),
+          )
+          as String);
+
+  @override
+  set measurementUnit(String? _measurementUnit) => super.noSuchMethod(
+    Invocation.setter(#measurementUnit, _measurementUnit),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   bool get isLoading =>
       (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
           as bool);

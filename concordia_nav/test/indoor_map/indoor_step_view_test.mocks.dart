@@ -3,21 +3,21 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i9;
-import 'dart:ui' as _i5;
+import 'dart:async' as _i10;
+import 'dart:ui' as _i6;
 
 import 'package:concordia_nav/data/domain-model/concordia_floor_point.dart'
     as _i12;
 import 'package:concordia_nav/data/domain-model/indoor_route.dart' as _i11;
-import 'package:concordia_nav/data/domain-model/poi.dart' as _i8;
+import 'package:concordia_nav/data/domain-model/poi.dart' as _i9;
 import 'package:concordia_nav/data/repositories/building_data.dart' as _i13;
 import 'package:concordia_nav/utils/building_viewmodel.dart' as _i3;
 import 'package:concordia_nav/utils/indoor_directions_viewmodel.dart' as _i2;
 import 'package:concordia_nav/utils/indoor_map_viewmodel.dart' as _i4;
-import 'package:concordia_nav/utils/indoor_step_viewmodel.dart' as _i6;
-import 'package:flutter/material.dart' as _i10;
+import 'package:concordia_nav/utils/indoor_step_viewmodel.dart' as _i7;
+import 'package:flutter/material.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -51,13 +51,18 @@ class _FakeIndoorMapViewModel_2 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeOffset_3 extends _i1.SmartFake implements _i5.Offset {
-  _FakeOffset_3(Object parent, Invocation parentInvocation)
+class _FakeIconData_3 extends _i1.SmartFake implements _i5.IconData {
+  _FakeIconData_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSize_4 extends _i1.SmartFake implements _i5.Size {
-  _FakeSize_4(Object parent, Invocation parentInvocation)
+class _FakeOffset_4 extends _i1.SmartFake implements _i6.Offset {
+  _FakeOffset_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeSize_5 extends _i1.SmartFake implements _i6.Size {
+  _FakeSize_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -65,7 +70,7 @@ class _FakeSize_4 extends _i1.SmartFake implements _i5.Size {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockVirtualStepGuideViewModel extends _i1.Mock
-    implements _i6.VirtualStepGuideViewModel {
+    implements _i7.VirtualStepGuideViewModel {
   MockVirtualStepGuideViewModel() {
     _i1.throwOnMissingStub(this);
   }
@@ -84,7 +89,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String get sourceRoom =>
       (super.noSuchMethod(
             Invocation.getter(#sourceRoom),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#sourceRoom),
             ),
@@ -95,7 +100,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String get building =>
       (super.noSuchMethod(
             Invocation.getter(#building),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#building),
             ),
@@ -106,7 +111,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String get floor =>
       (super.noSuchMethod(
             Invocation.getter(#floor),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#floor),
             ),
@@ -117,7 +122,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String get endRoom =>
       (super.noSuchMethod(
             Invocation.getter(#endRoom),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#endRoom),
             ),
@@ -136,7 +141,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   );
 
   @override
-  set selectedPOI(_i8.POI? _selectedPOI) => super.noSuchMethod(
+  set selectedPOI(_i9.POI? _selectedPOI) => super.noSuchMethod(
     Invocation.setter(#selectedPOI, _selectedPOI),
     returnValueForMissingStub: null,
   );
@@ -197,15 +202,15 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   );
 
   @override
-  List<_i6.NavigationStep> get navigationSteps =>
+  List<_i7.NavigationStep> get navigationSteps =>
       (super.noSuchMethod(
             Invocation.getter(#navigationSteps),
-            returnValue: <_i6.NavigationStep>[],
+            returnValue: <_i7.NavigationStep>[],
           )
-          as List<_i6.NavigationStep>);
+          as List<_i7.NavigationStep>);
 
   @override
-  set navigationSteps(List<_i6.NavigationStep>? _navigationSteps) =>
+  set navigationSteps(List<_i7.NavigationStep>? _navigationSteps) =>
       super.noSuchMethod(
         Invocation.setter(#navigationSteps, _navigationSteps),
         returnValueForMissingStub: null,
@@ -230,6 +235,23 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   @override
   set height(double? _height) => super.noSuchMethod(
     Invocation.setter(#height, _height),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  String get measurementUnit =>
+      (super.noSuchMethod(
+            Invocation.getter(#measurementUnit),
+            returnValue: _i8.dummyValue<String>(
+              this,
+              Invocation.getter(#measurementUnit),
+            ),
+          )
+          as String);
+
+  @override
+  set measurementUnit(String? _measurementUnit) => super.noSuchMethod(
+    Invocation.setter(#measurementUnit, _measurementUnit),
     returnValueForMissingStub: null,
   );
 
@@ -266,7 +288,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String get buildingAbbreviation =>
       (super.noSuchMethod(
             Invocation.getter(#buildingAbbreviation),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#buildingAbbreviation),
             ),
@@ -283,7 +305,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String get floorPlanPath =>
       (super.noSuchMethod(
             Invocation.getter(#floorPlanPath),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#floorPlanPath),
             ),
@@ -302,28 +324,28 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
           as bool);
 
   @override
-  _i9.Future<void> initializeRoute() =>
+  _i10.Future<void> initializeRoute() =>
       (super.noSuchMethod(
             Invocation.method(#initializeRoute, []),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
           )
-          as _i9.Future<void>);
+          as _i10.Future<void>);
 
   @override
-  void focusOnCurrentStep(_i10.BuildContext? context) => super.noSuchMethod(
+  void focusOnCurrentStep(_i5.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#focusOnCurrentStep, [context]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void nextStep(_i10.BuildContext? context) => super.noSuchMethod(
+  void nextStep(_i5.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#nextStep, [context]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void previousStep(_i10.BuildContext? context) => super.noSuchMethod(
+  void previousStep(_i5.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#previousStep, [context]),
     returnValueForMissingStub: null,
   );
@@ -344,7 +366,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String formatRoom(String? room) =>
       (super.noSuchMethod(
             Invocation.method(#formatRoom, [room]),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.method(#formatRoom, [room]),
             ),
@@ -361,7 +383,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
               room,
               buildingAbbreviation,
             ]),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.method(#removeBuildingAbbreviation, [
                 room,
@@ -381,7 +403,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String getCurrentStepTimeEstimate() =>
       (super.noSuchMethod(
             Invocation.method(#getCurrentStepTimeEstimate, []),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.method(#getCurrentStepTimeEstimate, []),
             ),
@@ -392,7 +414,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String getCurrentStepDistanceEstimate() =>
       (super.noSuchMethod(
             Invocation.method(#getCurrentStepDistanceEstimate, []),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.method(#getCurrentStepDistanceEstimate, []),
             ),
@@ -400,10 +422,21 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
           as String);
 
   @override
+  _i5.IconData getPOICategoryIcon(_i9.POICategory? category) =>
+      (super.noSuchMethod(
+            Invocation.method(#getPOICategoryIcon, [category]),
+            returnValue: _FakeIconData_3(
+              this,
+              Invocation.method(#getPOICategoryIcon, [category]),
+            ),
+          )
+          as _i5.IconData);
+
+  @override
   String getRemainingTimeEstimate() =>
       (super.noSuchMethod(
             Invocation.method(#getRemainingTimeEstimate, []),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.method(#getRemainingTimeEstimate, []),
             ),
@@ -414,7 +447,7 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
   String getRemainingDistanceEstimate() =>
       (super.noSuchMethod(
             Invocation.method(#getRemainingDistanceEstimate, []),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.method(#getRemainingDistanceEstimate, []),
             ),
@@ -422,13 +455,13 @@ class MockVirtualStepGuideViewModel extends _i1.Mock
           as String);
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -453,7 +486,7 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   String get mainEntranceString =>
       (super.noSuchMethod(
             Invocation.getter(#mainEntranceString),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#mainEntranceString),
             ),
@@ -464,7 +497,7 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   String get eta =>
       (super.noSuchMethod(
             Invocation.getter(#eta),
-            returnValue: _i7.dummyValue<String>(this, Invocation.getter(#eta)),
+            returnValue: _i8.dummyValue<String>(this, Invocation.getter(#eta)),
           )
           as String);
 
@@ -478,7 +511,7 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   String get distance =>
       (super.noSuchMethod(
             Invocation.getter(#distance),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i8.dummyValue<String>(
               this,
               Invocation.getter(#distance),
             ),
@@ -488,6 +521,23 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   @override
   set distance(String? _distance) => super.noSuchMethod(
     Invocation.setter(#distance, _distance),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  String get measurementUnit =>
+      (super.noSuchMethod(
+            Invocation.getter(#measurementUnit),
+            returnValue: _i8.dummyValue<String>(
+              this,
+              Invocation.getter(#measurementUnit),
+            ),
+          )
+          as String);
+
+  @override
+  set measurementUnit(String? _measurementUnit) => super.noSuchMethod(
+    Invocation.setter(#measurementUnit, _measurementUnit),
     returnValueForMissingStub: null,
   );
 
@@ -505,23 +555,23 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
           as bool);
 
   @override
-  _i5.Offset get startLocation =>
+  _i6.Offset get startLocation =>
       (super.noSuchMethod(
             Invocation.getter(#startLocation),
-            returnValue: _FakeOffset_3(this, Invocation.getter(#startLocation)),
+            returnValue: _FakeOffset_4(this, Invocation.getter(#startLocation)),
           )
-          as _i5.Offset);
+          as _i6.Offset);
 
   @override
-  _i5.Offset get endLocation =>
+  _i6.Offset get endLocation =>
       (super.noSuchMethod(
             Invocation.getter(#endLocation),
-            returnValue: _FakeOffset_3(this, Invocation.getter(#endLocation)),
+            returnValue: _FakeOffset_4(this, Invocation.getter(#endLocation)),
           )
-          as _i5.Offset);
+          as _i6.Offset);
 
   @override
-  set endLocation(_i5.Offset? value) => super.noSuchMethod(
+  set endLocation(_i6.Offset? value) => super.noSuchMethod(
     Invocation.setter(#endLocation, value),
     returnValueForMissingStub: null,
   );
@@ -538,16 +588,16 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
   );
 
   @override
-  _i9.Future<_i12.ConcordiaFloorPoint?> getPositionPoint(
+  _i10.Future<_i12.ConcordiaFloorPoint?> getPositionPoint(
     String? buildingName,
     String? floor,
     String? room,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getPositionPoint, [buildingName, floor, room]),
-            returnValue: _i9.Future<_i12.ConcordiaFloorPoint?>.value(),
+            returnValue: _i10.Future<_i12.ConcordiaFloorPoint?>.value(),
           )
-          as _i9.Future<_i12.ConcordiaFloorPoint?>);
+          as _i10.Future<_i12.ConcordiaFloorPoint?>);
 
   @override
   _i12.ConcordiaFloorPoint? getRegularStartPoint(
@@ -565,7 +615,7 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
           as _i12.ConcordiaFloorPoint?);
 
   @override
-  _i9.Future<_i12.ConcordiaFloorPoint?> getStartPoint(
+  _i10.Future<_i12.ConcordiaFloorPoint?> getStartPoint(
     String? buildingName,
     String? floor,
     bool? disability,
@@ -578,18 +628,18 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
               disability,
               connection,
             ]),
-            returnValue: _i9.Future<_i12.ConcordiaFloorPoint?>.value(),
+            returnValue: _i10.Future<_i12.ConcordiaFloorPoint?>.value(),
           )
-          as _i9.Future<_i12.ConcordiaFloorPoint?>);
+          as _i10.Future<_i12.ConcordiaFloorPoint?>);
 
   @override
-  _i9.Future<void> calculateRoute(
+  _i10.Future<void> calculateRoute(
     String? building,
     String? floor,
     String? sourceRoom,
     String? endRoom,
     bool? disability, {
-    _i8.POI? destinationPOI,
+    _i9.POI? destinationPOI,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -597,54 +647,54 @@ class MockIndoorDirectionsViewModel extends _i1.Mock
               [building, floor, sourceRoom, endRoom, disability],
               {#destinationPOI: destinationPOI},
             ),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
           )
-          as _i9.Future<void>);
+          as _i10.Future<void>);
 
   @override
-  _i9.Future<bool> areDirectionsAvailableForLocation(String? location) =>
+  _i10.Future<bool> areDirectionsAvailableForLocation(String? location) =>
       (super.noSuchMethod(
             Invocation.method(#areDirectionsAvailableForLocation, [location]),
-            returnValue: _i9.Future<bool>.value(false),
+            returnValue: _i10.Future<bool>.value(false),
           )
-          as _i9.Future<bool>);
+          as _i10.Future<bool>);
 
   @override
-  _i9.Future<bool> checkFloorPlanExists(String? floorPlanPath) =>
+  _i10.Future<bool> checkFloorPlanExists(String? floorPlanPath) =>
       (super.noSuchMethod(
             Invocation.method(#checkFloorPlanExists, [floorPlanPath]),
-            returnValue: _i9.Future<bool>.value(false),
+            returnValue: _i10.Future<bool>.value(false),
           )
-          as _i9.Future<bool>);
+          as _i10.Future<bool>);
 
   @override
-  _i9.Future<_i5.Size> getSvgDimensions(String? svgPath) =>
+  _i10.Future<_i6.Size> getSvgDimensions(String? svgPath) =>
       (super.noSuchMethod(
             Invocation.method(#getSvgDimensions, [svgPath]),
-            returnValue: _i9.Future<_i5.Size>.value(
-              _FakeSize_4(
+            returnValue: _i10.Future<_i6.Size>.value(
+              _FakeSize_5(
                 this,
                 Invocation.method(#getSvgDimensions, [svgPath]),
               ),
             ),
           )
-          as _i9.Future<_i5.Size>);
+          as _i10.Future<_i6.Size>);
 
   @override
-  void forceEndLocation(_i5.Offset? location) => super.noSuchMethod(
+  void forceEndLocation(_i6.Offset? location) => super.noSuchMethod(
     Invocation.method(#forceEndLocation, [location]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

@@ -5,13 +5,16 @@ import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
 import 'package:concordia_nav/ui/setting/contact/contact_page.dart';
+import 'package:concordia_nav/ui/setting/preferences/preferences_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/settings_tile.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
-
+import 'package:provider/provider.dart';
+import '../settings/preferences_view_test.mocks.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 
@@ -175,21 +178,33 @@ void main() {
 
     testWidgets('SettingsTile onPress is possible',
         (WidgetTester tester) async {
+      final mockPreferencesModel = MockPreferencesModel();
+      when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+      when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
+
       // define routes needed for this test
       final routes = {
         '/': (context) => const SettingsPage(),
         '/AccessibilityPage': (context) => const AccessibilityPage(),
+        '/PreferencesPage': (context) => const PreferencesPage(),
         '/ContactPage': (context) => const ContactPage(),
       };
 
       // Build the SettingsPage widget
-      await tester.pumpWidget(MaterialApp(
-        initialRoute: '/',
-        routes: routes,
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                  initialRoute: '/',
+                  routes: routes,
+                ),
+        )
+      );
 
-      // Tap on My Calendar SettingsTile
-      await tester.tap(find.text('My calendar'));
+      // Tap on Preferences SettingsTile
+      await tester.tap(find.text('Preferences'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
       await tester.pumpAndSettle();
 
       // Tap on Accessibility SettingsTile
@@ -207,6 +222,10 @@ void main() {
       // Tap on Guide SettingsTile
       await tester.tap(find.text('Guide'));
       await tester.pumpAndSettle();
+
+      // Tap on My Calendar SettingsTile
+      await tester.tap(find.text('My calendar'));
+      await tester.pump();
     });
   });
 }

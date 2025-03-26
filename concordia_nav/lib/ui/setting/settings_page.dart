@@ -54,7 +54,7 @@ class SettingsPageState extends State<SettingsPage> {
               icon: Icons.tune,
               title: 'Preferences',
               onTap: () {
-                // TODO: Implement navigation to Preferences page.
+                Navigator.pushNamed(context, '/PreferencesPage');
               },
             ),
             SettingsTile(

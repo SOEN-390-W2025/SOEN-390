@@ -8,6 +8,7 @@ import 'package:concordia_nav/data/domain-model/room_category.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/journey/journey_view.dart';
 import 'package:concordia_nav/utils/map_viewmodel.dart';
+import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
 import 'package:concordia_nav/widgets/journey/navigation_step_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -15,7 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
+import 'package:provider/provider.dart';
+import '../../settings/preferences_view_test.mocks.dart';
 import '../../map/map_viewmodel_test.mocks.dart';
 import 'journey_view_test.mocks.dart';
 
@@ -26,6 +28,7 @@ void main() {
 
   late MockMapViewModel mockMapViewModel;
   late MockMapService mockMapService;
+  late MockPreferencesModel mockPreferencesModel;
 
   const Marker mockMarker = Marker(
     markerId: MarkerId('mock_marker'),
@@ -87,6 +90,9 @@ void main() {
         .thenReturn(ValueNotifier<Set<Marker>>({}));
     when(mockMapViewModel.staticBusStopMarkers).thenReturn({});
     when(mockMapViewModel.travelTimes).thenReturn(<CustomTravelMode, String>{});
+    mockPreferencesModel = MockPreferencesModel();
+    when(mockPreferencesModel.selectedTransportation).thenReturn('Driving');
+    when(mockPreferencesModel.selectedMeasurementUnit).thenReturn('Metric');
   });
 
   group('NavigationJourneyPage Tests', () {
@@ -98,14 +104,19 @@ void main() {
       };
 
       await tester.runAsync(() async {
-        await tester.pumpWidget(const MaterialApp(
-          home: NavigationJourneyPage(
-            journeyItems: [
-              Location(100, 100, "Mock location", null, null, null, null),
-            ],
-            journeyName: 'Test Journey',
-          ),
-        ));
+        await tester.pumpWidget(
+          ChangeNotifierProvider<PreferencesModel>(
+            create: (BuildContext context) => mockPreferencesModel,
+            child: const MaterialApp(
+                      home: NavigationJourneyPage(
+                        journeyItems: [
+                          Location(100, 100, "Mock location", null, null, null, null),
+                        ],
+                        journeyName: 'Test Journey',
+                      ),
+                    )
+          )
+        );
       });
 
       // Reset FlutterError handling
@@ -118,26 +129,31 @@ void main() {
       final decision = MockNavigationDecision();
       when(decision.pageCount).thenReturn(1);
 
-      await tester.pumpWidget(MaterialApp(
-        home: NavigationJourneyPage(
-          journeyItems: [
-            ConcordiaRoom(
-                'H-801',
-                RoomCategory.classroom,
-                ConcordiaFloor("1", BuildingRepository.h),
-                ConcordiaFloorPoint(
-                    ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
-            ConcordiaRoom(
-                'H-805',
-                RoomCategory.classroom,
-                ConcordiaFloor("1", BuildingRepository.h),
-                ConcordiaFloorPoint(
-                    ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
-          ],
-          journeyName: 'Test Journey',
-          decision: decision,
-        ),
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                    home: NavigationJourneyPage(
+                      journeyItems: [
+                        ConcordiaRoom(
+                            'H-801',
+                            RoomCategory.classroom,
+                            ConcordiaFloor("1", BuildingRepository.h),
+                            ConcordiaFloorPoint(
+                                ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
+                        ConcordiaRoom(
+                            'H-805',
+                            RoomCategory.classroom,
+                            ConcordiaFloor("1", BuildingRepository.h),
+                            ConcordiaFloorPoint(
+                                ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
+                      ],
+                      journeyName: 'Test Journey',
+                      decision: decision,
+                    ),
+                  )
+        )
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(NavigationStepPage), findsOneWidget);
@@ -149,27 +165,32 @@ void main() {
       final decision = MockNavigationDecision();
       when(decision.pageCount).thenReturn(3);
 
-      await tester.pumpWidget(MaterialApp(
-        home: NavigationJourneyPage(
-          mapViewModel: mockMapViewModel,
-          journeyItems: [
-            ConcordiaRoom(
-                'H-801',
-                RoomCategory.classroom,
-                ConcordiaFloor("1", BuildingRepository.h),
-                ConcordiaFloorPoint(
-                    ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
-            ConcordiaRoom(
-                'H-805',
-                RoomCategory.classroom,
-                ConcordiaFloor("1", BuildingRepository.lb),
-                ConcordiaFloorPoint(
-                    ConcordiaFloor("1", BuildingRepository.lb), 0, 0)),
-          ],
-          journeyName: 'Test Journey',
-          decision: decision,
-        ),
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                    home: NavigationJourneyPage(
+                      mapViewModel: mockMapViewModel,
+                      journeyItems: [
+                        ConcordiaRoom(
+                            'H-801',
+                            RoomCategory.classroom,
+                            ConcordiaFloor("1", BuildingRepository.h),
+                            ConcordiaFloorPoint(
+                                ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
+                        ConcordiaRoom(
+                            'MB 1210',
+                            RoomCategory.classroom,
+                            ConcordiaFloor("1", BuildingRepository.mb),
+                            ConcordiaFloorPoint(
+                                ConcordiaFloor("1", BuildingRepository.mb), 0, 0)),
+                      ],
+                      journeyName: 'Test Journey',
+                      decision: decision,
+                    ),
+                  )
+        )
+      );
 
       expect(find.byType(NavigationStepPage), findsOneWidget);
 
@@ -190,22 +211,27 @@ void main() {
       final decision = MockNavigationDecision();
       when(decision.pageCount).thenReturn(2);
 
-      await tester.pumpWidget(MaterialApp(
-        home: NavigationJourneyPage(
-          mapViewModel: mockMapViewModel,
-          journeyItems: [
-            BuildingRepository.h,
-            ConcordiaRoom(
-                'H-805',
-                RoomCategory.classroom,
-                ConcordiaFloor("1", BuildingRepository.h),
-                ConcordiaFloorPoint(
-                    ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
-          ],
-          journeyName: 'Test Journey',
-          decision: decision,
-        ),
-      ));
+      await tester.pumpWidget(
+        ChangeNotifierProvider<PreferencesModel>(
+          create: (BuildContext context) => mockPreferencesModel,
+          child: MaterialApp(
+                    home: NavigationJourneyPage(
+                      mapViewModel: mockMapViewModel,
+                      journeyItems: [
+                        BuildingRepository.h,
+                        ConcordiaRoom(
+                            'H-805',
+                            RoomCategory.classroom,
+                            ConcordiaFloor("1", BuildingRepository.h),
+                            ConcordiaFloorPoint(
+                                ConcordiaFloor("1", BuildingRepository.h), 0, 0)),
+                      ],
+                      journeyName: 'Test Journey',
+                      decision: decision,
+                    ),
+                  )
+        )
+      );
 
       expect(find.byType(NavigationStepPage), findsOneWidget);
 
