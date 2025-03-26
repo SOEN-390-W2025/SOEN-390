@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/guide_card.dart';
 import '../common_app_bart.dart';
+import 'campus_map_guide.dart';
 
 class GuidePage extends StatefulWidget {
   const GuidePage({super.key});
@@ -34,7 +35,7 @@ class _GuidePageState extends State<GuidePage> {
                 title: "Campus map",
                 description: "View an interactive map of the entire campus",
                 icon: Icons.map,
-                route: Placeholder(),
+                route: CampusMapGuide(),
               ),
               SizedBox(height: 14),
               GuideCard(
