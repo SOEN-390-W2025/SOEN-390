@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_catches_without_on_clauses
+// ignore_for_file: avoid_catches_without_on_clauses, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -157,7 +157,7 @@ class AppTheme {
         onSurface: primaryTextColor,
       ),
       iconTheme: IconThemeData(color: primaryColor),
-      textTheme: TextTheme().apply(
+      textTheme: const TextTheme().apply(
         bodyColor: primaryTextColor,
         displayColor: primaryTextColor,
       ),
