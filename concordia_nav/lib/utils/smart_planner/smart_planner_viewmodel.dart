@@ -1,19 +1,18 @@
 import 'package:flutter/foundation.dart';
-
 import '../../data/domain-model/location.dart';
-import '../../data/domain-model/travelling_salesman_request.dart';
 import '../../data/services/smart_planner_service.dart';
 
 class SmartPlannerViewModel extends ChangeNotifier {
   final SmartPlannerService _service;
-  TravellingSalesmanRequest? _plannerRequest;
+  List<(String, Location, DateTime, DateTime)>? _optimizedRoute;
   bool _isLoading = false;
   String? _errorMessage;
 
   SmartPlannerViewModel({SmartPlannerService? service})
       : _service = service ?? SmartPlannerService();
 
-  TravellingSalesmanRequest? get plannerRequest => _plannerRequest;
+  List<(String, Location, DateTime, DateTime)>? get optimizedRoute =>
+      _optimizedRoute;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -30,7 +29,7 @@ class SmartPlannerViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _plannerRequest = await _service.generatePlannerData(
+      _optimizedRoute = await _service.generateOptimizedRoute(
         prompt: prompt,
         startTime: startTime,
         startLocation: startLocation,

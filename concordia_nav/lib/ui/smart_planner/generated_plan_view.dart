@@ -1,86 +1,32 @@
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../data/domain-model/travelling_salesman_request.dart';
+import '../../data/domain-model/location.dart';
 import '../setting/common_app_bart.dart';
 
 class GeneratedPlanView extends StatelessWidget {
-  // Right now, the plan that's getting passed from the "Smart Planner" view
-  // to this view is unsorted. ListTile widgets are currently rendered based on
-  // the order they appear in the plan. TODO: use TSP logic to optimize plan
-  final TravellingSalesmanRequest plan;
+  final List<(String, Location, DateTime, DateTime)> optimizedRoute;
+  final Location startLocation;
 
-  const GeneratedPlanView({super.key, required this.plan});
+  const GeneratedPlanView(
+      {super.key, required this.optimizedRoute, required this.startLocation});
 
   @override
   Widget build(BuildContext context) {
     final timeFormat = DateFormat('h:mm a');
 
-    // Formats a duration from seconds to Xh Ym or Xm.
-    String formatDuration(int totalSeconds) {
-      final hours = totalSeconds ~/ 3600;
-      final remainder = totalSeconds % 3600;
-      final minutes = remainder ~/ 60;
+    final routeLocations = optimizedRoute.map((stop) => stop.$2).toList();
+    final journeyItems = <Location>[startLocation, ...routeLocations];
 
-      if (hours > 0 && minutes > 0) {
-        return '${hours}h ${minutes}m';
-      } else if (hours > 0) {
-        return '${hours}h';
-      } else {
-        return '${minutes}m';
-      }
-    }
-
-    // for the time being we're using the Location objects in events and in
-    // todolocations which will be replaced with the optimized plan once
-    // the TSP logic has been implemented.
-    final journeyItems = [
-      plan.startLocation,
-      ...plan.events.map((e) => e.$2),
-      ...plan.todoLocations.map((t) => t.$2),
-    ];
-
-    // Events and todoLocations will be merged into a single timeline list
-    final timelineItems = <Map<String, dynamic>>[];
-
-    for (final event in plan.events) {
-      timelineItems.add({
-        'type': 'event',
-        'data': event,
-      });
-    }
-
-    for (final todo in plan.todoLocations) {
-      timelineItems.add({
-        'type': 'todo',
-        'data': todo,
-      });
-    }
-
-    final tiles = timelineItems.map((item) {
-      if (item['type'] == 'event') {
-        final event = item['data'];
-        final location = event.$2;
-        final start = event.$3;
-        final end = event.$4;
-        return ListTile(
-          leading: const Icon(Icons.event),
-          title: Text("Event at ${location.name}"),
-          subtitle: Text(
-            "${timeFormat.format(start.toLocal())} - ${timeFormat.format(end.toLocal())}",
-          ),
-        );
-      } else if (item['type'] == 'todo') {
-        final todo = item['data'];
-        final location = todo.$2;
-        final durationSeconds = todo.$3;
-        return ListTile(
-          leading: const Icon(Icons.location_on),
-          title: Text("Free-time at ${location.name}"),
-          subtitle: Text("Duration: ${formatDuration(durationSeconds)}"),
-        );
-      } else {
-        return const SizedBox();
-      }
+    final tiles = optimizedRoute.map((stop) {
+      final (id, location, start, end) = stop;
+      return ListTile(
+        leading: const Icon(Icons.place),
+        title: Text("Visit ${location.name}"),
+        subtitle: Text(
+          "${timeFormat.format(start.toLocal())} - ${timeFormat.format(end.toLocal())}",
+        ),
+      );
     }).toList();
 
     return Scaffold(
