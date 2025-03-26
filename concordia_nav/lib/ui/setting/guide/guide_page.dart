@@ -5,6 +5,7 @@ import 'campus_map_guide.dart';
 import 'indoor_directions_guide.dart';
 import 'next_class_directions_guide.dart';
 import 'outdoor_directions_guide.dart';
+import 'poi_guide.dart';
 
 class GuidePage extends StatefulWidget {
   const GuidePage({super.key});
@@ -69,7 +70,7 @@ class _GuidePageState extends State<GuidePage> {
                 description:
                     "Discover dining, washrooms, study spaces, and more",
                 icon: Icons.wash,
-                route: Placeholder(),
+                route: POIGuide(),
               ),
             ],
           ),
