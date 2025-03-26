@@ -38,7 +38,7 @@ scripts:
     check: flutter analyze
     fix: dart fix --apply
   dart-lint: dart fix --dry-run
-  coverage: flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
+  coverage: rps gen && flutter test --coverage --branch-coverage && dart run test_cov_console --line -f ./coverage/lcov.info
   codecov:
     windows: powershell -Command "$token = (Get-Content ../.env | Where-Object { $_ -like 'CODECOV_TOKEN=*' } | ForEach-Object { $_.Split('=')[1].Trim() }); if ($token) { codecov upload-process -t $token } else { Write-Error 'CODECOV_TOKEN not found in .env file' }"
     mac: token=$(grep 'CODECOV_TOKEN' ../.env | cut -d '=' -f2 | tr -d '[:space:]') && codecov upload-process -t $token
