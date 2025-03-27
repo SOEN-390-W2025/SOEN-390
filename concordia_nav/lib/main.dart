@@ -17,6 +17,7 @@ import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/journey/journey_view.dart';
 import 'ui/next_class/next_class_directions_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
+import 'ui/setting/guide/guide_page.dart';
 import 'ui/setting/preferences/preferences_view.dart';
 import 'ui/setting/contact/contact_page.dart';
 import 'ui/setting/accessibility/color_adjustment_view.dart';
@@ -218,6 +219,7 @@ class _MyAppState extends State<MyApp> {
           },
           '/ColorAdjustmentView': (context) => const ColorAdjustmentView(),
           '/ContactPage': (context) => const ContactPage(),
+          '/GuidePage': (context) => const GuidePage(),
         },
       ),
     );

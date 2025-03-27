@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:concordia_nav/ui/setting/accessibility/color_adjustment_view.dart';
 import 'package:concordia_nav/ui/themes/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,45 @@ void main() {
   group('Color Adjustment View Tests', () {
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
+    });
+
+    test('updateTheme should update the theme and save it to preferences',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      final ThemeData newTheme = ThemeData(
+        primaryColor: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+      );
+
+      await AppTheme.updateTheme(newTheme);
+
+      // Verify theme is updated
+      expect(AppTheme.theme.primaryColor, Colors.blue);
+      expect(AppTheme.theme.scaffoldBackgroundColor, Colors.white);
+
+      // Verify theme is saved in shared preferences
+      final String? savedTheme = prefs.getString('app_theme');
+      expect(savedTheme, isNotNull);
+      final Map<String, dynamic> savedThemeData = jsonDecode(savedTheme!);
+      expect(savedThemeData['primaryColor'], Colors.blue.value.toString());
+    });
+
+    test('saveThemeToPrefs should correctly store theme data', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final ThemeData testTheme = ThemeData(
+        primaryColor: Colors.red,
+        scaffoldBackgroundColor: Colors.grey,
+      );
+
+      await AppTheme.updateTheme(testTheme);
+      await AppTheme.saveThemeToPrefs();
+
+      final String? savedTheme = prefs.getString('app_theme');
+      expect(savedTheme, isNotNull);
+
+      final Map<String, dynamic> savedThemeData = jsonDecode(savedTheme!);
+      expect(savedThemeData['primaryColor'], Colors.red.value.toString());
+      expect(savedThemeData['backgroundColor'], Colors.grey.value.toString());
     });
 
     testWidgets('Tapping color selection opens color wheel',
