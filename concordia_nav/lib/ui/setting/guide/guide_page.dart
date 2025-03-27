@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../widgets/custom_appbar.dart';
 import '../../../widgets/guide_card.dart';
 import 'campus_map_guide.dart';
-import 'indoor_directions_guide.dart';
+import 'directions_guide.dart';
 import 'next_class_directions_guide.dart';
-import 'outdoor_directions_guide.dart';
 import 'poi_guide.dart';
 
 class GuidePage extends StatefulWidget {
@@ -47,7 +46,7 @@ class _GuidePageState extends State<GuidePage> {
                 description:
                     "Get directions between campus buildings or your location",
                 icon: Icons.maps_home_work,
-                route: OutdoorDirectionsGuide(),
+                route: DirectionsGuide(directionsType: 'Outdoor'),
               ),
               SizedBox(height: 14),
               GuideCard(
@@ -62,7 +61,7 @@ class _GuidePageState extends State<GuidePage> {
                 description:
                     "Navigate inside campus buildings with floor plans and guidance",
                 icon: Icons.meeting_room,
-                route: IndoorDirectionsGuide(),
+                route: DirectionsGuide(directionsType: 'Indoor'),
               ),
               SizedBox(height: 14),
               GuideCard(
