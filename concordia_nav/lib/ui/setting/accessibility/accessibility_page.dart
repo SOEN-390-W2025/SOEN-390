@@ -40,44 +40,10 @@ class AccessibilityPage extends StatelessWidget {
         ],
       },
       {
-        'title': 'Hearing Accessibility',
-        'description': 'H earing Accessibility options',
-        'subOptions': [
-          'Subtitles and captions',
-          'Visual alerts',
-          'Hearing aid compatibility',
-          'Mono audio',
-        ],
-      },
-      {
-        'title': 'Physical and Motor Accessibility',
-        'description': 'Physical and Motor Accessibility options',
-        'subOptions': [
-          'Keyboard shortcuts',
-          'Voice commands',
-          'Customizable gestures',
-          'Assistive touch',
-          'Dwell timing',
-        ],
-      },
-      {
         'title': 'Cognitive Accessibility',
         'description': 'Cognitive Accessibility options',
         'subOptions': [
-          'Simplified interface',
-          'Reading assistance',
           'Context summaries',
-          'Time extension',
-        ],
-      },
-      {
-        'title': 'General Accessibility',
-        'description': 'General accessibility options',
-        'subOptions': [
-          'Customizable controls',
-          'On-Screen keyboard',
-          'Real-time translation',
-          'Feedback',
         ],
       },
     ];
@@ -106,26 +72,13 @@ class AccessibilityPage extends StatelessWidget {
       Navigator.pushNamed(context, '/ColorAdjustmentView');
       return;
     }
+    if (option == 'Text-to-speech') {
+      Navigator.pushNamed(context, '/TextToSpeechView');
+      return;
+    }
 
     final Map<String, String> logMessages = {
-      'Text-to-speech': 'Text-to-Speech enabled',
-      'Subtitles and captions': 'Subtitles enabled',
-      'Visual alerts': 'Flashing alerts activated',
-      'Hearing aid compatibility': 'Hearing aid compatibility turned on',
-      'Mono audio': 'Mono audio enabled',
-      'Keyboard shortcuts': 'Keyboard shortcuts opened',
-      'Voice commands': 'Voice command settings opened',
-      'Customizable gestures': 'Gesture settings updated',
-      'Assistive touch': 'Assistive touch activated',
-      'Dwell timing': 'Dwell timing adjusted',
-      'Simplified interface': 'Simplified mode enabled',
-      'Reading assistance': 'Reading assistance enabled',
       'Context summaries': 'Context summaries activated',
-      'Time extension': 'Extended time granted',
-      'Customizable controls': 'Control customization opened',
-      'On-Screen keyboard': 'On-Screen keyboard activated',
-      'Real-time translation': 'Real-time translation enabled',
-      'Feedback': 'Feedback form opened',
     };
 
     dev.log(logMessages[option] ?? 'Unknown option selected');
