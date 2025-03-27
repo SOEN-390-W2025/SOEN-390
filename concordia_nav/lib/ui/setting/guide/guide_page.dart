@@ -26,7 +26,7 @@ class _GuidePageState extends State<GuidePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Explore Campus features",
+                "Explore Campus Features",
                 style: TextStyle(fontSize: 18),
               ),
               SizedBox(height: 4),
@@ -36,14 +36,14 @@ class _GuidePageState extends State<GuidePage> {
               ),
               SizedBox(height: 16),
               GuideCard(
-                title: "Campus map",
+                title: "Campus Map",
                 description: "View an interactive map of the entire campus",
                 icon: Icons.map,
                 route: CampusMapGuide(),
               ),
               SizedBox(height: 14),
               GuideCard(
-                title: "Outdoor directions",
+                title: "Outdoor Directions",
                 description:
                     "Get directions between campus buildings or your location",
                 icon: Icons.maps_home_work,
@@ -51,14 +51,14 @@ class _GuidePageState extends State<GuidePage> {
               ),
               SizedBox(height: 14),
               GuideCard(
-                title: "Next class directions",
+                title: "Next Class Directions",
                 description: "Quick navigation to your upcoming class",
                 icon: Icons.calendar_today,
                 route: NextClassDirectionsGuide(),
               ),
               SizedBox(height: 14),
               GuideCard(
-                title: "Indoor directions",
+                title: "Indoor Directions",
                 description:
                     "Navigate inside campus buildings with floor plans and guidance",
                 icon: Icons.meeting_room,
@@ -66,7 +66,7 @@ class _GuidePageState extends State<GuidePage> {
               ),
               SizedBox(height: 14),
               GuideCard(
-                title: "Find nearby facilities",
+                title: "Find Nearby Facilities",
                 description:
                     "Discover dining, washrooms, study spaces, and more",
                 icon: Icons.wash,

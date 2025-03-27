@@ -15,7 +15,7 @@ class NextClassDirectionsGuide extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Next class directions",
+                "Next Class Directions",
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 4),
@@ -38,7 +38,7 @@ class NextClassDirectionsGuide extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Key features:",
+                "Key Features:",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
@@ -48,7 +48,7 @@ class NextClassDirectionsGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Next class direction",
+                    "Next Class Direction",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -96,7 +96,7 @@ class NextClassDirectionsGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Automatic schedule sync",
+                    "Automatic Schedule Sync",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -115,7 +115,7 @@ class NextClassDirectionsGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Real-time update",
+                    "Real-Time Update",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -123,7 +123,7 @@ class NextClassDirectionsGuide extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(left: 14),
                 child: Text(
-                  "Get a real time update for your next class room",
+                  "Get a real time update for your next classroom",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),

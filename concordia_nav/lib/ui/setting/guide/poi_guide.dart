@@ -38,7 +38,7 @@ class POIGuide extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Key features:",
+                "Key Features:",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
@@ -48,7 +48,7 @@ class POIGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Nearby search",
+                    "Nearby Search",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -79,7 +79,7 @@ class POIGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Radius adjustment",
+                    "Radius Adjustment",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -98,7 +98,7 @@ class POIGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Facility direction",
+                    "Facility Direction",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -129,7 +129,7 @@ class POIGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Facility information",
+                    "Facility Information",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],

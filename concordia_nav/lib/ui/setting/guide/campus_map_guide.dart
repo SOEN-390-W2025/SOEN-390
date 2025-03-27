@@ -15,7 +15,7 @@ class CampusMapGuide extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Campus map",
+                "Campus Map",
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 4),
@@ -38,7 +38,7 @@ class CampusMapGuide extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Key features:",
+                "Key Features:",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
@@ -48,7 +48,7 @@ class CampusMapGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Building information",
+                    "Building Information",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -79,7 +79,7 @@ class CampusMapGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Search functionality",
+                    "Search Functionality",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],

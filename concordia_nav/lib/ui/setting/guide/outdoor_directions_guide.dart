@@ -38,7 +38,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Key features:",
+                "Key Features:",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
@@ -48,7 +48,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Destination direction",
+                    "Destination Direction",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -79,7 +79,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Multiple transportation route option",
+                    "Multiple Transportation Route Option",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -110,7 +110,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    "Select new location",
+                    "Select New Location",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -118,7 +118,7 @@ class OutdoorDirectionsGuide extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(left: 14),
                 child: Text(
-                  "Choose your new source or destination to see the direction",
+                  "Choose a new source or destination to see the direction",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),

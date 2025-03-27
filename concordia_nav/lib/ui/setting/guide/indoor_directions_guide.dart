@@ -15,7 +15,7 @@ class IndoorDirectionsGuide extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Indoor directions",
+                "Indoor Directions",
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 4),
@@ -38,7 +38,7 @@ class IndoorDirectionsGuide extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Key features:",
+                "Key Features:",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
