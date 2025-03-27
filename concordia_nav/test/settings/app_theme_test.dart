@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:concordia_nav/ui/setting/accessibility/color_adjustment_view.dart';
 import 'package:concordia_nav/ui/themes/app_theme.dart';
 import 'package:flutter/material.dart';

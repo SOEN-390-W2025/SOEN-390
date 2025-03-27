@@ -404,7 +404,9 @@ class POIViewModel extends ChangeNotifier {
 
     if (query.trim().isEmpty ||
         !_hasLocationPermission ||
-        _currentLocation == null) return;
+        _currentLocation == null) {
+      return;
+    }
 
     _isLoadingOutdoor = true;
     _errorOutdoor = '';
