@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_appbar.dart';
+import '../../../widgets/guide_segment.dart';
+import '../../../widgets/header_guide_widget.dart';
 
 class CampusMapGuide extends StatelessWidget {
   const CampusMapGuide({super.key});
@@ -8,101 +10,24 @@ class CampusMapGuide extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, "Guide"),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Campus Map",
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Explore the entire campus with our map",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/campus_map_1.png',
-                      width: 150,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Key Features:",
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Building Information",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Tap on any building's marker to see details of the building",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/campus_map_2.png',
-                      width: 200,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Search Functionality",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Find a specific building",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/campus_map_3.png',
-                      width: 250,
-                    ),
-                  ),
-                ),
-              ),
+              HeaderGuide(
+                title: "Campus Map", 
+                description: "Explore the entire campus with our map", 
+                assetPath: 'assets/images/guide/campus_map_1.png'),
+              GuideSegment(
+                title: "Building Information", 
+                description: "Tap on any building's marker to see details of the building",
+                assetPath: 'assets/images/guide/campus_map_2.png'),
+              GuideSegment(
+                title: "Search Functionality", 
+                description: "Find a specific building", 
+                assetPath: 'assets/images/guide/campus_map_3.png'),
             ],
           ),
         ),

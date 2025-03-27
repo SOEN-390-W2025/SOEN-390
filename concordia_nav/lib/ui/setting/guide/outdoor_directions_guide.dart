@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_appbar.dart';
+import '../../../widgets/guide_segment.dart';
+import '../../../widgets/header_guide_widget.dart';
 
 class OutdoorDirectionsGuide extends StatelessWidget {
   const OutdoorDirectionsGuide({super.key});
@@ -8,132 +10,28 @@ class OutdoorDirectionsGuide extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(context, "Guide"),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Outdoor Directions",
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Get directions between campus buildings or your location",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/outdoor_directions_1.png',
-                      width: 150,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Key Features:",
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Destination Direction",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Display directions between two selected locations",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/outdoor_directions_2.png',
-                      width: 150,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Multiple Transportation Route Option",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Choose your preferred transportation method",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/outdoor_directions_3.png',
-                      width: 300,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Select New Location",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Choose a new source or destination to see the direction",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/outdoor_directions_4.png',
-                      width: 300,
-                    ),
-                  ),
-                ),
-              ),
+              HeaderGuide(
+                title: "Outdoor Directions", 
+                description: "Get directions between campus buildings or your location", 
+                assetPath: 'assets/images/guide/outdoor_directions_1.png'),
+              GuideSegment(
+                title: "Destination Direction", 
+                description: "Display directions between two selected locations",
+                assetPath: 'assets/images/guide/outdoor_directions_2.png'),
+              GuideSegment(
+                title: "Multiple Transportation Route Option", 
+                description: "Choose your preferred transportation method",
+                assetPath: 'assets/images/guide/outdoor_directions_3.png'),
+              GuideSegment(
+                title: "Select New Location", 
+                description: "Choose a new source or destination to see the direction",
+                assetPath: 'assets/images/guide/outdoor_directions_4.png'),
             ],
           ),
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_appbar.dart';
+import '../../../widgets/guide_segment.dart';
+import '../../../widgets/header_guide_widget.dart';
 
 class NextClassDirectionsGuide extends StatelessWidget {
   const NextClassDirectionsGuide({super.key});
@@ -14,52 +16,13 @@ class NextClassDirectionsGuide extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Next Class Directions",
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Quick directions to your upcoming classes",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: Card(
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/guide/next_class_directions_1.png',
-                      width: 150,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Key Features:",
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Next Class Direction",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Display directions between your location and your next class's location",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
+              const HeaderGuide(
+                title: "Next Class Directions", 
+                description: "Quick directions to your upcoming classes", 
+                assetPath: 'assets/images/guide/next_class_directions_1.png'),
+              const GuideSegment(
+                title: "Next Class Direction", 
+                description: "Display directions between your location and your next class's location"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -90,43 +53,12 @@ class NextClassDirectionsGuide extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Automatic Schedule Sync",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Your direction is automatically synced with your class timetable",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.black),
-                  SizedBox(width: 6),
-                  Text(
-                    "Real-Time Update",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 14),
-                child: Text(
-                  "Get a real time update for your next classroom",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
+              const GuideSegment(
+                title: "Automatic Schedule Sync", 
+                description: "Your direction is automatically synced with your class timetable"),
+              const GuideSegment(
+                title: "Real-Time Update", 
+                description: "Get a real time update for your next classroom"),
             ],
           ),
         ),
