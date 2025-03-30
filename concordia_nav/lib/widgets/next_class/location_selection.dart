@@ -29,7 +29,6 @@ class LocationSelection extends StatefulWidget {
 class _LocationSelectionState extends State<LocationSelection> {
   String _selectionMode = 'selectClassroom';
   bool _isMyLocationAvailable = false;
-  bool _isLoading = false;
   final String yourLocationString = "Your Location";
 
   String? _selectedBuilding;
