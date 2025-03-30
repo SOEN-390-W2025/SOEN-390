@@ -226,7 +226,7 @@ class _LocationSelectionState extends State<LocationSelection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.isSource) _buildSegmentedButton(),
-            // if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
+            if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
             if (_selectionMode == "selectClassroom") _buildSelectClassroom(),
             if (!widget.isSource) _buildCalendarLink(),
             if (_isLoading) _buildLoadingIndicator(),
@@ -273,10 +273,8 @@ class _LocationSelectionState extends State<LocationSelection> {
           // Ensure the list is of type List<ButtonSegment<String>>
           _buildSegment("myLocation", Icons.my_location, "My Location",
               _isMyLocationAvailable),
-          // _buildSegment(
-          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
-          // _buildSegment(
-          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
+          _buildSegment(
+              "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           _buildSegment(
               "selectClassroom", Icons.meeting_room, "Select Classroom", true),
         ],
@@ -463,6 +461,20 @@ class _LocationSelectionState extends State<LocationSelection> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildOutdoorLocation() {
+    return Column(
+      children: [
+        _mapViewModel.buildPlaceAutocompleteTextField(
+          controller: TextEditingController(),
+          onPlaceSelected: (location) {
+            widget.onSelectionComplete(location);
+          },
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }

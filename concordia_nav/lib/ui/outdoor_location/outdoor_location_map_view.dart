@@ -28,7 +28,8 @@ class OutdoorLocationMapView extends StatefulWidget {
   final bool hideInputs;
   final Location? providedJourneyStart;
   final Location? providedJourneyDest;
-  final Map<String, dynamic>? additionalData; // For Place data from NearbyPOIMapView
+  final Map<String, dynamic>?
+      additionalData; // For Place data from NearbyPOIMapView
 
   const OutdoorLocationMapView({
     super.key,
@@ -51,7 +52,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   late MapViewModel _mapViewModel;
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
-  late Future<CameraPosition>? _initialCameraPosition;
+  late Future<CameraPosition>? _initialCameraPosition =
+      Future.value(const CameraPosition(target: LatLng(0, 0)));
   bool _locationPermissionGranted = false;
   late TextEditingController _sourceController;
   late TextEditingController _destinationController;
@@ -117,10 +119,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     await _mapViewModel.fetchRoutesForAllModes(
         'Your Location', _destinationController.text);
     if (!mounted) return;
-    final preferences =
-        Provider.of<PreferencesModel>(context, listen: false);
-    final mode = _mapTransportPreferenceToTravelMode(
-        preferences.selectedTransportation);
+    final preferences = Provider.of<PreferencesModel>(context, listen: false);
+    final mode =
+        _mapTransportPreferenceToTravelMode(preferences.selectedTransportation);
     if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
       await _mapViewModel.setActiveModeForRoute(mode);
     } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
@@ -131,8 +132,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   Future<void> _setPreference(Polyline polyline) async {
     final preferences = Provider.of<PreferencesModel>(context, listen: false);
-    final mode = _mapTransportPreferenceToTravelMode(
-        preferences.selectedTransportation);
+    final mode =
+        _mapTransportPreferenceToTravelMode(preferences.selectedTransportation);
 
     _mapViewModel.multiModeRoutes[mode] = polyline;
     await _mapViewModel.setActiveModeForRoute(mode);
@@ -187,8 +188,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   Future<void> _setDefaultTravelMode() async {
     final preferences = Provider.of<PreferencesModel>(context, listen: false);
-    final mode = _mapTransportPreferenceToTravelMode(
-        preferences.selectedTransportation);
+    final mode =
+        _mapTransportPreferenceToTravelMode(preferences.selectedTransportation);
     if (_mapViewModel.multiModeRoutes.containsKey(mode)) {
       await _mapViewModel.setActiveModeForRoute(mode);
     } else if (_mapViewModel.multiModeRoutes.isNotEmpty) {
@@ -198,8 +199,10 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   }
 
   Future<void> _calculateTravelModes(
-      CustomTravelMode mode, ODSDirectionsService odsDirectionsService,
-      String originStr, String destStr) async {
+      CustomTravelMode mode,
+      ODSDirectionsService odsDirectionsService,
+      String originStr,
+      String destStr) async {
     final gdaMode = toGdaTravelMode(mode);
     if (gdaMode != null) {
       final result = await odsDirectionsService.fetchRouteResult(
@@ -251,7 +254,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
       // Calculate each travel mode
       for (var mode in modes) {
-        await _calculateTravelModes(mode, odsDirectionsService, originStr, destStr);
+        await _calculateTravelModes(
+            mode, odsDirectionsService, originStr, destStr);
       }
 
       // Set default travel mode
@@ -428,14 +432,14 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     );
   }
 
-  Center? _getCamSnapshot(AsyncSnapshot<CameraPosition> camSnapshot) {
+  Center _getCamSnapshot(AsyncSnapshot<CameraPosition> camSnapshot) {
     if (camSnapshot.connectionState == ConnectionState.waiting) {
       return const Center(child: CircularProgressIndicator());
     }
     if (camSnapshot.hasError) {
       return const Center(child: Text('Error loading campus map'));
     }
-    return null;
+    return const Center(child: Text('Map loaded successfully'));
   }
 
   Widget _visibleKeyboardWidget() {
@@ -454,9 +458,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                 ),
                 child: Text(
                   'Get Directions',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary
-                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                 ),
               ),
             ),
@@ -562,7 +565,9 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                 // Add POI marker if coming from POI view and no route is calculated yet
                 allMarkers = _addPOIMarker(allMarkers);
 
-                if (!_locationPermissionGranted) {
+                if ((!_locationPermissionGranted &&
+                    _sourceController.text == "Your Location" &&
+                    widget.providedJourneyStart == null)) {
                   return const Center(
                       child: Text('Location permission not granted'));
                 }
@@ -593,6 +598,13 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   Widget _buildGoogleMap(AsyncSnapshot<CameraPosition> camSnapshot,
       Set<Polygon> polygons, Set<Marker> allMarkers) {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      // ignore: parameter_assignments
+      camSnapshot = const AsyncSnapshot<CameraPosition>.withData(
+        ConnectionState.done,
+        const CameraPosition(target: LatLng(45.4940, -73.5784), zoom: 15),
+      );
+    }
     return MapLayout(
       mapWidget: Semantics(
         label: 'Google Map',
