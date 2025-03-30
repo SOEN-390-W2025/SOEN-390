@@ -602,7 +602,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       // ignore: parameter_assignments
       camSnapshot = const AsyncSnapshot<CameraPosition>.withData(
         ConnectionState.done,
-        const CameraPosition(target: LatLng(45.4940, -73.5784), zoom: 15),
+        CameraPosition(target: LatLng(45.4940, -73.5784), zoom: 15),
       );
     }
     return MapLayout(

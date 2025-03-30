@@ -465,6 +465,18 @@ class _LocationSelectionState extends State<LocationSelection> {
     );
   }
 
+  // Loading indicator for waiting state
+  Widget _buildLoadingIndicator() {
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CircularProgressIndicator(color: primaryColor),
+      ),
+    );
+  }
+
   Widget _buildOutdoorLocation() {
     return Column(
       children: [
@@ -476,18 +488,6 @@ class _LocationSelectionState extends State<LocationSelection> {
         ),
         const SizedBox(height: 16),
       ],
-    );
-  }
-
-  // Loading indicator for waiting state
-  Widget _buildLoadingIndicator() {
-    final primaryColor = Theme.of(context).primaryColor;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CircularProgressIndicator(color: primaryColor),
-      ),
     );
   }
 }
