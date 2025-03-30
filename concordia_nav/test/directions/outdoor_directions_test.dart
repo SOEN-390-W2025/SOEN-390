@@ -311,38 +311,38 @@ void main() async {
     verify(mockMapViewModel.unselectBuilding()).called(1);
   });
 
-  // testWidgets(
-  //     'Button press triggers updatePath without start and end dests and fetches routes',
-  //     (WidgetTester tester) async {
-  //   // Create a mock MapViewModel
-  //   when(mockMapViewModel.fetchRoutesForAllModes(any, any))
-  //       .thenAnswer((_) async {});
+  testWidgets(
+      'Button press triggers updatePath without start and end dests and fetches routes',
+      (WidgetTester tester) async {
+    // Create a mock MapViewModel
+    when(mockMapViewModel.fetchRoutesForAllModes(any, any))
+        .thenAnswer((_) async {});
 
-  //   // Create a ConcordiaCampus and MapViewModel for the test
-  //   const campus = ConcordiaCampus.sgw;
+    // Create a ConcordiaCampus and MapViewModel for the test
+    const campus = ConcordiaCampus.sgw;
 
-  //   // Build the widget tree
-  //   await tester.pumpWidget(ChangeNotifierProvider<PreferencesModel>(
-  //       create: (BuildContext context) => mockPreferencesModel,
-  //       child: MaterialApp(
-  //         home: OutdoorLocationMapView(
-  //             campus: campus,
-  //             building: BuildingRepository.h,
-  //             mapViewModel: mockMapViewModel),
-  //       )));
+    // Build the widget tree
+    await tester.pumpWidget(ChangeNotifierProvider<PreferencesModel>(
+        create: (BuildContext context) => mockPreferencesModel,
+        child: MaterialApp(
+          home: OutdoorLocationMapView(
+              campus: campus,
+              building: BuildingRepository.h,
+              mapViewModel: mockMapViewModel),
+        )));
 
-  //   // Find the "Get Directions" button in the widget tree
-  //   final buttonFinder = find.text('Get Directions');
+    // Find the "Get Directions" button in the widget tree
+    final buttonFinder = find.text('Get Directions');
 
-  //   // Ensure the button exists
-  //   expect(buttonFinder, findsOneWidget);
+    // Ensure the button exists
+    expect(buttonFinder, findsOneWidget);
 
-  //   // Tap the button to trigger updatePath
-  //   await tester.tap(buttonFinder);
+    // Tap the button to trigger updatePath
+    await tester.tap(buttonFinder);
 
-  //   // Rebuild the widget after the tap
-  //   await tester.pump();
-  // });
+    // Rebuild the widget after the tap
+    await tester.pump();
+  });
 
   testWidgets('Button press triggers updatePath and fetches routes',
       (WidgetTester tester) async {

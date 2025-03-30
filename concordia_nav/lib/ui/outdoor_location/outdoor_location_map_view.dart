@@ -175,7 +175,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       if (_isFromPoi && _poiDestinationLatLng != null) {
         // Use custom route to POI
         await _calculateCustomRouteToPOI();
-      } else {
+      } else if (_locationPermissionGranted) {
         // Use standard route to building
         await _useStandardRoute();
       }
@@ -448,8 +448,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       right: 15,
       child: Row(
         children: [
-          if (_destinationController.text != 'null' &&
-              widget.providedJourneyDest != null)
+          if (_destinationController.text != 'null')
             Expanded(
               child: ElevatedButton(
                 onPressed: _updatePath,
