@@ -229,7 +229,6 @@ class _LocationSelectionState extends State<LocationSelection> {
             if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
             if (_selectionMode == "selectClassroom") _buildSelectClassroom(),
             if (!widget.isSource) _buildCalendarLink(),
-            if (_isLoading) _buildLoadingIndicator(),
           ],
         ),
       ),
@@ -462,18 +461,6 @@ class _LocationSelectionState extends State<LocationSelection> {
           ),
         ),
       ],
-    );
-  }
-
-  // Loading indicator for waiting state
-  Widget _buildLoadingIndicator() {
-    final primaryColor = Theme.of(context).primaryColor;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CircularProgressIndicator(color: primaryColor),
-      ),
     );
   }
 
