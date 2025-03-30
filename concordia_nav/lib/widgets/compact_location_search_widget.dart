@@ -126,13 +126,13 @@ class CompactSearchCardWidget extends StatelessWidget {
                       style: const TextStyle(fontSize: 16),
                       enabled: selectedPlace == null,
                       decoration: InputDecoration(
-                        hintText: 'Your Location',
+                        hintText: 'Enter Source',
                         border: InputBorder.none,
                         isDense: true,
                         hintStyle: TextStyle(
                           color: selectedPlace != null
                               ? Colors.grey[400]
-                              : Colors.black,
+                              : Colors.grey[600],
                         ),
                       ),
                       onTap: () {
