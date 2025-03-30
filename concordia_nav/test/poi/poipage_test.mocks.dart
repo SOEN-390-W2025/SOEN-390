@@ -130,6 +130,12 @@ class MockPOIViewModel extends _i1.Mock implements _i3.POIViewModel {
           as List<_i7.Place>);
 
   @override
+  set filteredOutdoorPOIs(List<_i7.Place>? places) => super.noSuchMethod(
+    Invocation.setter(#filteredOutdoorPOIs, places),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   bool get isLoadingOutdoor =>
       (super.noSuchMethod(
             Invocation.getter(#isLoadingOutdoor),

@@ -52,8 +52,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   late MapViewModel _mapViewModel;
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
-  late Future<CameraPosition>? _initialCameraPosition =
-      Future.value(const CameraPosition(target: LatLng(0, 0)));
+  late Future<CameraPosition>? _initialCameraPosition;
   bool _locationPermissionGranted = false;
   late TextEditingController _sourceController;
   late TextEditingController _destinationController;
@@ -117,7 +116,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
   Future<void> _useStandardRoute() async {
     await _mapViewModel.fetchRoutesForAllModes(
-        'Your Location', _destinationController.text);
+        _yourLocationString, _destinationController.text);
     if (!mounted) return;
     final preferences = Provider.of<PreferencesModel>(context, listen: false);
     final mode =
@@ -449,7 +448,8 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       right: 15,
       child: Row(
         children: [
-          if (_destinationController.text != 'null')
+          if (_destinationController.text != 'null' &&
+              widget.providedJourneyDest != null)
             Expanded(
               child: ElevatedButton(
                 onPressed: _updatePath,
@@ -566,7 +566,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
                 allMarkers = _addPOIMarker(allMarkers);
 
                 if ((!_locationPermissionGranted &&
-                    _sourceController.text == "Your Location" &&
+                    _sourceController.text == _yourLocationString &&
                     widget.providedJourneyStart == null)) {
                   return const Center(
                       child: Text('Location permission not granted'));
