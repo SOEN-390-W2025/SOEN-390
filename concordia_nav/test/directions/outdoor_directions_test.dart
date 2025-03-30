@@ -271,7 +271,7 @@ void main() async {
         .thenReturn(selectedBuildingNotifier);
 
     await tester.tap(find.byWidgetPredicate((widget) =>
-        widget is TextField && widget.decoration?.hintText == 'Your Location'));
+        widget is TextField && widget.decoration?.hintText == 'Enter Source'));
 
     await tester.pumpAndSettle();
 
@@ -983,7 +983,7 @@ void main() async {
       );
 
       // Verify hintText for the source TextField
-      expect(sourceWidget.decoration?.hintText, 'Your Location');
+      expect(sourceWidget.decoration?.hintText, 'Enter Source');
     });
 
     testWidgets('destination TextField has right hintText',

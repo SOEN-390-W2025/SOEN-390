@@ -89,11 +89,15 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       if (!mounted) return;
       setState(() {
-        _sourceController.text = _yourLocationString;
         _locationPermissionGranted = hasPermission;
-        if (_locationPermissionGranted &&
-            !searchList.contains(_yourLocationString)) {
-          searchList.insert(0, _yourLocationString);
+        if (_locationPermissionGranted) {
+          _sourceController.text = _yourLocationString;
+          if (!searchList.contains(_yourLocationString)) {
+            searchList.insert(0, _yourLocationString);
+          }
+        }
+        else {
+          _sourceController.text = '';
         }
       });
     });
