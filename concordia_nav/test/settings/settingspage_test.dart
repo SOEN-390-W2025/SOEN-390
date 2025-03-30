@@ -5,6 +5,7 @@ import 'package:concordia_nav/ui/setting/accessibility/accessibility_page.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_link_view.dart';
 import 'package:concordia_nav/ui/setting/calendar/calendar_selection_view.dart';
 import 'package:concordia_nav/ui/setting/contact/contact_page.dart';
+import 'package:concordia_nav/ui/setting/guide/guide_page.dart';
 import 'package:concordia_nav/ui/setting/preferences/preferences_view.dart';
 import 'package:concordia_nav/ui/setting/settings_page.dart';
 import 'package:concordia_nav/utils/settings/preferences_viewmodel.dart';
@@ -188,6 +189,7 @@ void main() {
         '/AccessibilityPage': (context) => const AccessibilityPage(),
         '/PreferencesPage': (context) => const PreferencesPage(),
         '/ContactPage': (context) => const ContactPage(),
+        '/GuidePage': (context) => const GuidePage()
       };
 
       // Build the SettingsPage widget
@@ -221,6 +223,8 @@ void main() {
 
       // Tap on Guide SettingsTile
       await tester.tap(find.text('Guide'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.arrow_back));
       await tester.pumpAndSettle();
 
       // Tap on My Calendar SettingsTile

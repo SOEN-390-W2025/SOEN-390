@@ -114,6 +114,26 @@ void main() {
   });
 
   group('poiAppBar', () {
+    testWidgets(
+        'renders POIChoiceView with non-constant key and loading location',
+        (WidgetTester tester) async {
+      when(mockPOIViewModel.isLoadingLocation).thenReturn(true);
+
+      await tester.runAsync(() async {
+        await tester.pumpWidget(MaterialApp(
+            home:
+                POIChoiceView(key: UniqueKey(), viewModel: mockPOIViewModel)));
+
+        // Keep isLoadingLocation true for 3 seconds
+        await Future.delayed(const Duration(seconds: 3));
+        await tester.pump(const Duration(milliseconds: 100)); // Allow rebuild
+
+        // After 3 seconds, switch isLoadingLocation to false
+        when(mockPOIViewModel.isLoadingLocation).thenReturn(false);
+        await tester.pump(); // Trigger another frame
+      });
+    });
+
     testWidgets('renders POIChoiceView with non-constant key',
         (WidgetTester tester) async {
       // runAsync ref: https://stackoverflow.com/a/69004451
