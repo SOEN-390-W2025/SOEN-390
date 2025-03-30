@@ -98,9 +98,6 @@ class _LocationSelectionState extends State<LocationSelection> {
   /// Handles whether the end user's current location should be selected as the
   /// input. Otherwise, shows an error if something went wrong trying to get it.
   Future<void> _handleMyLocationSelected() async {
-    setState(() {
-      _isLoading = true;
-    });
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied ||
@@ -152,12 +149,6 @@ class _LocationSelectionState extends State<LocationSelection> {
       await _updateHighAccuracyLocation(); // ..same reasoning as the last call
     } on Error catch (e) {
       if (mounted) _showError("Unable to fetch current location: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 
