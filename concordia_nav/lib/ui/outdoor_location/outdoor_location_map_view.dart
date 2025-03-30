@@ -185,7 +185,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
     first = false;
   }
 
-  Future<void> _setDefaultTravelMode() async {
+  Future<void> setDefaultTravelMode() async {
     final preferences = Provider.of<PreferencesModel>(context, listen: false);
     final mode =
         _mapTransportPreferenceToTravelMode(preferences.selectedTransportation);
@@ -259,7 +259,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
 
       // Set default travel mode
       if (!mounted) return;
-      await _setDefaultTravelMode();
+      await setDefaultTravelMode();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

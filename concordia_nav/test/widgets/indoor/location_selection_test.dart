@@ -169,6 +169,8 @@ void main() {
 
     await tester.tap(find.text('Outdoor Location'));
     await tester.pumpAndSettle();
+
+    
   });
 
   testWidgets('Selecting Building updates dropdowns correctly',

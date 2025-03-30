@@ -331,6 +331,13 @@ void main() async {
               mapViewModel: mockMapViewModel),
         )));
 
+    // Get the state of OutdoorLocationMapView
+    final state = tester.state<OutdoorLocationMapViewState>(
+        find.byType(OutdoorLocationMapView));
+
+    // Call setDefaultTravelMode on the state
+    await state.setDefaultTravelMode();
+
     // Find the "Get Directions" button in the widget tree
     final buttonFinder = find.text('Get Directions');
 
