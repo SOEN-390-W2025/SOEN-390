@@ -51,8 +51,6 @@ class CampusMapPageState extends State<CampusMapPage> {
 
   MapViewModel get mapViewModel => _mapViewModel;
 
-  //MapViewModel get mapViewModel => _mapViewModel;
-
   Future<void> _loadMapData() async {
     final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
     setState(() {
@@ -84,6 +82,14 @@ class CampusMapPageState extends State<CampusMapPage> {
     });
   }
 
+  // Method to handle rebuilding when selected building changes
+  void _onSelectedBuildingChanged() {
+    // Force rebuild by calling setState
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,10 +103,19 @@ class CampusMapPageState extends State<CampusMapPage> {
 
     // Populate search list with buildings
     getSearchList();
+    
+    // Listener to rebuild when a building is selected
+    _mapViewModel.selectedBuildingNotifier.addListener(_onSelectedBuildingChanged);
   }
 
   @override
+  void dispose() {
+    _mapViewModel.selectedBuildingNotifier.removeListener(_onSelectedBuildingChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
 
+  @override
   /// Builds the campus map page.
   ///
   /// This page displays a map of a campus (e.g. SGW or LOY) and
@@ -144,7 +159,16 @@ class CampusMapPageState extends State<CampusMapPage> {
 
   FutureBuilder<CameraPosition> _buildMapFutureBuilder(BuildContext context) {
     return FutureBuilder<CameraPosition>(
-      future: _mapViewModel.getInitialCameraPosition(_currentCampus),
+      // Use the selectedBuilding position if available, otherwise use the campus default
+      future: _mapViewModel.selectedBuildingNotifier.value != null
+          ? Future.value(CameraPosition(
+              target: LatLng(
+                _mapViewModel.selectedBuildingNotifier.value!.lat,
+                _mapViewModel.selectedBuildingNotifier.value!.lng,
+              ),
+              zoom: 18.0, // Higher zoom level for building view
+            ))
+          : _mapViewModel.getInitialCameraPosition(_currentCampus),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
