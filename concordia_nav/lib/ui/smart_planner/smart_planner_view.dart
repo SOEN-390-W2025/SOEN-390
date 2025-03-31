@@ -6,7 +6,6 @@ import '../../data/repositories/building_repository.dart';
 import '../../data/services/smart_planner_service.dart';
 import '../../utils/map_viewmodel.dart';
 import '../../data/domain-model/location.dart';
-import '../../data/domain-model/travelling_salesman_request.dart';
 import '../../widgets/custom_appbar.dart';
 import 'generated_plan_view.dart';
 
@@ -33,7 +32,6 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   bool useCurrentLocation = false;
   bool _isLoading = false;
   String? _errorMessage;
-  TravellingSalesmanRequest? _plannerRequest;
 
   @override
   void initState() {
@@ -157,18 +155,18 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
 
     try {
       dev.log("Generating plan with prompt: ${_planController.text}");
-      _plannerRequest = await _smartPlannerService.generatePlannerData(
+      final optimizedRoute = await _smartPlannerService.generateOptimizedRoute(
         prompt: _planController.text,
         startTime: startTime,
         startLocation: startLocation,
       );
       if (!mounted) return;
-      dev.log(
-          "Plan generated with ${_plannerRequest!.events.length} events and ${_plannerRequest!.todoLocations.length} todoLocations");
+      dev.log("Optimized plan generated with ${optimizedRoute.length} stops");
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => GeneratedPlanView(plan: _plannerRequest!),
+          builder: (context) => GeneratedPlanView(
+              startLocation: startLocation, optimizedRoute: optimizedRoute),
         ),
       );
     } on Error catch (e) {
@@ -217,14 +215,16 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final cardColor = Theme.of(context).cardColor;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
     final dividerColor = Theme.of(context).dividerColor;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: customAppBar(context, "Smart Planner"),
       body: Semantics(
-        label: 'Enter your tasks into the Smart Planer with a starting location to generate an optimized plan.',
+        label:
+            'Enter your tasks into the Smart Planner with a starting location to generate an optimized plan.',
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -260,7 +260,8 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                   style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     hintText: "Create new plan...",
-                    hintStyle: TextStyle(color: secondaryTextColor, fontSize: 14),
+                    hintStyle:
+                        TextStyle(color: secondaryTextColor, fontSize: 14),
                     border: InputBorder.none,
                   ),
                 ),
@@ -299,7 +300,8 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                           style: TextStyle(color: textColor),
                           decoration: InputDecoration(
                             hintText: "Pick a source location...",
-                            hintStyle: TextStyle(color: secondaryTextColor, fontSize: 14),
+                            hintStyle: TextStyle(
+                                color: secondaryTextColor, fontSize: 14),
                             border: InputBorder.none,
                             prefixIcon: Icon(
                               Icons.location_on,
@@ -320,13 +322,15 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(primaryColor),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Text(
                             "Detecting nearby building...",
-                            style: TextStyle(fontSize: 12, color: secondaryTextColor),
+                            style: TextStyle(
+                                fontSize: 12, color: secondaryTextColor),
                           ),
                         ],
                       ),
@@ -343,7 +347,8 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
-                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12.0,
                             vertical: 4.0,
@@ -392,13 +397,18 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
             backgroundColor: primaryColor,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
             disabledBackgroundColor: primaryColor.withAlpha(100),
-            disabledForegroundColor: Theme.of(context).colorScheme.onPrimary.withAlpha(100),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            disabledForegroundColor:
+                Theme.of(context).colorScheme.onPrimary.withAlpha(100),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             minimumSize: const Size(150, 40),
           ),
           child: _isLoading
-              ? CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary)
-              : Text("Make Plan", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+              ? CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.onPrimary)
+              : Text("Make Plan",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary)),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -411,7 +421,7 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
   final primaryColor = Theme.of(context).primaryColor;
   final secondaryColor = Theme.of(context).colorScheme.secondary;
   final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-  
+
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(16),
@@ -451,7 +461,8 @@ Widget _buildSmartPlannerGuide(BuildContext context) {
         const SizedBox(height: 8),
         Text(
           'Example:',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor),
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.bold, color: textColor),
         ),
         Text.rich(
           const TextSpan(

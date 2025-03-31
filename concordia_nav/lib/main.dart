@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import 'data/domain-model/concordia_building.dart';
 import 'data/domain-model/location.dart';
-import 'data/domain-model/travelling_salesman_request.dart';
 import 'data/repositories/building_data_manager.dart';
 import 'data/repositories/calendar.dart';
 import 'ui/campus_map/campus_map_view.dart';
@@ -18,6 +17,7 @@ import 'ui/indoor_map/classroom_selection.dart';
 import 'ui/journey/journey_view.dart';
 import 'ui/next_class/next_class_directions_view.dart';
 import 'ui/outdoor_location/outdoor_location_map_view.dart';
+import 'ui/setting/guide/guide_page.dart';
 import 'ui/setting/preferences/preferences_view.dart';
 import 'ui/setting/contact/contact_page.dart';
 import 'ui/setting/accessibility/color_adjustment_view.dart';
@@ -161,7 +161,9 @@ class _MyAppState extends State<MyApp> {
             final args = ModalRoute.of(context)!.settings.arguments
                 as Map<String, dynamic>;
             return GeneratedPlanView(
-                plan: args['plan'] as TravellingSalesmanRequest);
+                startLocation: args['startLocation'] as Location,
+                optimizedRoute: args['optimizedRoute']
+                    as List<(String, Location, DateTime, DateTime)>);
           },
           '/IndoorDirectionsView': (context) {
             final args = ModalRoute.of(context)!.settings.arguments
@@ -217,6 +219,7 @@ class _MyAppState extends State<MyApp> {
           },
           '/ColorAdjustmentView': (context) => const ColorAdjustmentView(),
           '/ContactPage': (context) => const ContactPage(),
+          '/GuidePage': (context) => const GuidePage(),
         },
       ),
     );

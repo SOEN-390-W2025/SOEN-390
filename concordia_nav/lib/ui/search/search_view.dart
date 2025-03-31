@@ -41,106 +41,109 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    // Get theme colors
-    final primaryColor = Theme.of(context).primaryColor;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color;
-
-    // Get the buildings list from the arguments passed to the page
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final backgroundColor = theme.scaffoldBackgroundColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    final secondaryTextColor = theme.textTheme.bodyMedium?.color;
     final searchList =
         ModalRoute.of(context)?.settings.arguments as List<String>? ?? [];
 
-    return ChangeNotifierProvider<SearchViewModel>.value(
-      value: _searchViewModel, // Use the provided or created ViewModel
+    return ChangeNotifierProvider.value(
+      value: _searchViewModel,
       child: Scaffold(
         backgroundColor: backgroundColor,
         appBar: customAppBar(context, 'Search'),
         body: Consumer<SearchViewModel>(
           builder: (context, viewModel, child) {
+            final List<String> buildings = viewModel.filteredBuildings.isEmpty
+                ? searchList
+                : viewModel.filteredBuildings;
+
             return Semantics(
-              label: 'Type to filter and select a building from those available.',
+              label:
+                  'Type to filter and select a building from those available.',
               child: Column(
                 children: [
-                  TextField(
-                    style: TextStyle(color: textColor),
-                    onChanged: (query) {
-                      viewModel.filterBuildings(query); // Filter buildings on input
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Search for a building',
-                      prefixIcon: Icon(Icons.search, color: primaryColor),
-                      labelStyle: TextStyle(
-                        color: secondaryTextColor,
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: primaryColor), // Color when focused
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: secondaryTextColor?.withAlpha(150) ?? Colors.grey), // Color when not focused
-                      ),
-                    ),
-                  ),
+                  _buildSearchField(
+                      viewModel, primaryColor, textColor, secondaryTextColor),
                   const SizedBox(height: 20),
-                  // List of filtered buildings
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: viewModel.filteredBuildings.isEmpty
-                          ? searchList.length
-                          : viewModel.filteredBuildings.length,
-                      itemBuilder: (context, index) {
-                        final String building =
-                            viewModel.filteredBuildings.isEmpty
-                                ? searchList[index]
-                                : viewModel.filteredBuildings[index];
-
-                        final bool isSelected = _selectedBuilding == building;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedBuilding = building; // Update the selected building
-                            });
-
-                            Navigator.pop(context, [
-                              building,
-                              _currentLocation
-                            ]); // Return the selected building
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? primaryColor.withAlpha(100)
-                                  : null, // Use theme-aware selection color
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Theme.of(context).dividerColor, // Theme-aware border color
-                                  width: 0.5, // Border thickness
-                                ),
-                              ),
-                            ),
-                            child: ListTile(
-                              title: Text(
-                                building,
-                                style: TextStyle(
-                                  color: isSelected ? primaryColor : textColor,
-                                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-                                ),
-                              ),
-                              trailing: isSelected 
-                                ? Icon(Icons.check_circle, color: primaryColor)
-                                : null,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  _buildBuildingList(buildings, primaryColor, textColor),
                 ],
               ),
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField(SearchViewModel viewModel, Color primaryColor,
+      Color? textColor, Color? secondaryTextColor) {
+    return TextField(
+      style: TextStyle(color: textColor),
+      onChanged: viewModel.filterBuildings,
+      decoration: InputDecoration(
+        labelText: 'Search for a building',
+        prefixIcon: Icon(Icons.search, color: primaryColor),
+        labelStyle: TextStyle(color: secondaryTextColor),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: primaryColor),
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+              color: secondaryTextColor?.withAlpha(150) ?? Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBuildingList(
+      List<String> buildings, Color primaryColor, Color? textColor) {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: buildings.length,
+        itemBuilder: (context, index) {
+          final building = buildings[index];
+          final bool isSelected = _selectedBuilding == building;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedBuilding = building;
+              });
+              Navigator.pop(context, [building, _currentLocation]);
+            },
+            child: _buildBuildingTile(
+                building, isSelected, primaryColor, textColor),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBuildingTile(
+      String building, bool isSelected, Color primaryColor, Color? textColor) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isSelected ? primaryColor.withAlpha(100) : null,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.shade300,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: ListTile(
+        title: Text(
+          building,
+          style: TextStyle(
+            color: isSelected ? primaryColor : textColor,
+            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
+        trailing:
+            isSelected ? Icon(Icons.check_circle, color: primaryColor) : null,
       ),
     );
   }
