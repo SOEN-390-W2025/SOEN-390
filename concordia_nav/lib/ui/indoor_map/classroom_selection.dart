@@ -95,7 +95,11 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: customAppBar(context, widget.building),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -129,31 +133,38 @@ class ClassroomSelectionState extends State<ClassroomSelection> {
   }
 
   Widget _buildFloorLabel() {
+    // Get the secondary text color from theme
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, top: 8.0),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           widget.floor,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
+          style: TextStyle(fontSize: 14, color: secondaryTextColor.withAlpha(150)),
         ),
       ),
     );
   }
 
   Widget _buildClassroomList() {
+    // Get the primary color for loading indicator
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    
     return FutureBuilder<List<String>>(
       future: classroomsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: primaryColor));
         } else if (snapshot.hasError) {
-          return const Expanded(
-            child: Center(child: Text('Not available')),
+          return Expanded(
+            child: Center(child: Text('Not available', style: TextStyle(color: textColor))),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Expanded(
-            child: Center(child: Text("No classrooms available")),
+          return Expanded(
+            child: Center(child: Text("No classrooms available", style: TextStyle(color: textColor))),
           );
         } else {
           return SelectableList<String>(

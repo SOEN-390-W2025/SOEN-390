@@ -85,6 +85,7 @@ dependencies:
   logger: ^2.5.0
   google_places_flutter: ^2.1.0
   dart_openai: ^5.1.0
+  flutter_colorpicker: ^1.0.3
   shared_preferences: ^2.5.2
 
 dev_dependencies:
@@ -130,6 +131,7 @@ flutter:
     - assets/maps/outdoor/sgw/
     - assets/maps/outdoor/shuttle_bus_routes/
     - assets/maps/outdoor/shuttle_bus_schedules/
+    - assets/images/guide/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

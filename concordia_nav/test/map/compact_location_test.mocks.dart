@@ -85,6 +85,13 @@ class MockMapViewModel extends _i1.Mock implements _i7.MapViewModel {
           as _i2.ODSDirectionsService);
 
   @override
+  set odsDirectionsService(_i2.ODSDirectionsService? _odsDirectionsService) =>
+      super.noSuchMethod(
+        Invocation.setter(#odsDirectionsService, _odsDirectionsService),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   String get yourLocationString =>
       (super.noSuchMethod(
             Invocation.getter(#yourLocationString),

@@ -142,7 +142,7 @@ class NextClassDirectionsPreviewState
     final nextClassRoom =
         await CalendarRepository().getNextClassRoom(null, buildingViewModel);
 
-    if (nextClassRoom == null) {
+    if (nextClassRoom == null && mounted) {
       setState(() {
         _isLoading = false;
       });
@@ -151,7 +151,7 @@ class NextClassDirectionsPreviewState
 
     setState(() {
       _attemptSetSourceToMyLocation();
-      _destination = nextClassRoom;
+      _destination = nextClassRoom!;
       _isLoading = false;
     });
   }
@@ -173,7 +173,7 @@ class NextClassDirectionsPreviewState
     return ConcordiaRoom(placeholder, RoomCategory.classroom, dummyFloor, null);
   }
 
-  /// Retrieves the user’s location by using the last known or the low-accuracy
+  /// Retrieves the user's location by using the last known or the low-accuracy
   /// location. Shows an error if something went wrong trying to get it.
   Future<LatLng> _fetchFastLocation() async {
     final lastPos = await Geolocator.getLastKnownPosition();
@@ -296,26 +296,30 @@ class NextClassDirectionsPreviewState
   }
 
   Widget _buildPlaceholderPage() {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: _isFetchingInitialLocation
-            ? const CircularProgressIndicator(color: Color(0xFF962e42))
+            ? CircularProgressIndicator(color: primaryColor)
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.explore, size: 80, color: Colors.grey[600]),
+                  Icon(Icons.explore, size: 80, color: secondaryTextColor.withAlpha(100)),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "Please select a pair of locations to navigate to your next class.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    style: TextStyle(fontSize: 18, color: secondaryTextColor.withAlpha(100)),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "Choose a starting destination and the location of your next classroom.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                    style: TextStyle(fontSize: 14, color: secondaryTextColor.withAlpha(100)),
                   ),
                 ],
               ),
@@ -324,23 +328,27 @@ class NextClassDirectionsPreviewState
   }
 
   List<Widget> _buildSameBuildingPages() {
+    // Get theme colors
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     return [
       SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Center(
+            Center(
               child: Text(
                 "Follow Indoor Directions",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 5),
             Center(
               child: Text(
-                "Since your next class is in the same building, you’ll just be following directions around ${_destination.name}.",
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                "Since your next class is in the same building, you'll just be following directions around ${_destination.name}.",
+                style: TextStyle(fontSize: 16, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -353,6 +361,10 @@ class NextClassDirectionsPreviewState
   }
 
   List<Widget> _buildDifferentBuildingsPages() {
+    // Get theme colors
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+
     return [
       SingleChildScrollView(
         child: Column(
@@ -361,16 +373,15 @@ class NextClassDirectionsPreviewState
             Center(
               child: Text(
                 "Step 1: Exit ${_source.name}",
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 5),
             Center(
               child: Text(
-                "You’ll start by leaving ${_source.name} from the nearest exit in order to start your journey.",
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                "You'll start by leaving ${_source.name} from the nearest exit in order to start your journey.",
+                style: TextStyle(fontSize: 16, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -383,18 +394,18 @@ class NextClassDirectionsPreviewState
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Center(
+            Center(
               child: Text(
                 "Step 2: Follow Outdoor Directions",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 5),
             Center(
               child: Text(
-                "From ${_source.name} towards ${_destination.name}, you’ll select the best transport method to get to your next class.",
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                "From ${_source.name} towards ${_destination.name}, you'll select the best transport method to get to your next class.",
+                style: TextStyle(fontSize: 16, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -410,16 +421,15 @@ class NextClassDirectionsPreviewState
             Center(
               child: Text(
                 "Step 3: Enter ${_destination.name}",
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 5),
             Center(
               child: Text(
-                "Once you’re inside ${_destination.name}, follow the indoor directions to reach your next class at ${_destination.floor.floorNumber}.${_destination.roomNumber}!",
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                "Once you're inside ${_destination.name}, follow the indoor directions to reach your next class at ${_destination.floor.floorNumber}.${_destination.roomNumber}!",
+                style: TextStyle(fontSize: 16, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -432,23 +442,27 @@ class NextClassDirectionsPreviewState
   }
 
   List<Widget> _buildOutsideBuildingPages() {
+    // Get theme colors
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    
     return [
       SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Center(
+            Center(
               child: Text(
                 "Step 1: Follow Outdoor Directions",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 5),
-            const Center(
+            Center(
               child: Text(
-                "You’ll get to select the best transport method for your next class.",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                "You'll get to select the best transport method for your next class.",
+                style: TextStyle(fontSize: 16, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -464,8 +478,7 @@ class NextClassDirectionsPreviewState
             Center(
               child: Text(
                 "Step 2: Enter ${_destination.name}",
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -473,7 +486,7 @@ class NextClassDirectionsPreviewState
             Center(
               child: Text(
                 "Once inside, follow the indoor directions to reach your next class at ${_destination.floor.floorNumber}.${_destination.roomNumber}!",
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(fontSize: 16, color: secondaryTextColor),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -486,16 +499,18 @@ class NextClassDirectionsPreviewState
   }
 
   Widget _buildStaticMapWidget() {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return AnimatedBuilder(
       animation: viewModel,
       builder: (context, _) {
         final url = viewModel.staticMapUrl;
         if (url == null) {
-          return const CircularProgressIndicator(color: Color(0xFF962e42));
+          return CircularProgressIndicator(color: primaryColor);
         }
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFF962e42), width: 2),
+            border: Border.all(color: primaryColor, width: 2),
           ),
           child: (Platform.environment.containsKey('FLUTTER_TEST'))
               ? null
@@ -506,6 +521,8 @@ class NextClassDirectionsPreviewState
   }
 
   Widget _buildFloorPlanWidget(ConcordiaRoom location) {
+    final primaryColor = Theme.of(context).primaryColor;
+    
     final String abbreviation = location.floor.building.abbreviation;
     const String floorNumber = "1";
     final floorPlanPath =
@@ -519,11 +536,11 @@ class NextClassDirectionsPreviewState
       child: SvgPicture.asset(
         floorPlanPath,
         fit: BoxFit.contain,
-        placeholderBuilder: (context) => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF962e42)),
+        placeholderBuilder: (context) => Center(
+          child: CircularProgressIndicator(color: primaryColor),
         ),
-        errorBuilder: (context, error, stackTrace) => const Center(
-          child: Icon(Icons.meeting_room, size: 150),
+        errorBuilder: (context, error, stackTrace) => Center(
+          child: Icon(Icons.meeting_room, size: 150, color: primaryColor.withAlpha(90)),
         ),
       ),
     );
@@ -532,6 +549,7 @@ class NextClassDirectionsPreviewState
   Future<void> _editSource() async {
     await showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).cardColor,
       builder: (context) {
         return LocationSelection(
           isSource: true,
@@ -564,6 +582,7 @@ class NextClassDirectionsPreviewState
   Future<void> _editDestination() async {
     await showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).cardColor,
       builder: (context) {
         return LocationSelection(
           isSource: false,
@@ -603,6 +622,12 @@ class NextClassDirectionsPreviewState
   }
 
   Widget _buildLocationInfo() {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final dividerColor = Theme.of(context).dividerColor;
+    final destinationColor = Theme.of(context).primaryColor; // Keep custom destination pin color
+    
     final sourceText = _formatLocationText(_source);
     final destinationText = _formatLocationText(_destination);
 
@@ -617,25 +642,25 @@ class NextClassDirectionsPreviewState
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Column(
+            Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.radio_button_checked,
-                  color: Color.fromRGBO(146, 35, 56, 1),
+                  color: primaryColor,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 VerticalDottedLine(
                   height: 20,
-                  color: Colors.grey,
+                  color: dividerColor,
                   dashHeight: 3,
                   dashSpace: 3,
                   strokeWidth: 2,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Icon(
                   Icons.location_on,
-                  color: Color(0xFFDA3A16),
+                  color: destinationColor,
                 ),
               ],
             ),
@@ -652,9 +677,9 @@ class NextClassDirectionsPreviewState
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Text(
                           sourceText,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            color: Colors.black,
+                            color: textColor,
                           ),
                         ),
                       ),
@@ -662,7 +687,7 @@ class NextClassDirectionsPreviewState
                     Divider(
                       height: 1,
                       thickness: 0.5,
-                      color: Colors.grey[300],
+                      color: dividerColor,
                     ),
                     InkWell(
                       onTap: _editDestination,
@@ -671,9 +696,9 @@ class NextClassDirectionsPreviewState
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Text(
                           destinationText,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            color: Colors.black,
+                            color: textColor,
                           ),
                         ),
                       ),
@@ -699,6 +724,10 @@ class NextClassDirectionsPreviewState
   }
 
   Widget _buildBottomBar(int totalPages) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    
     final bool isPrevButtonDisabled = _currentPage == 0;
     final bool isNextButtonDisabled = _currentPage == totalPages - 1;
     final bool isBeginNavigationButtonEnabled = _currentPage == totalPages - 1;
@@ -711,14 +740,14 @@ class NextClassDirectionsPreviewState
         isBeginNavigationButtonEnabled ? _nextPage : null;
 
     return Container(
-      color: const Color(0xFF962E42),
+      color: primaryColor,
       padding: const EdgeInsets.all(8.0),
       child: totalPages == 1
           ? ElevatedButton(
               onPressed: _nextPage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF962E42),
+                backgroundColor: onPrimaryColor,
+                foregroundColor: primaryColor,
               ),
               child: const Text("Begin Navigation"),
             )
@@ -728,16 +757,20 @@ class NextClassDirectionsPreviewState
                 ElevatedButton(
                   onPressed: prevButtonCallback,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF962E42),
+                    backgroundColor: onPrimaryColor,
+                    foregroundColor: primaryColor,
+                    disabledBackgroundColor: Colors.white.withAlpha(100),
+                    disabledForegroundColor: primaryColor.withAlpha(80),
                   ),
                   child: const Text("Prev"),
                 ),
                 ElevatedButton(
                   onPressed: nextButtonCallback,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF962E42),
+                    backgroundColor: onPrimaryColor,
+                    foregroundColor: primaryColor,
+                    disabledBackgroundColor: Colors.white.withAlpha(100),
+                    disabledForegroundColor: primaryColor.withAlpha(80),
                   ),
                   child: const Text("Next"),
                 ),
@@ -745,7 +778,9 @@ class NextClassDirectionsPreviewState
                   onPressed: beginNavigationCallback,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF962E42),
+                    foregroundColor: primaryColor,
+                    disabledBackgroundColor: Colors.white.withAlpha(100),
+                    disabledForegroundColor: primaryColor.withAlpha(80),
                   ),
                   child: const Text("Begin Navigation"),
                 ),
@@ -797,13 +832,18 @@ class NextClassDirectionsPreviewState
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: customAppBar(context, "Next Class Directions"),
       body: Semantics(
         label: 'Get navigation details to your next class.',
         child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF962E42)),
+            ? Center(
+                child: CircularProgressIndicator(color: primaryColor),
               )
             : Column(
                 children: [

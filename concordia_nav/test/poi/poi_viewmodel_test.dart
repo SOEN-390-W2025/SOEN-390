@@ -19,27 +19,48 @@ void main() {
   late MockMapService mockMapService;
   late MockPlacesService mockPlacesService;
 
+  final outdoorPois = [
+    Place(
+        id: "1",
+        name: "Allons Burger",
+        location: const LatLng(45.49648751167641, -73.57862647170876),
+        types: ["foodDrink"]),
+    Place(
+        id: "2",
+        name: "Misoya",
+        location: const LatLng(45.49776972691097, -73.57849236126107),
+        types: ["foodDrink"])
+  ];
+
   setUp(() {
     mockMapService = MockMapService();
     mockPlacesService = MockPlacesService();
-    final outdoorPois = [
-      Place(id: "1", name: "Allons Burger", location: const LatLng(45.49648751167641, -73.57862647170876), types: ["foodDrink"]),
-      Place(id: "2", name: "Misoya", location: const LatLng(45.49776972691097, -73.57849236126107), types: ["foodDrink"])
-    ];
+
     when(mockPlacesService.nearbySearch(
-      location: const LatLng(45.4215, -75.6992), includedType: PlaceType.foodDrink,
-      radius: 1000, maxResultCount: 20))
+            location: const LatLng(45.4215, -75.6992),
+            includedType: PlaceType.foodDrink,
+            radius: 1000,
+            maxResultCount: 20))
         .thenAnswer((_) async => outdoorPois);
     when(mockPlacesService.textSearch(
-      textQuery: "Allons", location: const LatLng(45.4215, -75.6992), includedType: PlaceType.foodDrink,
-      radius: 1000, pageSize: 20, openNow: false))
+            textQuery: "Allons",
+            location: const LatLng(45.4215, -75.6992),
+            includedType: PlaceType.foodDrink,
+            radius: 1000,
+            pageSize: 20,
+            openNow: false))
         .thenAnswer((_) async => [outdoorPois[0]]);
-    when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => true);
-    when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => true);
-    when(mockMapService.getCurrentLocation()).thenAnswer((_) async => const LatLng(45.4215, -75.6992));
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => true);
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => true);
+    when(mockMapService.getCurrentLocation())
+        .thenAnswer((_) async => const LatLng(45.4215, -75.6992));
 
-    poiViewModel = POIViewModel(mapService: mockMapService, placesService: mockPlacesService);
+    poiViewModel = POIViewModel(
+        mapService: mockMapService, placesService: mockPlacesService);
   });
+
   test('can get globalSearchQuery value', () {
     final globalSearchQuery = poiViewModel.globalSearchQuery;
 
@@ -107,12 +128,17 @@ void main() {
   });
 
   test('filterPOIsWithGlobalSearch filters POIs', () async {
-    when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => false);
     await poiViewModel.init();
     await poiViewModel.loadIndoorPOIs();
     final allPois = poiViewModel.allPOIs;
 
     await poiViewModel.setGlobalSearchQuery("Wash");
+
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => false);
+    await poiViewModel.refreshLocation();
     final pois = poiViewModel.filterPOIsWithGlobalSearch();
 
     expect(pois, isNot(allPois));
@@ -131,7 +157,7 @@ void main() {
 
   test('getUniqueFilteredPOINames returns list of POI names', () async {
     await poiViewModel.loadIndoorPOIs();
-    final allPois =  poiViewModel.allPOIs;
+    final allPois = poiViewModel.allPOIs;
 
     final names = poiViewModel.getUniqueFilteredPOINames(allPois);
 
@@ -158,8 +184,24 @@ void main() {
     expect(distance, 5);
   });
 
-  test('hasMatchingIndoorPOIs returns true if filtered list not empty', () async {
+  test('createMarkersForOutdoorPOIs should create markers for given POIs',
+      () async {
+    // Define a mock onTap callback function
+    void mockOnTapCallback(Place place) {}
+
+    poiViewModel.filteredOutdoorPOIs = outdoorPois;
+
+    // Call the function and await the result
+    final Set<Marker> markers =
+        await poiViewModel.createMarkersForOutdoorPOIs(mockOnTapCallback);
+
+    expect(markers.length, equals(2));
+  });
+
+  test('hasMatchingIndoorPOIs returns true if filtered list not empty',
+      () async {
     await poiViewModel.loadIndoorPOIs();
+    await poiViewModel.refreshLocation();
 
     final matching = poiViewModel.hasMatchingIndoorPOIs();
 
@@ -175,10 +217,11 @@ void main() {
   });
 
   test('getOutdoorCategories returns filtered list if query', () async {
-    when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => false);
     await poiViewModel.init();
     await poiViewModel.setGlobalSearchQuery("Coffee");
-    
+
     final categories = poiViewModel.getOutdoorCategories();
 
     expect(categories, isA<List<Map<String, dynamic>>>());
@@ -196,7 +239,8 @@ void main() {
   });
 
   test('setOutdoorCategory updates outdoorCategory', () async {
-    when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => false);
     await poiViewModel.init();
 
     await poiViewModel.setOutdoorCategory(PlaceType.foodDrink, true);
@@ -204,7 +248,8 @@ void main() {
   });
 
   test('setOutdoorCategory updates to null if selected false', () async {
-    when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => false);
     await poiViewModel.init();
 
     await poiViewModel.setOutdoorCategory(PlaceType.foodDrink, false);
@@ -243,8 +288,9 @@ void main() {
 
   test('init leaves pois empty if location service disabled', () async {
     // Arrange
-    when(mockMapService.isLocationServiceEnabled()).thenAnswer((_) async => false);
-    
+    when(mockMapService.isLocationServiceEnabled())
+        .thenAnswer((_) async => false);
+
     // Act
     await poiViewModel.init();
 
@@ -258,7 +304,9 @@ void main() {
 
   test('init leaves pois empty if location permission disabled', () async {
     // Arrange
-    when(mockMapService.checkAndRequestLocationPermission()).thenAnswer((_) async => false);
+    when(mockMapService.checkAndRequestLocationPermission())
+        .thenAnswer((_) async => false);
+    await poiViewModel.refreshLocation();
 
     // Act
     await poiViewModel.init();
@@ -273,6 +321,7 @@ void main() {
   test('init leaves pois empty if current location is null', () async {
     // Arrange
     when(mockMapService.getCurrentLocation()).thenAnswer((_) async => null);
+    await poiViewModel.refreshLocation();
 
     // Act
     await poiViewModel.init();
@@ -316,8 +365,11 @@ void main() {
 
   test('updatePlaceWithDistance update place', () async {
     await poiViewModel.init();
-    final place = Place(id: "3", name: "PFK", 
-        location: const LatLng(45.496331463078164, -73.5786988913346), types: ["foodDrink"]);
+    final place = Place(
+        id: "3",
+        name: "PFK",
+        location: const LatLng(45.496331463078164, -73.5786988913346),
+        types: ["foodDrink"]);
 
     poiViewModel.updatePlaceWithDistance(0, place);
 
@@ -326,16 +378,28 @@ void main() {
 
   group('POI Tests', () {
     test('get POI hashcode', () {
-      final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", 
-          category: POICategory.washroom, x: 492, y: 678);
+      final poi = POI(
+          id: "1",
+          name: "Bathroom",
+          buildingId: "H",
+          floor: "1",
+          category: POICategory.washroom,
+          x: 492,
+          y: 678);
 
       expect(poi.hashCode, isA<int>());
     });
 
     test('POI toString was overwridden', () {
-      final poi = POI(id: "1", name: "Bathroom", buildingId:"H", floor: "1", 
-          category: POICategory.washroom, x: 492, y: 678);
-      
+      final poi = POI(
+          id: "1",
+          name: "Bathroom",
+          buildingId: "H",
+          floor: "1",
+          category: POICategory.washroom,
+          x: 492,
+          y: 678);
+
       expect(poi.toString(), "POI(name: Bathroom, floor: 1, building: H)");
     });
   });

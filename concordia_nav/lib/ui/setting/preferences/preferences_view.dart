@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/settings/preferences_viewmodel.dart';
+import '../../../widgets/custom_appbar.dart';
 
 class PreferencesPage extends StatelessWidget {
   const PreferencesPage({super.key});
@@ -31,35 +32,30 @@ class PreferencesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final dividerColor = Theme.of(context).dividerColor;
+    
     return Consumer<PreferencesModel>(
       builder: (context, preferences, child) {
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            title: const Text(
-              'Preferences',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-            ),
-          ),
+          backgroundColor: backgroundColor,
+          appBar: customAppBar(context, 'Preferences'),
           body: Semantics(
             label: 'Explore general preference options.',
             child: ListView(
               children: [
                 ListTile(
-                  title: const Text('Transportation Method'),
+                  title: Text('Transportation Method', 
+                      style: TextStyle(color: textColor)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       DropdownButton<String>(
                         value: preferences.selectedTransportation,
+                        icon: Icon(Icons.arrow_drop_down, color: primaryColor),
                         onChanged: (String? newValue) {
                           if (newValue != null) {
                             preferences.updateTransportation(newValue);
@@ -70,9 +66,9 @@ class PreferencesPage extends StatelessWidget {
                             value: value,
                             child: Row(
                               children: [
-                                Icon(_transportationIcons[value]),
+                                Icon(_transportationIcons[value], color: primaryColor),
                                 const SizedBox(width: 8),
-                                Text(value),
+                                Text(value, style: TextStyle(color: textColor)),
                               ],
                             ),
                           );
@@ -81,11 +77,13 @@ class PreferencesPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Divider(),
+                Divider(color: dividerColor),
                 ListTile(
-                  title: const Text('Measurement Unit'),
+                  title: Text('Measurement Unit',
+                      style: TextStyle(color: textColor)),
                   trailing: DropdownButton<String>(
                     value: preferences.selectedMeasurementUnit,
+                    icon: Icon(Icons.arrow_drop_down, color: primaryColor),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
                         preferences.updateMeasurementUnit(newValue);
@@ -94,13 +92,15 @@ class PreferencesPage extends StatelessWidget {
                     items: _measurementOptions.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
-                        child:
-                            Text("$value (${_measurementIndicators[value]})"),
+                        child: Text(
+                          "$value (${_measurementIndicators[value]})",
+                          style: TextStyle(color: textColor),
+                        ),
                       );
                     }).toList(),
                   ),
                 ),
-                const Divider(),
+                Divider(color: dividerColor),
               ],
             ),
           ),

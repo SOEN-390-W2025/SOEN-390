@@ -29,7 +29,6 @@ class LocationSelection extends StatefulWidget {
 class _LocationSelectionState extends State<LocationSelection> {
   String _selectionMode = 'selectClassroom';
   bool _isMyLocationAvailable = false;
-  bool _isLoading = false;
   final String yourLocationString = "Your Location";
 
   String? _selectedBuilding;
@@ -99,9 +98,6 @@ class _LocationSelectionState extends State<LocationSelection> {
   /// Handles whether the end user's current location should be selected as the
   /// input. Otherwise, shows an error if something went wrong trying to get it.
   Future<void> _handleMyLocationSelected() async {
-    setState(() {
-      _isLoading = true;
-    });
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied ||
@@ -153,12 +149,6 @@ class _LocationSelectionState extends State<LocationSelection> {
       await _updateHighAccuracyLocation(); // ..same reasoning as the last call
     } on Error catch (e) {
       if (mounted) _showError("Unable to fetch current location: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 
@@ -226,10 +216,9 @@ class _LocationSelectionState extends State<LocationSelection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.isSource) _buildSegmentedButton(),
-            // if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
+            if (_selectionMode == "outdoorLocation") _buildOutdoorLocation(),
             if (_selectionMode == "selectClassroom") _buildSelectClassroom(),
             if (!widget.isSource) _buildCalendarLink(),
-            if (_isLoading) _buildLoadingIndicator(),
           ],
         ),
       ),
@@ -248,13 +237,12 @@ class _LocationSelectionState extends State<LocationSelection> {
     // Explicitly specify that the ButtonSegment is of type String
     return ButtonSegment<String>(
       value: value,
-      label: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
+      label: Text(label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
             fontSize: 12,
-            color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
-      ),
+            color: isEnabled ? textColor : secondaryTextColor.withAlpha(100),
+          )),
       icon: Icon(icon,
           color: isEnabled ? textColor : secondaryTextColor.withAlpha(100)),
       enabled: isEnabled,
@@ -274,8 +262,8 @@ class _LocationSelectionState extends State<LocationSelection> {
           // Ensure the list is of type List<ButtonSegment<String>>
           _buildSegment("myLocation", Icons.my_location, "My Location",
               _isMyLocationAvailable),
-          // _buildSegment(
-          //     "outdoorLocation", Icons.location_on, "Outdoor Location", true),
+          _buildSegment(
+              "outdoorLocation", Icons.location_on, "Outdoor Location", true),
           _buildSegment(
               "selectClassroom", Icons.meeting_room, "Select Classroom", true),
         ],
@@ -466,15 +454,17 @@ class _LocationSelectionState extends State<LocationSelection> {
     );
   }
 
-  // Loading indicator for waiting state
-  Widget _buildLoadingIndicator() {
-    final primaryColor = Theme.of(context).primaryColor;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CircularProgressIndicator(color: primaryColor),
-      ),
+  Widget _buildOutdoorLocation() {
+    return Column(
+      children: [
+        _mapViewModel.buildPlaceAutocompleteTextField(
+          controller: TextEditingController(),
+          onPlaceSelected: (location) {
+            widget.onSelectionComplete(location);
+          },
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

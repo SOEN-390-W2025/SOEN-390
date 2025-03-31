@@ -57,7 +57,7 @@ class MapViewModel extends ChangeNotifier {
   final MapRepository _mapRepository;
   final MapService _mapService;
   final BuildingService _buildingService = BuildingService();
-  final ODSDirectionsService odsDirectionsService;
+  ODSDirectionsService odsDirectionsService;
   final ShuttleRouteRepository _shuttleRepository;
 
   final yourLocationString = 'Your Location';
