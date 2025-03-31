@@ -35,6 +35,7 @@ class _POIMapViewState extends State<POIMapView>
     with SingleTickerProviderStateMixin {
   late IndoorMapViewModel _indoorMapViewModel;
   late POIMapViewModel _poiMapViewModel;
+  bool _showUserGuide = true;
 
   @override
   void initState() {
@@ -69,6 +70,15 @@ class _POIMapViewState extends State<POIMapView>
           });
         }
       });
+    });
+    
+    // Auto-hide the user guide after 5 seconds
+    Future.delayed(const Duration(seconds: 10), () {
+      if (mounted) {
+        setState(() {
+          _showUserGuide = false;
+        });
+      }
     });
   }
 
@@ -164,6 +174,7 @@ class _POIMapViewState extends State<POIMapView>
     final cardColor = Theme.of(context).cardColor;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
     final shadowColor = Theme.of(context).shadowColor;
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Column(
       children: [
@@ -195,6 +206,62 @@ class _POIMapViewState extends State<POIMapView>
                   onFloorChanged: (floor) => viewModel.changeFloor(floor),
                 ),
               ),
+
+              // User guide tooltip - shows initially and can be dismissed
+              if (_showUserGuide && viewModel.poisOnCurrentFloor.isNotEmpty)
+                Positioned(
+                  top: 140,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showUserGuide = false;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: shadowColor.withAlpha(100),
+                              blurRadius: 5,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: primaryColor,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Tap an icon to select',
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.close,
+                              color: primaryColor,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
               // No POIs message overlay
               if (viewModel.noPoisOnCurrentFloor)
@@ -243,6 +310,13 @@ class _POIMapViewState extends State<POIMapView>
   }
 
   void _showPOIDetails(POI poi, POIMapViewModel viewModel) {
+    // Hide user guide when a POI is tapped
+    if (_showUserGuide) {
+      setState(() {
+        _showUserGuide = false;
+      });
+    }
+    
     showModalBottomSheet(
       context: context,
       builder: (context) => POIBottomSheet(
