@@ -41,12 +41,7 @@ class _POIMapViewState extends State<POIMapView>
     super.initState();
     // Initialize ViewModels
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-    _indoorMapViewModel.setInitialCameraPosition(
-      scale: 1.0,
-      offsetX: -50.0,
-      offsetY: -50.0,
-    );
-
+    
     // Create the POIMapViewModel with its dependencies including IndoorMapViewModel
     // unless provided with one
     _poiMapViewModel = widget.poiMapViewModel ??
@@ -61,7 +56,19 @@ class _POIMapViewState extends State<POIMapView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _poiMapViewModel.loadPOIData(
           initialBuilding: widget.initialBuilding,
-          initialFloor: widget.initialFloor);
+          initialFloor: widget.initialFloor).then((_) {
+        // After data is loaded, apply max zoom out
+        if (_poiMapViewModel.floorPlanExists) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final screenSize = MediaQuery.of(context).size;
+            _indoorMapViewModel.setInitialCameraPosition(
+              viewportSize: screenSize,
+              contentWidth: _poiMapViewModel.width,
+              contentHeight: _poiMapViewModel.height,
+            );
+          });
+        }
+      });
     });
   }
 

@@ -31,11 +31,39 @@ class IndoorMapViewModel extends MapViewModel {
     double scale = 1.0,
     double offsetX = 0.0,
     double offsetY = 0.0,
+    Size? viewportSize,
+    double? contentWidth,
+    double? contentHeight,
   }) {
-    final matrix = Matrix4.identity()
-      ..translate(offsetX, offsetY)
-      ..scale(scale);
-    transformationController.value = matrix;
+    // If we have all necessary parameters
+    if (viewportSize != null && contentWidth != null && contentHeight != null) {
+
+      // Use the smaller scale to ensure everything fits
+      final fitScale = _minScale + 0.05;
+
+      // Clamp scale between min and max values
+      final clampedScale = fitScale.clamp(_minScale, _maxScale);
+
+      // Center the content in the viewport
+      final centeredOffsetX = (viewportSize.width - (contentWidth * clampedScale)) / 2;
+      final centeredOffsetY = (viewportSize.height - (contentHeight * clampedScale)) / 10;
+
+      // Apply the transformation
+      final matrix = Matrix4.identity()
+        ..translate(centeredOffsetX, centeredOffsetY)
+        ..scale(clampedScale);
+
+      transformationController.value = matrix;
+
+      dev.log('Set initial camera position with max zoom out: scale=$clampedScale, offsetX=$centeredOffsetX, offsetY=$centeredOffsetY');
+    } else {
+      // Original behavior
+      final matrix = Matrix4.identity()
+        ..translate(offsetX, offsetY)
+        ..scale(scale);
+
+      transformationController.value = matrix;
+    }
   }
 
   /// Animates the camera transformation to the provided target matrix.
