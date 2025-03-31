@@ -1,3 +1,7 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/domain-model/poi.dart';
@@ -11,6 +15,7 @@ import '../../widgets/floor_button.dart';
 import '../../widgets/poi_bottom_sheet.dart';
 import '../../widgets/radius_bar.dart';
 import '../indoor_location/floor_plan_widget.dart';
+import 'dart:developer' as dev;
 
 class POIMapView extends StatefulWidget {
   final String? initialBuilding;
@@ -36,13 +41,14 @@ class _POIMapViewState extends State<POIMapView>
   late IndoorMapViewModel _indoorMapViewModel;
   late POIMapViewModel _poiMapViewModel;
   bool _showUserGuide = true;
+  Timer? _guideTimer;
 
   @override
   void initState() {
     super.initState();
     // Initialize ViewModels
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-    
+
     // Create the POIMapViewModel with its dependencies including IndoorMapViewModel
     // unless provided with one
     _poiMapViewModel = widget.poiMapViewModel ??
@@ -55,12 +61,18 @@ class _POIMapViewState extends State<POIMapView>
 
     // Load data after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       _poiMapViewModel.loadPOIData(
           initialBuilding: widget.initialBuilding,
           initialFloor: widget.initialFloor).then((_) {
         // After data is loaded, apply max zoom out
+        if (!mounted) return;
+
         if (_poiMapViewModel.floorPlanExists) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+
             final screenSize = MediaQuery.of(context).size;
             _indoorMapViewModel.setInitialCameraPosition(
               viewportSize: screenSize,
@@ -71,9 +83,9 @@ class _POIMapViewState extends State<POIMapView>
         }
       });
     });
-    
-    // Auto-hide the user guide after 5 seconds
-    Future.delayed(const Duration(seconds: 10), () {
+
+    // Auto-hide the user guide after 10 seconds
+    _guideTimer = Timer(const Duration(seconds: 10), () {
       if (mounted) {
         setState(() {
           _showUserGuide = false;
@@ -84,6 +96,7 @@ class _POIMapViewState extends State<POIMapView>
 
   @override
   void dispose() {
+    _guideTimer?.cancel();
     _indoorMapViewModel.dispose();
     _poiMapViewModel.dispose();
     super.dispose();
@@ -203,7 +216,14 @@ class _POIMapViewState extends State<POIMapView>
                   building: viewModel.nearestBuilding!,
                   poiName: widget.poiName,
                   poiChoiceViewModel: widget.poiChoiceViewModel,
-                  onFloorChanged: (floor) => viewModel.changeFloor(floor),
+                  onFloorChanged: (floor) {
+                    viewModel.changeFloor(floor).then((_) {
+                      // After floor change is complete, zoom out to show entire map
+                      if (mounted) {
+                        _animateToMaxZoomOut();
+                      }
+                    });
+                  },
                 ),
               ),
 
@@ -327,21 +347,29 @@ class _POIMapViewState extends State<POIMapView>
   
   // Helper method to animate to maximum zoom out
   void _animateToMaxZoomOut() {
-    final screenSize = MediaQuery.of(context).size;
-    
-    // Use the minimum scale value from IndoorMapViewModel
-    const minScale = 0.64;
-    
-    // Center the map in the viewport
-    final offsetX = (screenSize.width - (_poiMapViewModel.width * minScale)) / 2;
-    final offsetY = (screenSize.height - (_poiMapViewModel.height * minScale)) / 10;
-    
-    // Create the target matrix for animation
-    final targetMatrix = Matrix4.identity()
-      ..translate(offsetX, offsetY)
-      ..scale(minScale);
-    
-    // Animate to the maximum zoom out
-    _indoorMapViewModel.animateTo(targetMatrix);
+    // Check if the widget is still mounted before accessing context
+    if (!mounted) return;
+
+    try {
+      final screenSize = MediaQuery.of(context).size;
+
+      // Use the minimum scale value from IndoorMapViewModel
+      const minScale = 0.64;
+
+      // Center the map in the viewport
+      final offsetX = (screenSize.width - (_poiMapViewModel.width * minScale)) / 2;
+      final offsetY = (screenSize.height - (_poiMapViewModel.height * minScale)) / 10;
+
+      // Create the target matrix for animation
+      final targetMatrix = Matrix4.identity()
+        ..translate(offsetX, offsetY)
+        ..scale(minScale);
+
+      // Animate to the maximum zoom out
+      _indoorMapViewModel.animateTo(targetMatrix);
+    } catch (e) {
+      // Handle any errors that might occur if the context is no longer valid
+      dev.log('Error during max zoom out animation: $e');
+    }
   }
 }
