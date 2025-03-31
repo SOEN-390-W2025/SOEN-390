@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
@@ -326,27 +327,29 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
   }
 
   Widget _buildModeChip(CustomTravelMode mode) {
-    IconData icon;
-    switch (mode) {
-      case CustomTravelMode.driving:
-        icon = Icons.directions_car;
-        break;
-      case CustomTravelMode.walking:
-        icon = Icons.directions_walk;
-        break;
-      case CustomTravelMode.bicycling:
-        icon = Icons.directions_bike;
-        break;
-      case CustomTravelMode.transit:
-        icon = Icons.directions_transit_filled_outlined;
-        break;
-      case CustomTravelMode.shuttle:
-        icon = Icons.directions_bus;
-        break;
-    }
-
     final String time = _mapViewModel.travelTimes[mode] ?? "--";
-    final bool isSelected = (_mapViewModel.selectedTravelMode == mode);
+    final bool isSelected = _mapViewModel.selectedTravelMode == mode;
+
+    Widget iconWidget;
+    if (mode == CustomTravelMode.shuttle) {
+      iconWidget = SvgPicture.asset(
+        'assets/icons/shuttle-bus-transport-icon.svg',
+        color: isSelected ? Colors.red : Colors.black,
+        width: 24,
+        height: 24,
+      );
+    } else {
+      const modeIconMap = {
+        CustomTravelMode.driving: Icons.directions_car,
+        CustomTravelMode.walking: Icons.directions_walk,
+        CustomTravelMode.bicycling: Icons.directions_bike,
+        CustomTravelMode.transit: Icons.directions_transit_filled_outlined,
+      };
+      iconWidget = Icon(
+        modeIconMap[mode]!,
+        color: isSelected ? Colors.red : Colors.black,
+      );
+    }
 
     return GestureDetector(
       onTap: () {
@@ -364,7 +367,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isSelected ? Colors.red : Colors.black),
+            iconWidget,
             const SizedBox(width: 6),
             Text(
               time,
