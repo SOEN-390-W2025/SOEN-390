@@ -1,4 +1,3 @@
-// poi_map_view.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/domain-model/poi.dart';
@@ -118,13 +117,6 @@ class _POIMapViewState extends State<POIMapView>
       );
     } else {
       // If data is loaded and floor plan exists, show the floor plan
-      // Check if we need to pan to the first POI
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (viewModel.poisOnCurrentFloor.isNotEmpty) {
-          viewModel.panToFirstPOI(MediaQuery.of(context).size);
-        }
-      });
-
       return _buildFloorPlanView(viewModel);
     }
   }
@@ -234,18 +226,41 @@ class _POIMapViewState extends State<POIMapView>
           maxValue: 200.0,
           showMeters: true, // Use meters for indoor
           onRadiusChanged: (value) => viewModel.setSearchRadius(value),
+          onRadiusChangeEnd: (value) {
+            // Animate to max zoom out after radius adjustment is complete
+            _animateToMaxZoomOut();
+          },
         ),
       ],
     );
   }
 
   void _showPOIDetails(POI poi, POIMapViewModel viewModel) {
-
     showModalBottomSheet(
       context: context,
       builder: (context) => POIBottomSheet(
           buildingName: viewModel.nearestBuilding!.name, 
           poi: poi)
     );
+  }
+  
+  // Helper method to animate to maximum zoom out
+  void _animateToMaxZoomOut() {
+    final screenSize = MediaQuery.of(context).size;
+    
+    // Use the minimum scale value from IndoorMapViewModel
+    const minScale = 0.64;
+    
+    // Center the map in the viewport
+    final offsetX = (screenSize.width - (_poiMapViewModel.width * minScale)) / 2;
+    final offsetY = (screenSize.height - (_poiMapViewModel.height * minScale)) / 10;
+    
+    // Create the target matrix for animation
+    final targetMatrix = Matrix4.identity()
+      ..translate(offsetX, offsetY)
+      ..scale(minScale);
+    
+    // Animate to the maximum zoom out
+    _indoorMapViewModel.animateTo(targetMatrix);
   }
 }
