@@ -15,7 +15,7 @@ import '../../data/domain-model/place.dart';
 import '../../data/services/outdoor_directions_service.dart';
 import '../../utils/building_viewmodel.dart';
 import '../../utils/settings/preferences_viewmodel.dart';
-import '../../widgets/building_info_drawer.dart';
+import '../../widgets/build_info_drawer.dart';
 import '../../widgets/compact_location_search_widget.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
@@ -520,7 +520,7 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
             _buildMap(),
             _buildTopPanel(),
             _visibleKeyboardWidget(),
-            _buildBuildingInfoDrawer(),
+            BuildInfoDrawer(mapViewModel: _mapViewModel),
           ],
         ),
       ),
@@ -628,32 +628,6 @@ class OutdoorLocationMapViewState extends State<OutdoorLocationMapView>
       ),
       mapViewModel: _mapViewModel,
       style: 2,
-    );
-  }
-
-  // Building info drawer for standard buildings
-  Widget _buildBuildingInfoDrawer() {
-    return ValueListenableBuilder<ConcordiaBuilding?>(
-      valueListenable: _mapViewModel.selectedBuildingNotifier,
-      builder: (context, selectedBuilding, child) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return SlideTransition(
-              position:
-                  Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
-                      .animate(animation),
-              child: child,
-            );
-          },
-          child: selectedBuilding != null
-              ? BuildingInfoDrawer(
-                  building: selectedBuilding,
-                  onClose: _mapViewModel.unselectBuilding,
-                )
-              : const SizedBox.shrink(),
-        );
-      },
     );
   }
 }

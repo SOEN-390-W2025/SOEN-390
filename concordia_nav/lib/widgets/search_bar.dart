@@ -56,7 +56,6 @@ class SearchBarWidget extends StatelessWidget {
     if (result == null) return;
 
     final selectedBuilding = (result as List)[0];
-    final currentLocation = (result)[1];
 
     controller.text = selectedBuilding;
 
@@ -64,18 +63,20 @@ class SearchBarWidget extends StatelessWidget {
       if (selectedBuilding != 'Your Location') {
         final building =
             BuildingViewModel().getBuildingByName(selectedBuilding);
-        mapViewModel?.selectBuilding(building!);
+        if (building != null) {
+          // Unselect any previous building if selecting a named building
+          mapViewModel?.unselectBuilding();
+          mapViewModel?.selectBuilding(building);
+          // Camera position will be updated by the listener in CampusMapPage
+        }
       } else {
+        // For "Your Location", unselect any building to trigger camera update
+        mapViewModel?.unselectBuilding();
+        
         // If the selected building is "Your Location", check for building at current location
         if (context.mounted) {
           await mapViewModel?.checkBuildingAtCurrentLocation(context);
         }
-      }
-      if (context.mounted) {
-        await mapViewModel?.handleSelection(
-          selectedBuilding as String,
-          currentLocation,
-        );
       }
     } else {
       await getDirections();

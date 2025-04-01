@@ -486,10 +486,11 @@ class MockIndoorMapViewModel extends _i1.Mock
   );
 
   @override
-  void moveToLocation(_i5.LatLng? location) => super.noSuchMethod(
-    Invocation.method(#moveToLocation, [location]),
-    returnValueForMissingStub: null,
-  );
+  void moveToLocation(_i5.LatLng? location, {double? zoom = 17.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#moveToLocation, [location], {#zoom: zoom}),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i10.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(

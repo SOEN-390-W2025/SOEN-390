@@ -1,7 +1,10 @@
 import 'package:concordia_nav/data/domain-model/concordia_building.dart';
 import 'package:concordia_nav/data/domain-model/location.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/ui/campus_map/campus_map_view.dart';
+import 'package:concordia_nav/ui/search/search_view.dart';
 import 'package:concordia_nav/widgets/map_layout.dart';
+import 'package:concordia_nav/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -133,6 +136,45 @@ void main() async {
       await tester.pumpAndSettle();
 
       expect(find.text('Sir George Williams Campus'), findsOneWidget);
+    });
+
+    testWidgets('update map when select building', (WidgetTester tester) async {
+      // define routes needed for this test
+      final routes = {
+        '/': (context) => CampusMapPage(
+              campus: ConcordiaCampus.loy,
+              mapViewModel: mapViewModel,
+              buildMapViewModel: mapViewModel),
+        '/SearchView': (context) =>
+            SearchView(mapViewModel: mapViewModel,),
+      };
+      
+      // Build the CampusMapPage with the LOY campus
+      await tester.pumpWidget(MaterialApp(
+          initialRoute: '/',
+          routes: routes,));
+      await tester.pumpAndSettle();
+
+      when(mapViewModel.selectedBuildingNotifier).thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.vl));
+      when(mapViewModel.fetchCurrentLocation())
+        .thenAnswer((_) async => const LatLng(45.458, -73.639));
+
+      // find and tap SearchBarWidget
+      expect(find.byType(SearchBarWidget).first, findsOneWidget);
+      await tester.tapAt(const Offset(400, 100));
+      //await tester.tap(find.byType(SearchBarWidget).first);
+      await tester.pumpAndSettle();
+
+      // find and tap on 'Vanier Library'
+      expect(find.text('Vanier Library'), findsOneWidget);
+      await tester.tap(find.text('Vanier Library'));
+      when(mapViewModel.selectedBuildingNotifier).thenReturn(ValueNotifier<ConcordiaBuilding?>(BuildingRepository.vl));
+      await tester.pumpAndSettle();
+
+      final searchBar = find.byType(SearchBarWidget).evaluate().first.widget as SearchBarWidget;
+
+      expect(find.text('Loyola Campus'), findsOneWidget);
+      expect(searchBar.controller.text, 'Vanier Library');
     });
 
     test('Verify SGW campus properties', () {
