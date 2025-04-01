@@ -1,0 +1,46 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4895
+    longitude: -73.7797
+- launchApp:
+    clearState: true
+- assertVisible: "Concordia Campus Guide"
+- tapOn:
+    point: "28%,34%"
+- assertVisible: Google Map
+- swipe:
+    direction: LEFT
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- tapOn:
+    point: "7%,9%"
+- tapOn:
+    point: "72%,34%"
+- assertVisible: Google Map
+- swipe:
+    direction: LEFT
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- tapOn:
+    point: "7%,9%"
+- tapOn:
+    point: "28%,54%"
+- assertVisible: "Sir George Williams Campus"
+- assertVisible: Google Map
+- assertVisible: "Your Location"
+- assertVisible: "Enter Destination"
+- swipe:
+    direction: LEFT
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
+- tapOn:
+    point: "7%,9%"
+- tapOn:
+    point: "72%,54%"

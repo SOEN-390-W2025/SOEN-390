@@ -33,10 +33,10 @@ class POIMapView extends StatefulWidget {
       this.poiMapViewModel});
 
   @override
-  State<POIMapView> createState() => _POIMapViewState();
+  State<POIMapView> createState() => POIMapViewState();
 }
 
-class _POIMapViewState extends State<POIMapView>
+class POIMapViewState extends State<POIMapView>
     with SingleTickerProviderStateMixin {
   late IndoorMapViewModel _indoorMapViewModel;
   late POIMapViewModel _poiMapViewModel;
@@ -63,9 +63,11 @@ class _POIMapViewState extends State<POIMapView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      _poiMapViewModel.loadPOIData(
-          initialBuilding: widget.initialBuilding,
-          initialFloor: widget.initialFloor).then((_) {
+      _poiMapViewModel
+          .loadPOIData(
+              initialBuilding: widget.initialBuilding,
+              initialFloor: widget.initialFloor)
+          .then((_) {
         // After data is loaded, apply max zoom out
         if (!mounted) return;
 
@@ -132,7 +134,8 @@ class _POIMapViewState extends State<POIMapView>
   Widget _buildBody(POIMapViewModel viewModel) {
     // Get theme colors
     final primaryColor = Theme.of(context).primaryColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     if (viewModel.isLoading) {
       return Center(child: CircularProgressIndicator(color: primaryColor));
@@ -185,7 +188,8 @@ class _POIMapViewState extends State<POIMapView>
   Widget _buildFloorPlanView(POIMapViewModel viewModel) {
     // Get theme colors
     final cardColor = Theme.of(context).cardColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
     final shadowColor = Theme.of(context).shadowColor;
     final primaryColor = Theme.of(context).primaryColor;
 
@@ -203,7 +207,7 @@ class _POIMapViewState extends State<POIMapView>
                 width: viewModel.width,
                 height: viewModel.height,
                 pois: viewModel.poisOnCurrentFloor,
-                onPoiTap: (poi) => _showPOIDetails(poi, viewModel),
+                onPoiTap: (poi) => showPOIDetails(poi, viewModel),
                 currentLocation: viewModel.userPosition,
               ),
 
@@ -241,7 +245,8 @@ class _POIMapViewState extends State<POIMapView>
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: cardColor,
                           borderRadius: BorderRadius.circular(20),
@@ -329,22 +334,20 @@ class _POIMapViewState extends State<POIMapView>
     );
   }
 
-  void _showPOIDetails(POI poi, POIMapViewModel viewModel) {
+  void showPOIDetails(POI poi, POIMapViewModel viewModel) {
     // Hide user guide when a POI is tapped
     if (_showUserGuide) {
       setState(() {
         _showUserGuide = false;
       });
     }
-    
+
     showModalBottomSheet(
-      context: context,
-      builder: (context) => POIBottomSheet(
-          buildingName: viewModel.nearestBuilding!.name, 
-          poi: poi)
-    );
+        context: context,
+        builder: (context) => POIBottomSheet(
+            buildingName: viewModel.nearestBuilding!.name, poi: poi));
   }
-  
+
   // Helper method to animate to maximum zoom out
   void _animateToMaxZoomOut() {
     // Check if the widget is still mounted before accessing context
@@ -357,8 +360,10 @@ class _POIMapViewState extends State<POIMapView>
       const minScale = 0.64;
 
       // Center the map in the viewport
-      final offsetX = (screenSize.width - (_poiMapViewModel.width * minScale)) / 2;
-      final offsetY = (screenSize.height - (_poiMapViewModel.height * minScale)) / 10;
+      final offsetX =
+          (screenSize.width - (_poiMapViewModel.width * minScale)) / 2;
+      final offsetY =
+          (screenSize.height - (_poiMapViewModel.height * minScale)) / 10;
 
       // Create the target matrix for animation
       final targetMatrix = Matrix4.identity()

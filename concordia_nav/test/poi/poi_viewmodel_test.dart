@@ -1,15 +1,21 @@
 import 'package:concordia_nav/data/domain-model/place.dart';
 import 'package:concordia_nav/data/domain-model/poi.dart';
+import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/data/services/places_service.dart';
+import 'package:concordia_nav/ui/poi/poi_map_view.dart';
+import 'package:concordia_nav/utils/poi/poi_map_viewmodel.dart';
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart';
+import 'package:concordia_nav/widgets/poi_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 import 'poi_viewmodel_test.mocks.dart';
+import 'poipage_test.mocks.dart';
 
 @GenerateMocks([MapService, PlacesService])
 void main() {
@@ -59,6 +65,42 @@ void main() {
 
     poiViewModel = POIViewModel(
         mapService: mockMapService, placesService: mockPlacesService);
+  });
+
+  testWidgets('showPOIDetails updates state and displays POIBottomSheet',
+      (WidgetTester tester) async {
+    // Mock dependencies
+    final testPOI = POI(
+        id: 'test_id',
+        name: 'Test POI',
+        buildingId: 'Test Building',
+        floor: '1',
+        category: POICategory.elevator,
+        x: 100,
+        y: 200);
+
+    final MockPOIMapViewModel poiMapViewModel = MockPOIMapViewModel();
+
+    when(poiMapViewModel.nearestBuilding).thenReturn(BuildingRepository.h);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChangeNotifierProvider<POIMapViewModel>.value(
+          value: poiMapViewModel,
+          child: POIMapView(
+            poiName: 'Test POI',
+            poiChoiceViewModel: poiViewModel,
+          ),
+        ),
+      ),
+    );
+
+    final state = tester.state<POIMapViewState>(find.byType(POIMapView));
+    state.showPOIDetails(testPOI, poiMapViewModel);
+    await tester.pumpAndSettle();
+
+    // Verify that POIBottomSheet appears
+    expect(find.byType(POIBottomSheet), findsOneWidget);
   });
 
   test('can get globalSearchQuery value', () {

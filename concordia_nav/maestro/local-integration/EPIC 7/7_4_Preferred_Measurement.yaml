@@ -1,0 +1,29 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4895
+    longitude: -73.7797
+- launchApp:
+    clearState: true
+- assertVisible: "Concordia Campus Guide"
+- tapOn:
+    point: "7%,9%"
+- assertVisible: "Preferences"
+- tapOn: "Preferences"
+- tapOn:
+    point: "90%,23%"
+    retryTapIfNoChange: false
+- tapOn: "Imperial (yd)"
+- tapOn:
+    point: "7%,9%"
+- tapOn:
+    point: "7%,9%"
+- tapOn:
+    point: "28%,74%"
+- tapOn: "Hall Building"
+- tapOn: "Floor 8"
+- tapOn: "810"
+- tapOn: "From: Your Location"
+- tapOn: "Select Floor"
+- tapOn: "Floor 8"
+- tapOn: "801"
