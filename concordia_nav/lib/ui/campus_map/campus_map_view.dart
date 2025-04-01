@@ -32,8 +32,9 @@ class CampusMapPageState extends State<CampusMapPage> {
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
+  static const searchStr = 'Search...';
   final TextEditingController _searchController =
-      TextEditingController(text: 'Search...');
+      TextEditingController(text: searchStr);
   Set<Polygon> _polygons = {};
   Set<Marker> _labelMarkers = {};
   List<String> searchList = [];
@@ -208,7 +209,7 @@ class CampusMapPageState extends State<CampusMapPage> {
       right: 15,
       child: SearchBarWidget(
         controller: _searchController,
-        hintText: 'Search...',
+        hintText: searchStr,
         icon: Icons.location_on,
         iconColor: Theme.of(context).primaryColor,
         searchList: searchList,
@@ -241,7 +242,7 @@ class CampusMapPageState extends State<CampusMapPage> {
     });
 
     _mapViewModel.unselectBuilding();
-    _searchController.text = 'Search...';
+    _searchController.text = searchStr;
     searchList.clear();
     checkLocationPermission();
     getSearchList();
