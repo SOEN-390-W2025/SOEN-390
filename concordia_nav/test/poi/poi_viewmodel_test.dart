@@ -3,6 +3,7 @@ import 'package:concordia_nav/data/domain-model/poi.dart';
 import 'package:concordia_nav/data/repositories/building_repository.dart';
 import 'package:concordia_nav/data/services/map_service.dart';
 import 'package:concordia_nav/data/services/places_service.dart';
+import 'package:concordia_nav/ui/indoor_map/floor_selection.dart';
 import 'package:concordia_nav/ui/poi/poi_map_view.dart';
 import 'package:concordia_nav/utils/poi/poi_map_viewmodel.dart';
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart';
@@ -99,21 +100,27 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: ChangeNotifierProvider<POIMapViewModel>.value(
-          value: poiMapViewModel,
-          child: POIMapView(
-            poiName: 'Test POI',
-            poiChoiceViewModel: poiViewModel,
-            poiMapViewModel: poiMapViewModel,
-          ),
-        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => ChangeNotifierProvider<POIMapViewModel>.value(
+                value: poiMapViewModel,
+                child: POIMapView(
+                  poiName: 'Test POI',
+                  poiChoiceViewModel: poiViewModel,
+                  poiMapViewModel: poiMapViewModel,
+                ),
+              ),
+        },
       ),
     );
+    // Find the slider in the RadiusBar
+    final sliderFinder = find.byType(Slider);
 
-    await tester.tap(find.byType(FloorButton));
-    await tester.pumpAndSettle();
+    // Ensure the slider is found
+    expect(sliderFinder, findsOneWidget);
 
-    await tester.tap(find.text("Floor 2"));
+    // Drag the slider to increase the radius (e.g., to 100)
+    await tester.drag(sliderFinder, const Offset(50, 0));
     await tester.pumpAndSettle();
 
     final state = tester.state<POIMapViewState>(find.byType(POIMapView));

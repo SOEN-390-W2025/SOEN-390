@@ -220,14 +220,6 @@ class POIMapViewState extends State<POIMapView>
                   building: viewModel.nearestBuilding!,
                   poiName: widget.poiName,
                   poiChoiceViewModel: widget.poiChoiceViewModel,
-                  onFloorChanged: (floor) {
-                    viewModel.changeFloor(floor).then((_) {
-                      // After floor change is complete, zoom out to show entire map
-                      if (mounted) {
-                        _animateToMaxZoomOut();
-                      }
-                    });
-                  },
                 ),
               ),
 
