@@ -577,8 +577,8 @@ class MapViewModel extends ChangeNotifier {
     _mapService.setMapController(controller);
   }
 
-  void moveToLocation(LatLng location) {
-    _mapService.moveCamera(location);
+  void moveToLocation(LatLng location, {double zoom = 17.0} ) {
+    _mapService.moveCamera(location, zoom: zoom);
   }
 
   Future<Map<String, dynamic>> _getPolygonsAndLabels(
