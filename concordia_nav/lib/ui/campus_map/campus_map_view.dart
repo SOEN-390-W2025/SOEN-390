@@ -71,16 +71,10 @@ class CampusMapPageState extends State<CampusMapPage> {
     }
   }
 
-  final _yourLocationString = "Your Location";
-
   void checkLocationPermission() {
     _mapViewModel.checkLocationAccess().then((hasPermission) {
       setState(() {
         _locationPermissionGranted = hasPermission;
-        if (_locationPermissionGranted &&
-            !searchList.contains(_yourLocationString)) {
-          searchList.insert(0, _yourLocationString);
-        }
       });
     });
   }
@@ -90,9 +84,10 @@ class CampusMapPageState extends State<CampusMapPage> {
     if (mounted && _mapViewModel.selectedBuildingNotifier.value != null) {
       final selectedBuilding = _mapViewModel.selectedBuildingNotifier.value!;
 
+      // This will trigger a smooth animation to the selected building
       _mapViewModel.moveToLocation(LatLng(selectedBuilding.lat, selectedBuilding.lng));
 
-      setState(() {}); // Force rebuild for other UI elements
+      setState(() {}); // Force rebuild for drawer and other UI elements
     }
   }
 
@@ -153,12 +148,12 @@ class CampusMapPageState extends State<CampusMapPage> {
                           if (!cameraSnapshot.hasData || !snapshot.hasData) {
                             return const Center(child: CircularProgressIndicator());
                           }
-                          
+
                           if (snapshot.hasData) {
                             _polygons = snapshot.data!["polygons"] as Set<Polygon>;
                             _labelMarkers = snapshot.data!["labels"] as Set<Marker>;
                           }
-                          
+
                           return MapLayout(
                             searchController: _searchController,
                             mapWidget: _buildGoogleMap(cameraSnapshot.data!),
@@ -194,7 +189,7 @@ class CampusMapPageState extends State<CampusMapPage> {
   late Future<CameraPosition> _initialCameraPositionFuture;
   // Flag to track if initial map data is loaded
   bool _isMapDataLoaded = false;
-  
+
   // Removed the separate FutureBuilder methods as they're now consolidated in the build method
 
   Semantics _buildGoogleMap(CameraPosition initialCameraPosition) {
@@ -222,7 +217,7 @@ class CampusMapPageState extends State<CampusMapPage> {
       right: 15,
       child: SearchBarWidget(
         controller: _searchController,
-        hintText: _yourLocationString,
+        hintText: 'Search...',
         icon: Icons.location_on,
         iconColor: Theme.of(context).primaryColor,
         searchList: searchList,
