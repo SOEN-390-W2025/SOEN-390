@@ -1,0 +1,30 @@
+appId: com.example.concordia_nav
+---
+- setLocation:
+    latitude: 45.4895
+    longitude: -73.7797
+- launchApp:
+    clearState: true
+- assertVisible: "Home"
+- setLocation:
+    latitude: 45.497337
+    longitude: -73.579033
+- tapOn:
+    point: "72%,74%"
+- assertVisible: "Escalators"
+- tapOn: "Escalators"
+- assertVisible: "Floor plan of H-1"
+- assertVisible: "21%, 50.0m"
+- tapOn: "50"
+- eraseText
+- pressKey: Enter
+- tapOn: "10"
+- eraseText
+- inputText: "10"
+- pressKey: Enter
+- swipe:
+    direction: LEFT
+    duration: 2000
+- swipe:
+    direction: RIGHT
+    duration: 2000
