@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/map_viewmodel.dart';
-import '../../data/domain-model/concordia_building.dart';
 import '../../data/domain-model/concordia_campus.dart';
 import '../../utils/building_viewmodel.dart';
-import '../../widgets/building_info_drawer.dart';
+import '../../widgets/build_info_drawer.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/map_layout.dart';
 import '../../widgets/search_bar.dart';
@@ -24,22 +23,12 @@ class CampusMapPage extends StatefulWidget {
       this.buildMapViewModel});
 
   @override
-  // ignore: no_logic_in_create_state
-  State<CampusMapPage> createState() =>
-      // ignore: no_logic_in_create_state
-      CampusMapPageState(
-          mapViewModel: mapViewModel, buildMapViewModel: buildMapViewModel);
+  State<CampusMapPage> createState() => CampusMapPageState();
 }
 
 class CampusMapPageState extends State<CampusMapPage> {
-  // Modify constructor to allow dependency injection
-  CampusMapPageState(
-      {MapViewModel? mapViewModel, MapViewModel? buildMapViewModel})
-      : _mapViewModel = mapViewModel ?? MapViewModel(),
-        _buildMapViewModel = buildMapViewModel ?? MapViewModel();
-
-  final MapViewModel _mapViewModel;
-  final MapViewModel _buildMapViewModel;
+  late MapViewModel _mapViewModel;
+  late MapViewModel _buildMapViewModel;
   final BuildingViewModel _buildingViewModel = BuildingViewModel();
   late ConcordiaCampus _currentCampus;
   bool _locationPermissionGranted = false;
@@ -94,6 +83,8 @@ class CampusMapPageState extends State<CampusMapPage> {
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
+    _mapViewModel = widget.mapViewModel ?? MapViewModel();
+    _buildMapViewModel = widget.buildMapViewModel ?? MapViewModel();
 
     // Fetch initial data once
     _loadMapData();
@@ -136,7 +127,7 @@ class CampusMapPageState extends State<CampusMapPage> {
                 children: [
                   _buildMapFutureBuilder(context),
                   _buildSearchBar(context),
-                  _buildBuildingInfoDrawer(),
+                  BuildInfoDrawer(mapViewModel: _mapViewModel),
                 ],
               ),
             ),
@@ -228,31 +219,6 @@ class CampusMapPageState extends State<CampusMapPage> {
         mapViewModel: _mapViewModel,
         drawer: true,
       ),
-    );
-  }
-
-  Widget _buildBuildingInfoDrawer() {
-    return ValueListenableBuilder<ConcordiaBuilding?>(
-      valueListenable: _mapViewModel.selectedBuildingNotifier,
-      builder: (context, selectedBuilding, child) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return SlideTransition(
-              position:
-                  Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
-                      .animate(animation),
-              child: child,
-            );
-          },
-          child: selectedBuilding != null
-              ? BuildingInfoDrawer(
-                  building: selectedBuilding,
-                  onClose: _mapViewModel.unselectBuilding,
-                )
-              : const SizedBox.shrink(),
-        );
-      },
     );
   }
 
