@@ -6,6 +6,7 @@ import 'package:concordia_nav/data/services/places_service.dart';
 import 'package:concordia_nav/ui/poi/poi_map_view.dart';
 import 'package:concordia_nav/utils/poi/poi_map_viewmodel.dart';
 import 'package:concordia_nav/utils/poi/poi_viewmodel.dart';
+import 'package:concordia_nav/widgets/floor_button.dart';
 import 'package:concordia_nav/widgets/poi_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -82,6 +83,19 @@ void main() {
     final MockPOIMapViewModel poiMapViewModel = MockPOIMapViewModel();
 
     when(poiMapViewModel.nearestBuilding).thenReturn(BuildingRepository.h);
+    when(poiMapViewModel.isLoading).thenReturn(false);
+    when(poiMapViewModel.errorMessage).thenReturn("");
+    when(poiMapViewModel.floorPlanExists).thenReturn(true);
+    when(poiMapViewModel.floorPlanPath)
+        .thenReturn("assets/maps/indoor/floorplans/H1.svg");
+    when(poiMapViewModel.selectedFloor).thenReturn("1");
+    when(poiMapViewModel.width).thenReturn(1024);
+    when(poiMapViewModel.height).thenReturn(1024);
+    when(poiMapViewModel.userPosition)
+        .thenReturn(const Offset(45.4215, -75.6992));
+    when(poiMapViewModel.noPoisOnCurrentFloor).thenReturn(false);
+    when(poiMapViewModel.searchRadius).thenReturn(50);
+    when(poiMapViewModel.poisOnCurrentFloor).thenReturn([testPOI]);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -90,10 +104,17 @@ void main() {
           child: POIMapView(
             poiName: 'Test POI',
             poiChoiceViewModel: poiViewModel,
+            poiMapViewModel: poiMapViewModel,
           ),
         ),
       ),
     );
+
+    await tester.tap(find.byType(FloorButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Floor 2"));
+    await tester.pumpAndSettle();
 
     final state = tester.state<POIMapViewState>(find.byType(POIMapView));
     state.showPOIDetails(testPOI, poiMapViewModel);
