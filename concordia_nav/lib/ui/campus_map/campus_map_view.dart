@@ -84,12 +84,12 @@ class CampusMapPageState extends State<CampusMapPage> {
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
-
-    // Initialize the camera position future once
-    _initialCameraPositionFuture = _mapViewModel.getInitialCameraPosition(_currentCampus);
     _mapViewModel = widget.mapViewModel ?? MapViewModel();
     _buildMapViewModel = widget.buildMapViewModel ?? MapViewModel();
 
+    // Initialize the camera position future once
+    _initialCameraPositionFuture = _mapViewModel.getInitialCameraPosition(_currentCampus);
+    
     // Fetch initial data once
     _loadMapData();
 
