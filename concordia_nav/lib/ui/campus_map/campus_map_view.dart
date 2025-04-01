@@ -52,11 +52,14 @@ class CampusMapPageState extends State<CampusMapPage> {
   MapViewModel get mapViewModel => _mapViewModel;
 
   Future<void> _loadMapData() async {
-    final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
-    setState(() {
-      _polygons = data["polygons"];
-      _labelMarkers = data["labels"];
-    });
+    if (!_isMapDataLoaded) {
+      final data = await _mapViewModel.getCampusPolygonsAndLabels(_currentCampus);
+      setState(() {
+        _polygons = data["polygons"];
+        _labelMarkers = data["labels"];
+        _isMapDataLoaded = true;
+      });
+    }
   }
 
   void getSearchList() {
@@ -82,11 +85,14 @@ class CampusMapPageState extends State<CampusMapPage> {
     });
   }
 
-  // Method to handle rebuilding when selected building changes
+  // Method to handle animation when selected building changes
   void _onSelectedBuildingChanged() {
-    // Force rebuild by calling setState
-    if (mounted) {
-      setState(() {});
+    if (mounted && _mapViewModel.selectedBuildingNotifier.value != null) {
+      final selectedBuilding = _mapViewModel.selectedBuildingNotifier.value!;
+
+      _mapViewModel.moveToLocation(LatLng(selectedBuilding.lat, selectedBuilding.lng));
+
+      setState(() {}); // Force rebuild for other UI elements
     }
   }
 
@@ -94,6 +100,9 @@ class CampusMapPageState extends State<CampusMapPage> {
   void initState() {
     super.initState();
     _currentCampus = widget.campus;
+
+    // Initialize the camera position future once
+    _initialCameraPositionFuture = _mapViewModel.getInitialCameraPosition(_currentCampus);
 
     // Fetch initial data once
     _loadMapData();
@@ -134,7 +143,31 @@ class CampusMapPageState extends State<CampusMapPage> {
               label: 'Search for buildings or explore the campus map.',
               child: Stack(
                 children: [
-                  _buildMapFutureBuilder(context),
+                  // Use a direct Widget instead of rebuilding the FutureBuilder on every build
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
+                    builder: (context, snapshot) {
+                      return FutureBuilder<CameraPosition>(
+                        future: _initialCameraPositionFuture,
+                        builder: (context, cameraSnapshot) {
+                          if (!cameraSnapshot.hasData || !snapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          
+                          if (snapshot.hasData) {
+                            _polygons = snapshot.data!["polygons"] as Set<Polygon>;
+                            _labelMarkers = snapshot.data!["labels"] as Set<Marker>;
+                          }
+                          
+                          return MapLayout(
+                            searchController: _searchController,
+                            mapWidget: _buildGoogleMap(cameraSnapshot.data!),
+                            mapViewModel: _mapViewModel,
+                          );
+                        },
+                      );
+                    },
+                  ),
                   _buildSearchBar(context),
                   _buildBuildingInfoDrawer(),
                 ],
@@ -157,53 +190,21 @@ class CampusMapPageState extends State<CampusMapPage> {
     );
   }
 
-  FutureBuilder<CameraPosition> _buildMapFutureBuilder(BuildContext context) {
-    return FutureBuilder<CameraPosition>(
-      // Use the selectedBuilding position if available, otherwise use the campus default
-      future: _mapViewModel.selectedBuildingNotifier.value != null
-          ? Future.value(CameraPosition(
-              target: LatLng(
-                _mapViewModel.selectedBuildingNotifier.value!.lat,
-                _mapViewModel.selectedBuildingNotifier.value!.lng,
-              ),
-              zoom: 18.0, // Higher zoom level for building view
-            ))
-          : _mapViewModel.getInitialCameraPosition(_currentCampus),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return const Center(child: Text('Error loading campus map'));
-        }
-        return _buildCampusPolygonsFutureBuilder(snapshot);
-      },
-    );
-  }
-
-  FutureBuilder<Map<String, dynamic>> _buildCampusPolygonsFutureBuilder(
-      AsyncSnapshot<CameraPosition> snapshot) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _mapViewModel.getCampusPolygonsAndLabels(_currentCampus),
-      builder: (context, polySnapshot) {
-        if (polySnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return MapLayout(
-          searchController: _searchController,
-          mapWidget: _buildGoogleMap(snapshot.data!),
-          mapViewModel: _mapViewModel,
-        );
-      },
-    );
-  }
+  // Store the initial camera position to avoid recreating the Future on rebuilds
+  late Future<CameraPosition> _initialCameraPositionFuture;
+  // Flag to track if initial map data is loaded
+  bool _isMapDataLoaded = false;
+  
+  // Removed the separate FutureBuilder methods as they're now consolidated in the build method
 
   Semantics _buildGoogleMap(CameraPosition initialCameraPosition) {
     return Semantics(
       label: 'Google Map',
       child: GoogleMap(
         buildingsEnabled: false,
-        onMapCreated: _mapViewModel.onMapCreated,
+        onMapCreated: (GoogleMapController controller) {
+          _mapViewModel.onMapCreated(controller);
+        },
         initialCameraPosition: initialCameraPosition,
         markers: _labelMarkers,
         polygons: _polygons,
@@ -256,13 +257,28 @@ class CampusMapPageState extends State<CampusMapPage> {
     );
   }
 
-  void _onCampusSwitch() {
+  Future<void> _onCampusSwitch() async {
+    final ConcordiaCampus newCampus = _currentCampus == ConcordiaCampus.sgw
+        ? ConcordiaCampus.loy
+        : ConcordiaCampus.sgw;
+
+    // Get the new camera position
+    final CameraPosition newPosition = await _mapViewModel.getInitialCameraPosition(newCampus);
+
+    _mapViewModel.moveToLocation(newPosition.target);
+
+    // Get the map data for the new campus
+    final data = await _mapViewModel.getCampusPolygonsAndLabels(newCampus);
+
+    // Update all state at once after data is loaded
     setState(() {
-      _currentCampus = _currentCampus == ConcordiaCampus.sgw
-          ? ConcordiaCampus.loy
-          : ConcordiaCampus.sgw;
+      _currentCampus = newCampus;
+      _initialCameraPositionFuture = Future.value(newPosition);
+      _polygons = data["polygons"];
+      _labelMarkers = data["labels"];
+      _isMapDataLoaded = true;
     });
-    _loadMapData();
+
     _mapViewModel.unselectBuilding();
     _searchController.text = 'Search...';
     searchList.clear();
