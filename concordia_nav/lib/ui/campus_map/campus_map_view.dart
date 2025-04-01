@@ -85,7 +85,7 @@ class CampusMapPageState extends State<CampusMapPage> {
       final selectedBuilding = _mapViewModel.selectedBuildingNotifier.value!;
 
       // This will trigger a smooth animation to the selected building
-      _mapViewModel.moveToLocation(LatLng(selectedBuilding.lat, selectedBuilding.lng));
+      _mapViewModel.moveToLocation(LatLng(selectedBuilding.lat, selectedBuilding.lng), zoom: 18.0);
 
       setState(() {}); // Force rebuild for drawer and other UI elements
     }
