@@ -87,6 +87,7 @@ dependencies:
   dart_openai: ^5.1.0
   flutter_colorpicker: ^1.0.3
   shared_preferences: ^2.5.2
+  top_snackbar_flutter: ^3.2.0
 
 dev_dependencies:
   flutter_test:
