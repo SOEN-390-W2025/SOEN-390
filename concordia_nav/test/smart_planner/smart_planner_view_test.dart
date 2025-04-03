@@ -21,8 +21,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'smart_planner_view_test.mocks.dart';
 import '../map/map_viewmodel_test.mocks.dart';
 
 OpenAIChatCompletionModel mockChatResponse = OpenAIChatCompletionModel(
@@ -114,6 +116,7 @@ OpenAIChatCompletionModel mockChatResponse = OpenAIChatCompletionModel(
   ),
 );
 
+@GenerateMocks([SmartPlannerService])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   dotenv.load(fileName: '.env');
@@ -548,6 +551,42 @@ void main() {
 
       await tester.tap(find.text("Make Plan"));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('SmartPlannerView - Press on Generate Plan',
+        (WidgetTester tester) async {
+      // Build our app and trigger a frame.
+      final mockSmartPlannerService = MockSmartPlannerService();
+
+      when(mockSmartPlannerService.generateOptimizedRoute(
+          prompt: 'This is a test!', 
+          startTime: anyNamed("startTime"), 
+          startLocation: anyNamed("startLocation")))
+        .thenThrow(Exception('Error'));
+
+      final routes = {
+        '/SmartPlannerView': (context) => SmartPlannerView(
+            mapViewModel: mockMapViewModel, smartPlannerService: mockSmartPlannerService),
+      };
+
+      // Build the HomePage widget
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/SmartPlannerView',
+        routes: routes,
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).first,
+          'This is a test!');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Make Plan"));
+      await tester.pumpAndSettle();
+
+      const message = "Error generating your plan. Please retry and kindly follow our input guide.";
+
+      expect(find.byType(CustomSnackBar), findsOneWidget);
+      expect(find.text(message), findsOneWidget);
     });
 
     testWidgets('Tap on the smart planner button from home page',

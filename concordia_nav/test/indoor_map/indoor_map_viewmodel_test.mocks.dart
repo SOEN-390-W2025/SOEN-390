@@ -318,11 +318,17 @@ class MockIndoorMapViewModel extends _i1.Mock
     double? scale = 1.0,
     double? offsetX = 0.0,
     double? offsetY = 0.0,
+    _i12.Size? viewportSize,
+    double? contentWidth,
+    double? contentHeight,
   }) => super.noSuchMethod(
     Invocation.method(#setInitialCameraPosition, [], {
       #scale: scale,
       #offsetX: offsetX,
       #offsetY: offsetY,
+      #viewportSize: viewportSize,
+      #contentWidth: contentWidth,
+      #contentHeight: contentHeight,
     }),
     returnValueForMissingStub: null,
   );
