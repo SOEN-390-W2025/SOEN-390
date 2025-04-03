@@ -1,6 +1,8 @@
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../data/domain-model/concordia_building.dart';
 import '../../data/repositories/building_repository.dart';
 import '../../data/services/smart_planner_service.dart';
@@ -32,6 +34,11 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
   bool useCurrentLocation = false;
   bool _isLoading = false;
   String? _errorMessage;
+  Color get _toastBgColour {
+    final baseColor = Theme.of(context).primaryColor;
+    final hsl = HSLColor.fromColor(baseColor);
+    return hsl.withLightness((hsl.lightness + 0.1).clamp(0.0, 1.0)).toColor();
+  }
 
   @override
   void initState() {
@@ -166,12 +173,27 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
         context,
         MaterialPageRoute(
           builder: (context) => GeneratedPlanView(
-              startLocation: startLocation, optimizedRoute: optimizedRoute),
+            startLocation: startLocation,
+            optimizedRoute: optimizedRoute,
+          ),
         ),
       );
-    } on Error catch (e) {
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
       _errorMessage = e.toString();
       dev.log("Error generating plan: $_errorMessage");
+
+      if (mounted) {
+        Overlay.of(context);
+        showTopSnackBar(
+          Overlay.of(context),
+          CustomSnackBar.error(
+            message:
+                "Error generating your plan. Please retry and kindly follow our input guide.",
+            backgroundColor: _toastBgColour,
+          ),
+        );
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -369,14 +391,6 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
                     )
                   else
                     const SizedBox(),
-                  if (_errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Error: $_errorMessage",
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
                   const SizedBox(height: 20),
                   _buildSmartPlannerGuide(context),
                 ],
