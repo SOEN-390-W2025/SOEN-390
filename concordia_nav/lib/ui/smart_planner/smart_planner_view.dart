@@ -9,6 +9,7 @@ import '../../data/services/smart_planner_service.dart';
 import '../../utils/map_viewmodel.dart';
 import '../../data/domain-model/location.dart';
 import '../../widgets/custom_appbar.dart';
+import '../themes/app_theme.dart';
 import 'generated_plan_view.dart';
 
 class SmartPlannerView extends StatefulWidget {
@@ -191,6 +192,9 @@ class _SmartPlannerViewState extends State<SmartPlannerView> {
             message:
                 "Error generating your plan. Please retry and kindly follow our input guide.",
             backgroundColor: _toastBgColour,
+            textStyle: TextStyle(
+              color: AppTheme.theme.colorScheme.onPrimary,
+              overflow: TextOverflow.clip),
           ),
         );
       }
