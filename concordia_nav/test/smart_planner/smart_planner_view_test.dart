@@ -458,12 +458,13 @@ void main() {
       )).thenAnswer((_) async => http.Response(mockResponse, 400));
 
       // Act
+      const NearbySearchOptions options = NearbySearchOptions(
+        radius: radius,
+      );
+
       try {
         await repo.getNearbyPlaces(
-          location: location,
-          radius: radius,
-          type: type,
-        );
+            location: location, type: type, options: options);
       } catch (e) {
         expect(e, isA<Exception>());
       }
@@ -559,14 +560,15 @@ void main() {
       final mockSmartPlannerService = MockSmartPlannerService();
 
       when(mockSmartPlannerService.generateOptimizedRoute(
-          prompt: 'This is a test!', 
-          startTime: anyNamed("startTime"), 
-          startLocation: anyNamed("startLocation")))
-        .thenThrow(Exception('Error'));
+              prompt: 'This is a test!',
+              startTime: anyNamed("startTime"),
+              startLocation: anyNamed("startLocation")))
+          .thenThrow(Exception('Error'));
 
       final routes = {
         '/SmartPlannerView': (context) => SmartPlannerView(
-            mapViewModel: mockMapViewModel, smartPlannerService: mockSmartPlannerService),
+            mapViewModel: mockMapViewModel,
+            smartPlannerService: mockSmartPlannerService),
       };
 
       // Build the HomePage widget
@@ -576,14 +578,14 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField).first,
-          'This is a test!');
+      await tester.enterText(find.byType(TextField).first, 'This is a test!');
       await tester.pumpAndSettle();
 
       await tester.tap(find.text("Make Plan"));
       await tester.pumpAndSettle();
 
-      const message = "Error generating your plan. Please retry and kindly follow our input guide.";
+      const message =
+          "Error generating your plan. Please retry and kindly follow our input guide.";
 
       expect(find.byType(CustomSnackBar), findsOneWidget);
       expect(find.text(message), findsOneWidget);

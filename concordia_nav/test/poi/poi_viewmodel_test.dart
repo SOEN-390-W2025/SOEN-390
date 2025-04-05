@@ -41,20 +41,16 @@ void main() {
   setUp(() {
     mockMapService = MockMapService();
     mockPlacesService = MockPlacesService();
-
     when(mockPlacesService.nearbySearch(
             location: const LatLng(45.4215, -75.6992),
             includedType: PlaceType.foodDrink,
-            radius: 1000,
-            maxResultCount: 20))
+            options: anyNamed("options")))
         .thenAnswer((_) async => outdoorPois);
     when(mockPlacesService.textSearch(
             textQuery: "Allons",
             location: const LatLng(45.4215, -75.6992),
             includedType: PlaceType.foodDrink,
-            radius: 1000,
-            pageSize: 20,
-            openNow: false))
+            options: anyNamed("options")))
         .thenAnswer((_) async => [outdoorPois[0]]);
     when(mockMapService.isLocationServiceEnabled())
         .thenAnswer((_) async => true);

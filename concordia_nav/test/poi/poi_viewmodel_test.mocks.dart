@@ -158,24 +158,13 @@ class MockPlacesService extends _i1.Mock implements _i7.PlacesService {
   _i6.Future<List<_i8.Place>> nearbySearch({
     required _i2.LatLng? location,
     required _i8.PlaceType? includedType,
-    double? radius = 1500.0,
-    int? maxResultCount = 10,
-    _i7.RankPreferenceNearbySearch? rankBy =
-        _i7.RankPreferenceNearbySearch.POPULARITY,
-    _i7.PlacesRoutingOptions? routingOptions,
-    String? languageCode = 'en',
-    String? regionCode,
+    _i7.NearbySearchOptions? options = const _i7.NearbySearchOptions(),
   }) =>
       (super.noSuchMethod(
             Invocation.method(#nearbySearch, [], {
               #location: location,
               #includedType: includedType,
-              #radius: radius,
-              #maxResultCount: maxResultCount,
-              #rankBy: rankBy,
-              #routingOptions: routingOptions,
-              #languageCode: languageCode,
-              #regionCode: regionCode,
+              #options: options,
             }),
             returnValue: _i6.Future<List<_i8.Place>>.value(<_i8.Place>[]),
           )
@@ -186,32 +175,14 @@ class MockPlacesService extends _i1.Mock implements _i7.PlacesService {
     required String? textQuery,
     required _i2.LatLng? location,
     required _i8.PlaceType? includedType,
-    double? radius = 1500.0,
-    bool? openNow = true,
-    int? pageSize = 10,
-    _i7.RankPreferenceTextSearch? rankBy =
-        _i7.RankPreferenceTextSearch.RELEVANCE,
-    bool? includePureServiceAreaBusinesses = false,
-    double? minRating,
-    _i7.PlacesRoutingOptions? routingOptions,
-    String? languageCode = 'en',
-    String? regionCode,
+    _i7.TextSearchOptions? options = const _i7.TextSearchOptions(),
   }) =>
       (super.noSuchMethod(
             Invocation.method(#textSearch, [], {
               #textQuery: textQuery,
               #location: location,
               #includedType: includedType,
-              #radius: radius,
-              #openNow: openNow,
-              #pageSize: pageSize,
-              #rankBy: rankBy,
-              #includePureServiceAreaBusinesses:
-                  includePureServiceAreaBusinesses,
-              #minRating: minRating,
-              #routingOptions: routingOptions,
-              #languageCode: languageCode,
-              #regionCode: regionCode,
+              #options: options,
             }),
             returnValue: _i6.Future<List<_i8.Place>>.value(<_i8.Place>[]),
           )

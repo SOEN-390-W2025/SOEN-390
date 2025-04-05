@@ -371,21 +371,24 @@ class POIViewModel extends ChangeNotifier {
         final routingOptions = PlacesRoutingOptions(
           travelMode: _travelMode,
         );
-
-        places = await _placesService.nearbySearch(
-          location: _currentLocation!,
-          includedType: category,
+        final NearbySearchOptions options = NearbySearchOptions(
           radius: _searchRadius,
-          maxResultCount: 20,
           routingOptions: routingOptions,
+          maxResultCount: 20,
         );
-      } else {
         places = await _placesService.nearbySearch(
-          location: _currentLocation!,
-          includedType: category,
+            location: _currentLocation!,
+            includedType: category,
+            options: options);
+      } else {
+        final NearbySearchOptions options = NearbySearchOptions(
           radius: _searchRadius,
           maxResultCount: 20,
         );
+        places = await _placesService.nearbySearch(
+            location: _currentLocation!,
+            includedType: category,
+            options: options);
       }
       _outdoorPOIs = places;
       _applyOutdoorFilters();
@@ -420,25 +423,28 @@ class POIViewModel extends ChangeNotifier {
         final routingOptions = PlacesRoutingOptions(
           travelMode: _travelMode,
         );
-
-        places = await _placesService.textSearch(
-          textQuery: query,
-          location: _currentLocation!,
-          includedType: _selectedOutdoorCategory,
+        final TextSearchOptions options = TextSearchOptions(
           radius: _searchRadius,
-          pageSize: 20,
           openNow: false,
+          pageSize: 20,
           routingOptions: routingOptions,
         );
-      } else {
         places = await _placesService.textSearch(
-          textQuery: query,
-          location: _currentLocation!,
-          includedType: _selectedOutdoorCategory,
+            textQuery: query,
+            location: _currentLocation!,
+            includedType: _selectedOutdoorCategory,
+            options: options);
+      } else {
+        final TextSearchOptions options = TextSearchOptions(
           radius: _searchRadius,
           pageSize: 20,
           openNow: false,
         );
+        places = await _placesService.textSearch(
+            textQuery: query,
+            location: _currentLocation!,
+            includedType: _selectedOutdoorCategory,
+            options: options);
       }
       _outdoorPOIs = places;
       _applyOutdoorFilters();
