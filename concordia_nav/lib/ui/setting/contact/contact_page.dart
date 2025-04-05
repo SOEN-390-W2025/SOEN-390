@@ -26,13 +26,15 @@ class ContactPageState extends State<ContactPage> {
     // Get theme colors
     final primaryColor = Theme.of(context).primaryColor;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
     final dividerColor = Theme.of(context).dividerColor;
 
     // Use a consistent emergency color that won't blend with the background
     const emergencyColor = Colors.red;
-  
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: customAppBar(context, "Contact"),
@@ -64,12 +66,14 @@ class ContactPageState extends State<ContactPage> {
                   const SizedBox(height: 4),
                   Text(
                     "Monday to Friday, 9 a.m. - 5 p.m.",
-                    style: TextStyle(fontSize: 14, color: secondaryTextColor.withAlpha(120)),
+                    style: TextStyle(
+                        fontSize: 14, color: secondaryTextColor.withAlpha(120)),
                   ),
                   const SizedBox(height: 4),
                   // Emergency info with background for visibility
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 14),
                     decoration: BoxDecoration(
                       color: emergencyColor.withAlpha(50),
                       border: Border.all(color: emergencyColor),
@@ -151,7 +155,7 @@ class ContactPageState extends State<ContactPage> {
                         color: primaryColor,
                       ),
                       const SizedBox(width: 6),
-                      Text("help@concordia.ca", 
+                      Text("help@concordia.ca",
                           style: TextStyle(fontSize: 16, color: textColor)),
                     ],
                   ),
@@ -180,7 +184,7 @@ class ContactPageState extends State<ContactPage> {
                       Text(
                         "Sir George Williams Campus",
                         style: TextStyle(
-                          fontSize: 16, 
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: textColor,
                         ),
@@ -201,7 +205,7 @@ class ContactPageState extends State<ContactPage> {
                       Text(
                         "Loyola Campus",
                         style: TextStyle(
-                          fontSize: 16, 
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: textColor,
                         ),

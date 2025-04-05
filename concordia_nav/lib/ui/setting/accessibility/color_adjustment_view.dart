@@ -30,7 +30,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
     _primaryColor = AppTheme.theme.primaryColor;
     _secondaryColor = AppTheme.theme.colorScheme.secondary;
     _backgroundColor = AppTheme.theme.scaffoldBackgroundColor;
-    _primaryTextColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
+    _primaryTextColor =
+        AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
     _secondaryTextColor = AppTheme.theme.colorScheme.onPrimary;
     _cardColor = AppTheme.theme.cardColor;
 
@@ -50,7 +51,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
     );
   }
 
-  void _showColorWheel(Color currentColor, void Function(Color) onColorChanged, String colorName) {
+  void _showColorWheel(Color currentColor, void Function(Color) onColorChanged,
+      String colorName) {
     Color pickerColor = currentColor;
 
     showDialog(
@@ -72,7 +74,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                 enableAlpha: true,
                 displayThumbColor: true,
                 paletteType: PaletteType.hsv,
-                pickerAreaBorderRadius: const BorderRadius.all(Radius.circular(10)),
+                pickerAreaBorderRadius:
+                    const BorderRadius.all(Radius.circular(10)),
               ),
             ),
           ),
@@ -119,14 +122,16 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
       _primaryColor = AppTheme.theme.primaryColor;
       _secondaryColor = AppTheme.theme.colorScheme.secondary;
       _backgroundColor = AppTheme.theme.scaffoldBackgroundColor;
-      _primaryTextColor = AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
+      _primaryTextColor =
+          AppTheme.theme.textTheme.bodyLarge?.color ?? Colors.black;
       _secondaryTextColor = AppTheme.theme.colorScheme.onPrimary;
       _cardColor = AppTheme.theme.cardColor;
       _updatePreviewTheme();
     });
   }
 
-  Widget _buildColorRow(String label, Color color, void Function(Color) onColorChanged) {
+  Widget _buildColorRow(
+      String label, Color color, void Function(Color) onColorChanged) {
     return Semantics(
       label: '$label selection',
       hint: 'Tap to change $label',
@@ -250,9 +255,13 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
               label: 'Icon preview',
               child: Row(
                 children: [
-                  Icon(Icons.favorite, color: _secondaryColor, semanticLabel: 'Secondary color icon'),
+                  Icon(Icons.favorite,
+                      color: _secondaryColor,
+                      semanticLabel: 'Secondary color icon'),
                   const SizedBox(width: 8),
-                  Icon(Icons.notifications, color: _primaryColor, semanticLabel: 'Primary color icon'),
+                  Icon(Icons.notifications,
+                      color: _primaryColor,
+                      semanticLabel: 'Primary color icon'),
                 ],
               ),
             ),
@@ -285,36 +294,18 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                   const SizedBox(height: 16),
 
                   // Color selection rows
-                  _buildColorRow(
-                    'Primary color',
-                    _primaryColor,
-                    (color) => setState(() => _primaryColor = color)
-                  ),
-                  _buildColorRow(
-                    'Secondary color',
-                    _secondaryColor,
-                    (color) => setState(() => _secondaryColor = color)
-                  ),
-                  _buildColorRow(
-                    'Background color',
-                    _backgroundColor,
-                    (color) => setState(() => _backgroundColor = color)
-                  ),
-                  _buildColorRow(
-                    'Card color',
-                    _cardColor,
-                    (color) => setState(() => _cardColor = color)
-                  ),
-                  _buildColorRow(
-                    'Primary text color',
-                    _primaryTextColor,
-                    (color) => setState(() => _primaryTextColor = color)
-                  ),
-                  _buildColorRow(
-                    'Secondary text color',
-                    _secondaryTextColor,
-                    (color) => setState(() => _secondaryTextColor = color)
-                  ),
+                  _buildColorRow('Primary color', _primaryColor,
+                      (color) => setState(() => _primaryColor = color)),
+                  _buildColorRow('Secondary color', _secondaryColor,
+                      (color) => setState(() => _secondaryColor = color)),
+                  _buildColorRow('Background color', _backgroundColor,
+                      (color) => setState(() => _backgroundColor = color)),
+                  _buildColorRow('Card color', _cardColor,
+                      (color) => setState(() => _cardColor = color)),
+                  _buildColorRow('Primary text color', _primaryTextColor,
+                      (color) => setState(() => _primaryTextColor = color)),
+                  _buildColorRow('Secondary text color', _secondaryTextColor,
+                      (color) => setState(() => _secondaryTextColor = color)),
 
                   const SizedBox(height: 24),
 
@@ -333,7 +324,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -342,8 +334,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                         onPressed: () async {
                           // Show loading indicator
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Saving theme settings...'))
-                          );
+                              const SnackBar(
+                                  content: Text('Saving theme settings...')));
 
                           // Update app theme
                           await _updateAppTheme();
@@ -352,8 +344,9 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Theme updated successfully!'))
-                            );
+                                const SnackBar(
+                                    content:
+                                        Text('Theme updated successfully!')));
                           }
                         },
                         child: const Text(
@@ -374,7 +367,8 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                       hint: 'Restores the original app colors',
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Theme.of(context).primaryColor),
+                          side:
+                              BorderSide(color: Theme.of(context).primaryColor),
                           foregroundColor: Theme.of(context).primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -384,20 +378,19 @@ class _ColorAdjustmentViewState extends State<ColorAdjustmentView> {
                         onPressed: () async {
                           // Show loading indicator
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Resetting theme...'))
-                          );
+                              const SnackBar(
+                                  content: Text('Resetting theme...')));
 
                           // Reset theme
                           await _resetToDefault();
 
                           // Show success message
                           if (context.mounted) {
-                             ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Theme reset to default'))
-                            );
+                                const SnackBar(
+                                    content: Text('Theme reset to default')));
                           }
-
                         },
                         child: const Text(
                           'Reset to default',

@@ -143,111 +143,153 @@ class TravellingSalesmanService {
   /// to be visited in order (with sufficient gaps for travel time), and another list
   /// with any remaining todo items that could not be visited in this period.
   static Future<
-          (
-            List<(String, Location, DateTime, DateTime)>,
-            List<(String, Location, int)>
-          )>
-      fitTodoItems(
-          DateTime openPeriodStartTime,
-          Location openPeriodStartLocation,
-          DateTime? openPeriodEndTime,
-          Location? openPeriodEndLocation,
-          List<(String, Location, int)> todoItems,
-          bool doBubbleSwapOptim) async {
-    // Copy since not a value type
+      (
+        List<(String, Location, DateTime, DateTime)>,
+        List<(String, Location, int)>
+      )> fitTodoItems(
+    DateTime openPeriodStartTime,
+    Location openPeriodStartLocation,
+    DateTime? openPeriodEndTime,
+    Location? openPeriodEndLocation,
+    List<(String, Location, int)> todoItems,
+    bool doBubbleSwapOptim,
+  ) async {
     final List<(String, Location, int)> remainingItems = List.from(todoItems);
-    List<(String, Location, DateTime, DateTime)> returnTodoItems = [];
+    List<(String, Location, DateTime, DateTime)> scheduledItems = [];
 
     Location lastLocation = openPeriodStartLocation;
     DateTime lastEndTime = openPeriodStartTime;
-    // Iterate as long as there is time remaining to get to the end location
+
     while (true) {
-      // Find the nearest neighbour from remainingItems to the lastLocation that still
-      // allows us to reach the endLocation on time
-      dev.log("TSP: starting nearest neighbour search iteration");
-      int? nearestNeighbour;
-      int? travelTimeToNearestNeighbour;
-      for (int i = 0; i < remainingItems.length; i++) {
-        final int travelTimeToI =
-            await getTravelTime(lastLocation, remainingItems[i].$2);
-        if (travelTimeToNearestNeighbour == null ||
-            travelTimeToI < travelTimeToNearestNeighbour) {
-          // Check if we can still reach the destination on time adding this location
-          dev.log("TSP: remaining todo item $i is a candidate");
-          bool canMakeIt = true;
-          if (openPeriodEndTime != null && openPeriodEndLocation != null) {
-            final DateTime itemIEndTime = lastEndTime
-                .add(Duration(seconds: (travelTimeToI + remainingItems[i].$3)));
-            final int travelTimeIToEnd = await getTravelTime(
-                remainingItems[i].$2, openPeriodEndLocation);
-            if (itemIEndTime
-                    .add(Duration(seconds: travelTimeIToEnd))
-                    .compareTo(openPeriodEndTime) >
-                0) {
-              canMakeIt = false;
-              dev.log(
-                  "TSP: can't make this item $i due to additional travel time");
-            }
-          }
-          if (canMakeIt) {
-            nearestNeighbour = i;
-            travelTimeToNearestNeighbour = travelTimeToI;
-          }
-        }
-      }
-      // If there is no candidate nearest neighbour, break
-      if (nearestNeighbour == null || travelTimeToNearestNeighbour == null) {
-        dev.log("TSP: no compatible nearest neighbour");
-        break;
-      }
-      // And if there is, add it to the remainingItems list
-      final pluckedTodoItem = remainingItems.removeAt(nearestNeighbour);
-      dev.log("TSP: plucked todo item ${pluckedTodoItem.$1}");
-      final pluckedItemStartTime =
-          lastEndTime.add(Duration(seconds: travelTimeToNearestNeighbour));
-      final pluckedItemEndTime =
-          pluckedItemStartTime.add(Duration(seconds: pluckedTodoItem.$3));
-      returnTodoItems.add((
-        pluckedTodoItem.$1,
-        pluckedTodoItem.$2,
-        pluckedItemStartTime,
-        pluckedItemEndTime
-      ));
-      lastLocation = pluckedTodoItem.$2;
-      lastEndTime = pluckedItemEndTime;
+      final result = await _findNearestNeighbour(
+        lastLocation,
+        lastEndTime,
+        remainingItems,
+        openPeriodEndTime,
+        openPeriodEndLocation,
+      );
+
+      if (result == null) break;
+
+      final (index, travelTime) = result;
+      final pluckedItem = remainingItems.removeAt(index);
+      final startTime = lastEndTime.add(Duration(seconds: travelTime));
+      final endTime = startTime.add(Duration(seconds: pluckedItem.$3));
+
+      scheduledItems.add((pluckedItem.$1, pluckedItem.$2, startTime, endTime));
+
+      lastLocation = pluckedItem.$2;
+      lastEndTime = endTime;
     }
 
-    // Locally optimize the todoItems we built based on nearest neighbour, by passing
-    // through the list with a "bubble-swap" approach. It examines neighbouring pairs of
-    // edges, and if the route would be more efficient
-    if (returnTodoItems.length > 1 && doBubbleSwapOptim) {
-      bool cleanPass;
-      do {
-        cleanPass = true;
-        final int originalTravelTime = await getOverallRouteTime(
-            openPeriodStartLocation, openPeriodEndLocation, returnTodoItems);
-        for (int i = 0; i < (returnTodoItems.length - 1); i++) {
-          final List<(String, Location, DateTime, DateTime)> copyOfList =
-              List.from(returnTodoItems);
-          final temp = copyOfList[i];
-          copyOfList[i] = copyOfList[i + 1];
-          copyOfList[i + 1] = temp;
-          final int newTravelTime = await getOverallRouteTime(
-              openPeriodStartLocation, openPeriodEndLocation, copyOfList);
-          if (newTravelTime < originalTravelTime) {
-            cleanPass = false;
-            returnTodoItems = await recalculateStopTimes(
-                openPeriodStartLocation, openPeriodStartTime, returnTodoItems);
-          }
-        }
-      } while (!cleanPass);
+    if (scheduledItems.length > 1 && doBubbleSwapOptim) {
+      scheduledItems = await _optimizeWithBubbleSwap(
+        openPeriodStartLocation,
+        openPeriodStartTime,
+        openPeriodEndLocation,
+        scheduledItems,
+      );
     }
 
-    // start -> x -> end non-optimable
-    // start -> x non-optimable
-    // start -> x1 -> x2 (-> end) - calculate overall route length with swapping x1 and x2, then pass through again until (clean)
-    // start -> x1 -> x2 -> x3 -> end - calculate
+    return (scheduledItems, remainingItems);
+  }
 
-    return (returnTodoItems, remainingItems);
+  static Future<(int, int)?> _findNearestNeighbour(
+    Location currentLocation,
+    DateTime currentEndTime,
+    List<(String, Location, int)> remainingItems,
+    DateTime? finalEndTime,
+    Location? finalEndLocation,
+  ) async {
+    int? bestIndex;
+    int? bestTravelTime;
+
+    for (int i = 0; i < remainingItems.length; i++) {
+      final travelTime =
+          await getTravelTime(currentLocation, remainingItems[i].$2);
+
+      if (bestTravelTime != null && travelTime >= bestTravelTime) continue;
+
+      if (await _canFitItem(
+        currentEndTime,
+        travelTime,
+        remainingItems[i],
+        finalEndTime,
+        finalEndLocation,
+      )) {
+        bestIndex = i;
+        bestTravelTime = travelTime;
+      }
+    }
+
+    return (bestIndex != null && bestTravelTime != null)
+        ? (bestIndex, bestTravelTime)
+        : null;
+  }
+
+  static Future<bool> _canFitItem(
+    DateTime currentEndTime,
+    int travelTimeToItem,
+    (String, Location, int) item,
+    DateTime? finalEndTime,
+    Location? finalEndLocation,
+  ) async {
+    if (finalEndTime == null || finalEndLocation == null) return true;
+
+    final itemEndTime =
+        currentEndTime.add(Duration(seconds: travelTimeToItem + item.$3));
+
+    final travelTimeToFinal = await getTravelTime(item.$2, finalEndLocation);
+    final arrivalAtFinal =
+        itemEndTime.add(Duration(seconds: travelTimeToFinal));
+
+    return arrivalAtFinal.isBefore(finalEndTime) ||
+        arrivalAtFinal.isAtSameMomentAs(finalEndTime);
+  }
+
+  static Future<List<(String, Location, DateTime, DateTime)>>
+      _optimizeWithBubbleSwap(
+    Location startLocation,
+    DateTime startTime,
+    Location? endLocation,
+    List<(String, Location, DateTime, DateTime)> items,
+  ) async {
+    bool swapped;
+    List<(String, Location, DateTime, DateTime)> currentItems = items;
+
+    do {
+      swapped = false;
+      final originalTime = await getOverallRouteTime(
+        startLocation,
+        endLocation,
+        currentItems,
+      );
+
+      for (int i = 0; i < currentItems.length - 1; i++) {
+        final swappedList =
+            List<(String, Location, DateTime, DateTime)>.from(currentItems);
+        final temp = swappedList[i];
+        swappedList[i] = swappedList[i + 1];
+        swappedList[i + 1] = temp;
+
+        final newTime = await getOverallRouteTime(
+          startLocation,
+          endLocation,
+          swappedList,
+        );
+
+        if (newTime < originalTime) {
+          currentItems = await recalculateStopTimes(
+            startLocation,
+            startTime,
+            swappedList,
+          );
+          swapped = true;
+          break;
+        }
+      }
+    } while (swapped);
+
+    return currentItems;
   }
 }
