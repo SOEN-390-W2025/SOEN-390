@@ -36,50 +36,8 @@ class AccessibilityPage extends StatelessWidget {
         'description': 'isual Accessibility options',
         'subOptions': [
           'Color adjustment',
-          'Text-to-speech',
         ],
-      },
-      {
-        'title': 'Hearing Accessibility',
-        'description': 'H earing Accessibility options',
-        'subOptions': [
-          'Subtitles and captions',
-          'Visual alerts',
-          'Hearing aid compatibility',
-          'Mono audio',
-        ],
-      },
-      {
-        'title': 'Physical and Motor Accessibility',
-        'description': 'Physical and Motor Accessibility options',
-        'subOptions': [
-          'Keyboard shortcuts',
-          'Voice commands',
-          'Customizable gestures',
-          'Assistive touch',
-          'Dwell timing',
-        ],
-      },
-      {
-        'title': 'Cognitive Accessibility',
-        'description': 'Cognitive Accessibility options',
-        'subOptions': [
-          'Simplified interface',
-          'Reading assistance',
-          'Context summaries',
-          'Time extension',
-        ],
-      },
-      {
-        'title': 'General Accessibility',
-        'description': 'General accessibility options',
-        'subOptions': [
-          'Customizable controls',
-          'On-Screen keyboard',
-          'Real-time translation',
-          'Feedback',
-        ],
-      },
+      }
     ];
 
     return accessibilityOptions.map((option) {

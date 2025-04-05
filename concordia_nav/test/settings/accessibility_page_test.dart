@@ -85,35 +85,5 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Text-to-speech'));
-    await tester.pumpAndSettle();
-
-    // Press the Visual accessibility button
-    expect(find.text('Hearing Accessibility'), findsOneWidget);
-    await tester.tap(find.text('Hearing Accessibility'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Hearing Accessibility'));
-    await tester.pumpAndSettle();
-
-    // Press the Visual accessibility button
-    expect(find.text('Physical and Motor Accessibility'), findsOneWidget);
-    await tester.tap(find.text('Physical and Motor Accessibility'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Physical and Motor Accessibility'));
-    await tester.pumpAndSettle();
-
-    // Press the Visual accessibility button
-    expect(find.text('Cognitive Accessibility'), findsOneWidget);
-    await tester.tap(find.text('Cognitive Accessibility'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Cognitive Accessibility'));
-    await tester.pumpAndSettle();
-
-    // Press the Visual accessibility button
-    expect(find.text('General Accessibility'), findsOneWidget);
-    await tester.tap(find.text('General Accessibility'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('General Accessibility'));
-    await tester.pumpAndSettle();
   });
 }
