@@ -740,7 +740,6 @@ void main() {
   //   });
   // });
 
-  // TODO refactor this testing for indoor routing
   // group('indoor route logic', () {
   //   const testBuilding = const ConcordiaBuilding(
   //       45.495397929966266,

@@ -31,10 +31,10 @@ void main() {
     when(mockDirectionsViewModel.getSvgDimensions(any))
         .thenAnswer((_) async => const Size(1024, 1024));
     poiMapViewModel = POIMapViewModel(
-      poiName: "Washroom", 
-      buildingViewModel: BuildingViewModel(), 
-      indoorDirectionsViewModel: mockDirectionsViewModel, 
-      indoorMapViewModel: IndoorMapViewModel(vsync: const TestVSync()));
+        poiName: "Washroom",
+        buildingViewModel: BuildingViewModel(),
+        indoorDirectionsViewModel: mockDirectionsViewModel,
+        indoorMapViewModel: IndoorMapViewModel(vsync: const TestVSync()));
   });
 
   group('POIMapViewModel Tests', () {
@@ -88,7 +88,8 @@ void main() {
     });
 
     test('loadPOIData with initialBuilding', () async {
-      await poiMapViewModel.loadPOIData(initialBuilding: "Hall Building", initialFloor: "1");
+      await poiMapViewModel.loadPOIData(
+          initialBuilding: "Hall Building", initialFloor: "1");
 
       expect(poiMapViewModel.nearestBuilding, BuildingRepository.h);
       expect(poiMapViewModel.matchingPOIs, isNotEmpty);
@@ -98,21 +99,26 @@ void main() {
     });
 
     test('loadPOIData creates error if invalid building', () async {
-      await poiMapViewModel.loadPOIData(initialBuilding: "Test Building", initialFloor: "1");
+      await poiMapViewModel.loadPOIData(
+          initialBuilding: "Test Building", initialFloor: "1");
 
       expect(poiMapViewModel.errorMessage, "Building Test Building not found.");
       expect(poiMapViewModel.nearestBuilding, null);
     });
 
-    test('loadPOIData without initial building without location permissions', () async{
+    test('loadPOIData without initial building without location permissions',
+        () async {
       await poiMapViewModel.loadPOIData();
 
-      expect(poiMapViewModel.errorMessage, "Could not determine your location. Please check location permissions.");
+      expect(poiMapViewModel.errorMessage,
+          "Could not determine your location. Please check location permissions.");
     });
 
     test('findNearestBuildingWithPOI', () async {
-      await poiMapViewModel.loadPOIData(initialBuilding: "Hall Building", initialFloor: "1");
-      await poiMapViewModel.findNearestBuildingWithPOI(45.49648751167641, -73.57862647170876, "");
+      await poiMapViewModel.loadPOIData(
+          initialBuilding: "Hall Building", initialFloor: "1");
+      await poiMapViewModel.findNearestBuildingWithPOI(
+          45.49648751167641, -73.57862647170876, "");
 
       expect(poiMapViewModel.nearestBuilding, BuildingRepository.h);
     });
@@ -130,7 +136,8 @@ void main() {
       when(mockDirectionsViewModel.getRegularStartPoint(buildingData, "1"))
           .thenReturn(point);
 
-      await poiMapViewModel.loadPOIData(initialBuilding: "Hall Building", initialFloor: "1");
+      await poiMapViewModel.loadPOIData(
+          initialBuilding: "Hall Building", initialFloor: "1");
       final originalPOIs = poiMapViewModel.poisOnCurrentFloor;
       expect(originalPOIs, isEmpty);
 
@@ -139,7 +146,8 @@ void main() {
     });
 
     test('retry calls loadPOIData and updates poisOnCurrentFloor', () async {
-      await poiMapViewModel.retry(initialBuilding: "Hall Building", initialFloor: "1");
+      await poiMapViewModel.retry(
+          initialBuilding: "Hall Building", initialFloor: "1");
 
       expect(poiMapViewModel.nearestBuilding, BuildingRepository.h);
       expect(poiMapViewModel.matchingPOIs, isNotEmpty);
@@ -148,14 +156,21 @@ void main() {
     });
 
     test('panToPOI pans POI', () {
-      final poi = POI(id: "1", name: "washroom", buildingId:"H", floor: "1", 
-          category: POICategory.washroom, x: 492, y: 678);
+      final poi = POI(
+          id: "1",
+          name: "washroom",
+          buildingId: "H",
+          floor: "1",
+          category: POICategory.washroom,
+          x: 492,
+          y: 678);
       poiMapViewModel.panToPOI(poi, const Size(50, 50));
     });
 
     test('panToFirstPOI pans to first POI', () async {
-      await poiMapViewModel.loadPOIData(initialBuilding: "Hall Building", initialFloor: "1");
-      
+      await poiMapViewModel.loadPOIData(
+          initialBuilding: "Hall Building", initialFloor: "1");
+
       poiMapViewModel.panToFirstPOI(const Size(50, 50));
     });
   });

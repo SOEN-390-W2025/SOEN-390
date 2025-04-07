@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../common_app_bart.dart';
+
+import '../../../widgets/custom_appbar.dart';
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
@@ -22,15 +23,28 @@ class ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme colors
+    final primaryColor = Theme.of(context).primaryColor;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
+    final dividerColor = Theme.of(context).dividerColor;
+
+    // Use a consistent emergency color that won't blend with the background
+    const emergencyColor = Colors.red;
+
     return Scaffold(
-      appBar: const CommonAppBar(title: "Contact"),
+      backgroundColor: backgroundColor,
+      appBar: customAppBar(context, "Contact"),
       body: Semantics(
         label: 'Displays useful contact information.',
         child: ListView(
           padding: const EdgeInsets.all(18.0),
           children: [
-            const Padding(
-              padding: EdgeInsets.all(24),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -39,34 +53,51 @@ class ContactPageState extends State<ContactPage> {
                       Icon(
                         Icons.phone,
                         size: 20,
-                        color: Colors.black,
+                        color: primaryColor,
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text("Central Phone Line",
-                          style: TextStyle(fontSize: 16)),
+                          style: TextStyle(fontSize: 16, color: textColor)),
                     ],
                   ),
-                  SizedBox(height: 4),
-                  Text("514-848-2424", style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
+                  Text("514-848-2424",
+                      style: TextStyle(fontSize: 16, color: textColor)),
+                  const SizedBox(height: 4),
                   Text(
                     "Monday to Friday, 9 a.m. - 5 p.m.",
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                    style: TextStyle(
+                        fontSize: 14, color: secondaryTextColor.withAlpha(120)),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    "🚨 Emergency (24/7)",
-                    style: TextStyle(fontSize: 16, color: Colors.red),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "514-848-3717",
-                    style: TextStyle(fontSize: 16, color: Colors.red),
+                  const SizedBox(height: 4),
+                  // Emergency info with background for visibility
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: emergencyColor.withAlpha(50),
+                      border: Border.all(color: emergencyColor),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "🚨 Emergency (24/7)",
+                          style: TextStyle(fontSize: 16, color: emergencyColor),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "514-848-3717",
+                          style: TextStyle(fontSize: 16, color: emergencyColor),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Divider(color: Colors.grey[400]),
+            Divider(color: dividerColor),
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -77,24 +108,25 @@ class ContactPageState extends State<ContactPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+                      color: primaryColor,
                     ),
                   ),
                   const SizedBox(height: 4),
                   GestureDetector(
                     onTap: _launchURL,
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(
                           Icons.local_activity,
                           size: 20,
-                          color: Colors.black,
+                          color: primaryColor,
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text(
                           "Open a ticket",
                           style: TextStyle(
                             fontSize: 16,
+                            color: primaryColor,
                             decoration: TextDecoration.underline,
                           ),
                         )
@@ -102,34 +134,35 @@ class ContactPageState extends State<ContactPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Row(
+                  Row(
                     children: [
                       Icon(
                         Icons.phone,
                         size: 20,
-                        color: Colors.black,
+                        color: primaryColor,
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text("514-848-2424, ext. 7613",
-                          style: TextStyle(fontSize: 16)),
+                          style: TextStyle(fontSize: 16, color: textColor)),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Row(
+                  Row(
                     children: [
                       Icon(
                         Icons.mail,
                         size: 20,
-                        color: Colors.black,
+                        color: primaryColor,
                       ),
-                      SizedBox(width: 6),
-                      Text("help@concordia.ca", style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 6),
+                      Text("help@concordia.ca",
+                          style: TextStyle(fontSize: 16, color: textColor)),
                     ],
                   ),
                 ],
               ),
             ),
-            Divider(color: Colors.grey[400]),
+            Divider(color: dividerColor),
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -140,39 +173,51 @@ class ContactPageState extends State<ContactPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+                      color: primaryColor,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.location_on, size: 20),
+                      Icon(Icons.location_on, size: 20, color: primaryColor),
+                      const SizedBox(width: 6),
                       Text(
                         "Sir George Williams Campus",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text("1455 De Maisonneuve Blvd. W."),
+                  Text("1455 De Maisonneuve Blvd. W.",
+                      style: TextStyle(color: textColor)),
                   const SizedBox(height: 4),
-                  const Text("Montreal, QC H3G 1M8, CANADA"),
+                  Text("Montreal, QC H3G 1M8, CANADA",
+                      style: TextStyle(color: textColor)),
                   const SizedBox(height: 12),
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.location_on, size: 20),
+                      Icon(Icons.location_on, size: 20, color: primaryColor),
+                      const SizedBox(width: 6),
                       Text(
                         "Loyola Campus",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text("7141 Sherbrooke Street W."),
+                  Text("7141 Sherbrooke Street W.",
+                      style: TextStyle(color: textColor)),
                   const SizedBox(height: 4),
-                  const Text("Montreal, QC H4B 1R6, CANADA"),
+                  Text("Montreal, QC H4B 1R6, CANADA",
+                      style: TextStyle(color: textColor)),
                 ],
               ),
             ),

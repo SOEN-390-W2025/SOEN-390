@@ -213,6 +213,9 @@ void main() async {
 
     // Verify that the mock map view was used
     expect(find.byType(OutdoorLocationMapView), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.navigation_outlined));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('Indoor Map button opens IndoorLocationView',

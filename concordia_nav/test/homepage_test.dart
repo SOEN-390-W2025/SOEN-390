@@ -384,15 +384,13 @@ void main() async {
     });
 
     // Build the HomePage widget
-    await tester.pumpWidget(
-      ChangeNotifierProvider<PreferencesModel>(
-        create: (BuildContext context) => mockPreferencesModel,
-        child: MaterialApp(
-                initialRoute: '/',
-                routes: routes,
-              ),
-      )
-    );
+    await tester.pumpWidget(ChangeNotifierProvider<PreferencesModel>(
+      create: (BuildContext context) => mockPreferencesModel,
+      child: MaterialApp(
+        initialRoute: '/',
+        routes: routes,
+      ),
+    ));
 
     // Tap on the Outdoor Directions FeatureCard
     await tester.tap(find.text("Outdoor directions"));
@@ -407,13 +405,13 @@ void main() async {
       (WidgetTester tester) async {
     // define routes needed for this test
     final routes = {
-      '/': (context) => const HomePage(),
+      '/HomePage': (context) => const HomePage(),
       '/SmartPlannerView': (context) => const SmartPlannerView(),
     };
 
     // Build the HomePage widget
     await tester.pumpWidget(MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/HomePage',
       routes: routes,
     ));
     await tester.pump();

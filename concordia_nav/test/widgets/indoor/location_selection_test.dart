@@ -156,6 +156,23 @@ void main() {
     expect(find.text('Select Building'), findsOneWidget);
   });
 
+  testWidgets('Selecting Outdoor Location updates dropdowns correctly',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: LocationSelection(
+          isSource: true,
+          onSelectionComplete: (location) {},
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Outdoor Location'));
+    await tester.pumpAndSettle();
+
+    
+  });
+
   testWidgets('Selecting Building updates dropdowns correctly',
       (WidgetTester tester) async {
     await tester.pumpWidget(

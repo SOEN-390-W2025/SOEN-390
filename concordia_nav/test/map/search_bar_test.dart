@@ -112,6 +112,55 @@ void main() async {
     expect(mockController.text, 'Hall Building');
   });
 
+  testWidgets('Should handle selection with Your Location as building',
+      (WidgetTester tester) async {
+    // Set up the test app with the button and routes
+    await tester.pumpWidget(
+      MaterialApp(
+        initialRoute: '/',
+        routes: {
+          '/': (context) => Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () async {
+                      // Trigger handleSelection when the button is pressed
+                      await SearchBarWidget(
+                        controller: mockController,
+                        hintText: 'Search...',
+                        icon: Icons.search,
+                        iconColor: Colors.black,
+                        searchList: mockSearchList,
+                        mapViewModel: mockMapViewModel,
+                        drawer: true,
+                      ).handleSelection(context);
+                    },
+                    child: const Text('Test'),
+                  );
+                },
+              ),
+          '/SearchView': (context) {
+            return Builder(
+              builder: (context) {
+                Future.delayed(Duration.zero, () {
+                  // Simulate a selection in SearchView
+                  Navigator.pop(context, ['Your Location', 'Vanier Library']);
+                });
+                return SearchView(mapViewModel: mockMapViewModel);
+              },
+            );
+          },
+        },
+      ),
+    );
+
+    // Simulate pressing the button to trigger handleSelection
+    await tester.tap(find.text('Test'));
+    await tester.pumpAndSettle();
+
+    // Verify the text field was updated with the selected building
+    expect(mockController.text, 'Your Location');
+  });
+
   testWidgets('Should select a building in drawer mode',
       (WidgetTester tester) async {
     when(mockMapViewModel.selectBuilding(any)).thenReturn(null);

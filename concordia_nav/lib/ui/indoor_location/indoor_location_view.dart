@@ -42,10 +42,10 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   bool _floorPlanExists = true;
   bool _isLoading = true;
   bool _hasPannedToRoom = false;
-  
+
   // POI-related state variables
   List<POI> _poisOnCurrentFloor = [];
-  
+
   @override
   void initState() {
     super.initState();
@@ -53,14 +53,13 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     _directionsViewModel = IndoorDirectionsViewModel();
     _buildingViewModel = BuildingViewModel();
     _indoorMapViewModel = IndoorMapViewModel(vsync: this);
-    
+
     // Initialize POIMapViewModel as a service
     _poiMapViewModel = POIMapViewModel.asService(
-      buildingViewModel: _buildingViewModel,
-      indoorDirectionsViewModel: _directionsViewModel,
-      indoorMapViewModel: _indoorMapViewModel
-    );
-    
+        buildingViewModel: _buildingViewModel,
+        indoorDirectionsViewModel: _directionsViewModel,
+        indoorMapViewModel: _indoorMapViewModel);
+
     floorPlanPath =
         'assets/maps/indoor/floorplans/${widget.building.abbreviation}${widget.floor}.svg';
     _checkIfFloorPlanExists();
@@ -73,7 +72,7 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
       offsetX: -50.0,
       offsetY: -50.0,
     );
-    
+
     // Load POIs for current floor from the POIMapViewModel
     _loadPOIsForCurrentFloor();
   }
@@ -82,10 +81,8 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
     try {
       // Get POIs from the POIMapViewModel
       _poisOnCurrentFloor = await _poiMapViewModel.getPOIsForBuildingAndFloor(
-        widget.building.abbreviation, 
-        widget.floor ?? '1'
-      );
-      
+          widget.building.abbreviation, widget.floor ?? '1');
+
       if (mounted) {
         setState(() {});
       }
@@ -117,7 +114,10 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
 
   // Method to pan to the selected room
   Future<void> _panToSelectedRoom(BuildContext context) async {
-    if (widget.room != null && !_hasPannedToRoom && _floorPlanExists && !_isLoading) {
+    if (widget.room != null &&
+        !_hasPannedToRoom &&
+        _floorPlanExists &&
+        !_isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         try {
           // Get room position from the directionsViewModel
@@ -126,22 +126,23 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
             widget.floor ?? '1',
             widget.room!,
           );
-          
+
           if (roomPoint != null && context.mounted) {
             // Create an Offset from the room position
-            final roomPosition = Offset(roomPoint.positionX, roomPoint.positionY);
-            
+            final roomPosition =
+                Offset(roomPoint.positionX, roomPoint.positionY);
+
             // Calculate screen size for centering
             final screenSize = MediaQuery.of(context).size;
-            
+
             // Use centerOnPoint from IndoorMapViewModel to pan to the room
             _indoorMapViewModel.centerOnPoint(roomPosition, screenSize);
-            
+
             // Mark as panned to avoid repeating
             setState(() {
               _hasPannedToRoom = true;
             });
-            
+
             dev.log('Panned to room: ${widget.room} at position $roomPosition');
           } else {
             dev.log('Could not find position for room: ${widget.room}');
@@ -155,11 +156,9 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
 
   void _handlePoiTap(POI poi) {
     showModalBottomSheet(
-      context: context,
-      builder: (context) => POIBottomSheet(
-        buildingName: widget.building.name, 
-        poi: poi)
-    );
+        context: context,
+        builder: (context) =>
+            POIBottomSheet(buildingName: widget.building.name, poi: poi));
   }
 
   @override
@@ -173,9 +172,12 @@ class _IndoorLocationViewState extends State<IndoorLocationView>
   @override
   Widget build(BuildContext context) {
     dev.log(_floorPlanExists.toString());
-    
+
     // Try to pan to the selected room when the floor plan is loaded
-    if (!_isLoading && _floorPlanExists && widget.room != null && !_hasPannedToRoom) {
+    if (!_isLoading &&
+        _floorPlanExists &&
+        widget.room != null &&
+        !_hasPannedToRoom) {
       _panToSelectedRoom(context);
     }
 

@@ -149,6 +149,13 @@ class MockIndoorMapViewModel extends _i1.Mock
           as _i3.ODSDirectionsService);
 
   @override
+  set odsDirectionsService(_i3.ODSDirectionsService? _odsDirectionsService) =>
+      super.noSuchMethod(
+        Invocation.setter(#odsDirectionsService, _odsDirectionsService),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   String get yourLocationString =>
       (super.noSuchMethod(
             Invocation.getter(#yourLocationString),
@@ -311,11 +318,17 @@ class MockIndoorMapViewModel extends _i1.Mock
     double? scale = 1.0,
     double? offsetX = 0.0,
     double? offsetY = 0.0,
+    _i12.Size? viewportSize,
+    double? contentWidth,
+    double? contentHeight,
   }) => super.noSuchMethod(
     Invocation.method(#setInitialCameraPosition, [], {
       #scale: scale,
       #offsetX: offsetX,
       #offsetY: offsetY,
+      #viewportSize: viewportSize,
+      #contentWidth: contentWidth,
+      #contentHeight: contentHeight,
     }),
     returnValueForMissingStub: null,
   );
@@ -479,10 +492,11 @@ class MockIndoorMapViewModel extends _i1.Mock
   );
 
   @override
-  void moveToLocation(_i5.LatLng? location) => super.noSuchMethod(
-    Invocation.method(#moveToLocation, [location]),
-    returnValueForMissingStub: null,
-  );
+  void moveToLocation(_i5.LatLng? location, {double? zoom = 17.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#moveToLocation, [location], {#zoom: zoom}),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i10.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(

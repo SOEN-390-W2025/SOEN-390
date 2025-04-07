@@ -425,14 +425,14 @@ void main() {
       )).thenAnswer((_) async => http.Response(mockResponse, 200));
 
       const location = LatLng(45.4215, -75.6992); // Example coordinates
-      final places = await placesService.nearbySearch(
-        location: location,
-        includedType: null,
+      const NearbySearchOptions options = NearbySearchOptions(
         radius: 1500,
-        maxResultCount: 10,
         rankBy: RankPreferenceNearbySearch.POPULARITY,
         languageCode: 'en',
+        maxResultCount: 10,
       );
+      final places = await placesService.nearbySearch(
+          location: location, includedType: null, options: options);
 
       expect(places.length, 1);
       expect(places[0].name, 'Place 1');
@@ -443,15 +443,15 @@ void main() {
           .thenAnswer((_) async => http.Response('Error', 400));
 
       const location = LatLng(45.4215, -75.6992); // Example coordinates
+      const NearbySearchOptions options = NearbySearchOptions(
+        radius: 1500,
+        rankBy: RankPreferenceNearbySearch.POPULARITY,
+        languageCode: 'en',
+        maxResultCount: 10,
+      );
       expect(
         () => placesService.nearbySearch(
-          location: location,
-          includedType: null,
-          radius: 1500,
-          maxResultCount: 10,
-          rankBy: RankPreferenceNearbySearch.POPULARITY,
-          languageCode: 'en',
-        ),
+            location: location, includedType: null, options: options),
         throwsException,
       );
     });
@@ -502,17 +502,18 @@ void main() {
       )).thenAnswer((_) async => http.Response(mockResponse, 200));
 
       const location = LatLng(45.4215, -75.6992); // Example coordinates
-      final places = await placesService.textSearch(
-        textQuery: 'test query',
-        location: location,
-        includedType: null,
+      const TextSearchOptions options = TextSearchOptions(
         radius: 1500,
         openNow: true,
         pageSize: 10,
         rankBy: RankPreferenceTextSearch.RELEVANCE,
         languageCode: 'en',
       );
-
+      final places = await placesService.textSearch(
+          textQuery: 'test query',
+          location: location,
+          includedType: null,
+          options: options);
       expect(places.length, 1);
       expect(places[0].name, 'Place 1');
     });
@@ -522,17 +523,19 @@ void main() {
           .thenAnswer((_) async => http.Response('Error', 400));
 
       const location = LatLng(45.4215, -75.6992); // Example coordinates
+      const TextSearchOptions options = TextSearchOptions(
+        radius: 1500,
+        openNow: true,
+        pageSize: 10,
+        rankBy: RankPreferenceTextSearch.RELEVANCE,
+        languageCode: 'en',
+      );
       expect(
         () => placesService.textSearch(
-          textQuery: 'test query',
-          location: location,
-          includedType: null,
-          radius: 1500,
-          openNow: true,
-          pageSize: 10,
-          rankBy: RankPreferenceTextSearch.RELEVANCE,
-          languageCode: 'en',
-        ),
+            textQuery: 'test query',
+            location: location,
+            includedType: null,
+            options: options),
         throwsException,
       );
     });

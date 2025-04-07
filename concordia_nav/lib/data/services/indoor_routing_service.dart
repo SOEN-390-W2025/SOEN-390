@@ -27,7 +27,7 @@ class IndoorRoutingService {
   static CalendarRepository calendarRepository = CalendarRepository();
   static MapService mapService = MapService();
 
-  static List<String?> _getFloorAndRoomNumber(String floorAndRoomPortion){
+  static List<String?> _getFloorAndRoomNumber(String floorAndRoomPortion) {
     String? floorNumber;
     String? roomNumber;
     if (floorAndRoomPortion.contains('.')) {
@@ -56,10 +56,10 @@ class IndoorRoutingService {
       }
     }
     return location;
-  } 
+  }
 
   static ConcordiaRoom? _findConcordiaRoomCandidate(
-      BuildingData buildingData, String floorNumber, String roomNumber){
+      BuildingData buildingData, String floorNumber, String roomNumber) {
     ConcordiaRoom? room;
     for (ConcordiaRoom candidate
         in buildingData.roomsByFloor[floorNumber] ?? []) {
@@ -69,7 +69,7 @@ class IndoorRoutingService {
       }
     }
     return room;
-  } 
+  }
 
   /// Takes a string (as might appear in a calendar event location field) and parse it
   /// into a room number.
@@ -135,14 +135,20 @@ class IndoorRoutingService {
     String? roomNumber = floorRoomNumbers[1];
 
     if (floorNumber != null) {
-      ConcordiaFloor? floorLocation = _findConcordiaFloorCandidate(buildingData, floorNumber);
-      if (floorLocation != null){returnLocation = floorLocation;}
+      ConcordiaFloor? floorLocation =
+          _findConcordiaFloorCandidate(buildingData, floorNumber);
+      if (floorLocation != null) {
+        returnLocation = floorLocation;
+      }
     }
 
     if (roomNumber != null &&
         buildingData.roomsByFloor.containsKey(floorNumber)) {
-      ConcordiaRoom? roomLocation = _findConcordiaRoomCandidate(buildingData, floorNumber!, roomNumber);
-      if (roomLocation != null){returnLocation = roomLocation;}
+      ConcordiaRoom? roomLocation =
+          _findConcordiaRoomCandidate(buildingData, floorNumber!, roomNumber);
+      if (roomLocation != null) {
+        returnLocation = roomLocation;
+      }
     }
 
     return returnLocation;
@@ -273,8 +279,6 @@ class IndoorRoutingService {
   /// in doing the evaluation.
   static Future<Location?> getProximalCalendarEventLocation(
       ConcordiaBuilding? currentBuilding) async {
-    // TODO we need to maintain some state for which calendars the user has selected
-    // in the settings. Right now we are looking at all calendars.
     var eventsToday = await calendarRepository.getEventsOnLocalDate(null, 0);
     var now = DateTime.now();
     return await _iterateEventListWithTolerance(

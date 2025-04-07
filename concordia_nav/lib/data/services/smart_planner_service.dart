@@ -105,9 +105,10 @@ class SmartPlannerService {
     final midpointForCampuses = _startLocation != null
         ? LatLng(_startLocation!.lat, _startLocation!.lng)
         : const LatLng(45.47800, -73.60885);
+    const NearbySearchOptions options = NearbySearchOptions(radius: 15000);
     final nearbyPlaces = await _placesRepository.getNearbyPlaces(
       location: midpointForCampuses,
-      radius: 15000,
+      options: options,
       type: null,
     );
     final idx = nearbyPlaces.indexWhere(

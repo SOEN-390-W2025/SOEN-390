@@ -244,6 +244,13 @@ class MockMapViewModel extends _i1.Mock implements _i11.MapViewModel {
           as _i3.ODSDirectionsService);
 
   @override
+  set odsDirectionsService(_i3.ODSDirectionsService? _odsDirectionsService) =>
+      super.noSuchMethod(
+        Invocation.setter(#odsDirectionsService, _odsDirectionsService),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   String get yourLocationString =>
       (super.noSuchMethod(
             Invocation.getter(#yourLocationString),
@@ -490,10 +497,11 @@ class MockMapViewModel extends _i1.Mock implements _i11.MapViewModel {
   );
 
   @override
-  void moveToLocation(_i2.LatLng? location) => super.noSuchMethod(
-    Invocation.method(#moveToLocation, [location]),
-    returnValueForMissingStub: null,
-  );
+  void moveToLocation(_i2.LatLng? location, {double? zoom = 17.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#moveToLocation, [location], {#zoom: zoom}),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i10.Future<Map<String, dynamic>> getCampusPolygonsAndLabels(

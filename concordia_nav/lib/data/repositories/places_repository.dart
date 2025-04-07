@@ -32,21 +32,14 @@ class PlacesRepository {
   /// Fetches nearby places using the Places API.
   Future<List<Place>> getNearbyPlaces({
     required LatLng location,
-    required double radius,
     required PlaceType? type,
-    int maxResultCount = 10,
-    String? languageCode,
-    String? regionCode,
-    List<String>? fields,
+    NearbySearchOptions options = const NearbySearchOptions(),
   }) async {
     try {
       return await _service.nearbySearch(
         location: location,
-        radius: radius,
         includedType: type,
-        maxResultCount: maxResultCount,
-        languageCode: languageCode,
-        regionCode: regionCode,
+        options: options,
       );
     } catch (e) {
       throw Exception('Failed to fetch nearby places: $e');
@@ -59,16 +52,18 @@ class PlacesRepository {
     required TextSearchParams params,
   }) async {
     try {
-      return await _service.textSearch(
-        textQuery: params.query,
-        location: params.location,
-        includedType: params.type,
+      final TextSearchOptions options = TextSearchOptions(
         radius: params.radius,
         openNow: params.openNow,
         pageSize: params.pageSize,
         languageCode: params.languageCode,
         regionCode: params.regionCode,
       );
+      return await _service.textSearch(
+          textQuery: params.query,
+          location: params.location,
+          includedType: params.type,
+          options: options);
     } catch (e) {
       throw Exception('Failed to fetch text search places: $e');
     }

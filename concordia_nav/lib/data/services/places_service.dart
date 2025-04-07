@@ -7,6 +7,48 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../utils/logger_util.dart';
 import '../domain-model/place.dart';
 
+class NearbySearchOptions {
+  final double radius;
+  final int maxResultCount;
+  final RankPreferenceNearbySearch rankBy;
+  final PlacesRoutingOptions? routingOptions;
+  final String? languageCode;
+  final String? regionCode;
+
+  const NearbySearchOptions({
+    this.radius = 1500,
+    this.maxResultCount = 10,
+    this.rankBy = RankPreferenceNearbySearch.POPULARITY,
+    this.routingOptions,
+    this.languageCode = 'en',
+    this.regionCode,
+  });
+}
+
+class TextSearchOptions {
+  final double radius;
+  final bool? openNow;
+  final int pageSize;
+  final RankPreferenceTextSearch rankBy;
+  final bool includePureServiceAreaBusinesses;
+  final double? minRating;
+  final PlacesRoutingOptions? routingOptions;
+  final String? languageCode;
+  final String? regionCode;
+
+  const TextSearchOptions({
+    this.radius = 1500,
+    this.openNow = true,
+    this.pageSize = 10,
+    this.rankBy = RankPreferenceTextSearch.RELEVANCE,
+    this.includePureServiceAreaBusinesses = false,
+    this.minRating,
+    this.routingOptions,
+    this.languageCode = 'en',
+    this.regionCode,
+  });
+}
+
 /// Service for interacting with the Google Places API.
 class PlacesService {
   // Singleton implementation
@@ -58,12 +100,7 @@ class PlacesService {
   /// Parameters:
   /// - [location]: The geographical point to search around
   /// - [includedType]: Filter results to include only places of this type (required but can be null)
-  /// - [radius]: Search radius in meters (Between 0-50,000)
-  /// - [maxResultCount]: Maximum number of results to return (Between 1-20)
-  /// - [rankBy]: How results should be ordered
-  /// - [routingOptions]: Options for calculating routes to the places . Needs to be providede in order to get routing information (distance, travel time)
-  /// - [languageCode]: Language for result text
-  /// - [regionCode]: Region bias for results
+  /// - [options]: Additional search options (radius, max result count, etc.)
   ///
   /// Returns a List of [Place] objects matching the search criteria.
   ///
@@ -73,30 +110,26 @@ class PlacesService {
   Future<List<Place>> nearbySearch({
     required LatLng location,
     required PlaceType? includedType,
-    double radius = 1500,
-    int maxResultCount = 10,
-    RankPreferenceNearbySearch rankBy = RankPreferenceNearbySearch.POPULARITY,
-    PlacesRoutingOptions? routingOptions,
-    String? languageCode = 'en',
-    String? regionCode,
+    NearbySearchOptions options = const NearbySearchOptions(),
   }) async {
     _validateApiKey();
 
     final request = NearbySearchRequest(
       location: location,
       includedType: includedType,
-      radius: radius,
-      maxResultCount: maxResultCount,
-      rankBy: rankBy,
-      routingOptions: routingOptions,
-      languageCode: languageCode,
-      regionCode: regionCode,
+      radius: options.radius,
+      maxResultCount: options.maxResultCount,
+      rankBy: options.rankBy,
+      routingOptions: options.routingOptions,
+      languageCode: options.languageCode,
+      regionCode: options.regionCode,
     );
 
     return _executeRequest(
       endpoint: ':searchNearby',
       requestBody: request.toJson(),
-      fieldMask: _buildFieldMask(includeRouting: routingOptions != null),
+      fieldMask:
+          _buildFieldMask(includeRouting: options.routingOptions != null),
       queryDescription: 'nearby places',
     );
   }
@@ -107,15 +140,7 @@ class PlacesService {
   /// - [textQuery]: The text search query
   /// - [location]: The geographical point to bias results towards
   /// - [includedType]: Filter results to include only places of this type (required but can be null)
-  /// - [radius]: Search radius in meters for location bias (Between 0-50,000)
-  /// - [openNow]: Whether to return only places that are currently open
-  /// - [pageSize]: Number of results per page (Between 0-20)
-  /// - [rankBy]: How results should be ordered
-  /// - [includePureServiceAreaBusinesses]: Whether to include businesses without physical locations
-  /// - [minRating]: Minimum rating threshold for results (Between 0.0-5.0)
-  /// - [routingOptions]: Options for calculating routes to the places . Needs to be providede in order to get routing information (distance, travel time)
-  /// - [languageCode]: Language for result text (default: 'en')
-  /// - [regionCode]: Region bias for results
+  /// - [options]: Additional search options (radius, open now, etc.)
   ///
   /// Returns a List of [Place] objects matching the search query and filters.
   ///
@@ -126,15 +151,7 @@ class PlacesService {
     required String textQuery,
     required LatLng location,
     required PlaceType? includedType,
-    double radius = 1500,
-    bool? openNow = true,
-    int pageSize = 10,
-    RankPreferenceTextSearch rankBy = RankPreferenceTextSearch.RELEVANCE,
-    bool includePureServiceAreaBusinesses = false,
-    double? minRating,
-    PlacesRoutingOptions? routingOptions,
-    String? languageCode = 'en',
-    String? regionCode,
+    TextSearchOptions options = const TextSearchOptions(),
   }) async {
     _validateApiKey();
 
@@ -142,21 +159,23 @@ class PlacesService {
       textQuery: textQuery,
       location: location,
       includedType: includedType,
-      radius: radius,
-      openNow: openNow,
-      pageSize: pageSize,
-      rankBy: rankBy,
-      includePureServiceAreaBusinesses: includePureServiceAreaBusinesses,
-      minRating: minRating,
-      routingOptions: routingOptions,
-      languageCode: languageCode,
-      regionCode: regionCode,
+      radius: options.radius,
+      openNow: options.openNow,
+      pageSize: options.pageSize,
+      rankBy: options.rankBy,
+      includePureServiceAreaBusinesses:
+          options.includePureServiceAreaBusinesses,
+      minRating: options.minRating,
+      routingOptions: options.routingOptions,
+      languageCode: options.languageCode,
+      regionCode: options.regionCode,
     );
 
     return _executeRequest(
       endpoint: ':searchText',
       requestBody: request.toJson(),
-      fieldMask: _buildFieldMask(includeRouting: routingOptions != null),
+      fieldMask:
+          _buildFieldMask(includeRouting: options.routingOptions != null),
       queryDescription: 'query: "$textQuery"',
     );
   }
